@@ -188,7 +188,7 @@ msgid "Advanced"
 msgstr ""
 
 msgctxt "#30672"
-msgid "Channel reload interval (minutes)"
+msgid "Channel reload interval (hours)"
 msgstr ""
 
 msgctxt "#30673"
@@ -294,4 +294,12 @@ msgstr ""
 
 msgctxt "#30723"
 msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
+msgstr ""
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr ""
+
+msgctxt "#30725"
+msgid "FFmpegDirect settings..."
 msgstr ""

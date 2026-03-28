@@ -34,6 +34,9 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
   m_channelGroups.Clear();
   m_providers.Clear();
   connectionManager = new ConnectionManager(*this, m_settings);
+
+  // Register PVR settings menu hook so "Client specific settings" works
+  AddMenuHook(kodi::addon::PVRMenuhook(1, 30724, PVR_MENUHOOK_SETTING));
 }
 
 IptvSimple::~IptvSimple()
@@ -100,12 +103,18 @@ void IptvSimple::ConnectionEstablished()
   // Fetch/update server name
   FetchAndStoreServerName();
 
-  m_channelLoader = std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(m_jellyfinClient, m_settings);
+  // Reuse existing loader/manager to preserve EPG program ID mappings across reconnects
+  if (!m_channelLoader)
+    m_channelLoader = std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(m_jellyfinClient, m_settings);
+  else
+    m_channelLoader->SetClient(m_jellyfinClient);
   m_channelLoader->LoadChannels(m_channels, m_channelGroups);
 
-  // Create recording manager and load initial data
-  m_recordingManager = std::make_shared<iptvsimple::jellyfin::JellyfinRecordingManager>(
-      m_jellyfinClient, m_channelLoader, m_settings);
+  if (!m_recordingManager)
+    m_recordingManager = std::make_shared<iptvsimple::jellyfin::JellyfinRecordingManager>(
+        m_jellyfinClient, m_channelLoader, m_settings);
+  else
+    m_recordingManager->SetClient(m_jellyfinClient);
   m_recordingManager->Reload();
 
   kodi::Log(ADDON_LOG_INFO, "%s Starting separate client update thread...", __FUNCTION__);
@@ -356,7 +365,7 @@ void IptvSimple::Process()
     refreshTimer += static_cast<unsigned int>(currentRefreshTimeSeconds - lastRefreshTimeSeconds);
     lastRefreshTimeSeconds = currentRefreshTimeSeconds;
 
-    if (refreshTimer >= static_cast<unsigned int>(m_settings->GetJellyfinUpdateIntervalMins() * 60))
+    if (refreshTimer >= static_cast<unsigned int>(m_settings->GetJellyfinUpdateIntervalHours() * 3600))
       m_reloadChannelsGroupsAndEPG = true;
 
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -588,21 +597,42 @@ PVR_ERROR IptvSimple::GetTimers(kodi::addon::PVRTimersResultSet& results)
 PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
 {
   if (m_recordingManager)
-    return m_recordingManager->AddTimer(timer);
+  {
+    PVR_ERROR ret = m_recordingManager->AddTimer(timer);
+    if (ret == PVR_ERROR_NO_ERROR)
+    {
+      TriggerTimerUpdate();
+      TriggerEpgUpdate(timer.GetClientChannelUid());
+    }
+    return ret;
+  }
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
 PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete)
 {
   if (m_recordingManager)
-    return m_recordingManager->DeleteTimer(timer, forceDelete);
+  {
+    PVR_ERROR ret = m_recordingManager->DeleteTimer(timer, forceDelete);
+    if (ret == PVR_ERROR_NO_ERROR)
+    {
+      TriggerTimerUpdate();
+      TriggerEpgUpdate(timer.GetClientChannelUid());
+    }
+    return ret;
+  }
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
 PVR_ERROR IptvSimple::UpdateTimer(const kodi::addon::PVRTimer& timer)
 {
   if (m_recordingManager)
-    return m_recordingManager->UpdateTimer(timer);
+  {
+    PVR_ERROR ret = m_recordingManager->UpdateTimer(timer);
+    if (ret == PVR_ERROR_NO_ERROR)
+      TriggerTimerUpdate();
+    return ret;
+  }
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -638,7 +668,12 @@ PVR_ERROR IptvSimple::GetRecordings(bool deleted, kodi::addon::PVRRecordingsResu
 PVR_ERROR IptvSimple::DeleteRecording(const kodi::addon::PVRRecording& recording)
 {
   if (m_recordingManager)
-    return m_recordingManager->DeleteRecording(recording);
+  {
+    PVR_ERROR ret = m_recordingManager->DeleteRecording(recording);
+    if (ret == PVR_ERROR_NO_ERROR)
+      TriggerRecordingUpdate();
+    return ret;
+  }
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
@@ -658,6 +693,12 @@ PVR_ERROR IptvSimple::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStat
   signalStatus.SetAdapterName("Kofin Jellyfin PVR");
   signalStatus.SetAdapterStatus("OK");
 
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR IptvSimple::CallSettingsMenuHook(const kodi::addon::PVRMenuhook& menuhook)
+{
+  kodi::addon::OpenSettings();
   return PVR_ERROR_NO_ERROR;
 }
 

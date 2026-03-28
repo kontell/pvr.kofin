@@ -21,9 +21,10 @@
     <setting id="sep3" type="sep" />
     <setting id="inputStream" label="30661" type="enum" lvalues="30663|30664|30665" values="0|1|2" default="0" />
     <setting id="timeshiftEnabled" label="30666" type="bool" default="true" visible="eq(-1,0)" />
+    <setting id="openFfmpegDirectSettings" label="30725" type="action" action="Addon.OpenSettings(inputstream.ffmpegdirect)" option="close" visible="eq(-2,0)" />
   </category>
   <category label="30670">
-    <setting id="jellyfinUpdateIntervalMins" label="30672" type="number" default="60" />
+    <setting id="jellyfinUpdateIntervalHours" label="30672" type="number" default="24" />
     <setting id="connectionchecktimeout" label="30674" type="number" default="10" />
     <setting id="connectioncheckinterval" label="30676" type="number" default="5" />
   </category>

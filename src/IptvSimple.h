@@ -70,6 +70,7 @@ public:
   PVR_ERROR SetEPGMaxFutureDays(int epgMaxFutureDays) override;
 
   PVR_ERROR GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus) override;
+  PVR_ERROR CallSettingsMenuHook(const kodi::addon::PVRMenuhook& menuhook) override;
 
   PVR_ERROR GetTimerTypes(std::vector<kodi::addon::PVRTimerType>& types) override;
   PVR_ERROR GetTimersAmount(int& amount) override;

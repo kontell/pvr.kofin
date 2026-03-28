@@ -55,6 +55,8 @@ public:
   PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording,
                                           std::vector<kodi::addon::PVRStreamProperty>& properties);
 
+  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
+
   // Reload cached data from Jellyfin
   void Reload();
 

@@ -104,7 +104,7 @@ namespace iptvsimple
     bool GetTimeshiftEnabled() const { return m_timeshiftEnabled; }
 
     // Advanced
-    int GetJellyfinUpdateIntervalMins() const { return m_jellyfinUpdateIntervalMins; }
+    int GetJellyfinUpdateIntervalHours() const { return m_jellyfinUpdateIntervalHours; }
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
     int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
 
@@ -156,7 +156,7 @@ namespace iptvsimple
     bool m_timeshiftEnabled = true;
 
     // Advanced
-    int m_jellyfinUpdateIntervalMins = 60;
+    int m_jellyfinUpdateIntervalHours = 24;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
     int m_connectioncCheckIntervalSecs = DEFAULT_CONNECTION_CHECK_INTERVAL_SECS;
   };

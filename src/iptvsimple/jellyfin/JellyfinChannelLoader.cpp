@@ -58,7 +58,7 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
 
   // Create "All Channels" group
   ChannelGroup allGroup;
-  allGroup.SetGroupName("All Channels");
+  allGroup.SetGroupName("Jellyfin");
   allGroup.SetRadio(false);
   int groupId = channelGroups.AddChannelGroup(allGroup);
 

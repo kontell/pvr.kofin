@@ -41,7 +41,7 @@ void InstanceSettings::ReadSettings()
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
 
   // Advanced
-  m_jellyfinUpdateIntervalMins = kodi::addon::GetSettingInt("jellyfinUpdateIntervalMins", 60);
+  m_jellyfinUpdateIntervalHours = kodi::addon::GetSettingInt("jellyfinUpdateIntervalHours", 24);
   m_connectioncCheckTimeoutSecs = kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS);
   m_connectioncCheckIntervalSecs = kodi::addon::GetSettingInt("connectioncheckinterval", DEFAULT_CONNECTION_CHECK_INTERVAL_SECS);
 }

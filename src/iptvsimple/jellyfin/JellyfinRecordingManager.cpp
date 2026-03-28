@@ -10,6 +10,7 @@
 #include "../utilities/Logger.h"
 #include "../utilities/WebUtils.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
@@ -508,13 +509,50 @@ PVR_ERROR JellyfinRecordingManager::LoadSeriesTimers()
 
 PVR_ERROR JellyfinRecordingManager::LoadRecordings()
 {
-  const std::string endpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
-    + "&EnableImages=true&Fields=Overview,ChannelInfo";
-  Json::Value response = m_client->SendGet(endpoint);
-
   std::lock_guard<std::mutex> lock(m_mutex);
   m_recordings.clear();
   m_recordingUidToId.clear();
+
+  // Try to find the recordings media library from the user's views.
+  // Old recordings get imported into a regular library and disappear from /LiveTv/Recordings.
+  std::string recordingsEndpoint;
+
+  Json::Value views = m_client->SendGet("/Users/" + m_client->GetUserId() + "/Views");
+  if (!views.isNull() && views.isMember("Items"))
+  {
+    for (const auto& view : views["Items"])
+    {
+      std::string name = view.get("Name", "").asString();
+      // Case-insensitive check for "record" in the view name
+      std::string nameLower = name;
+      std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+      if (nameLower.find("record") != std::string::npos)
+      {
+        const std::string viewId = view["Id"].asString();
+        recordingsEndpoint = "/Users/" + m_client->GetUserId() + "/Items"
+          "?ParentId=" + viewId
+          + "&Recursive=true"
+          + "&IncludeItemTypes=Movie,Episode,Video,Recording"
+          + "&Fields=Overview,ChannelInfo,DateCreated"
+          + "&EnableImages=true&EnableUserData=true"
+          + "&SortBy=DateCreated&SortOrder=Descending"
+          + "&Limit=1000";
+        Logger::Log(LEVEL_INFO, "%s - Found recordings library: %s (id: %s)",
+                    __FUNCTION__, name.c_str(), viewId.c_str());
+        break;
+      }
+    }
+  }
+
+  // Fall back to /LiveTv/Recordings if no recordings library found
+  if (recordingsEndpoint.empty())
+  {
+    Logger::Log(LEVEL_INFO, "%s - No recordings library found, using /LiveTv/Recordings", __FUNCTION__);
+    recordingsEndpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
+      + "&EnableImages=true&Fields=Overview,ChannelInfo";
+  }
+
+  Json::Value response = m_client->SendGet(recordingsEndpoint);
 
   if (response.isNull() || !response.isMember("Items"))
   {
@@ -543,7 +581,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     if (item.isMember("ChannelName"))
       recording.SetChannelName(item["ChannelName"].asString());
 
-    // Channel UID
+    // Channel UID (live TV recordings have ChannelId; library items may not)
     if (item.isMember("ChannelId") && !item["ChannelId"].asString().empty())
     {
       const std::string channelJfId = item["ChannelId"].asString();
@@ -553,15 +591,22 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
       recording.SetChannelUid(channelUid);
     }
 
-    // Timing
+    // Timing: prefer StartDate/EndDate (live TV recordings), fall back to DateCreated/RunTimeTicks (library items)
     if (item.isMember("StartDate"))
       recording.SetRecordingTime(ParseIso8601(item["StartDate"].asString()));
+    else if (item.isMember("DateCreated"))
+      recording.SetRecordingTime(ParseIso8601(item["DateCreated"].asString()));
 
     if (item.isMember("StartDate") && item.isMember("EndDate"))
     {
       time_t start = ParseIso8601(item["StartDate"].asString());
       time_t end = ParseIso8601(item["EndDate"].asString());
       recording.SetDuration(static_cast<int>(end - start));
+    }
+    else if (item.isMember("RunTimeTicks"))
+    {
+      // RunTimeTicks is in 100-nanosecond intervals
+      recording.SetDuration(static_cast<int>(item["RunTimeTicks"].asInt64() / 10000000LL));
     }
 
     // Image
@@ -587,7 +632,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     if (item.isMember("UserData") && item["UserData"].isMember("PlayCount"))
       recording.SetPlayCount(item["UserData"]["PlayCount"].asInt());
 
-    // Directory (group recordings by series name)
+    // Directory (group recordings by series name or parent folder)
     if (item.isMember("SeriesName") && !item["SeriesName"].asString().empty())
       recording.SetDirectory(item["SeriesName"].asString());
 

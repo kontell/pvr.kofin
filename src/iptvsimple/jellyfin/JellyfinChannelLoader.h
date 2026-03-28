@@ -34,6 +34,8 @@ public:
   std::string GetLiveStreamUrl(const std::string& channelId);
   void CloseLiveStream();
 
+  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
+
   const std::string& GetJellyfinId(int channelUid) const;
   const std::string& GetJellyfinProgramId(unsigned int epgBroadcastUid) const;
 
