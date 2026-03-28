@@ -154,30 +154,8 @@ ChannelGroup* ChannelGroups::FindChannelGroup(const std::string& name)
 
 bool ChannelGroups::CheckChannelGroupAllowed(iptvsimple::data::ChannelGroup& newChannelGroup)
 {
-  std::vector<std::string> customNameList;
-
-  if (newChannelGroup.IsRadio())
-  {
-    if (m_settings->GetRadioChannelGroupMode() == ChannelGroupMode::ALL_GROUPS)
-      return true;
-
-    customNameList = m_settings->GetCustomRadioChannelGroupNameList();
-  }
-  else
-  {
-    if (m_settings->GetTVChannelGroupMode() == ChannelGroupMode::ALL_GROUPS)
-      return true;
-
-    customNameList = m_settings->GetCustomTVChannelGroupNameList();
-  }
-
-  for (const std::string& groupName : customNameList)
-  {
-    if (groupName == newChannelGroup.GetGroupName())
-      return true;
-  }
-
-  return false;
+  // Jellyfin provides channel groups directly; allow all groups
+  return true;
 }
 
 void ChannelGroups::RemoveEmptyGroups()

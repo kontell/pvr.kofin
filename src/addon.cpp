@@ -7,17 +7,12 @@
 
 #include "addon.h"
 #include "IptvSimple.h"
-#include "iptvsimple/utilities/SettingsMigration.h"
+#include "iptvsimple/utilities/Logger.h"
 
-using namespace iptvsimple;
-using namespace iptvsimple::data;
 using namespace iptvsimple::utilities;
 
 ADDON_STATUS CIptvSimpleAddon::Create()
 {
-  /* Init settings */
-  m_settings.reset(new AddonSettings());
-
   /* Configure the logger */
   Logger::GetInstance().SetImplementation([this](LogLevel level, const char* message)
   {
@@ -54,7 +49,14 @@ ADDON_STATUS CIptvSimpleAddon::Create()
 
 ADDON_STATUS CIptvSimpleAddon::SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue)
 {
-  return m_settings->SetSetting(settingName, settingValue);
+  // Forward setting changes to the PVR instance
+  for (auto& pair : m_usedInstances)
+  {
+    if (pair.second)
+      pair.second->OnSettingChanged(settingName, settingValue);
+  }
+
+  return ADDON_STATUS_OK;
 }
 
 ADDON_STATUS CIptvSimpleAddon::CreateInstance(const kodi::addon::IInstanceInfo& instance, KODI_ADDON_INSTANCE_HDL& hdl)
@@ -68,18 +70,8 @@ ADDON_STATUS CIptvSimpleAddon::CreateInstance(const kodi::addon::IInstanceInfo& 
       return ADDON_STATUS_PERMANENT_FAILURE;
     }
 
-    // Try to migrate settings from a pre-multi-instance setup
-    if (SettingsMigration::MigrateSettings(*usedInstance))
-    {
-      // Initial client operated on old/incomplete settings
-      delete usedInstance;
-      usedInstance = new IptvSimple(instance);
-    }
     hdl = usedInstance;
 
-    // Store this instance also on this class, currently support Kodi only one
-    // instance, for that it becomes stored here to interact e.g. about
-    // settings. In future becomes another way added.
     m_usedInstances.emplace(std::make_pair(instance.GetID(), usedInstance));
     return ADDON_STATUS_OK;
   }

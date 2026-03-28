@@ -8,6 +8,7 @@
 #include "FileUtils.h"
 
 #include "../InstanceSettings.h"
+#include "Logger.h"
 
 #include <lzma.h>
 #include <zlib.h>

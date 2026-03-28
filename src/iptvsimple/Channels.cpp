@@ -34,7 +34,7 @@ void Channels::Clear()
 {
   m_channels.clear();
   m_channelsLoadFailed = false;
-  m_currentChannelNumber = m_settings->GetStartChannelNumber();
+  m_currentChannelNumber = 1;
 }
 
 int Channels::GetChannelsAmount() const

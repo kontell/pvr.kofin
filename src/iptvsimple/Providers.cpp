@@ -32,11 +32,12 @@ bool Providers::Init()
 
   FileUtils::CopyDirectory(FileUtils::GetResourceDataPath() + PROVIDER_DIR, PROVIDER_ADDON_DATA_BASE_DIR, true);
 
-  std::string providerMappingsFile = m_settings->GetProviderNameMapFile();
+  // Provider name mapping file setting removed; use default path
+  std::string providerMappingsFile = FileUtils::GetResourceDataPath() + "/providers/providerMappings.xml";
   if (LoadProviderMappingFile(providerMappingsFile))
     Logger::Log(LEVEL_INFO, "%s - Loaded '%d' providers mappings", __func__, m_providerMappingsMap.size());
   else
-    Logger::Log(LEVEL_ERROR, "%s - could not load provider mappings XML file: %s", __func__, providerMappingsFile.c_str());
+    Logger::Log(LEVEL_DEBUG, "%s - No provider mappings XML file found: %s", __func__, providerMappingsFile.c_str());
 
   return true;
 }

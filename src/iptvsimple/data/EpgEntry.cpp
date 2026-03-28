@@ -40,17 +40,8 @@ void EpgEntry::UpdateTo(kodi::addon::PVREPGTag& left, int iChannelUid, int timeS
   if (SetEpgGenre(genreMappings))
   {
     left.SetGenreType(m_genreType);
-    if (m_settings->UseEpgGenreTextWhenMapping())
-    {
-      //Setting this value in sub type allows custom text to be displayed
-      //while still sending the type used for EPG colour
-      left.SetGenreSubType(EPG_GENRE_USE_STRING);
-      left.SetGenreDescription(m_genreString);
-    }
-    else
-    {
-      left.SetGenreSubType(m_genreSubType);
-    }
+    // Always use genre sub type from mapping (genre text setting removed)
+    left.SetGenreSubType(m_genreSubType);
   }
   else
   {

@@ -63,8 +63,7 @@ void StreamUtils::SetAllStreamProperties(std::vector<kodi::addon::PVRStreamPrope
       InspectAndSetFFmpegDirectStreamProperties(properties, channel.GetMimeType(), channel.GetProperty("inputstream.ffmpegdirect.manifest_type"), channel.GetCatchupMode(), channel.IsCatchupTSStream(), streamURL, settings);
 
       if (channel.SupportsLiveStreamTimeshifting() && isChannelURL &&
-          channel.GetProperty("inputstream.ffmpegdirect.stream_mode").empty() &&
-          settings->AlwaysEnableTimeshiftModeIfMissing())
+          channel.GetProperty("inputstream.ffmpegdirect.stream_mode").empty())
       {
         properties.emplace_back("inputstream.ffmpegdirect.stream_mode", "timeshift");
         if (channel.GetProperty("inputstream.ffmpegdirect.is_realtime_stream").empty())
@@ -93,19 +92,21 @@ void StreamUtils::SetAllStreamProperties(std::vector<kodi::addon::PVRStreamPrope
             CheckInputstreamInstalledAndEnabled(CATCHUP_INPUTSTREAM_NAME))
         {
           properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, CATCHUP_INPUTSTREAM_NAME);
-          // this property is required to force VideoPlayer for Radio channels
           properties.emplace_back("inputstream-player", "videodefaultplayer");
           SetFFmpegDirectManifestTypeStreamProperty(properties, channel.GetProperty("inputstream.ffmpegdirect.manifest_type"), streamURL, streamType);
         }
-        else if (channel.SupportsLiveStreamTimeshifting() && isChannelURL &&
+        else if (settings->GetInputStream() == 0 && isChannelURL &&
                  CheckInputstreamInstalledAndEnabled(INPUTSTREAM_FFMPEGDIRECT))
         {
+          // FFmpegDirect selected in settings
           properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, INPUTSTREAM_FFMPEGDIRECT);
-          // this property is required to force VideoPlayer for Radio channels
           properties.emplace_back("inputstream-player", "videodefaultplayer");
           SetFFmpegDirectManifestTypeStreamProperty(properties, channel.GetProperty("inputstream.ffmpegdirect.manifest_type"), streamURL, streamType);
-          properties.emplace_back("inputstream.ffmpegdirect.stream_mode", "timeshift");
-          properties.emplace_back("inputstream.ffmpegdirect.is_realtime_stream", "true");
+          if (settings->GetTimeshiftEnabled())
+          {
+            properties.emplace_back("inputstream.ffmpegdirect.stream_mode", "timeshift");
+            properties.emplace_back("inputstream.ffmpegdirect.is_realtime_stream", "true");
+          }
         }
         else if (streamType == StreamType::HLS || streamType == StreamType::TS)
         {
@@ -336,7 +337,7 @@ std::string StreamUtils::GetURLWithFFmpegReconnectOptions(const std::string& str
   std::string newStreamUrl = streamUrl;
 
   if (WebUtils::IsHttpUrl(streamUrl) && SupportsFFmpegReconnect(streamType, inputstreamName) &&
-      (hasHTTPReconnect|| settings->UseFFmpegReconnect()))
+      (hasHTTPReconnect || settings->GetInputStream() == 0))
   {
     newStreamUrl = AddHeaderToStreamUrl(newStreamUrl, "reconnect", "1");
     if (streamType != StreamType::HLS)
@@ -384,8 +385,11 @@ std::string StreamUtils::AddHeader(const std::string& headerTarget, const std::s
 
 bool StreamUtils::UseKodiInputstreams(const StreamType& streamType, std::shared_ptr<iptvsimple::InstanceSettings>& settings)
 {
+  // Input stream 2 = Kodi internal (always use Kodi's built-in inputstreams)
+  if (settings->GetInputStream() == 2)
+    return true;
   return streamType == StreamType::OTHER_TYPE || streamType == StreamType::TS || streamType == StreamType::PLUGIN ||
-        (streamType == StreamType::HLS && !settings->UseInputstreamAdaptiveforHls());
+        (streamType == StreamType::HLS && settings->GetInputStream() != 1);
 }
 
 bool StreamUtils::ChannelSpecifiesInputstream(const iptvsimple::data::Channel& channel)

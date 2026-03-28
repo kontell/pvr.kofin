@@ -13,6 +13,9 @@
 #include "iptvsimple/Providers.h"
 #include "iptvsimple/IConnectionListener.h"
 #include "iptvsimple/data/Channel.h"
+#include "iptvsimple/jellyfin/JellyfinClient.h"
+#include "iptvsimple/jellyfin/JellyfinChannelLoader.h"
+#include "iptvsimple/jellyfin/JellyfinRecordingManager.h"
 
 #include <atomic>
 #include <mutex>
@@ -32,10 +35,6 @@ public:
 
   bool Initialise();
 
-  // kodi::addon::CInstancePVRClient -> kodi::addon::IAddonInstance overrides
-  ADDON_STATUS SetInstanceSetting(const std::string& settingName,
-                                  const kodi::addon::CSettingValue& settingValue) override;
-
   // kodi::addon::CInstancePVRClient functions
   //@{
   PVR_ERROR GetCapabilities(kodi::addon::PVRCapabilities& capabilities) override;
@@ -53,7 +52,14 @@ public:
 
   PVR_ERROR GetChannelsAmount(int& amount) override;
   PVR_ERROR GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results) override;
+  // Kodi v22 (PVR API 9.x) added PVR_SOURCE parameter
+#ifdef KODI_PVR_API_V9
   PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, PVR_SOURCE source, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
+#else
+  PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
+#endif
+  bool OpenLiveStream(const kodi::addon::PVRChannel& channel) override;
+  void CloseLiveStream() override;
 
   PVR_ERROR GetChannelGroupsAmount(int& amount) override;
   PVR_ERROR GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results) override;
@@ -65,10 +71,16 @@ public:
 
   PVR_ERROR GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus) override;
 
-  PVR_ERROR StreamClosed() override;
+  PVR_ERROR GetTimerTypes(std::vector<kodi::addon::PVRTimerType>& types) override;
+  PVR_ERROR GetTimersAmount(int& amount) override;
+  PVR_ERROR GetTimers(kodi::addon::PVRTimersResultSet& results) override;
+  PVR_ERROR AddTimer(const kodi::addon::PVRTimer& timer) override;
+  PVR_ERROR DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete) override;
+  PVR_ERROR UpdateTimer(const kodi::addon::PVRTimer& timer) override;
 
   PVR_ERROR GetRecordingsAmount(bool deleted, int& amount) override;
   PVR_ERROR GetRecordings(bool deleted, kodi::addon::PVRRecordingsResultSet& results) override;
+  PVR_ERROR DeleteRecording(const kodi::addon::PVRRecording& recording) override;
   PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
   //@}
@@ -77,10 +89,17 @@ public:
   //@{
   bool GetChannel(const kodi::addon::PVRChannel& channel, iptvsimple::data::Channel& myChannel);
   bool GetChannel(unsigned int uniqueChannelId, iptvsimple::data::Channel& myChannel);
+  void OnSettingChanged(const std::string& settingName, const kodi::addon::CSettingValue& settingValue);
   //@}
 
 protected:
   void Process();
+  void TestConnection();
+  void RunLogin();
+  bool LoginWithPassword();
+  bool LoginWithQuickConnect();
+  void RunLogout();
+  void FetchAndStoreServerName();
 
 private:
   static const int PROCESS_LOOP_WAIT_SECS = 2;
@@ -92,6 +111,9 @@ private:
   iptvsimple::Channels m_channels{m_settings};
   iptvsimple::ChannelGroups m_channelGroups{m_channels, m_settings};
   iptvsimple::ConnectionManager* connectionManager;
+  std::shared_ptr<iptvsimple::jellyfin::JellyfinClient> m_jellyfinClient;
+  std::shared_ptr<iptvsimple::jellyfin::JellyfinChannelLoader> m_channelLoader;
+  std::shared_ptr<iptvsimple::jellyfin::JellyfinRecordingManager> m_recordingManager;
 
   std::atomic<bool> m_running{false};
   std::thread m_thread;

@@ -130,25 +130,14 @@ void Channel::SetIconPathFromTvgLogo(const std::string& tvgLogo, std::string& ch
 {
   m_iconPath = tvgLogo;
 
-  bool logoSetFromChannelName = false;
   if (m_iconPath.empty())
-  {
     m_iconPath = m_channelName;
-    logoSetFromChannelName = true;
-  }
 
   kodi::UnknownToUTF8(m_iconPath, m_iconPath);
 
-  // urlencode channel logo when set from channel name and source is Remote Path, append extension as channel wouldn't cover this
-  if (logoSetFromChannelName && m_settings->GetLogoPathType() == PathType::REMOTE_PATH)
+  // For Jellyfin, logos are URLs provided by the server; just ensure valid URL encoding
+  if (m_iconPath.find("://") != std::string::npos && !IsSpecialOrResourceProtocol(m_iconPath))
   {
-    m_iconPath = utilities::WebUtils::UrlEncode(m_iconPath);
-  }
-  else if (m_iconPath.find("://") != std::string::npos && !IsSpecialOrResourceProtocol(m_iconPath))
-  {
-    // we also want to check the last part of a URL to ensure it's valid as quite often they are based on channel names
-    // the path should be fine
-
     size_t pos = m_iconPath.find_last_of("/");
     if (pos != std::string::npos)
     {
@@ -166,23 +155,8 @@ void Channel::SetIconPathFromTvgLogo(const std::string& tvgLogo, std::string& ch
       if (!utilities::WebUtils::IsEncoded(urlFile))
       {
         urlFile = utilities::WebUtils::UrlEncode(urlFile);
-
         m_iconPath = urlPath + urlFile + urlArguments;
       }
-    }
-  }
-
-  if (m_iconPath.find("://") == std::string::npos)
-  {
-    const std::string& logoLocation = m_settings->GetLogoLocation();
-    // If the file does not exist it must be relative
-    if (!logoLocation.empty() && !kodi::vfs::FileExists(m_iconPath))
-    {
-      // not absolute path, only append .png in this case.
-      m_iconPath = utilities::FileUtils::PathCombine(logoLocation, m_iconPath);
-
-      if (!StringUtils::EndsWithNoCase(m_iconPath, ".png") && !StringUtils::EndsWithNoCase(m_iconPath, ".jpg"))
-        m_iconPath += CHANNEL_LOGO_EXTENSION;
     }
   }
 }
@@ -193,27 +167,12 @@ void Channel::SetStreamURL(const std::string& url)
 
   if (StringUtils::StartsWith(url, HTTP_PREFIX) || StringUtils::StartsWith(url, HTTPS_PREFIX))
   {
-    if (!m_settings->GetDefaultUserAgent().empty() && GetProperty("http-user-agent").empty())
-      AddProperty("http-user-agent", m_settings->GetDefaultUserAgent());
-
     TryToAddPropertyAsHeader("http-user-agent", "user-agent");
     TryToAddPropertyAsHeader("http-referrer", "referer"); // spelling differences are correct
   }
 
-  if (m_settings->TransformMulticastStreamUrls() &&
-      (StringUtils::StartsWith(url, UDP_MULTICAST_PREFIX) || StringUtils::StartsWith(url, RTP_MULTICAST_PREFIX)))
-  {
-    const std::string typePath = StringUtils::StartsWith(url, "rtp") ? "/rtp/" : "/udp/";
-
-    m_streamURL = "http://" + m_settings->GetUdpxyHost() + ":" + std::to_string(m_settings->GetUdpxyPort()) + typePath + url.substr(UDP_MULTICAST_PREFIX.length());
-    Logger::Log(LEVEL_DEBUG, "%s - Transformed multicast stream URL to local relay url: %s", __FUNCTION__, m_streamURL.c_str());
-  }
-
-  if (!m_settings->GetDefaultInputstream().empty() && GetProperty(PVR_STREAM_PROPERTY_INPUTSTREAM).empty())
-    AddProperty(PVR_STREAM_PROPERTY_INPUTSTREAM, m_settings->GetDefaultInputstream());
-
-  if (!m_settings->GetDefaultMimeType().empty() && GetProperty(PVR_STREAM_PROPERTY_MIMETYPE).empty())
-    AddProperty(PVR_STREAM_PROPERTY_MIMETYPE, m_settings->GetDefaultMimeType());
+  // Multicast transform removed - Jellyfin streams are always HTTP/HLS
+  // Default inputstream/mimetype removed - handled by StreamUtils at playback time
 
   m_inputStreamName = GetProperty(PVR_STREAM_PROPERTY_INPUTSTREAM);
 }
@@ -246,8 +205,8 @@ void Channel::TryToAddPropertyAsHeader(const std::string& propertyName, const st
 
 bool Channel::ChannelTypeAllowsGroupsOnly() const
 {
-  return ((m_radio && m_settings->AllowRadioChannelGroupsOnly()) ||
-          (!m_radio && m_settings->AllowTVChannelGroupsOnly()));
+  // Jellyfin provides groups directly; no filtering needed
+  return false;
 }
 
 void Channel::SetCatchupDays(int catchupDays)
@@ -255,21 +214,19 @@ void Channel::SetCatchupDays(int catchupDays)
   if (catchupDays > 0 || catchupDays == IGNORE_CATCHUP_DAYS)
     m_catchupDays = catchupDays;
   else
-    m_catchupDays = m_settings->GetCatchupDays();
+    m_catchupDays = 0; // Catchup not used for Jellyfin
 }
 
 bool Channel::IsCatchupSupported() const
 {
-  return m_settings->IsCatchupEnabled() && m_hasCatchup && !m_catchupSource.empty();
+  // Catchup not used for Jellyfin live TV
+  return false;
 }
 
 bool Channel::SupportsLiveStreamTimeshifting() const
 {
-  return m_settings->IsTimeshiftEnabled() && GetProperty(PVR_STREAM_PROPERTY_ISREALTIMESTREAM) == "true" &&
-         (m_settings->IsTimeshiftEnabledAll() ||
-          (m_settings->IsTimeshiftEnabledHttp() && StringUtils::StartsWith(m_streamURL, "http")) ||
-          (m_settings->IsTimeshiftEnabledUdp() && StringUtils::StartsWith(m_streamURL, "udp"))
-         );
+  // Timeshift is not configurable for Jellyfin; always disabled here
+  return false;
 }
 
 namespace
@@ -345,33 +302,8 @@ void Channel::ConfigureCatchupMode()
     protocolOptions = m_streamURL.substr(found, m_streamURL.length());
   }
 
-  if (m_settings->GetAllChannelsCatchupMode() != CatchupMode::DISABLED)
-  {
-    bool overrideCatchupMode = false;
-
-    if (m_settings->GetCatchupOverrideMode() == CatchupOverrideMode::WITHOUT_TAGS &&
-        (m_catchupMode == CatchupMode::DISABLED || m_catchupMode == CatchupMode::TIMESHIFT))
-    {
-      // As CatchupMode::TIMESHIFT is obsolete and some providers use it
-      // incorrectly we allow this setting to override it
-      overrideCatchupMode = true;
-    }
-    else if (m_settings->GetCatchupOverrideMode() == CatchupOverrideMode::WITH_TAGS &&
-            m_catchupMode != CatchupMode::DISABLED)
-    {
-      overrideCatchupMode = true;
-    }
-    else if (m_settings->GetCatchupOverrideMode() == CatchupOverrideMode::ALL_CHANNELS)
-    {
-      overrideCatchupMode = true;
-    }
-
-    if (overrideCatchupMode)
-    {
-      m_catchupMode = m_settings->GetAllChannelsCatchupMode();
-      m_hasCatchup = true;
-    }
-  }
+  // Catchup override settings removed - Jellyfin does not use M3U catchup
+  // Just process the catchup mode as-is from the channel data
 
   switch (m_catchupMode)
   {
@@ -444,15 +376,8 @@ bool Channel::GenerateAppendCatchupSource(const std::string& url)
     m_catchupSource = url + m_catchupSource;
     return true;
   }
-  else
-  {
-    if (!m_settings->GetCatchupQueryFormat().empty())
-    {
-      m_catchupSource = url + m_settings->GetCatchupQueryFormat();
-      return true;
-    }
-  }
 
+  // Catchup query format setting removed - no default query format for Jellyfin
   return false;
 }
 

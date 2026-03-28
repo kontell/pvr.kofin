@@ -9,10 +9,7 @@
 
 #include <kodi/AddonBase.h>
 
-#include <memory>
 #include <unordered_map>
-
-#include "iptvsimple/AddonSettings.h"
 
 class IptvSimple;
 
@@ -28,5 +25,4 @@ public:
 
 private:
   std::unordered_map<std::string, IptvSimple*> m_usedInstances;
-  std::shared_ptr<iptvsimple::AddonSettings> m_settings;
 };

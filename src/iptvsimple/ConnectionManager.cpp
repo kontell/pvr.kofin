@@ -103,7 +103,7 @@ void ConnectionManager::SetState(PVR_CONNECTION_STATE state)
     }
 
     /* Notify connection state change (callback!) */
-      m_connectionListener.ConnectionStateChange(m_settings->GetM3ULocation(), newState, "");
+      m_connectionListener.ConnectionStateChange(m_settings->GetJellyfinBaseUrl(), newState, "");
   }
 }
 
@@ -140,12 +140,12 @@ void ConnectionManager::Process()
       SteppedSleep(intervalMs);
     }
 
-    const std::string url = m_settings->GetM3ULocation();
+    const std::string url = m_settings->GetConnectionCheckUrl();
     int tcpTimeout = m_settings->GetConnectioncCheckTimeoutSecs();
-    bool isLocalPath = m_settings->GetM3UPathType() == PathType::LOCAL_PATH;
+    bool isLocalPath = false; // Jellyfin is always remote
 
     /* URL is set */
-    if (url.empty())
+    if (m_settings->GetJellyfinServerAddress().empty())
     {
       /* wait for URL to be set */
       SteppedSleep(intervalMs);
