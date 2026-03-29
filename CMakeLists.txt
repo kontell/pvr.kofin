@@ -158,6 +158,57 @@ if(DEFINED KODI_INCLUDE_DIR AND NOT KODI_FOUND)
     target_link_libraries(pvr.kofin log)
   endif()
 
+  # Generate addon.xml from Kodi headers in standalone mode
+  if(EXISTS "${_versions_h}")
+    # Read version strings from Kodi headers
+    file(STRINGS "${_versions_h}" _ver_lines REGEX "^#define ADDON_(GLOBAL|INSTANCE)_VERSION_[A-Z]+ +\"")
+    foreach(_line ${_ver_lines})
+      if(_line MATCHES "ADDON_GLOBAL_VERSION_([A-Z]+) +\"([0-9.]+)\"")
+        string(TOLOWER "${CMAKE_MATCH_1}" _comp)
+        set(_ver_${_comp} "${CMAKE_MATCH_2}")
+      elseif(_line MATCHES "ADDON_INSTANCE_VERSION_([A-Z]+) +\"([0-9.]+)\"")
+        string(TOLOWER "${CMAKE_MATCH_1}" _comp)
+        set(_ver_inst_${_comp} "${CMAKE_MATCH_2}")
+      endif()
+    endforeach()
+
+    # Read minversion strings
+    file(STRINGS "${_versions_h}" _minver_lines REGEX "^#define ADDON_(GLOBAL|INSTANCE)_VERSION_[A-Z]+_MIN +\"")
+    foreach(_line ${_minver_lines})
+      if(_line MATCHES "ADDON_GLOBAL_VERSION_([A-Z]+)_MIN +\"([0-9.]+)\"")
+        string(TOLOWER "${CMAKE_MATCH_1}" _comp)
+        set(_minver_${_comp} "${CMAKE_MATCH_2}")
+      elseif(_line MATCHES "ADDON_INSTANCE_VERSION_([A-Z]+)_MIN +\"([0-9.]+)\"")
+        string(TOLOWER "${CMAKE_MATCH_1}" _comp)
+        set(_minver_inst_${_comp} "${CMAKE_MATCH_2}")
+      endif()
+    endforeach()
+
+    # Build ADDON_DEPENDS string
+    set(ADDON_DEPENDS "\n")
+    foreach(_dep main general gui filesystem network tools)
+      if(DEFINED _ver_${_dep} AND DEFINED _minver_${_dep})
+        string(APPEND ADDON_DEPENDS "<import addon=\"kodi.binary.global.${_dep}\" minversion=\"${_minver_${_dep}}\" version=\"${_ver_${_dep}}\"/>\n")
+      endif()
+    endforeach()
+    if(DEFINED _ver_inst_pvr AND DEFINED _minver_inst_pvr)
+      string(APPEND ADDON_DEPENDS "<import addon=\"kodi.binary.instance.pvr\" minversion=\"${_minver_inst_pvr}\" version=\"${_ver_inst_pvr}\"/>\n")
+    endif()
+
+    # Determine platform and library name
+    if(ANDROID)
+      set(PLATFORM "android")
+      set(LIBRARY_FILENAME "pvr.kofin.so")
+    else()
+      set(PLATFORM "linux")
+      set(LIBRARY_FILENAME "pvr.kofin.so.${KOFIN_VERSION}")
+    endif()
+
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pvr.kofin/addon.xml.in
+                   ${CMAKE_CURRENT_BINARY_DIR}/pvr.kofin/addon.xml @ONLY)
+    message(STATUS "Generated addon.xml for platform: ${PLATFORM}")
+  endif()
+
 else()
   # Normal Kodi build system path (Linux, etc.)
   find_package(Kodi REQUIRED)

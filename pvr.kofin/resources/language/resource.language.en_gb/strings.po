@@ -29,11 +29,11 @@ msgid "Playback"
 msgstr ""
 
 msgctxt "#30622"
-msgid "Force transcoding"
+msgid "Force remuxing"
 msgstr ""
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to transcode all live TV streams instead of direct playing."
+msgid "Force the Jellyfin server to remux all live TV streams instead of direct playing."
 msgstr ""
 
 msgctxt "#30624"

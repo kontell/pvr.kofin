@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <mutex>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -73,6 +74,13 @@ private:
   std::map<int, std::string> m_timerUidToId;
   std::map<int, std::string> m_seriesTimerUidToId;
   std::map<int, std::string> m_recordingUidToId;
+
+  // Jellyfin IDs of recordings that are currently in progress
+  std::set<std::string> m_inProgressRecordingIds;
+
+  // Timer name -> ProgramId and ChannelUid mappings (for EPG-linking in-progress recordings)
+  std::map<std::string, std::string> m_timerNameToProgramId;
+  std::map<std::string, int> m_timerNameToChannelUid;
 
   // Cached Kodi PVR objects
   std::vector<kodi::addon::PVRTimer> m_timers;

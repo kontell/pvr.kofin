@@ -7,7 +7,32 @@
 
 #include "InstanceSettings.h"
 
+#include <cstdio>
+#include <random>
+
 using namespace iptvsimple;
+
+namespace
+{
+  std::string GenerateUUID()
+  {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
+
+    uint32_t a = dist(gen);
+    uint16_t b = static_cast<uint16_t>(dist(gen));
+    uint16_t c = static_cast<uint16_t>((dist(gen) & 0x0FFF) | 0x4000); // version 4
+    uint16_t d = static_cast<uint16_t>((dist(gen) & 0x3FFF) | 0x8000); // variant 1
+    uint32_t e1 = dist(gen);
+    uint16_t e2 = static_cast<uint16_t>(dist(gen));
+
+    char buf[37];
+    std::snprintf(buf, sizeof(buf), "%08x-%04x-%04x-%04x-%08x%04x",
+                  a, b, c, d, e1, e2);
+    return std::string(buf);
+  }
+} // anonymous namespace
 
 InstanceSettings::InstanceSettings()
 {
@@ -16,6 +41,14 @@ InstanceSettings::InstanceSettings()
 
 void InstanceSettings::ReadSettings()
 {
+  // Device identity — generate once, persist forever
+  m_deviceId = kodi::addon::GetSettingString("deviceId", "");
+  if (m_deviceId.empty())
+  {
+    m_deviceId = GenerateUUID();
+    kodi::addon::SetSettingString("deviceId", m_deviceId);
+  }
+
   // Server
   m_jellyfinServerAddress = kodi::addon::GetSettingString("jellyfinServerAddress", "");
 

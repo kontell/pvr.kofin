@@ -10,6 +10,7 @@
     <setting id="testConnection" label="30717" type="action" action="RunScript($CWD/resources/scripts/trigger.py,testConnection)" option="close" visible="eq(-6,true)" />
     <setting id="jellyfinAccessToken" type="text" visible="false" default="" />
     <setting id="jellyfinUserId" type="text" visible="false" default="" />
+    <setting id="deviceId" type="text" visible="false" default="" />
   </category>
   <category label="30620">
     <setting id="forceTranscode" label="30622" type="bool" default="false" />

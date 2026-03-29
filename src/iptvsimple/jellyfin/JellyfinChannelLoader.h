@@ -32,6 +32,8 @@ public:
   PVR_ERROR LoadEpg(int channelUid, time_t start, time_t end,
                      kodi::addon::PVREPGTagsResultSet& results);
   std::string GetLiveStreamUrl(const std::string& channelId);
+  std::string GetItemStreamUrl(const std::string& itemId);
+  std::string GetRecordingStreamUrl(const std::string& recordingId);
   void CloseLiveStream();
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
@@ -44,6 +46,7 @@ private:
   static std::string FormatIso8601(time_t time);
   static time_t ParseIso8601(const std::string& dateStr);
   Json::Value BuildDeviceProfile();
+  Json::Value BuildRecordingDeviceProfile();
   std::string PostProcessTranscodingUrl(const std::string& transcodingUrl);
   void RewriteLocalhost(std::string& url);
 

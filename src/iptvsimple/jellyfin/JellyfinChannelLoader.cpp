@@ -331,12 +331,124 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
   return profile;
 }
 
+Json::Value JellyfinChannelLoader::BuildRecordingDeviceProfile()
+{
+  // Recording-specific profile: force remux into TS container at unlimited bitrate.
+  // This is independent of live TV transcode settings.
+  Json::Value profile;
+  profile["Name"] = "Kodi";
+  profile["MaxStreamingBitrate"] = 1000000000;  // ~1Gbps = copy (no transcode)
+  profile["MaxStaticBitrate"] = 1000000000;
+  profile["MusicStreamingTranscodingBitrate"] = 1280000;
+
+  Json::Value transcodingProfiles(Json::arrayValue);
+  {
+    Json::Value tp;
+    tp["Container"] = "ts";
+    tp["Type"] = "Video";
+    tp["AudioCodec"] = "aac,mp3,ac3,eac3,opus,flac";
+    tp["VideoCodec"] = "h264,hevc,av1,mpeg2video";
+    tp["Context"] = "Streaming";
+    tp["Protocol"] = "hls";
+    tp["MaxAudioChannels"] = "6";
+    tp["MinSegments"] = "1";
+    tp["BreakOnNonKeyFrames"] = true;
+    transcodingProfiles.append(tp);
+  }
+  profile["TranscodingProfiles"] = transcodingProfiles;
+
+  // Empty direct play profiles → Jellyfin will always remux
+  profile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
+  profile["CodecProfiles"] = Json::Value(Json::arrayValue);
+  profile["SubtitleProfiles"] = Json::Value(Json::arrayValue);
+  profile["ResponseProfiles"] = Json::Value(Json::arrayValue);
+  profile["ContainerProfiles"] = Json::Value(Json::arrayValue);
+
+  return profile;
+}
+
+std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& recordingId)
+{
+  Logger::Log(LEVEL_DEBUG, "%s - Getting recording stream URL for %s", __FUNCTION__, recordingId.c_str());
+
+  // Close previous live stream if any
+  CloseLiveStream();
+
+  const std::string endpoint = "/Items/" + recordingId + "/PlaybackInfo";
+
+  Json::Value body;
+  body["UserId"] = m_client->GetUserId();
+  body["DeviceProfile"] = BuildRecordingDeviceProfile();
+  body["AutoOpenLiveStream"] = true;
+
+  Json::StreamWriterBuilder writer;
+  writer["indentation"] = "";
+  const std::string bodyStr = Json::writeString(writer, body);
+
+  Json::Value response = m_client->SendPost(endpoint, bodyStr);
+
+  if (response.isNull() || !response.isMember("MediaSources") || response["MediaSources"].empty())
+  {
+    Logger::Log(LEVEL_ERROR, "%s - PlaybackInfo returned no media sources for recording %s",
+                __FUNCTION__, recordingId.c_str());
+    return "";
+  }
+
+  const Json::Value& source = response["MediaSources"][0];
+
+  // Track LiveStreamId for cleanup
+  if (source.isMember("LiveStreamId"))
+    m_activeLiveStreamId = source["LiveStreamId"].asString();
+  else
+    m_activeLiveStreamId.clear();
+
+  Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, SupportsDirectPlay: %s, TranscodingUrl: %s",
+              __FUNCTION__, m_activeLiveStreamId.c_str(),
+              source.get("SupportsDirectPlay", false).asBool() ? "true" : "false",
+              source.isMember("TranscodingUrl") ? "present" : "absent");
+
+  std::string streamUrl;
+
+  if (source.isMember("TranscodingUrl") && !source["TranscodingUrl"].asString().empty())
+  {
+    // Prepend base URL — no live rewrite or bitrate recalc needed for recordings
+    streamUrl = m_client->GetBaseUrl() + source["TranscodingUrl"].asString();
+  }
+  else if (source.isMember("Path") && !source["Path"].asString().empty())
+  {
+    streamUrl = source["Path"].asString();
+  }
+
+  if (streamUrl.empty())
+  {
+    Logger::Log(LEVEL_ERROR, "%s - No stream URL resolved for recording %s",
+                __FUNCTION__, recordingId.c_str());
+    return "";
+  }
+
+  RewriteLocalhost(streamUrl);
+
+  // Append api_key if it's a Jellyfin URL
+  const std::string baseUrl = m_client->GetBaseUrl();
+  if (streamUrl.find(baseUrl) == 0 &&
+      streamUrl.find("api_key=") == std::string::npos &&
+      streamUrl.find("ApiKey=") == std::string::npos)
+  {
+    streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
+    streamUrl += "api_key=" + m_client->GetAccessToken();
+  }
+
+  Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
+              WebUtils::RedactUrl(streamUrl).c_str());
+  return streamUrl;
+}
+
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(const std::string& transcodingUrl)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
   // - Replace "stream"/"master" with "live" for live TV
   // - Recalculate audio/video bitrates
-  // - AV1: set SegmentContainer=mp4
+  // - AV1 actual codec: set SegmentContainer=mp4 (fMP4 for AV1 only, TS for H264/HEVC)
   // - Add maxWidth/maxHeight
 
   auto qPos = transcodingUrl.find('?');
@@ -358,14 +470,25 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(const std::string& 
     start = end + 1;
   }
 
+  // Detect actual video codec from URL params (not the preferred setting)
+  std::string actualVideoCodec;
+  for (const auto& p : params)
+  {
+    if (p.find("VideoCodec=") == 0)
+    {
+      actualVideoCodec = p.substr(11);
+      break;
+    }
+  }
+
   // Strip existing AudioBitrate and VideoBitrate
   params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
     return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
   }), params.end());
 
-  // AV1: strip SegmentContainer so we can set it to mp4
-  const bool isAV1 = m_settings->GetPreferredVideoCodecName() == "av1";
-  if (isAV1)
+  // AV1 in fMP4, everything else in TS (the default from the transcoding profile)
+  const bool streamIsAV1 = (actualVideoCodec == "av1");
+  if (streamIsAV1)
   {
     params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
       return p.find("SegmentContainer=") == 0;
@@ -388,7 +511,7 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(const std::string& 
   newParams += "&VideoBitrate=" + std::to_string(videoBitrate);
   newParams += "&AudioBitrate=" + std::to_string(audioBitrate);
 
-  if (isAV1)
+  if (streamIsAV1)
     newParams += "&SegmentContainer=mp4";
 
   newParams += "&maxWidth=1920&maxHeight=1080";
@@ -422,13 +545,18 @@ void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
 
 std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId)
 {
-  Logger::Log(LEVEL_DEBUG, "%s - Getting live stream URL for channel %s", __FUNCTION__, channelId.c_str());
+  return GetItemStreamUrl(channelId);
+}
+
+std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
+{
+  Logger::Log(LEVEL_DEBUG, "%s - Getting stream URL for item %s", __FUNCTION__, itemId.c_str());
 
   // Close previous live stream if any
   CloseLiveStream();
 
   // POST to PlaybackInfo — all params in body, matching jellyfin-kodi
-  const std::string endpoint = "/Items/" + channelId + "/PlaybackInfo";
+  const std::string endpoint = "/Items/" + itemId + "/PlaybackInfo";
 
   Json::Value body;
   body["UserId"] = m_client->GetUserId();
@@ -443,8 +571,8 @@ std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId
 
   if (response.isNull() || !response.isMember("MediaSources") || response["MediaSources"].empty())
   {
-    Logger::Log(LEVEL_ERROR, "%s - PlaybackInfo returned no media sources for channel %s",
-                __FUNCTION__, channelId.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - PlaybackInfo returned no media sources for item %s",
+                __FUNCTION__, itemId.c_str());
     return "";
   }
 
@@ -482,7 +610,7 @@ std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId
   if (streamUrl.empty())
   {
     const std::string mediaSourceId = source.get("Id", "").asString();
-    streamUrl = m_client->GetBaseUrl() + "/Videos/" + channelId + "/live.m3u8"
+    streamUrl = m_client->GetBaseUrl() + "/Videos/" + itemId + "/live.m3u8"
       + "?LiveStreamId=" + WebUtils::UrlEncode(m_activeLiveStreamId)
       + "&MediaSourceId=" + WebUtils::UrlEncode(mediaSourceId)
       + "&api_key=" + m_client->GetAccessToken();

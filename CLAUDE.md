@@ -67,11 +67,30 @@ CIptvSimpleAddon (addon.cpp)         — Kodi addon entry point, creates PVR ins
 - **HTTP via Kodi VFS**: `kodi::vfs::CFile` for all HTTP — POST data must be Base64-encoded via the `postdata` protocol option.
 - **Kodi v21/v22 compatibility**: `GetChannelStreamProperties` signature differs (v22 adds `PVR_SOURCE` param). CMake detects PVR API version from headers and sets `-DKODI_PVR_API_V9` for v22+. Code uses `#ifdef KODI_PVR_API_V9`.
 
+### Recording Playback
+
+**Stream pipeline:** `GetRecordingStreamProperties()` POSTs to `/Items/{id}/PlaybackInfo` with a recording-specific device profile (`BuildRecordingDeviceProfile()`) that forces remux into TS container at unlimited bitrate (~1Gbps = codec copy, no re-encoding). The resulting HLS URL is played via `inputstream.adaptive`. This is completely independent of live TV transcode/inputstream settings.
+
+**Why remux, not static stream:** Jellyfin's `/Videos/{id}/stream?static=true` returns the raw recording file. Neither ffmpegdirect nor Kodi's default inputstream could seek in it (VLC also failed). The remuxed HLS stream has proper segment indices that inputstream.adaptive can seek through.
+
+**Why inputstream.adaptive, not ffmpegdirect:** ffmpegdirect with `stream_mode=catchup` reported `LengthStream: -1` and failed to seek. With `stream_mode=default` it still couldn't seek. Jellyfin's HLS playlists use `#EXT-X-PLAYLIST-TYPE:EVENT` (no `#EXT-X-ENDLIST`) which ffmpegdirect treats as live/growing. inputstream.adaptive handles HLS segment-based seeking correctly.
+
+**Two code paths in Kodi v21:**
+
+1. **Home screen widgets / EPG actions:** `CPVRPlaybackState::StartPlayback()` calls `GetRecordingStreamProperties()`. If it returns `PVR_STREAM_PROPERTY_STREAMURL` + `PVR_STREAM_PROPERTY_INPUTSTREAM`, Kodi uses the specified inputstream. `OpenRecordedStream()` is never called.
+
+2. **PVR Recordings section (window 10701):** Kodi does NOT call `GetRecordingStreamProperties()`. It opens `pvr://recordings/...` directly via `CInputStreamPVRRecording` → `OpenRecordedStream()`. Implemented via `OpenRecordedStreamImpl()` which HTTP-streams the recording file bytes via `/Videos/{id}/stream?static=true` using `kodi::vfs::CFile`.
+
+**In-progress recordings:** Detected via `/LiveTv/Recordings?IsInProgress=true`. Timer name → channel UID / ProgramId cross-reference provides EPG linking (`SetEPGEventId`/`SetChannelUid`). `Process()` loop polls timers/recordings every 60 seconds and triggers Kodi UI updates.
+
+**Container logic:** The recording device profile always requests TS container. For live TV, the `PostProcessTranscodingUrl()` only sets `SegmentContainer=mp4` (fMP4) when the actual stream codec is AV1 (checked from the URL's `VideoCodec=` param), not based on the preferred codec setting. H264/HEVC streams stay in TS regardless of the preferred codec preference.
+
 ### Jellyfin API Gotchas
 
 - EPG: use `MaxStartDate` (not `MaxEndDate`) for time filtering
 - Stream URLs: Jellyfin may return `127.0.0.1` or `localhost` — `RewriteLocalhost()` fixes this
 - Recording deletion: `DELETE /Items/{id}` (primary), fallback `DELETE /LiveTv/Recordings/{id}`
+- **Jellyfin API key for direct testing:** `https://jelly.konell.xyz` — append `?api_key=dac2156d1aa14643af37e1ddde87d963` to any endpoint. UserId: `215f5fc3f7ff4a5581e8518b28203a4f`.
 
 ## Key Files
 

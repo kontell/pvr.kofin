@@ -22,6 +22,7 @@
 #include <thread>
 
 #include <kodi/addon-instance/PVR.h>
+#include <kodi/Filesystem.h>
 
 class ATTR_DLL_LOCAL IptvSimple : public iptvsimple::IConnectionListener
 {
@@ -84,6 +85,20 @@ public:
   PVR_ERROR DeleteRecording(const kodi::addon::PVRRecording& recording) override;
   PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
+#ifdef KODI_PVR_API_V9
+  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId) override;
+  void CloseRecordedStream(int64_t streamId) override;
+  int ReadRecordedStream(int64_t streamId, unsigned char* buffer, unsigned int size) override;
+  int64_t SeekRecordedStream(int64_t streamId, int64_t position, int whence) override;
+  int64_t LengthRecordedStream(int64_t streamId) override;
+#else
+  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording) override;
+  void CloseRecordedStream() override;
+  int ReadRecordedStream(unsigned char* buffer, unsigned int size) override;
+  int64_t SeekRecordedStream(int64_t position, int whence) override;
+  int64_t LengthRecordedStream() override;
+#endif
+
   //@}
 
   // Internal functions
@@ -120,4 +135,14 @@ private:
   std::thread m_thread;
   std::mutex m_mutex;
   std::atomic_bool m_reloadChannelsGroupsAndEPG{false};
+
+  // Recording byte-stream (used by Recordings section playback path)
+  bool OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recording);
+  void CloseRecordedStreamImpl();
+  int ReadRecordedStreamImpl(unsigned char* buffer, unsigned int size);
+  int64_t SeekRecordedStreamImpl(int64_t position, int whence);
+  int64_t LengthRecordedStreamImpl();
+
+  kodi::vfs::CFile m_recordingStream;
+  bool m_recordingStreamOpen{false};
 };

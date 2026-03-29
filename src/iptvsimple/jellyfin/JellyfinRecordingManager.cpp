@@ -116,7 +116,36 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
   if (timer.GetTimerType() == TIMER_ONCE_EPG)
   {
     // Look up the Jellyfin program ID from the EPG broadcast UID
-    const std::string& programId = m_channelLoader->GetJellyfinProgramId(timer.GetEPGUid());
+    std::string programId = m_channelLoader->GetJellyfinProgramId(timer.GetEPGUid());
+
+    // Fallback: if the map is empty (Kodi used cached EPG after restart),
+    // query Jellyfin for programs on this channel around the timer's start time
+    if (programId.empty() && timer.GetStartTime() > 0)
+    {
+      Logger::Log(LEVEL_INFO, "%s - EPG map miss for UID %d, querying Jellyfin by channel+time",
+                  __FUNCTION__, timer.GetEPGUid());
+
+      const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+      if (!channelJfId.empty())
+      {
+        // Query programs in a 1-minute window around the start time
+        const std::string startIso = FormatIso8601(timer.GetStartTime());
+        const std::string endIso = FormatIso8601(timer.GetStartTime() + 60);
+        const std::string endpoint = "/LiveTv/Programs?ChannelIds=" + channelJfId
+          + "&MinStartDate=" + WebUtils::UrlEncode(startIso)
+          + "&MaxStartDate=" + WebUtils::UrlEncode(endIso)
+          + "&Limit=1";
+
+        Json::Value response = m_client->SendGet(endpoint);
+        if (!response.isNull() && response.isMember("Items") && !response["Items"].empty())
+        {
+          programId = response["Items"][0]["Id"].asString();
+          Logger::Log(LEVEL_INFO, "%s - Found program %s via channel+time fallback",
+                      __FUNCTION__, programId.c_str());
+        }
+      }
+    }
+
     if (programId.empty())
     {
       Logger::Log(LEVEL_ERROR, "%s - No Jellyfin program ID for EPG UID %d",
@@ -300,15 +329,24 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
 {
   const std::string recordingId = recording.GetRecordingId();
 
-  // Build direct stream URL for recording playback
-  const std::string streamUrl = m_client->GetBaseUrl()
-    + "/Videos/" + recordingId + "/stream?static=true&api_key=" + m_client->GetAccessToken();
+  // Remux recording into TS via PlaybackInfo — gives proper seeking with ffmpegdirect.
+  // This is independent of live TV transcode settings (unlimited bitrate = copy, TS container).
+  const std::string streamUrl = m_channelLoader->GetRecordingStreamUrl(recordingId);
+  if (streamUrl.empty())
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Failed to get recording stream URL for %s",
+                __FUNCTION__, recordingId.c_str());
+    return PVR_ERROR_SERVER_ERROR;
+  }
 
-  Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
-              WebUtils::RedactUrl(streamUrl).c_str());
+  Logger::Log(LEVEL_INFO, "%s - Recording stream URL (id=%s): %s", __FUNCTION__,
+              recordingId.c_str(), WebUtils::RedactUrl(streamUrl).c_str());
 
   properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamUrl);
+  properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
+  properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
   properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "false");
+  properties.emplace_back("inputstream.adaptive.manifest_type", "hls");
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -332,6 +370,8 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
   std::lock_guard<std::mutex> lock(m_mutex);
   m_timers.clear();
   m_timerUidToId.clear();
+  m_timerNameToProgramId.clear();
+  m_timerNameToChannelUid.clear();
 
   if (response.isNull() || !response.isMember("Items"))
   {
@@ -397,6 +437,8 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
 
     // State
     const std::string status = item.get("Status", "New").asString();
+    Logger::Log(LEVEL_DEBUG, "%s - Timer %s: status=%s", __FUNCTION__,
+                item.get("Name", "").asString().c_str(), status.c_str());
     if (status == "New" || status == "Scheduled")
       timer.SetState(PVR_TIMER_STATE_SCHEDULED);
     else if (status == "InProgress")
@@ -416,7 +458,16 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
 
     // EPG reference
     if (item.isMember("ProgramId"))
-      timer.SetEPGUid(GenerateUid(item["ProgramId"].asString()));
+    {
+      const std::string programId = item["ProgramId"].asString();
+      timer.SetEPGUid(GenerateUid(programId));
+      const std::string timerName = item.get("Name", "").asString();
+      // Save name→ProgramId and name→ChannelUid for cross-referencing in-progress recordings
+      if (!programId.empty())
+        m_timerNameToProgramId[timerName] = programId;
+      if (timer.GetClientChannelUid() != 0)
+        m_timerNameToChannelUid[timerName] = timer.GetClientChannelUid();
+    }
 
     m_timers.emplace_back(timer);
   }
@@ -512,65 +563,136 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
   std::lock_guard<std::mutex> lock(m_mutex);
   m_recordings.clear();
   m_recordingUidToId.clear();
+  m_inProgressRecordingIds.clear();
 
-  // Try to find the recordings media library from the user's views.
-  // Old recordings get imported into a regular library and disappear from /LiveTv/Recordings.
-  std::string recordingsEndpoint;
+  // Collect Jellyfin items from multiple sources, de-duplicated by ID
+  std::set<std::string> seenIds;
+  Json::Value allItems(Json::arrayValue);
 
-  Json::Value views = m_client->SendGet("/Users/" + m_client->GetUserId() + "/Views");
-  if (!views.isNull() && views.isMember("Items"))
+  // 1. All recordings from /LiveTv/Recordings (includes in-progress ones)
+  //    The Status field on each item tells us if it's still recording.
   {
-    for (const auto& view : views["Items"])
+    const std::string endpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
+      + "&EnableImages=true&Fields=Overview,ChannelInfo,ProgramId";
+    Json::Value response = m_client->SendGet(endpoint);
+    if (!response.isNull() && response.isMember("Items"))
     {
-      std::string name = view.get("Name", "").asString();
-      // Case-insensitive check for "record" in the view name
-      std::string nameLower = name;
-      std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
-      if (nameLower.find("record") != std::string::npos)
+      for (const auto& item : response["Items"])
       {
-        const std::string viewId = view["Id"].asString();
-        recordingsEndpoint = "/Users/" + m_client->GetUserId() + "/Items"
-          "?ParentId=" + viewId
-          + "&Recursive=true"
-          + "&IncludeItemTypes=Movie,Episode,Video,Recording"
-          + "&Fields=Overview,ChannelInfo,DateCreated"
-          + "&EnableImages=true&EnableUserData=true"
-          + "&SortBy=DateCreated&SortOrder=Descending"
-          + "&Limit=1000";
-        Logger::Log(LEVEL_INFO, "%s - Found recordings library: %s (id: %s)",
-                    __FUNCTION__, name.c_str(), viewId.c_str());
-        break;
+        const std::string id = item["Id"].asString();
+        if (seenIds.insert(id).second)
+        {
+          const std::string status = item.get("Status", "").asString();
+          Logger::Log(LEVEL_DEBUG, "%s - /LiveTv/Recordings item: %s, status=%s, id=%s",
+                      __FUNCTION__, item.get("Name", "").asString().c_str(),
+                      status.empty() ? "(none)" : status.c_str(), id.c_str());
+          if (status == "InProgress")
+            m_inProgressRecordingIds.insert(id);
+          allItems.append(item);
+        }
+      }
+      Logger::Log(LEVEL_INFO, "%s - Found %d recordings from /LiveTv/Recordings (%d in-progress)",
+                  __FUNCTION__, static_cast<int>(allItems.size()),
+                  static_cast<int>(m_inProgressRecordingIds.size()));
+    }
+  }
+
+  // 2. Completed recordings from library view or /LiveTv/Recordings fallback
+  {
+    std::string recordingsEndpoint;
+
+    Json::Value views = m_client->SendGet("/Users/" + m_client->GetUserId() + "/Views");
+    if (!views.isNull() && views.isMember("Items"))
+    {
+      for (const auto& view : views["Items"])
+      {
+        std::string name = view.get("Name", "").asString();
+        std::string nameLower = name;
+        std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+        if (nameLower.find("record") != std::string::npos)
+        {
+          const std::string viewId = view["Id"].asString();
+          recordingsEndpoint = "/Users/" + m_client->GetUserId() + "/Items"
+            "?ParentId=" + viewId
+            + "&Recursive=true"
+            + "&IncludeItemTypes=Movie,Episode,Video,Recording"
+            + "&Fields=Overview,ChannelInfo,DateCreated"
+            + "&EnableImages=true&EnableUserData=true"
+            + "&SortBy=DateCreated&SortOrder=Descending"
+            + "&Limit=1000";
+          Logger::Log(LEVEL_INFO, "%s - Found recordings library: %s (id: %s)",
+                      __FUNCTION__, name.c_str(), viewId.c_str());
+          break;
+        }
+      }
+    }
+
+    if (recordingsEndpoint.empty())
+    {
+      Logger::Log(LEVEL_INFO, "%s - No recordings library found, using /LiveTv/Recordings", __FUNCTION__);
+      recordingsEndpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
+        + "&EnableImages=true&Fields=Overview,ChannelInfo";
+    }
+
+    Json::Value response = m_client->SendGet(recordingsEndpoint);
+    if (!response.isNull() && response.isMember("Items"))
+    {
+      for (const auto& item : response["Items"])
+      {
+        const std::string id = item["Id"].asString();
+        if (seenIds.insert(id).second)
+          allItems.append(item);
       }
     }
   }
 
-  // Fall back to /LiveTv/Recordings if no recordings library found
-  if (recordingsEndpoint.empty())
-  {
-    Logger::Log(LEVEL_INFO, "%s - No recordings library found, using /LiveTv/Recordings", __FUNCTION__);
-    recordingsEndpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
-      + "&EnableImages=true&Fields=Overview,ChannelInfo";
-  }
-
-  Json::Value response = m_client->SendGet(recordingsEndpoint);
-
-  if (response.isNull() || !response.isMember("Items"))
-  {
-    Logger::Log(LEVEL_WARNING, "%s - No recording data from Jellyfin", __FUNCTION__);
-    return PVR_ERROR_NO_ERROR;
-  }
-
-  const Json::Value& items = response["Items"];
-
-  for (const auto& item : items)
+  // 3. Build PVRRecording objects from merged items
+  for (const auto& item : allItems)
   {
     const std::string jellyfinId = item["Id"].asString();
     const int uid = GenerateUid(jellyfinId);
+    const bool inProgress = m_inProgressRecordingIds.count(jellyfinId) > 0;
     m_recordingUidToId[uid] = jellyfinId;
 
     kodi::addon::PVRRecording recording;
     recording.SetRecordingId(jellyfinId);
     recording.SetTitle(item.get("Name", "").asString());
+
+    if (inProgress)
+      recording.SetFlags(PVR_RECORDING_FLAG_IS_LIVE);
+
+    // EPG link (enables "Play recording" in EPG context menu)
+    std::string programId;
+    if (item.isMember("ProgramId") && !item["ProgramId"].asString().empty())
+    {
+      programId = item["ProgramId"].asString();
+      Logger::Log(LEVEL_DEBUG, "%s - Recording '%s' has ProgramId from API: %s",
+                  __FUNCTION__, item.get("Name", "").asString().c_str(), programId.c_str());
+    }
+    // Fallback: cross-reference timer data by name (recordings may lack ProgramId)
+    if (programId.empty() && inProgress)
+    {
+      auto it = m_timerNameToProgramId.find(item.get("Name", "").asString());
+      if (it != m_timerNameToProgramId.end())
+      {
+        programId = it->second;
+        Logger::Log(LEVEL_DEBUG, "%s - Recording '%s' got ProgramId from timer cross-ref: %s",
+                    __FUNCTION__, item.get("Name", "").asString().c_str(), programId.c_str());
+      }
+      else
+      {
+        Logger::Log(LEVEL_WARNING, "%s - Recording '%s' (in-progress): no ProgramId found (API or timer map, %d entries)",
+                    __FUNCTION__, item.get("Name", "").asString().c_str(),
+                    static_cast<int>(m_timerNameToProgramId.size()));
+      }
+    }
+    if (!programId.empty())
+    {
+      unsigned int epgUid = static_cast<unsigned int>(GenerateUid(programId));
+      recording.SetEPGEventId(epgUid);
+      Logger::Log(LEVEL_DEBUG, "%s - Recording '%s': SetEPGEventId(%u) from programId=%s",
+                  __FUNCTION__, item.get("Name", "").asString().c_str(), epgUid, programId.c_str());
+    }
 
     if (item.isMember("EpisodeTitle"))
       recording.SetEpisodeName(item["EpisodeTitle"].asString());
@@ -582,13 +704,31 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
       recording.SetChannelName(item["ChannelName"].asString());
 
     // Channel UID (live TV recordings have ChannelId; library items may not)
-    if (item.isMember("ChannelId") && !item["ChannelId"].asString().empty())
     {
-      const std::string channelJfId = item["ChannelId"].asString();
-      int channelUid = GenerateUid(
-        item.get("ChannelName", "").asString() +
-        m_client->GetBaseUrl() + "/LiveTv/Channels/" + channelJfId);
-      recording.SetChannelUid(channelUid);
+      int channelUid = 0;
+      const std::string channelJfId = item.isMember("ChannelId") ? item["ChannelId"].asString() : "";
+      if (!channelJfId.empty() && channelJfId != "null")
+      {
+        channelUid = GenerateUid(
+          item.get("ChannelName", "").asString() +
+          m_client->GetBaseUrl() + "/LiveTv/Channels/" + channelJfId);
+      }
+      // Fallback: get channel UID from timer data (in-progress recordings may lack ChannelId)
+      if (channelUid == 0 && inProgress)
+      {
+        auto it = m_timerNameToChannelUid.find(item.get("Name", "").asString());
+        if (it != m_timerNameToChannelUid.end())
+        {
+          channelUid = it->second;
+          Logger::Log(LEVEL_DEBUG, "%s - Recording '%s': got channelUid %d from timer cross-ref",
+                      __FUNCTION__, item.get("Name", "").asString().c_str(), channelUid);
+        }
+      }
+      if (channelUid != 0)
+        recording.SetChannelUid(channelUid);
+      Logger::Log(LEVEL_DEBUG, "%s - Recording '%s': channelUid=%d, channelJfId=%s, inProgress=%d",
+                  __FUNCTION__, item.get("Name", "").asString().c_str(), channelUid,
+                  channelJfId.empty() ? "(none)" : channelJfId.c_str(), inProgress ? 1 : 0);
     }
 
     // Timing: prefer StartDate/EndDate (live TV recordings), fall back to DateCreated/RunTimeTicks (library items)
@@ -639,8 +779,9 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     m_recordings.emplace_back(recording);
   }
 
-  Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings", __FUNCTION__,
-              static_cast<int>(m_recordings.size()));
+  Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings (%d in-progress)", __FUNCTION__,
+              static_cast<int>(m_recordings.size()),
+              static_cast<int>(m_inProgressRecordingIds.size()));
   return PVR_ERROR_NO_ERROR;
 }
 

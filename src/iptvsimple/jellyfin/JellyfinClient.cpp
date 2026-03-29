@@ -33,7 +33,7 @@ std::string JellyfinClient::BuildAuthHeader() const
 {
   std::ostringstream header;
   header << "MediaBrowser Client=\"Kofin PVR\", Device=\"Kodi\""
-         << ", DeviceId=\"kodi-pvr-kofin\""
+         << ", DeviceId=\"" << m_settings->GetDeviceId() << "\""
          << ", Version=\"" << STR(KOFIN_VERSION) << "\"";
   if (!m_accessToken.empty())
     header << ", Token=\"" << m_accessToken << "\"";
@@ -106,6 +106,7 @@ bool JellyfinClient::CheckQuickConnect(std::string& userId, std::string& accessT
   if (m_quickConnectSecret.empty())
     return false;
 
+  // Step 1: Check if user has authorized the Quick Connect code
   const std::string url = BuildUrl("/QuickConnect/Connect?secret=" + m_quickConnectSecret);
   Json::Value response = DoRequest(url);
 
@@ -115,35 +116,34 @@ bool JellyfinClient::CheckQuickConnect(std::string& userId, std::string& accessT
   if (!response.get("Authenticated", false).asBool())
     return false;
 
-  // Quick Connect authenticated — extract credentials
-  if (response.isMember("AccessToken") && response.isMember("User"))
-  {
-    accessToken = response["AccessToken"].asString();
-    userId = response["User"]["Id"].asString();
-  }
-  else if (response.isMember("Authentication"))
-  {
-    // Alternative response format
-    const Json::Value& auth = response["Authentication"];
-    accessToken = auth.get("AccessToken", "").asString();
-    userId = auth.get("UserId", "").asString();
-  }
+  Logger::Log(LEVEL_INFO, "%s - Quick Connect authorized, exchanging for access token", __FUNCTION__);
 
-  if (!accessToken.empty() && !userId.empty())
+  // Step 2: Exchange the secret for an access token via AuthenticateWithQuickConnect
+  Json::Value authBody;
+  authBody["Secret"] = m_quickConnectSecret;
+
+  Json::StreamWriterBuilder writer;
+  writer["indentation"] = "";
+  const std::string bodyStr = Json::writeString(writer, authBody);
+
+  Json::Value authResponse = SendPost("/Users/AuthenticateWithQuickConnect", bodyStr);
+  if (!authResponse.isNull())
   {
-    m_accessToken = accessToken;
-    m_userId = userId;
-    m_quickConnectSecret.clear();
+    SetAuthFromResponse(authResponse);
+    if (!m_accessToken.empty() && !m_userId.empty())
+    {
+      userId = m_userId;
+      accessToken = m_accessToken;
+      m_quickConnectSecret.clear();
 
-    // Persist to settings
-    m_settings->SetJellyfinAccessToken(m_accessToken);
-    m_settings->SetJellyfinUserId(m_userId);
-
-    Logger::Log(LEVEL_INFO, "%s - Quick Connect authenticated, userId: %s",
-                __FUNCTION__, m_userId.c_str());
-    return true;
+      Logger::Log(LEVEL_INFO, "%s - Quick Connect authenticated, userId: %s",
+                  __FUNCTION__, m_userId.c_str());
+      return true;
+    }
   }
 
+  Logger::Log(LEVEL_ERROR, "%s - Quick Connect authorized but token exchange failed", __FUNCTION__);
+  m_quickConnectSecret.clear();
   return false;
 }
 

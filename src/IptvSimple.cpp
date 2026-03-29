@@ -354,7 +354,10 @@ PVR_ERROR IptvSimple::GetConnectionString(std::string& connection)
 
 void IptvSimple::Process()
 {
+  static const int TIMER_RECORDING_POLL_SECS = 60;
+
   unsigned int refreshTimer = 0;
+  unsigned int timerRecordingPollTimer = 0;
   time_t lastRefreshTimeSeconds = std::time(nullptr);
 
   while (m_running)
@@ -362,11 +365,24 @@ void IptvSimple::Process()
     std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_LOOP_WAIT_SECS * 1000));
 
     time_t currentRefreshTimeSeconds = std::time(nullptr);
-    refreshTimer += static_cast<unsigned int>(currentRefreshTimeSeconds - lastRefreshTimeSeconds);
+    unsigned int elapsed = static_cast<unsigned int>(currentRefreshTimeSeconds - lastRefreshTimeSeconds);
     lastRefreshTimeSeconds = currentRefreshTimeSeconds;
+    refreshTimer += elapsed;
+    timerRecordingPollTimer += elapsed;
 
     if (refreshTimer >= static_cast<unsigned int>(m_settings->GetJellyfinUpdateIntervalHours() * 3600))
       m_reloadChannelsGroupsAndEPG = true;
+
+    // Poll timers/recordings every 60s so Kodi learns about new/changed
+    // recordings without a restart (EPG recording indicators, widgets, etc.)
+    if (m_running && timerRecordingPollTimer >= TIMER_RECORDING_POLL_SECS && m_recordingManager)
+    {
+      timerRecordingPollTimer = 0;
+      Logger::Log(LEVEL_DEBUG, "%s - Polling timers/recordings", __FUNCTION__);
+      m_recordingManager->Reload();
+      TriggerTimerUpdate();
+      TriggerRecordingUpdate();
+    }
 
     std::lock_guard<std::mutex> lock(m_mutex);
     if (m_running && m_reloadChannelsGroupsAndEPG)
@@ -683,6 +699,93 @@ PVR_ERROR IptvSimple::GetRecordingStreamProperties(const kodi::addon::PVRRecordi
     return m_recordingManager->GetRecordingStreamProperties(recording, properties);
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
+
+/***************************************************************************
+ * Recording Byte-Stream (Recordings section playback path)
+ *
+ * Kodi's PVR Recordings window does NOT call GetRecordingStreamProperties.
+ * It goes directly to OpenRecordedStream / ReadRecordedStream.
+ **************************************************************************/
+
+bool IptvSimple::OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recording)
+{
+  CloseRecordedStreamImpl();
+
+  const std::string recordingId = recording.GetRecordingId();
+  if (!m_jellyfinClient)
+    return false;
+
+  const std::string streamUrl = m_jellyfinClient->GetBaseUrl()
+    + "/Videos/" + recordingId + "/stream?static=true&api_key="
+    + m_jellyfinClient->GetAccessToken();
+
+  Logger::Log(LEVEL_INFO, "%s - Opening recording stream for %s", __FUNCTION__, recordingId.c_str());
+
+  if (!m_recordingStream.OpenFile(streamUrl, ADDON_READ_NO_CACHE))
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
+    return false;
+  }
+
+  m_recordingStreamOpen = true;
+  Logger::Log(LEVEL_INFO, "%s - Recording stream open, length: %lld",
+              __FUNCTION__, static_cast<long long>(m_recordingStream.GetLength()));
+  return true;
+}
+
+void IptvSimple::CloseRecordedStreamImpl()
+{
+  if (m_recordingStreamOpen)
+  {
+    Logger::Log(LEVEL_INFO, "%s - Closing recording stream", __FUNCTION__);
+    m_recordingStream.Close();
+    m_recordingStreamOpen = false;
+  }
+}
+
+int IptvSimple::ReadRecordedStreamImpl(unsigned char* buffer, unsigned int size)
+{
+  if (!m_recordingStreamOpen)
+    return -1;
+
+  ssize_t bytesRead = m_recordingStream.Read(buffer, size);
+  return static_cast<int>(bytesRead);
+}
+
+int64_t IptvSimple::SeekRecordedStreamImpl(int64_t position, int whence)
+{
+  if (!m_recordingStreamOpen)
+    return -1;
+
+  return m_recordingStream.Seek(position, whence);
+}
+
+int64_t IptvSimple::LengthRecordedStreamImpl()
+{
+  if (!m_recordingStreamOpen)
+    return -1;
+
+  return m_recordingStream.GetLength();
+}
+
+// Kodi v22 (PVR API 9.x) adds streamId parameter to all recording stream methods
+#ifdef KODI_PVR_API_V9
+bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId)
+{
+  streamId = 1;
+  return OpenRecordedStreamImpl(recording);
+}
+void IptvSimple::CloseRecordedStream(int64_t) { CloseRecordedStreamImpl(); }
+int IptvSimple::ReadRecordedStream(int64_t, unsigned char* buffer, unsigned int size) { return ReadRecordedStreamImpl(buffer, size); }
+int64_t IptvSimple::SeekRecordedStream(int64_t, int64_t position, int whence) { return SeekRecordedStreamImpl(position, whence); }
+int64_t IptvSimple::LengthRecordedStream(int64_t) { return LengthRecordedStreamImpl(); }
+#else
+bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording) { return OpenRecordedStreamImpl(recording); }
+void IptvSimple::CloseRecordedStream() { CloseRecordedStreamImpl(); }
+int IptvSimple::ReadRecordedStream(unsigned char* buffer, unsigned int size) { return ReadRecordedStreamImpl(buffer, size); }
+int64_t IptvSimple::SeekRecordedStream(int64_t position, int whence) { return SeekRecordedStreamImpl(position, whence); }
+int64_t IptvSimple::LengthRecordedStream() { return LengthRecordedStreamImpl(); }
+#endif
 
 /***************************************************************************
  * Signal Status

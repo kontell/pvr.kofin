@@ -66,6 +66,9 @@ namespace iptvsimple
       kodi::addon::SetSettingString("jellyfinDisplayUsername", username);
     }
 
+    // Device identity (unique per Kodi instance, generated on first run)
+    const std::string& GetDeviceId() const { return m_deviceId; }
+
     // Authentication
     const std::string& GetJellyfinAccessToken() const { return m_jellyfinAccessToken; }
     const std::string& GetJellyfinUserId() const { return m_jellyfinUserId; }
@@ -138,6 +141,9 @@ namespace iptvsimple
     bool m_isLoggedIn = false;
     std::string m_jellyfinServerName;
     std::string m_jellyfinDisplayUsername;
+
+    // Device identity
+    std::string m_deviceId;
 
     // Authentication
     std::string m_jellyfinAccessToken;
