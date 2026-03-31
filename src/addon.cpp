@@ -53,7 +53,11 @@ ADDON_STATUS CIptvSimpleAddon::SetSetting(const std::string& settingName, const 
   for (auto& pair : m_usedInstances)
   {
     if (pair.second)
+    {
       pair.second->OnSettingChanged(settingName, settingValue);
+      if (pair.second->NeedsRestart())
+        return ADDON_STATUS_NEED_RESTART;
+    }
   }
 
   return ADDON_STATUS_OK;

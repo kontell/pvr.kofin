@@ -303,3 +303,7 @@ msgstr ""
 msgctxt "#30725"
 msgid "FFmpegDirect settings..."
 msgstr ""
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr ""

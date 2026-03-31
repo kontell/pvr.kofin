@@ -106,6 +106,7 @@ public:
   bool GetChannel(const kodi::addon::PVRChannel& channel, iptvsimple::data::Channel& myChannel);
   bool GetChannel(unsigned int uniqueChannelId, iptvsimple::data::Channel& myChannel);
   void OnSettingChanged(const std::string& settingName, const kodi::addon::CSettingValue& settingValue);
+  bool NeedsRestart() const { return m_needsRestart; }
   //@}
 
 protected:
@@ -135,6 +136,7 @@ private:
   std::thread m_thread;
   std::mutex m_mutex;
   std::atomic_bool m_reloadChannelsGroupsAndEPG{false};
+  std::atomic_bool m_needsRestart{false};
 
   // Recording byte-stream (used by Recordings section playback path)
   bool OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recording);

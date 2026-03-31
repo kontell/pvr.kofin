@@ -573,7 +573,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
   //    The Status field on each item tells us if it's still recording.
   {
     const std::string endpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
-      + "&EnableImages=true&Fields=Overview,ChannelInfo,ProgramId";
+      + "&EnableImages=true&Fields=Overview,ChannelInfo,ProgramId,DateCreated";
     Json::Value response = m_client->SendGet(endpoint);
     if (!response.isNull() && response.isMember("Items"))
     {

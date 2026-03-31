@@ -60,8 +60,8 @@ CIptvSimpleAddon (addon.cpp)         — Kodi addon entry point, creates PVR ins
 
 - **Single instance, global settings**: No multi-instance PVR support. Uses `settings.xml` (old flat format), NOT `instance-settings.xml`. Settings read via `kodi::addon::GetSettingXxx()`.
 - **Stream properties approach** (not demuxer): `GetChannelStreamProperties()` returns URL + inputstream config to Kodi. StreamUtils from iptvsimple handles inputstream selection (ffmpegdirect or adaptive).
-- **Live stream lifecycle**: `GetLiveStreamUrl()` POSTs to `/Items/{id}/PlaybackInfo` with `AutoOpenLiveStream=true`, tracks `LiveStreamId`. `CloseLiveStream()` sends `POST /LiveStreams/Close`.
-- **Device profile**: HLS with fMP4 segments (AV1) or MPEG-TS segments (H264/HEVC), codec preferences from settings (H264/H265/AV1, AAC/AC3/MP3/Opus), configurable max bitrate. The device profile and PlaybackInfo request should mirror the jellyfin-kodi Python addon at `/media/bluecon/docs/IT/kofin/jellyfin-kodi/`.
+- **Live stream lifecycle**: `GetLiveStreamUrl()` POSTs to `/Items/{id}/PlaybackInfo` with `AutoOpenLiveStream=true`, tracks `LiveStreamId`. `CloseLiveStream()` sends `POST /LiveStreams/Close` with JSON body on a detached thread. The server handles session/dashboard tracking automatically from `AutoOpenLiveStream` — no explicit `Sessions/Playing` reports needed. Note: Kodi v21 does NOT call `CloseLiveStream()` during normal playback stop when using `GetChannelStreamProperties()`; it only fires from the destructor or when switching channels via `GetItemStreamUrl()`.
+- **Device profile**: Remux mode (unlimited bitrate): single TS TranscodingProfile with all non-AV1 codecs. Transcode mode (limited bitrate): single profile with only the preferred codec in the correct container (AV1→fMP4, others→TS). DirectPlayProfiles only populated when force remux is off AND bitrate is unlimited (Jellyfin ignores MaxStreamingBitrate for Protocol=Http live TV DirectPlay decisions).
 - **Timer types**: 3 types: `TIMER_ONCE_EPG`, `TIMER_ONCE_CREATED_BY_SERIES` (read-only child), `TIMER_SERIES`.
 - **Authentication**: Username/password (`POST /Users/AuthenticateByName`) or Quick Connect (initiated from Login settings button). Access token + user ID persisted to settings. On startup, validates stored token only — no automatic username/password retry (user must log in again via settings if token expires).
 - **HTTP via Kodi VFS**: `kodi::vfs::CFile` for all HTTP — POST data must be Base64-encoded via the `postdata` protocol option.
@@ -83,7 +83,7 @@ CIptvSimpleAddon (addon.cpp)         — Kodi addon entry point, creates PVR ins
 
 **In-progress recordings:** Detected via `/LiveTv/Recordings?IsInProgress=true`. Timer name → channel UID / ProgramId cross-reference provides EPG linking (`SetEPGEventId`/`SetChannelUid`). `Process()` loop polls timers/recordings every 60 seconds and triggers Kodi UI updates.
 
-**Container logic:** The recording device profile always requests TS container. For live TV, the `PostProcessTranscodingUrl()` only sets `SegmentContainer=mp4` (fMP4) when the actual stream codec is AV1 (checked from the URL's `VideoCodec=` param), not based on the preferred codec setting. H264/HEVC streams stay in TS regardless of the preferred codec preference.
+**Container logic:** The recording device profile always requests TS container. For live TV, `BuildDeviceProfile()` creates a single TranscodingProfile per mode: remux (TS, all non-AV1 codecs) or transcode (preferred codec only, AV1→fMP4/others→TS). The server sets `SegmentContainer` correctly based on the profile. `PostProcessTranscodingUrl()` only recalculates bitrates and rewrites `stream`/`master` → `live` in the URL path.
 
 ### Jellyfin API Gotchas
 

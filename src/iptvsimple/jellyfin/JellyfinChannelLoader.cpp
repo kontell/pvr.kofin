@@ -233,14 +233,6 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
   profile["MusicStreamingTranscodingBitrate"] = 1280000;
   profile["TimelineOffsetSeconds"] = 5;
 
-  // Build video codec list with preferred codec first
-  std::string videoCodecs = preferredVideo;
-  for (const char* codec : {"h264", "hevc", "av1", "mpeg2video"})
-  {
-    if (preferredVideo != codec)
-      videoCodecs += std::string(",") + codec;
-  }
-
   // Build audio codec list with preferred codec first
   std::string audioCodecs = preferredAudio;
   for (const char* codec : {"aac", "mp3", "ac3", "eac3", "opus", "flac"})
@@ -249,15 +241,41 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
       audioCodecs += std::string(",") + codec;
   }
 
-  // Live TV transcoding profile: MPEG-TS segments via HLS
-  // AV1 fMP4 segments are requested via SegmentContainer URL param in PostProcessTranscodingUrl
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
+
+  // TranscodingProfiles differ between remux (unlimited bitrate, codec copy)
+  // and transcode (limited bitrate, re-encode to preferred codec).
+  //
+  // For live TV, Jellyfin always allows DirectPlay for Protocol=Http regardless
+  // of MaxStreamingBitrate, so DirectPlayProfiles must be empty to force
+  // transcoding when a bitrate limit is set.
   Json::Value transcodingProfiles(Json::arrayValue);
+
+  if (bitrateUnlimited)
   {
+    // Remux mode: codec-copy into TS. Accept all non-AV1 codecs.
+    // (AV1 source remux is an edge case we don't handle.)
     Json::Value tp;
     tp["Container"] = "ts";
     tp["Type"] = "Video";
     tp["AudioCodec"] = audioCodecs;
-    tp["VideoCodec"] = videoCodecs;
+    tp["VideoCodec"] = "h264,hevc,mpeg2video";
+    tp["Context"] = "Streaming";
+    tp["Protocol"] = "hls";
+    tp["MaxAudioChannels"] = "6";
+    tp["MinSegments"] = "1";
+    tp["BreakOnNonKeyFrames"] = true;
+    transcodingProfiles.append(tp);
+  }
+  else
+  {
+    // Transcode mode: re-encode to the preferred codec only.
+    // AV1 → fMP4 (AV1 can't go in MPEG-TS), everything else → TS.
+    Json::Value tp;
+    tp["Container"] = (preferredVideo == "av1") ? "mp4" : "ts";
+    tp["Type"] = "Video";
+    tp["AudioCodec"] = audioCodecs;
+    tp["VideoCodec"] = preferredVideo;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
     tp["MaxAudioChannels"] = "6";
@@ -267,13 +285,16 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
   }
   profile["TranscodingProfiles"] = transcodingProfiles;
 
-  // Direct play profiles (empty when force transcoding)
+  // Direct play only when force remux is off AND no bitrate limit.
+  // For live TV (Protocol=Http), Jellyfin ignores MaxStreamingBitrate for
+  // DirectPlay decisions, so we must clear DirectPlayProfiles to force
+  // transcoding when a bitrate limit is set.
   Json::Value directPlayProfiles(Json::arrayValue);
-  if (!forceTranscode)
+  if (!forceTranscode && bitrateUnlimited)
   {
     Json::Value v;
     v["Type"] = "Video";
-    v["VideoCodec"] = videoCodecs;
+    v["VideoCodec"] = "av1,h264,hevc,mpeg2video";
     directPlayProfiles.append(v);
     Json::Value a;
     a["Type"] = "Audio";
@@ -443,13 +464,13 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
   return streamUrl;
 }
 
-std::string JellyfinChannelLoader::PostProcessTranscodingUrl(const std::string& transcodingUrl)
+std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
+    const std::string& transcodingUrl)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
   // - Replace "stream"/"master" with "live" for live TV
   // - Recalculate audio/video bitrates
-  // - AV1 actual codec: set SegmentContainer=mp4 (fMP4 for AV1 only, TS for H264/HEVC)
-  // - Add maxWidth/maxHeight
+  // SegmentContainer is left as-is (set correctly by server via dual TranscodingProfiles)
 
   auto qPos = transcodingUrl.find('?');
   if (qPos == std::string::npos)
@@ -470,30 +491,10 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(const std::string& 
     start = end + 1;
   }
 
-  // Detect actual video codec from URL params (not the preferred setting)
-  std::string actualVideoCodec;
-  for (const auto& p : params)
-  {
-    if (p.find("VideoCodec=") == 0)
-    {
-      actualVideoCodec = p.substr(11);
-      break;
-    }
-  }
-
-  // Strip existing AudioBitrate and VideoBitrate
+  // Strip existing AudioBitrate and VideoBitrate (recalculated below)
   params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
     return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
   }), params.end());
-
-  // AV1 in fMP4, everything else in TS (the default from the transcoding profile)
-  const bool streamIsAV1 = (actualVideoCodec == "av1");
-  if (streamIsAV1)
-  {
-    params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
-      return p.find("SegmentContainer=") == 0;
-    }), params.end());
-  }
 
   // Recalculate bitrates
   const int maxBitrateBps = m_settings->GetMaxBitrateBps();
@@ -510,11 +511,6 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(const std::string& 
   }
   newParams += "&VideoBitrate=" + std::to_string(videoBitrate);
   newParams += "&AudioBitrate=" + std::to_string(audioBitrate);
-
-  if (streamIsAV1)
-    newParams += "&SegmentContainer=mp4";
-
-  newParams += "&maxWidth=1920&maxHeight=1080";
 
   // Replace "stream" or "master" with "live" in URL path for live TV
   std::string search = (base.find("stream") != std::string::npos) ? "stream" : "master";
@@ -595,8 +591,10 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
 
   std::string streamUrl;
 
-  // For force transcode or server-initiated transcode: post-process the URL
-  // matching jellyfin-kodi's transcode() method (stream→live rewrite, bitrate recalc, etc.)
+  // For force remux or server-initiated transcode: post-process the URL
+  // matching jellyfin-kodi's transcode() method (stream→live rewrite, bitrate recalc).
+  // SegmentContainer is already correct from the server (dual TranscodingProfiles:
+  // AV1→fMP4, non-AV1→TS), so we don't override it here.
   if (source.isMember("TranscodingUrl") && !source["TranscodingUrl"].asString().empty())
   {
     streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString());
@@ -639,16 +637,12 @@ void JellyfinChannelLoader::CloseLiveStream()
   if (m_activeLiveStreamId.empty())
     return;
 
-  // Capture state and clear immediately so we don't double-close
   const std::string liveStreamId = m_activeLiveStreamId;
   m_activeLiveStreamId.clear();
 
   Logger::Log(LEVEL_INFO, "%s - Closing live stream %s (async)", __FUNCTION__, liveStreamId.c_str());
 
   // Close on a detached thread so we don't block ffmpegdirect's shutdown.
-  // Releasing the tuner immediately causes the HLS source to stop serving
-  // segments, which lets ffmpegdirect's timeshift buffer close quickly
-  // instead of waiting for HTTP timeouts.
   auto client = m_client;
   std::thread([client, liveStreamId]() {
     Json::Value body;

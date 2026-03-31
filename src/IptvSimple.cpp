@@ -845,6 +845,15 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     }
     return;
   }
+  else if (settingName == "restartAddon")
+  {
+    if (settingValue.GetString() == "trigger")
+    {
+      kodi::addon::SetSettingString("restartAddon", "");
+      m_needsRestart = true;
+    }
+    return;
+  }
 
   // Ignore programmatic updates to prevent callback loops
   if (settingName == "isLoggedIn" || settingName == "jellyfinServerName" ||
