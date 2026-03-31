@@ -18,6 +18,7 @@
 #include <memory>
 
 #include <kodi/General.h>
+#include <kodi/gui/General.h>
 #include <kodi/gui/dialogs/Keyboard.h>
 #include <kodi/gui/dialogs/Progress.h>
 #include <kodi/gui/dialogs/Select.h>
@@ -372,6 +373,16 @@ void IptvSimple::Process()
 
     if (refreshTimer >= static_cast<unsigned int>(m_settings->GetJellyfinUpdateIntervalHours() * 3600))
       m_reloadChannelsGroupsAndEPG = true;
+
+    // Detect playback stop: Kodi v21 doesn't call CloseLiveStream() for
+    // PVR addons using GetChannelStreamProperties(). Check the window ID —
+    // fullscreen video (12005/12006) means playback is active.
+    if (m_running && m_channelLoader && m_channelLoader->HasActiveSession())
+    {
+      int wid = kodi::gui::GetCurrentWindowId();
+      if (wid != 12005 && wid != 12006)
+        m_channelLoader->CloseLiveStream();
+    }
 
     // Poll timers/recordings every 60s so Kodi learns about new/changed
     // recordings without a restart (EPG recording indicators, widgets, etc.)

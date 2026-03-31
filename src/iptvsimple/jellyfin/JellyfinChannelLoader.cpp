@@ -417,20 +417,23 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
 
   const Json::Value& source = response["MediaSources"][0];
 
-  // Track LiveStreamId for cleanup
-  if (source.isMember("LiveStreamId"))
-    m_activeLiveStreamId = source["LiveStreamId"].asString();
-  else
-    m_activeLiveStreamId.clear();
+  // Track session state for reporting and cleanup
+  m_activeLiveStreamId = source.get("LiveStreamId", "").asString();
+  m_activePlaySessionId = response.get("PlaySessionId", "").asString();
+  m_activeMediaSourceId = source.get("Id", "").asString();
+  m_activeItemId = recordingId;
 
-  Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, SupportsDirectPlay: %s, TranscodingUrl: %s",
-              __FUNCTION__, m_activeLiveStreamId.c_str(),
-              source.get("SupportsDirectPlay", false).asBool() ? "true" : "false",
-              source.isMember("TranscodingUrl") ? "present" : "absent");
+  const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
+    && !source["TranscodingUrl"].asString().empty();
+  m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
+
+  Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlayMethod: %s, TranscodingUrl: %s",
+              __FUNCTION__, m_activeLiveStreamId.c_str(), m_activePlayMethod.c_str(),
+              hasTranscodingUrl ? "present" : "absent");
 
   std::string streamUrl;
 
-  if (source.isMember("TranscodingUrl") && !source["TranscodingUrl"].asString().empty())
+  if (hasTranscodingUrl)
   {
     // Prepend base URL — no live rewrite or bitrate recalc needed for recordings
     streamUrl = m_client->GetBaseUrl() + source["TranscodingUrl"].asString();
@@ -461,6 +464,9 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
 
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
+
+  ScheduleDeferredPlayingReport();
+
   return streamUrl;
 }
 
@@ -574,28 +580,28 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
 
   const Json::Value& source = response["MediaSources"][0];
 
-  // Track LiveStreamId for cleanup
-  if (source.isMember("LiveStreamId"))
-    m_activeLiveStreamId = source["LiveStreamId"].asString();
-  else
-    m_activeLiveStreamId.clear();
+  // Track session state for reporting and cleanup
+  m_activeLiveStreamId = source.get("LiveStreamId", "").asString();
+  m_activePlaySessionId = response.get("PlaySessionId", "").asString();
+  m_activeMediaSourceId = source.get("Id", "").asString();
+  m_activeItemId = itemId;
 
-  // Log server decision for debugging transcoding behaviour
-  Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, SupportsDirectPlay: %s, SupportsDirectStream: %s, "
-              "TranscodingUrl: %s, Bitrate: %d",
-              __FUNCTION__, m_activeLiveStreamId.c_str(),
+  const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
+    && !source["TranscodingUrl"].asString().empty();
+  m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
+
+  Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlaySessionId: %s, PlayMethod: %s, "
+              "SupportsDirectPlay: %s, Bitrate: %d",
+              __FUNCTION__, m_activeLiveStreamId.c_str(), m_activePlaySessionId.c_str(),
+              m_activePlayMethod.c_str(),
               source.get("SupportsDirectPlay", false).asBool() ? "true" : "false",
-              source.get("SupportsDirectStream", false).asBool() ? "true" : "false",
-              source.isMember("TranscodingUrl") ? "present" : "absent",
               source.get("Bitrate", 0).asInt());
 
   std::string streamUrl;
 
   // For force remux or server-initiated transcode: post-process the URL
   // matching jellyfin-kodi's transcode() method (stream→live rewrite, bitrate recalc).
-  // SegmentContainer is already correct from the server (dual TranscodingProfiles:
-  // AV1→fMP4, non-AV1→TS), so we don't override it here.
-  if (source.isMember("TranscodingUrl") && !source["TranscodingUrl"].asString().empty())
+  if (hasTranscodingUrl)
   {
     streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString());
   }
@@ -629,28 +635,110 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
 
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
+
+  // Schedule deferred Sessions/Playing report — gives Kodi time to connect
+  // to the stream so the server has an active transcode job before we report.
+  ScheduleDeferredPlayingReport();
+
   return streamUrl;
 }
 
 void JellyfinChannelLoader::CloseLiveStream()
 {
-  if (m_activeLiveStreamId.empty())
+  if (m_activeLiveStreamId.empty() && m_activePlaySessionId.empty())
     return;
 
+  // Increment generation — cancels any pending deferred Sessions/Playing report
+  ++m_sessionGen;
+
   const std::string liveStreamId = m_activeLiveStreamId;
+  const std::string playSessionId = m_activePlaySessionId;
+  const std::string mediaSourceId = m_activeMediaSourceId;
+  const std::string itemId = m_activeItemId;
   m_activeLiveStreamId.clear();
+  m_activePlaySessionId.clear();
+  m_activeMediaSourceId.clear();
+  m_activeItemId.clear();
+  m_activePlayMethod.clear();
 
-  Logger::Log(LEVEL_INFO, "%s - Closing live stream %s (async)", __FUNCTION__, liveStreamId.c_str());
+  Logger::Log(LEVEL_INFO, "%s - Closing session %s, stream %s (async)",
+              __FUNCTION__, playSessionId.c_str(), liveStreamId.c_str());
 
-  // Close on a detached thread so we don't block ffmpegdirect's shutdown.
   auto client = m_client;
-  std::thread([client, liveStreamId]() {
-    Json::Value body;
-    body["LiveStreamId"] = liveStreamId;
-    Json::StreamWriterBuilder writer;
-    writer["indentation"] = "";
-    client->SendPost("/LiveStreams/Close", Json::writeString(writer, body));
+  std::thread([client, playSessionId, mediaSourceId, itemId, liveStreamId]() {
+    // Report playback stopped
+    if (!playSessionId.empty() && !itemId.empty())
+    {
+      Json::Value stopBody;
+      stopBody["ItemId"] = itemId;
+      stopBody["MediaSourceId"] = mediaSourceId;
+      stopBody["PositionTicks"] = 0;
+      stopBody["PlaySessionId"] = playSessionId;
+      Json::StreamWriterBuilder w;
+      w["indentation"] = "";
+      client->SendPost("/Sessions/Playing/Stopped", Json::writeString(w, stopBody));
+    }
+
+    // Close the live stream (query param format; "{}" body forces POST via CFile)
+    if (!liveStreamId.empty())
+    {
+      const std::string endpoint = "/LiveStreams/Close?liveStreamId="
+        + WebUtils::UrlEncode(liveStreamId);
+      client->SendPost(endpoint, "{}");
+    }
   }).detach();
+}
+
+Json::Value JellyfinChannelLoader::BuildSessionBody() const
+{
+  Json::Value body;
+  body["QueueableMediaTypes"] = "Video,Audio";
+  body["CanSeek"] = true;
+  body["ItemId"] = m_activeItemId;
+  body["MediaSourceId"] = m_activeMediaSourceId;
+  body["PlayMethod"] = m_activePlayMethod;
+  body["PlaySessionId"] = m_activePlaySessionId;
+  body["PositionTicks"] = 0;
+  body["IsPaused"] = false;
+  body["IsMuted"] = false;
+  body["VolumeLevel"] = 100;
+  return body;
+}
+
+void JellyfinChannelLoader::ScheduleDeferredPlayingReport()
+{
+  m_sessionStartTime = std::time(nullptr);
+  const uint32_t gen = m_sessionGen.load();
+  auto client = m_client;
+  auto body = BuildSessionBody();
+
+  Logger::Log(LEVEL_INFO, "%s - Scheduling Sessions/Playing (gen=%u, method=%s)",
+              __FUNCTION__, gen, m_activePlayMethod.c_str());
+
+  std::thread([this, client, body, gen]() {
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    if (m_sessionGen.load() != gen)
+    {
+      Logger::Log(LEVEL_INFO, "Deferred Sessions/Playing skipped — session generation changed");
+      return;
+    }
+
+    Json::StreamWriterBuilder w;
+    w["indentation"] = "";
+    client->SendPost("/Sessions/Playing", Json::writeString(w, body));
+  }).detach();
+}
+
+void JellyfinChannelLoader::ReportProgress()
+{
+  if (m_activePlaySessionId.empty())
+    return;
+
+  auto body = BuildSessionBody();
+  Json::StreamWriterBuilder w;
+  w["indentation"] = "";
+  m_client->SendPost("/Sessions/Playing/Progress", Json::writeString(w, body));
 }
 
 const std::string& JellyfinChannelLoader::GetJellyfinId(int channelUid) const
