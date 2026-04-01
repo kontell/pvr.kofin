@@ -331,6 +331,8 @@ PVR_ERROR IptvSimple::GetCapabilities(kodi::addon::PVRCapabilities& capabilities
   capabilities.SetSupportsRecordingsRename(false);
   capabilities.SetSupportsRecordingsLifetimeChange(false);
   capabilities.SetSupportsRecordingsDelete(true);
+  capabilities.SetSupportsRecordingPlayCount(true);
+  capabilities.SetSupportsLastPlayedPosition(true);
   capabilities.SetSupportsDescrambleInfo(false);
 
   return PVR_ERROR_NO_ERROR;
@@ -697,6 +699,27 @@ PVR_ERROR IptvSimple::GetRecordingStreamProperties(const kodi::addon::PVRRecordi
 {
   if (m_recordingManager)
     return m_recordingManager->GetRecordingStreamProperties(recording, properties);
+  return PVR_ERROR_NOT_IMPLEMENTED;
+}
+
+PVR_ERROR IptvSimple::SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count)
+{
+  if (m_recordingManager)
+    return m_recordingManager->SetRecordingPlayCount(recording, count);
+  return PVR_ERROR_NOT_IMPLEMENTED;
+}
+
+PVR_ERROR IptvSimple::SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition)
+{
+  if (m_recordingManager)
+    return m_recordingManager->SetRecordingLastPlayedPosition(recording, lastplayedposition);
+  return PVR_ERROR_NOT_IMPLEMENTED;
+}
+
+PVR_ERROR IptvSimple::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position)
+{
+  if (m_recordingManager)
+    return m_recordingManager->GetRecordingLastPlayedPosition(recording, position);
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 

@@ -55,6 +55,9 @@ public:
   PVR_ERROR DeleteRecording(const kodi::addon::PVRRecording& recording);
   PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording,
                                           std::vector<kodi::addon::PVRStreamProperty>& properties);
+  PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count);
+  PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition);
+  PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position);
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
 

@@ -446,6 +446,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
   const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
     && !source["TranscodingUrl"].asString().empty();
   m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
+  m_activeIsRecording = true;
 
   Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlayMethod: %s, TranscodingUrl: %s",
               __FUNCTION__, m_activeLiveStreamId.c_str(), m_activePlayMethod.c_str(),
@@ -609,6 +610,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
   const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
     && !source["TranscodingUrl"].asString().empty();
   m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
+  m_activeIsRecording = false;
 
   Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlaySessionId: %s, PlayMethod: %s, "
               "SupportsDirectPlay: %s, Bitrate: %d",
@@ -680,19 +682,24 @@ void JellyfinChannelLoader::CloseLiveStream()
   m_activeMediaSourceId.clear();
   m_activeItemId.clear();
   m_activePlayMethod.clear();
+  const bool isRecording = m_activeIsRecording;
+  m_activeIsRecording = false;
 
-  Logger::Log(LEVEL_INFO, "%s - Closing session %s, stream %s (async)",
-              __FUNCTION__, playSessionId.c_str(), liveStreamId.c_str());
+  Logger::Log(LEVEL_INFO, "%s - Closing session %s, stream %s (async, recording=%s)",
+              __FUNCTION__, playSessionId.c_str(), liveStreamId.c_str(),
+              isRecording ? "yes" : "no");
 
   auto client = m_client;
-  std::thread([client, playSessionId, mediaSourceId, itemId, liveStreamId]() {
-    // Report playback stopped
-    if (!playSessionId.empty() && !itemId.empty())
+  std::thread([client, playSessionId, mediaSourceId, itemId, liveStreamId, isRecording]() {
+    // Report playback stopped — skip for recordings because the server
+    // treats Sessions/Playing/Stopped as "fully watched" (sets Played=true,
+    // resets position to 0). Recording watched state is handled by
+    // SetRecordingPlayCount/SetRecordingLastPlayedPosition instead.
+    if (!isRecording && !playSessionId.empty() && !itemId.empty())
     {
       Json::Value stopBody;
       stopBody["ItemId"] = itemId;
       stopBody["MediaSourceId"] = mediaSourceId;
-      stopBody["PositionTicks"] = 0;
       stopBody["PlaySessionId"] = playSessionId;
       Json::StreamWriterBuilder w;
       w["indentation"] = "";
@@ -727,7 +734,6 @@ Json::Value JellyfinChannelLoader::BuildSessionBody() const
 
 void JellyfinChannelLoader::ScheduleDeferredPlayingReport()
 {
-  m_sessionStartTime = std::time(nullptr);
   const uint32_t gen = m_sessionGen.load();
   auto client = m_client;
   auto body = BuildSessionBody();
@@ -750,16 +756,6 @@ void JellyfinChannelLoader::ScheduleDeferredPlayingReport()
   }).detach();
 }
 
-void JellyfinChannelLoader::ReportProgress()
-{
-  if (m_activePlaySessionId.empty())
-    return;
-
-  auto body = BuildSessionBody();
-  Json::StreamWriterBuilder w;
-  w["indentation"] = "";
-  m_client->SendPost("/Sessions/Playing/Progress", Json::writeString(w, body));
-}
 
 const std::string& JellyfinChannelLoader::GetJellyfinId(int channelUid) const
 {

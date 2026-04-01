@@ -12,7 +12,6 @@
 #include "JellyfinClient.h"
 
 #include <atomic>
-#include <ctime>
 #include <map>
 #include <memory>
 #include <string>
@@ -37,14 +36,6 @@ public:
   std::string GetItemStreamUrl(const std::string& itemId);
   std::string GetRecordingStreamUrl(const std::string& recordingId);
   void CloseLiveStream();
-  // Returns true if there's an active session AND it's been open long enough
-  // for Kodi to have entered fullscreen video (grace period for window ID check).
-  bool HasActiveSession() const
-  {
-    return !m_activePlaySessionId.empty()
-      && (std::time(nullptr) - m_sessionStartTime) >= 5;
-  }
-  void ReportProgress();
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
 
@@ -73,8 +64,8 @@ private:
   std::string m_activeMediaSourceId;
   std::string m_activePlaySessionId;
   std::string m_activePlayMethod;         // "DirectPlay" or "Transcode"
+  bool m_activeIsRecording{false};        // true for recordings — skip Sessions/Playing/Stopped
   std::atomic<uint32_t> m_sessionGen{0};  // generation counter — deferred threads check before sending
-  time_t m_sessionStartTime{0};           // when session was opened — grace period for stop detection
 
   void ScheduleDeferredPlayingReport();
   Json::Value BuildSessionBody() const;

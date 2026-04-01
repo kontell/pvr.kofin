@@ -162,17 +162,11 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    // Apply user padding overrides
-    if (timer.GetMarginStart() > 0)
-    {
-      defaults["IsPrePaddingRequired"] = true;
-      defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
-    }
-    if (timer.GetMarginEnd() > 0)
-    {
-      defaults["IsPostPaddingRequired"] = true;
-      defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
-    }
+    // Apply user padding
+    defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
+    defaults["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
+    defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
+    defaults["IsPostPaddingRequired"] = timer.GetMarginEnd() > 0;
 
     Json::StreamWriterBuilder writer;
     writer["indentation"] = "";
@@ -188,17 +182,56 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
   }
   else if (timer.GetTimerType() == TIMER_SERIES)
   {
-    const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+    // Look up Jellyfin program ID from EPG — same as single timers
+    std::string programId = m_channelLoader->GetJellyfinProgramId(timer.GetEPGUid());
 
-    Json::Value seriesBody;
-    if (!channelJfId.empty())
-      seriesBody["ChannelId"] = channelJfId;
-    seriesBody["Name"] = timer.GetTitle();
-    seriesBody["RecordAnyChannel"] = (timer.GetClientChannelUid() == PVR_TIMER_ANY_CHANNEL);
-    seriesBody["RecordAnyTime"] = true;
-    seriesBody["RecordNewOnly"] = timer.GetPreventDuplicateEpisodes() > 0;
+    if (programId.empty() && timer.GetStartTime() > 0)
+    {
+      Logger::Log(LEVEL_INFO, "%s - Series timer EPG map miss for UID %d, querying by channel+time",
+                  __FUNCTION__, timer.GetEPGUid());
 
-    // Map weekdays bitmask to Jellyfin Days array
+      const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+      if (!channelJfId.empty())
+      {
+        const std::string startIso = FormatIso8601(timer.GetStartTime());
+        const std::string endIso = FormatIso8601(timer.GetStartTime() + 60);
+        const std::string endpoint = "/LiveTv/Programs?ChannelIds=" + channelJfId
+          + "&MinStartDate=" + WebUtils::UrlEncode(startIso)
+          + "&MaxStartDate=" + WebUtils::UrlEncode(endIso)
+          + "&Limit=1";
+
+        Json::Value response = m_client->SendGet(endpoint);
+        if (!response.isNull() && response.isMember("Items") && !response["Items"].empty())
+        {
+          programId = response["Items"][0]["Id"].asString();
+          Logger::Log(LEVEL_INFO, "%s - Found program %s via channel+time fallback",
+                      __FUNCTION__, programId.c_str());
+        }
+      }
+    }
+
+    if (programId.empty())
+    {
+      Logger::Log(LEVEL_ERROR, "%s - No Jellyfin program ID for series timer EPG UID %d",
+                  __FUNCTION__, timer.GetEPGUid());
+      return PVR_ERROR_INVALID_PARAMETERS;
+    }
+
+    // Get timer defaults for this program — gives us the full template
+    Json::Value defaults = m_client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
+    if (defaults.isNull())
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Failed to get timer defaults for program %s",
+                  __FUNCTION__, programId.c_str());
+      return PVR_ERROR_SERVER_ERROR;
+    }
+
+    // Override with series-specific settings
+    defaults["RecordAnyTime"] = true;
+    defaults["RecordAnyChannel"] = (timer.GetClientChannelUid() == PVR_TIMER_ANY_CHANNEL);
+    defaults["RecordNewOnly"] = timer.GetPreventDuplicateEpisodes() > 0;
+
+    // Weekdays
     Json::Value days(Json::arrayValue);
     unsigned int weekdays = timer.GetWeekdays();
     if (weekdays & PVR_WEEKDAY_MONDAY) days.append("Monday");
@@ -209,19 +242,24 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
     if (weekdays & PVR_WEEKDAY_SATURDAY) days.append("Saturday");
     if (weekdays & PVR_WEEKDAY_SUNDAY) days.append("Sunday");
     if (!days.empty())
-      seriesBody["Days"] = days;
+      defaults["Days"] = days;
+
+    // Padding
+    defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
+    defaults["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
+    defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
+    defaults["IsPostPaddingRequired"] = timer.GetMarginEnd() > 0;
 
     Json::StreamWriterBuilder writer;
     writer["indentation"] = "";
-    const std::string bodyStr = Json::writeString(writer, seriesBody);
+    const std::string bodyStr = Json::writeString(writer, defaults);
 
-    Logger::Log(LEVEL_INFO, "%s - Creating series timer: %s",
-                __FUNCTION__, timer.GetTitle().c_str());
+    Logger::Log(LEVEL_INFO, "%s - Creating series timer: %s (program %s)",
+                __FUNCTION__, timer.GetTitle().c_str(), programId.c_str());
 
-    Json::Value response = m_client->SendPost("/LiveTv/SeriesTimers", bodyStr);
+    m_client->SendPost("/LiveTv/SeriesTimers", bodyStr);
 
     Reload();
-
     return PVR_ERROR_NO_ERROR;
   }
 
@@ -276,11 +314,75 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
 
 PVR_ERROR JellyfinRecordingManager::UpdateTimer(const kodi::addon::PVRTimer& timer)
 {
-  // Jellyfin doesn't have a straightforward timer update endpoint.
-  // For enable/disable, we'd need to cancel and recreate.
-  // For now, return not implemented.
-  Logger::Log(LEVEL_DEBUG, "%s - Timer update not yet supported", __FUNCTION__);
-  return PVR_ERROR_NOT_IMPLEMENTED;
+  const int clientIndex = timer.GetClientIndex();
+  const bool isSeries = (timer.GetTimerType() == TIMER_SERIES);
+  std::string jellyfinId;
+
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (isSeries)
+    {
+      auto it = m_seriesTimerUidToId.find(clientIndex);
+      if (it == m_seriesTimerUidToId.end())
+        return PVR_ERROR_INVALID_PARAMETERS;
+      jellyfinId = it->second;
+    }
+    else
+    {
+      auto it = m_timerUidToId.find(clientIndex);
+      if (it == m_timerUidToId.end())
+        return PVR_ERROR_INVALID_PARAMETERS;
+      jellyfinId = it->second;
+    }
+  }
+
+  // GET the existing timer, modify, POST back
+  const std::string endpoint = isSeries
+    ? "/LiveTv/SeriesTimers/" + jellyfinId
+    : "/LiveTv/Timers/" + jellyfinId;
+
+  Json::Value existing = m_client->SendGet(endpoint);
+  if (existing.isNull())
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Failed to get timer %s for update", __FUNCTION__, jellyfinId.c_str());
+    return PVR_ERROR_SERVER_ERROR;
+  }
+
+  // Apply Kodi's changes
+  existing["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
+  existing["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
+  existing["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
+  existing["IsPostPaddingRequired"] = timer.GetMarginEnd() > 0;
+
+  if (isSeries)
+  {
+    existing["RecordAnyChannel"] = (timer.GetClientChannelUid() == PVR_TIMER_ANY_CHANNEL);
+    existing["RecordNewOnly"] = timer.GetPreventDuplicateEpisodes() > 0;
+
+    Json::Value days(Json::arrayValue);
+    unsigned int weekdays = timer.GetWeekdays();
+    if (weekdays & PVR_WEEKDAY_MONDAY) days.append("Monday");
+    if (weekdays & PVR_WEEKDAY_TUESDAY) days.append("Tuesday");
+    if (weekdays & PVR_WEEKDAY_WEDNESDAY) days.append("Wednesday");
+    if (weekdays & PVR_WEEKDAY_THURSDAY) days.append("Thursday");
+    if (weekdays & PVR_WEEKDAY_FRIDAY) days.append("Friday");
+    if (weekdays & PVR_WEEKDAY_SATURDAY) days.append("Saturday");
+    if (weekdays & PVR_WEEKDAY_SUNDAY) days.append("Sunday");
+    if (!days.empty())
+      existing["Days"] = days;
+  }
+
+  Json::StreamWriterBuilder writer;
+  writer["indentation"] = "";
+  const std::string bodyStr = Json::writeString(writer, existing);
+
+  Logger::Log(LEVEL_INFO, "%s - Updating %stimer %s: %s", __FUNCTION__,
+              isSeries ? "series " : "", jellyfinId.c_str(), timer.GetTitle().c_str());
+
+  m_client->SendPost(endpoint, bodyStr);
+
+  Reload();
+  return PVR_ERROR_NO_ERROR;
 }
 
 /***************************************************************************
@@ -328,9 +430,11 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   const std::string recordingId = recording.GetRecordingId();
+  const bool inProgress = m_inProgressRecordingIds.count(recordingId) > 0;
 
-  // Remux recording into TS via PlaybackInfo — gives proper seeking with ffmpegdirect.
-  // This is independent of live TV transcode settings (unlimited bitrate = copy, TS container).
+  // In-progress recordings: remux via PlaybackInfo + inputstream.adaptive
+  // (HLS with EVENT playlist type for live-edge seeking).
+  // Completed recordings: direct stream URL via Kodi's internal inputstream.
   const std::string streamUrl = m_channelLoader->GetRecordingStreamUrl(recordingId);
   if (streamUrl.empty())
   {
@@ -339,14 +443,19 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  Logger::Log(LEVEL_INFO, "%s - Recording stream URL (id=%s): %s", __FUNCTION__,
-              recordingId.c_str(), WebUtils::RedactUrl(streamUrl).c_str());
+  Logger::Log(LEVEL_INFO, "%s - Recording stream URL (id=%s, inProgress=%d): %s",
+              __FUNCTION__, recordingId.c_str(), inProgress ? 1 : 0,
+              WebUtils::RedactUrl(streamUrl).c_str());
 
   properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamUrl);
-  properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
-  properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
-  properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, "false");
-  properties.emplace_back("inputstream.adaptive.manifest_type", "hls");
+  properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, inProgress ? "true" : "false");
+
+  if (inProgress)
+  {
+    properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
+    properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
+    properties.emplace_back("inputstream.adaptive.manifest_type", "hls");
+  }
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -597,54 +706,9 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     }
   }
 
-  // 2. Completed recordings from library view or /LiveTv/Recordings fallback
-  {
-    std::string recordingsEndpoint;
-
-    Json::Value views = m_client->SendGet("/Users/" + m_client->GetUserId() + "/Views");
-    if (!views.isNull() && views.isMember("Items"))
-    {
-      for (const auto& view : views["Items"])
-      {
-        std::string name = view.get("Name", "").asString();
-        std::string nameLower = name;
-        std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
-        if (nameLower.find("record") != std::string::npos)
-        {
-          const std::string viewId = view["Id"].asString();
-          recordingsEndpoint = "/Users/" + m_client->GetUserId() + "/Items"
-            "?ParentId=" + viewId
-            + "&Recursive=true"
-            + "&IncludeItemTypes=Movie,Episode,Video,Recording"
-            + "&Fields=Overview,ChannelInfo,DateCreated"
-            + "&EnableImages=true&EnableUserData=true"
-            + "&SortBy=DateCreated&SortOrder=Descending"
-            + "&Limit=1000";
-          Logger::Log(LEVEL_INFO, "%s - Found recordings library: %s (id: %s)",
-                      __FUNCTION__, name.c_str(), viewId.c_str());
-          break;
-        }
-      }
-    }
-
-    if (recordingsEndpoint.empty())
-    {
-      Logger::Log(LEVEL_INFO, "%s - No recordings library found, using /LiveTv/Recordings", __FUNCTION__);
-      recordingsEndpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
-        + "&EnableImages=true&Fields=Overview,ChannelInfo";
-    }
-
-    Json::Value response = m_client->SendGet(recordingsEndpoint);
-    if (!response.isNull() && response.isMember("Items"))
-    {
-      for (const auto& item : response["Items"])
-      {
-        const std::string id = item["Id"].asString();
-        if (seenIds.insert(id).second)
-          allItems.append(item);
-      }
-    }
-  }
+  // Note: library view query removed — after Jellyfin library scans,
+  // non-recording items get indexed into the Recordings folder and appear
+  // as phantom recordings in Kodi. /LiveTv/Recordings is authoritative.
 
   // 3. Build PVRRecording objects from merged items
   for (const auto& item : allItems)
@@ -768,9 +832,18 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     if (item.isMember("Genres") && item["Genres"].isArray() && !item["Genres"].empty())
       recording.SetGenreDescription(item["Genres"][0].asString());
 
-    // Play count
-    if (item.isMember("UserData") && item["UserData"].isMember("PlayCount"))
-      recording.SetPlayCount(item["UserData"]["PlayCount"].asInt());
+    // Watched state from server
+    if (item.isMember("UserData"))
+    {
+      const Json::Value& ud = item["UserData"];
+      if (ud.isMember("PlayCount"))
+        recording.SetPlayCount(ud["PlayCount"].asInt());
+      if (ud.isMember("PlaybackPositionTicks"))
+      {
+        int64_t ticks = ud["PlaybackPositionTicks"].asInt64();
+        recording.SetLastPlayedPosition(static_cast<int>(ticks / 10000000LL));
+      }
+    }
 
     // Directory (group recordings by series name or parent folder)
     if (item.isMember("SeriesName") && !item["SeriesName"].asString().empty())
@@ -782,6 +855,82 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
   Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings (%d in-progress)", __FUNCTION__,
               static_cast<int>(m_recordings.size()),
               static_cast<int>(m_inProgressRecordingIds.size()));
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count)
+{
+  const std::string recordingId = recording.GetRecordingId();
+
+  if (count == 0)
+  {
+    // User explicitly marked as unwatched — clear played state on Jellyfin
+    Logger::Log(LEVEL_INFO, "%s - Marking unplayed: %s", __FUNCTION__, recordingId.c_str());
+    const std::string endpoint = "/Users/" + m_client->GetUserId()
+      + "/PlayedItems/" + recordingId;
+    m_client->SendDelete(endpoint);
+  }
+  else
+  {
+    // Kodi auto-increments play count at playback start — don't mark as
+    // fully watched on Jellyfin. The resume position from
+    // SetRecordingLastPlayedPosition handles partial/full state.
+    Logger::Log(LEVEL_DEBUG, "%s - Ignoring play count increment to %d for %s",
+                __FUNCTION__, count, recordingId.c_str());
+  }
+
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition)
+{
+  const std::string recordingId = recording.GetRecordingId();
+
+  if (lastplayedposition <= 0)
+    return PVR_ERROR_NO_ERROR;
+
+  // Convert seconds to 100ns ticks
+  int64_t ticks = static_cast<int64_t>(lastplayedposition) * 10000000LL;
+
+  const std::string endpoint = "/Users/" + m_client->GetUserId()
+    + "/Items/" + recordingId + "/UserData";
+
+  // Set position AND Played=false — a non-zero position with Played=false
+  // is what Jellyfin shows as "partially watched" in the dashboard.
+  Json::Value body;
+  body["PlaybackPositionTicks"] = static_cast<Json::Int64>(ticks);
+  body["Played"] = false;
+
+  Json::StreamWriterBuilder writer;
+  writer["indentation"] = "";
+
+  Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
+              __FUNCTION__, lastplayedposition, recordingId.c_str());
+
+  m_client->SendPost(endpoint, Json::writeString(writer, body));
+
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR JellyfinRecordingManager::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position)
+{
+  const std::string& recordingId = recording.GetRecordingId();
+
+  const std::string endpoint = "/Users/" + m_client->GetUserId()
+    + "/Items/" + recordingId + "?Fields=UserData";
+
+  Json::Value item = m_client->SendGet(endpoint);
+  if (!item.isNull() && item.isMember("UserData")
+      && item["UserData"].isMember("PlaybackPositionTicks"))
+  {
+    int64_t ticks = item["UserData"]["PlaybackPositionTicks"].asInt64();
+    position = static_cast<int>(ticks / 10000000LL);
+  }
+  else
+  {
+    position = 0;
+  }
+
   return PVR_ERROR_NO_ERROR;
 }
 
