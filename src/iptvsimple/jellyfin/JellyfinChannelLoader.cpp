@@ -243,18 +243,16 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
 
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
-  // TranscodingProfiles differ between remux (unlimited bitrate, codec copy)
-  // and transcode (limited bitrate, re-encode to preferred codec).
-  //
-  // For live TV, Jellyfin always allows DirectPlay for Protocol=Http regardless
-  // of MaxStreamingBitrate, so DirectPlayProfiles must be empty to force
-  // transcoding when a bitrate limit is set.
+  // TranscodingProfiles:
+  // - Force remux ON + unlimited bitrate → codec-copy into TS (remux)
+  // - All other cases → preferred codec only (AV1→fMP4, others→TS)
+  //   Covers: force remux with bitrate limit, no force remux with bitrate
+  //   limit exceeded, codec profile mismatch, etc.
   Json::Value transcodingProfiles(Json::arrayValue);
 
-  if (bitrateUnlimited)
+  if (forceTranscode && bitrateUnlimited)
   {
-    // Remux mode: codec-copy into TS. Accept all non-AV1 codecs.
-    // (AV1 source remux is an edge case we don't handle.)
+    // Remux: codec-copy all non-AV1 codecs into TS.
     Json::Value tp;
     tp["Container"] = "ts";
     tp["Type"] = "Video";
@@ -269,7 +267,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
   }
   else
   {
-    // Transcode mode: re-encode to the preferred codec only.
+    // Transcode to preferred codec.
     // AV1 → fMP4 (AV1 can't go in MPEG-TS), everything else → TS.
     Json::Value tp;
     tp["Container"] = (preferredVideo == "av1") ? "mp4" : "ts";
@@ -286,9 +284,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
   profile["TranscodingProfiles"] = transcodingProfiles;
 
   // Direct play only when force remux is off AND no bitrate limit.
-  // For live TV (Protocol=Http), Jellyfin ignores MaxStreamingBitrate for
-  // DirectPlay decisions, so we must clear DirectPlayProfiles to force
-  // transcoding when a bitrate limit is set.
+  // For live TV (Protocol=Http), Jellyfin ignores MaxStreamingBitrate
+  // for DirectPlay decisions, so we must clear DirectPlayProfiles to
+  // force the server to use TranscodingProfiles when a limit is set.
   Json::Value directPlayProfiles(Json::arrayValue);
   if (!forceTranscode && bitrateUnlimited)
   {
@@ -354,21 +352,43 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
 
 Json::Value JellyfinChannelLoader::BuildRecordingDeviceProfile()
 {
-  // Recording-specific profile: force remux into TS container at unlimited bitrate.
-  // This is independent of live TV transcode settings.
+  // Recording profile: always remux (no DirectPlay), respects bitrate limit
+  // and preferred codec. Unlimited bitrate = codec copy, limited = server
+  // re-encodes to preferred codec within limit.
+  const int maxBitrateBps = m_settings->GetMaxBitrateBps();
+  const std::string preferredVideo = m_settings->GetPreferredVideoCodecName();
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
+
   Json::Value profile;
   profile["Name"] = "Kodi";
-  profile["MaxStreamingBitrate"] = 1000000000;  // ~1Gbps = copy (no transcode)
-  profile["MaxStaticBitrate"] = 1000000000;
+  profile["MaxStreamingBitrate"] = maxBitrateBps;
+  profile["MaxStaticBitrate"] = maxBitrateBps;
   profile["MusicStreamingTranscodingBitrate"] = 1280000;
 
   Json::Value transcodingProfiles(Json::arrayValue);
+  if (bitrateUnlimited)
   {
+    // Codec copy into TS
     Json::Value tp;
     tp["Container"] = "ts";
     tp["Type"] = "Video";
     tp["AudioCodec"] = "aac,mp3,ac3,eac3,opus,flac";
     tp["VideoCodec"] = "h264,hevc,av1,mpeg2video";
+    tp["Context"] = "Streaming";
+    tp["Protocol"] = "hls";
+    tp["MaxAudioChannels"] = "6";
+    tp["MinSegments"] = "1";
+    tp["BreakOnNonKeyFrames"] = true;
+    transcodingProfiles.append(tp);
+  }
+  else
+  {
+    // Transcode to preferred codec
+    Json::Value tp;
+    tp["Container"] = (preferredVideo == "av1") ? "mp4" : "ts";
+    tp["Type"] = "Video";
+    tp["AudioCodec"] = "aac,mp3,ac3,eac3,opus,flac";
+    tp["VideoCodec"] = preferredVideo;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
     tp["MaxAudioChannels"] = "6";

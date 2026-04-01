@@ -50,6 +50,7 @@ stage_resources() {
 
   cp "$PROJECT_DIR/pvr.kofin/resources/settings.xml" "$staging/resources/"
   cp "$PROJECT_DIR/pvr.kofin/resources/scripts/trigger.py" "$staging/resources/scripts/"
+  cp "$PROJECT_DIR/pvr.kofin/resources/scripts/service.py" "$staging/resources/scripts/"
   cp "$PROJECT_DIR/pvr.kofin/resources/language/resource.language.en_gb/strings.po" \
      "$staging/resources/language/resource.language.en_gb/"
   cp -r "$PROJECT_DIR/pvr.kofin/resources/data/"* "$staging/resources/data/" 2>/dev/null || true

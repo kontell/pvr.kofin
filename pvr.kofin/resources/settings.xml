@@ -9,6 +9,7 @@
     <setting id="testConnection" label="30717" type="action" action="RunScript($CWD/resources/scripts/trigger.py,testConnection)" option="close" visible="eq(-5,true)" />
     <setting id="logoutButton" label="30705" type="action" action="RunScript($CWD/resources/scripts/trigger.py,logoutButton)" option="close" visible="eq(-6,true)" />
     <setting id="restartAddon" label="30726" type="action" action="RunScript($CWD/resources/scripts/trigger.py,restartAddon)" option="close" />
+    <setting id="playbackStopped" type="text" visible="false" default="" />
     <setting id="jellyfinAccessToken" type="text" visible="false" default="" />
     <setting id="jellyfinUserId" type="text" visible="false" default="" />
     <setting id="deviceId" type="text" visible="false" default="" />
