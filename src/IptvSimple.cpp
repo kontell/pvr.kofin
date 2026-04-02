@@ -509,14 +509,27 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       std::map<std::string, std::string> catchupProperties;
       m_catchupController->ProcessChannelForPlayback(m_currentChannel, catchupProperties);
 
+      // Use the resolved catchup URL if available (has timestamps baked in),
+      // otherwise process the stream URL for now-only time specifiers.
+      const std::string catchupUrl = m_catchupController->GetCatchupUrl(m_currentChannel);
+      if (!catchupUrl.empty())
+        streamURL = catchupUrl;
+      else
+        streamURL = m_catchupController->ProcessStreamUrl(m_currentChannel);
+
+      // Update the stream URL property (was set to raw tuner URL earlier)
+      properties.clear();
+      properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
+      properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
       properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
       properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
 
       for (const auto& prop : catchupProperties)
         properties.emplace_back(prop.first, prop.second);
 
-      Logger::Log(LogLevel::LEVEL_INFO, "%s - Catchup stream: %s (days=%d)",
-                  __FUNCTION__, WebUtils::RedactUrl(streamURL).c_str(),
+      Logger::Log(LogLevel::LEVEL_INFO, "%s - %s: %s (days=%d)",
+                  __FUNCTION__, catchupUrl.empty() ? "Live stream" : "Catchup stream",
+                  WebUtils::RedactUrl(streamURL).c_str(),
                   m_currentChannel.GetCatchupDays());
     }
     else if (inputStream == 0) // FFmpegDirect without catchup

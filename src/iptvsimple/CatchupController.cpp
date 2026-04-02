@@ -231,36 +231,51 @@ std::string BuildEpgTagUrl(time_t startTime, time_t duration, const Channel& cha
 
 void CatchupController::ProcessChannelForPlayback(const Channel& channel, std::map<std::string, std::string>& catchupProperties)
 {
+  // Matching pvr.iptvsimple's flow:
+  // - From a normal channel switch: reset state, set up fresh catchup window
+  // - From a timeshifted EPG tag: preserve the programme times and offset
+
   m_playbackIsVideo = false;
   m_controlsLiveStream = channel.IsCatchupSupported() && channel.CatchupSupportsTimeshifting();
 
-  if (m_resetCatchupState)
+  if (!m_fromTimeshiftedEpgTagCall)
   {
-    m_resetCatchupState = false;
+    // Normal channel switch — clear programme state
     ClearProgramme();
     m_programmeCatchupId.clear();
-
-    if (channel.IsCatchupSupported())
-    {
-      m_timeshiftBufferOffset = channel.GetCatchupDaysInSeconds();
-      m_timeshiftBufferStartTime = std::time(nullptr) - channel.GetCatchupDaysInSeconds();
-      m_catchupStartTime = m_timeshiftBufferStartTime;
-      m_catchupEndTime = 0;
-    }
-    else
-    {
-      m_timeshiftBufferOffset = 0;
-      m_timeshiftBufferStartTime = 0;
-      m_catchupStartTime = 0;
-      m_catchupEndTime = 0;
-    }
+    m_catchupStartTime = 0;
+    m_catchupEndTime = 0;
   }
 
-  // Clear the EPG tag flag — we've consumed it
-  m_fromTimeshiftedEpgTagCall = false;
-
   if (m_controlsLiveStream)
+  {
+    if (m_resetCatchupState)
+    {
+      m_resetCatchupState = false;
+      m_programmeCatchupId.clear();
+      if (channel.IsCatchupSupported())
+      {
+        m_timeshiftBufferOffset = channel.GetCatchupDaysInSeconds();
+        m_timeshiftBufferStartTime = std::time(nullptr) - channel.GetCatchupDaysInSeconds();
+      }
+      else
+      {
+        m_timeshiftBufferOffset = 0;
+        m_timeshiftBufferStartTime = 0;
+      }
+    }
+
+    // We no longer need to know if this originated from an EPG tag
+    m_fromTimeshiftedEpgTagCall = false;
+
+    m_catchupStartTime = m_timeshiftBufferStartTime;
+
     SetCatchupInputStreamProperties(true, channel, catchupProperties);
+  }
+  else
+  {
+    m_fromTimeshiftedEpgTagCall = false;
+  }
 }
 
 void CatchupController::ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::PVREPGTag& epgTag, const Channel& channel, std::map<std::string, std::string>& catchupProperties)
