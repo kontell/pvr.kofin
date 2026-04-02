@@ -640,8 +640,10 @@ PVR_ERROR IptvSimple::IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& 
   {
     time_t now = std::time(nullptr);
     time_t catchupWindowStart = now - channel.GetCatchupDaysInSeconds();
-    // Playable if the programme has started and is within the catchup window
-    isPlayable = tag.GetStartTime() >= catchupWindowStart && tag.GetStartTime() <= now;
+    // Playable if the programme has started, is within the catchup window,
+    // and (if setting enabled) has finished
+    isPlayable = tag.GetStartTime() >= catchupWindowStart && tag.GetStartTime() <= now
+      && (!m_settings->CatchupOnlyOnFinishedProgrammes() || tag.GetEndTime() < now);
   }
   else
   {
@@ -684,7 +686,7 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   // Process the EPG tag — stores programme times in the persistent controller.
   // For timeshifted playback, GetChannelStreamProperties picks up state next.
   // For video playback, we return the catchup URL directly.
-  if (m_settings->CatchupPlayEpgAsLive() && channel.CatchupSupportsTimeshifting())
+  if (m_settings->CatchupPlayEpgAsLive() && (channel.CatchupSupportsTimeshifting() || channel.GetCatchupMode() == CatchupMode::VOD))
   {
     m_catchupController->ProcessEPGTagForTimeshiftedPlayback(tag, channel, catchupProperties);
   }

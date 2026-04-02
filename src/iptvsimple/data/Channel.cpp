@@ -374,8 +374,11 @@ bool Channel::GenerateAppendCatchupSource(const std::string& url)
     m_catchupSource = url + m_catchupSource;
     return true;
   }
-
-  // Catchup query format setting removed - no default query format for Jellyfin
+  else if (m_settings && !m_settings->GetCatchupQueryFormat().empty())
+  {
+    m_catchupSource = url + m_settings->GetCatchupQueryFormat();
+    return true;
+  }
   return false;
 }
 
