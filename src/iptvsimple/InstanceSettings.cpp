@@ -73,6 +73,23 @@ void InstanceSettings::ReadSettings()
   m_inputStream = kodi::addon::GetSettingInt("inputStream", 0);
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
 
+  // Catchup
+  m_catchupEnabled = kodi::addon::GetSettingBoolean("catchupEnabled", false);
+  {
+    int pathType = kodi::addon::GetSettingInt("catchupM3UPathType", 0);
+    if (pathType == 0) // Local file
+      m_catchupM3UPath = kodi::addon::GetSettingString("catchupM3UPath", "");
+    else // Network URL
+      m_catchupM3UPath = kodi::addon::GetSettingString("catchupM3UUrl", "");
+  }
+  m_catchupQueryFormat = kodi::addon::GetSettingString("catchupQueryFormat", "");
+  m_catchupDays = kodi::addon::GetSettingInt("catchupDays", 5);
+  m_allChannelsCatchupMode = kodi::addon::GetSettingInt("allChannelsCatchupMode", 0);
+  m_catchupPlayEpgAsLive = kodi::addon::GetSettingBoolean("catchupPlayEpgAsLive", false);
+  m_catchupWatchEpgBeginBufferMins = kodi::addon::GetSettingInt("catchupWatchEpgBeginBufferMins", 5);
+  m_catchupWatchEpgEndBufferMins = kodi::addon::GetSettingInt("catchupWatchEpgEndBufferMins", 15);
+  m_catchupOnlyOnFinishedProgrammes = kodi::addon::GetSettingBoolean("catchupOnlyOnFinishedProgrammes", false);
+
   // Advanced
   m_jellyfinUpdateIntervalHours = kodi::addon::GetSettingInt("jellyfinUpdateIntervalHours", 24);
   m_connectioncCheckTimeoutSecs = kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS);

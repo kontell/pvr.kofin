@@ -219,14 +219,12 @@ void Channel::SetCatchupDays(int catchupDays)
 
 bool Channel::IsCatchupSupported() const
 {
-  // Catchup not used for Jellyfin live TV
-  return false;
+  return m_hasCatchup && m_catchupMode != CatchupMode::DISABLED && m_catchupDays > 0;
 }
 
 bool Channel::SupportsLiveStreamTimeshifting() const
 {
-  // Timeshift is not configurable for Jellyfin; always disabled here
-  return false;
+  return m_catchupSupportsTimeshifting;
 }
 
 namespace

@@ -12,10 +12,12 @@ endif()
 
 set(KOFIN_SOURCES src/addon.cpp
                   src/IptvSimple.cpp
+                  src/iptvsimple/CatchupController.cpp
                   src/iptvsimple/Channels.cpp
                   src/iptvsimple/ChannelGroups.cpp
                   src/iptvsimple/ConnectionManager.cpp
                   src/iptvsimple/InstanceSettings.cpp
+                  src/iptvsimple/M3UParser.cpp
                   src/iptvsimple/Providers.cpp
                   src/iptvsimple/jellyfin/JellyfinClient.cpp
                   src/iptvsimple/jellyfin/JellyfinChannelLoader.cpp

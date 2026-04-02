@@ -26,6 +26,19 @@
     <setting id="timeshiftEnabled" label="30666" type="bool" default="true" visible="eq(-1,0)" />
     <setting id="openFfmpegDirectSettings" label="30725" type="action" action="Addon.OpenSettings(inputstream.ffmpegdirect)" option="close" visible="eq(-2,0)" />
   </category>
+  <category label="30730">
+    <setting id="catchupEnabled" label="30731" type="bool" default="false" />
+    <setting id="catchupM3UPathType" label="30744" type="enum" lvalues="30745|30746" values="0|1" default="0" visible="eq(-1,true)" />
+    <setting id="catchupM3UPath" label="30732" type="file" source="auto" default="" visible="eq(-2,true) + eq(-1,0)" />
+    <setting id="catchupM3UUrl" label="30747" type="text" default="" visible="eq(-3,true) + eq(-2,1)" />
+    <setting id="catchupQueryFormat" label="30733" type="text" default="" visible="eq(-4,true)" />
+    <setting id="catchupDays" label="30734" type="number" default="5" visible="eq(-5,true)" />
+    <setting id="allChannelsCatchupMode" label="30735" type="enum" lvalues="30740|30741|30742|30743" values="0|1|2|3" default="0" visible="eq(-6,true)" />
+    <setting id="catchupPlayEpgAsLive" label="30736" type="bool" default="false" visible="eq(-7,true)" />
+    <setting id="catchupWatchEpgBeginBufferMins" label="30737" type="number" default="5" visible="eq(-8,true)" enable="!eq(-1,true)" />
+    <setting id="catchupWatchEpgEndBufferMins" label="30738" type="number" default="15" visible="eq(-9,true)" enable="!eq(-2,true)" />
+    <setting id="catchupOnlyOnFinishedProgrammes" label="30739" type="bool" default="false" visible="eq(-10,true)" />
+  </category>
   <category label="30670">
     <setting id="jellyfinUpdateIntervalHours" label="30672" type="number" default="24" />
     <setting id="connectionchecktimeout" label="30674" type="number" default="10" />

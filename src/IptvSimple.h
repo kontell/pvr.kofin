@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "iptvsimple/CatchupController.h"
 #include "iptvsimple/Channels.h"
 #include "iptvsimple/ChannelGroups.h"
 #include "iptvsimple/ConnectionManager.h"
@@ -69,6 +70,8 @@ public:
   PVR_ERROR GetEPGForChannel(int channelUid, time_t start, time_t end, kodi::addon::PVREPGTagsResultSet& results) override;
   PVR_ERROR SetEPGMaxPastDays(int epgMaxPastDays) override;
   PVR_ERROR SetEPGMaxFutureDays(int epgMaxFutureDays) override;
+  PVR_ERROR IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& isPlayable) override;
+  PVR_ERROR GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& tag, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
   PVR_ERROR GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus) override;
   PVR_ERROR CallSettingsMenuHook(const kodi::addon::PVRMenuhook& menuhook) override;
@@ -140,6 +143,7 @@ private:
   std::mutex m_mutex;
   std::atomic_bool m_reloadChannelsGroupsAndEPG{false};
   std::atomic_bool m_needsRestart{false};
+  std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
   // Recording byte-stream (used by Recordings section playback path)
   bool OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recording);

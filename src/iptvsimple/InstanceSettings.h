@@ -106,6 +106,18 @@ namespace iptvsimple
     int GetInputStream() const { return m_inputStream; }
     bool GetTimeshiftEnabled() const { return m_timeshiftEnabled; }
 
+    // Catchup
+    bool CatchupEnabled() const { return m_catchupEnabled; }
+    const std::string& GetCatchupM3UPath() const { return m_catchupM3UPath; }
+    const std::string& GetCatchupQueryFormat() const { return m_catchupQueryFormat; }
+    int GetCatchupDays() const { return m_catchupDays; }
+    int GetAllChannelsCatchupMode() const { return m_allChannelsCatchupMode; }
+    bool CatchupPlayEpgAsLive() const { return m_catchupPlayEpgAsLive; }
+    int GetCatchupWatchEpgBeginBufferSecs() const { return m_catchupWatchEpgBeginBufferMins * 60; }
+    int GetCatchupWatchEpgEndBufferSecs() const { return m_catchupWatchEpgEndBufferMins * 60; }
+    bool CatchupOnlyOnFinishedProgrammes() const { return m_catchupOnlyOnFinishedProgrammes; }
+    float GetCatchupCorrection() const { return m_catchupCorrection; }
+
     // Advanced
     int GetJellyfinUpdateIntervalHours() const { return m_jellyfinUpdateIntervalHours; }
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
@@ -160,6 +172,18 @@ namespace iptvsimple
     // Input stream
     int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
     bool m_timeshiftEnabled = true;
+
+    // Catchup
+    bool m_catchupEnabled = false;
+    std::string m_catchupM3UPath;
+    std::string m_catchupQueryFormat;
+    int m_catchupDays = 5;
+    int m_allChannelsCatchupMode = 0;  // 0=disabled, 3=shift
+    bool m_catchupPlayEpgAsLive = false;
+    int m_catchupWatchEpgBeginBufferMins = 5;
+    int m_catchupWatchEpgEndBufferMins = 15;
+    bool m_catchupOnlyOnFinishedProgrammes = false;
+    float m_catchupCorrection = 0.0f;
 
     // Advanced
     int m_jellyfinUpdateIntervalHours = 24;

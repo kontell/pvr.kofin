@@ -7,6 +7,7 @@
 
 #include "JellyfinChannelLoader.h"
 
+#include "../M3UParser.h"
 #include "../utilities/Logger.h"
 #include "../utilities/WebUtils.h"
 
@@ -117,6 +118,41 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
   }
 
   channelGroups.RemoveEmptyGroups();
+
+  // Apply catchup metadata from reference M3U (if configured)
+  if (m_settings->CatchupEnabled() && !m_settings->GetCatchupM3UPath().empty())
+  {
+    M3UParser m3uParser(m_settings);
+    if (m3uParser.Parse())
+    {
+      int matched = 0;
+      for (auto& channel : channels.GetChannelsListMutable())
+      {
+        const M3UCatchupInfo* info = m3uParser.GetCatchupInfo(channel.GetChannelName());
+        if (info && info->hasCatchup)
+        {
+          channel.SetHasCatchup(true);
+          channel.SetCatchupMode(info->mode);
+          channel.SetCatchupDays(info->days > 0 ? info->days : m_settings->GetCatchupDays());
+          if (!info->source.empty())
+            channel.SetCatchupSource(info->source);
+          if (info->correctionHours != 0.0f)
+            channel.SetCatchupCorrectionSecs(static_cast<int>(info->correctionHours * 3600.0f));
+
+          // Generate the catchup source URL from mode + stream URL
+          channel.ConfigureCatchupMode();
+
+          Logger::Log(LEVEL_DEBUG, "%s - Catchup matched '%s': mode=%d, days=%d, source='%s'",
+                      __FUNCTION__, channel.GetChannelName().c_str(),
+                      static_cast<int>(channel.GetCatchupMode()),
+                      channel.GetCatchupDays(),
+                      channel.GetCatchupSource().c_str());
+          matched++;
+        }
+      }
+      Logger::Log(LEVEL_INFO, "%s - Matched %d channels with catchup from reference M3U", __FUNCTION__, matched);
+    }
+  }
 
   Logger::Log(LEVEL_INFO, "%s - Loaded %d channels from Jellyfin",
               __FUNCTION__, static_cast<int>(items.size()));

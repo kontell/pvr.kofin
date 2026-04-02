@@ -7,6 +7,7 @@
 
 #include "IptvSimple.h"
 
+#include "iptvsimple/CatchupController.h"
 #include "iptvsimple/InstanceSettings.h"
 #include "iptvsimple/utilities/Logger.h"
 #include "iptvsimple/utilities/StreamUtils.h"
@@ -478,12 +479,47 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    // Set stream properties directly for Jellyfin HLS streams (matching jellyfin-kodi)
+    // Check if this is a direct play URL (tuner URL, not a Jellyfin transcode URL)
+    const bool isDirectPlay = streamURL.find(m_settings->GetJellyfinBaseUrl()) != 0;
+
+    // Set stream properties
     properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
     properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
 
     const int inputStream = m_settings->GetInputStream();
-    if (inputStream == 0) // FFmpegDirect
+
+    // Catchup: if direct play + ffmpegdirect + channel supports catchup,
+    // use catchup mode instead of plain timeshift.
+    // CatchupController is persistent — if GetEPGTagStreamProperties was called
+    // first, it stored the programme times and ProcessChannelForPlayback will
+    // use them (same pattern as pvr.iptvsimple).
+    if (isDirectPlay && inputStream == 0 && m_currentChannel.IsCatchupSupported())
+    {
+      // Update channel's stream URL to the actual tuner URL
+      m_currentChannel.SetStreamURL(streamURL);
+      m_currentChannel.ConfigureCatchupMode();
+
+      if (!m_catchupController)
+        m_catchupController = std::make_unique<CatchupController>(m_settings);
+
+      // Reset catchup state for live channel switch. Has no effect if we just
+      // came from GetEPGTagStreamProperties (timeshifted EPG tag playback).
+      m_catchupController->ResetCatchupState();
+
+      std::map<std::string, std::string> catchupProperties;
+      m_catchupController->ProcessChannelForPlayback(m_currentChannel, catchupProperties);
+
+      properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
+      properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
+
+      for (const auto& prop : catchupProperties)
+        properties.emplace_back(prop.first, prop.second);
+
+      Logger::Log(LogLevel::LEVEL_INFO, "%s - Catchup stream: %s (days=%d)",
+                  __FUNCTION__, WebUtils::RedactUrl(streamURL).c_str(),
+                  m_currentChannel.GetCatchupDays());
+    }
+    else if (inputStream == 0) // FFmpegDirect without catchup
     {
       properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
       properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
@@ -580,6 +616,92 @@ PVR_ERROR IptvSimple::SetEPGMaxPastDays(int epgMaxPastDays)
 
 PVR_ERROR IptvSimple::SetEPGMaxFutureDays(int epgMaxFutureDays)
 {
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR IptvSimple::IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& isPlayable)
+{
+  // A past EPG entry is playable if the channel supports catchup
+  Channel channel(m_settings);
+  if (GetChannel(tag.GetUniqueChannelId(), channel) && channel.IsCatchupSupported())
+  {
+    time_t now = std::time(nullptr);
+    time_t catchupWindowStart = now - channel.GetCatchupDaysInSeconds();
+    // Playable if the programme has started and is within the catchup window
+    isPlayable = tag.GetStartTime() >= catchupWindowStart && tag.GetStartTime() <= now;
+  }
+  else
+  {
+    isPlayable = false;
+  }
+  return PVR_ERROR_NO_ERROR;
+}
+
+PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& tag, std::vector<kodi::addon::PVRStreamProperty>& properties)
+{
+  Channel channel(m_settings);
+  if (!GetChannel(tag.GetUniqueChannelId(), channel) || !channel.IsCatchupSupported())
+    return PVR_ERROR_FAILED;
+
+  // Resolve the direct play URL for this channel
+  std::string streamURL;
+  if (m_channelLoader)
+  {
+    const std::string& jellyfinId = m_channelLoader->GetJellyfinId(channel.GetUniqueId());
+    if (!jellyfinId.empty())
+      streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId);
+  }
+
+  if (streamURL.empty())
+    return PVR_ERROR_FAILED;
+
+  const bool isDirectPlay = streamURL.find(m_settings->GetJellyfinBaseUrl()) != 0;
+  if (!isDirectPlay)
+    return PVR_ERROR_FAILED; // Catchup only works with direct play
+
+  // Update channel stream URL to the tuner URL and regenerate catchup source
+  channel.SetStreamURL(streamURL);
+  channel.ConfigureCatchupMode();
+
+  if (!m_catchupController)
+    m_catchupController = std::make_unique<CatchupController>(m_settings);
+
+  std::map<std::string, std::string> catchupProperties;
+
+  // Process the EPG tag — stores programme times in the persistent controller.
+  // For timeshifted playback, GetChannelStreamProperties picks up state next.
+  // For video playback, we return the catchup URL directly.
+  if (m_settings->CatchupPlayEpgAsLive() && channel.CatchupSupportsTimeshifting())
+  {
+    m_catchupController->ProcessEPGTagForTimeshiftedPlayback(tag, channel, catchupProperties);
+  }
+  else
+  {
+    m_catchupController->ResetCatchupState();
+    m_catchupController->ProcessEPGTagForVideoPlayback(tag, channel, catchupProperties);
+  }
+
+  const std::string catchupUrl = m_catchupController->GetCatchupUrl(channel);
+  if (!catchupUrl.empty())
+  {
+    properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, catchupUrl);
+    properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
+    properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
+    properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
+
+    for (const auto& prop : catchupProperties)
+      properties.emplace_back(prop.first, prop.second);
+
+    Logger::Log(LogLevel::LEVEL_INFO, "%s - EPG catchup for '%s' on '%s': %s",
+                __FUNCTION__, tag.GetTitle().c_str(), channel.GetChannelName().c_str(),
+                WebUtils::RedactUrl(catchupUrl).c_str());
+  }
+  else
+  {
+    Logger::Log(LogLevel::LEVEL_WARNING, "%s - No catchup URL for '%s'", __FUNCTION__, tag.GetTitle().c_str());
+    return PVR_ERROR_FAILED;
+  }
+
   return PVR_ERROR_NO_ERROR;
 }
 

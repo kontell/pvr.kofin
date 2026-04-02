@@ -307,3 +307,75 @@ msgstr ""
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr ""
+
+msgctxt "#30730"
+msgid "Catchup"
+msgstr ""
+
+msgctxt "#30731"
+msgid "Enable catchup"
+msgstr ""
+
+msgctxt "#30732"
+msgid "Reference M3U path (local or URL)"
+msgstr ""
+
+msgctxt "#30733"
+msgid "Query format string"
+msgstr ""
+
+msgctxt "#30734"
+msgid "Catchup window (days)"
+msgstr ""
+
+msgctxt "#30735"
+msgid "Default catchup mode for all channels"
+msgstr ""
+
+msgctxt "#30736"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr ""
+
+msgctxt "#30737"
+msgid "Buffer before programme start (minutes)"
+msgstr ""
+
+msgctxt "#30738"
+msgid "Buffer after programme end (minutes)"
+msgstr ""
+
+msgctxt "#30739"
+msgid "Catchup only on finished programmes"
+msgstr ""
+
+msgctxt "#30740"
+msgid "Disabled"
+msgstr ""
+
+msgctxt "#30741"
+msgid "Default"
+msgstr ""
+
+msgctxt "#30742"
+msgid "Append"
+msgstr ""
+
+msgctxt "#30743"
+msgid "Shift (SIPTV)"
+msgstr ""
+
+msgctxt "#30744"
+msgid "Reference M3U location"
+msgstr ""
+
+msgctxt "#30745"
+msgid "Local path"
+msgstr ""
+
+msgctxt "#30746"
+msgid "Remote path (URL)"
+msgstr ""
+
+msgctxt "#30747"
+msgid "Reference M3U URL"
+msgstr ""
