@@ -33,7 +33,7 @@ msgid "Force remuxing"
 msgstr ""
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams instead of direct playing."
+msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
 msgstr ""
 
 msgctxt "#30624"
@@ -41,7 +41,7 @@ msgid "Preferred video codec"
 msgstr ""
 
 msgctxt "#30625"
-msgid "The video codec to request when transcoding. H264 is the most compatible."
+msgid "The video codec to request when transcoding."
 msgstr ""
 
 msgctxt "#30626"
@@ -81,7 +81,7 @@ msgid "Maximum streaming bitrate"
 msgstr ""
 
 msgctxt "#30635"
-msgid "The maximum bitrate for streaming. Set to Unlimited for best quality."
+msgid "The maximum bitrate for streaming. Lower values force the server to transcode when the source exceeds the limit."
 msgstr ""
 
 #: Bitrate options
@@ -159,7 +159,7 @@ msgid "Input stream"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The input stream handler for live TV playback."
+msgid "The input stream addon to use for playback. FFmpegDirect supports timeshift with a local device buffer. Adaptive supports timeshift with a buffer on the server. Kodi internal does not support timeshift."
 msgstr ""
 
 msgctxt "#30663"
@@ -179,7 +179,7 @@ msgid "Enable timeshift"
 msgstr ""
 
 msgctxt "#30667"
-msgid "Enable timeshifting of live TV streams. Allows pausing and rewinding live TV."
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
 msgstr ""
 
 #: Advanced category
@@ -218,6 +218,10 @@ msgstr ""
 
 msgctxt "#30701"
 msgid "Server address"
+msgstr ""
+
+msgctxt "#30702"
+msgid "The URL of your Jellyfin server."
 msgstr ""
 
 msgctxt "#30703"
@@ -308,6 +312,7 @@ msgctxt "#30726"
 msgid "Restart addon"
 msgstr ""
 
+#: Catchup category
 msgctxt "#30730"
 msgid "Catchup"
 msgstr ""
@@ -317,65 +322,110 @@ msgid "Enable catchup"
 msgstr ""
 
 msgctxt "#30732"
-msgid "Reference M3U path (local or URL)"
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and streams must be within the bitrate limit. Requires a reference M3U file that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr ""
 
 msgctxt "#30733"
-msgid "Query format string"
-msgstr ""
-
-msgctxt "#30734"
-msgid "Catchup window (days)"
-msgstr ""
-
-msgctxt "#30735"
-msgid "Default catchup mode for all channels"
-msgstr ""
-
-msgctxt "#30736"
-msgid "Play from EPG in live TV mode (timeshift)"
-msgstr ""
-
-msgctxt "#30737"
-msgid "Buffer before programme start (minutes)"
-msgstr ""
-
-msgctxt "#30738"
-msgid "Buffer after programme end (minutes)"
-msgstr ""
-
-msgctxt "#30739"
-msgid "Catchup only on finished programmes"
-msgstr ""
-
-msgctxt "#30740"
-msgid "Disabled"
-msgstr ""
-
-msgctxt "#30741"
-msgid "Default"
-msgstr ""
-
-msgctxt "#30742"
-msgid "Append"
-msgstr ""
-
-msgctxt "#30743"
-msgid "Shift (SIPTV)"
-msgstr ""
-
-msgctxt "#30744"
 msgid "Reference M3U location"
 msgstr ""
 
+msgctxt "#30734"
+msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
+msgstr ""
+
+msgctxt "#30735"
+msgid "Reference M3U file"
+msgstr ""
+
+msgctxt "#30736"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr ""
+
+msgctxt "#30737"
+msgid "Reference M3U URL"
+msgstr ""
+
+msgctxt "#30738"
+msgid "URL of the reference M3U file."
+msgstr ""
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr ""
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr ""
+
+msgctxt "#30741"
+msgid "Catchup window"
+msgstr ""
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr ""
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr ""
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr ""
+
 msgctxt "#30745"
-msgid "Local path"
+msgid "Play from EPG in live TV mode (timeshift)"
 msgstr ""
 
 msgctxt "#30746"
-msgid "Remote path (URL)"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
 msgstr ""
 
 msgctxt "#30747"
-msgid "Reference M3U URL"
+msgid "Buffer before programme start (minutes)"
+msgstr ""
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr ""
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr ""
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr ""
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr ""
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr ""
+
+#: Catchup enum values
+msgctxt "#30760"
+msgid "Disabled"
+msgstr ""
+
+msgctxt "#30761"
+msgid "Default"
+msgstr ""
+
+msgctxt "#30762"
+msgid "Append"
+msgstr ""
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr ""
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr ""
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
 msgstr ""

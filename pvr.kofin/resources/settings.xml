@@ -28,20 +28,20 @@
   </category>
   <category label="30730">
     <setting id="catchupEnabled" label="30731" type="bool" default="false" />
-    <setting id="catchupM3UPathType" label="30744" type="enum" lvalues="30745|30746" values="0|1" default="0" visible="eq(-1,true)" />
-    <setting id="catchupM3UPath" label="30732" type="file" source="auto" default="" visible="eq(-2,true) + eq(-1,0)" />
-    <setting id="catchupM3UUrl" label="30747" type="text" default="" visible="eq(-3,true) + eq(-2,1)" />
-    <setting id="catchupQueryFormat" label="30733" type="text" default="" visible="eq(-4,true)" />
-    <setting id="catchupDays" label="30734" type="number" default="5" visible="eq(-5,true)" />
-    <setting id="allChannelsCatchupMode" label="30735" type="enum" lvalues="30740|30741|30742|30743" values="0|1|2|3" default="0" visible="eq(-6,true)" />
-    <setting id="catchupPlayEpgAsLive" label="30736" type="bool" default="false" visible="eq(-7,true)" />
-    <setting id="catchupWatchEpgBeginBufferMins" label="30737" type="number" default="5" visible="eq(-8,true)" enable="!eq(-1,true)" />
-    <setting id="catchupWatchEpgEndBufferMins" label="30738" type="number" default="15" visible="eq(-9,true)" enable="!eq(-2,true)" />
-    <setting id="catchupOnlyOnFinishedProgrammes" label="30739" type="bool" default="false" visible="eq(-10,true)" />
+    <setting id="catchupM3UPathType" label="30733" type="enum" lvalues="30770|30771" values="0|1" default="0" visible="eq(-1,true)" />
+    <setting id="catchupM3UPath" label="30735" type="file" source="auto" default="" visible="eq(-2,true) + eq(-1,0)" />
+    <setting id="catchupM3UUrl" label="30737" type="text" default="" visible="eq(-3,true) + eq(-2,1)" />
+    <setting id="catchupQueryFormat" label="30739" type="text" default="" visible="eq(-4,true)" />
+    <setting id="catchupDays" label="30741" type="slider" range="1,1,14" option="int" default="5" visible="eq(-5,true)" />
+    <setting id="allChannelsCatchupMode" label="30743" type="enum" lvalues="30760|30761|30762|30763" values="0|1|2|3" default="0" visible="eq(-6,true)" />
+    <setting id="catchupPlayEpgAsLive" label="30745" type="bool" default="false" visible="eq(-7,true)" />
+    <setting id="catchupWatchEpgBeginBufferMins" label="30747" type="number" default="5" visible="eq(-8,true)" enable="!eq(-1,true)" />
+    <setting id="catchupWatchEpgEndBufferMins" label="30749" type="number" default="15" visible="eq(-9,true)" enable="!eq(-2,true)" />
+    <setting id="catchupOnlyOnFinishedProgrammes" label="30751" type="bool" default="false" visible="eq(-10,true)" />
   </category>
   <category label="30670">
     <setting id="jellyfinUpdateIntervalHours" label="30672" type="number" default="24" />
     <setting id="connectionchecktimeout" label="30674" type="number" default="10" />
-    <setting id="connectioncheckinterval" label="30676" type="number" default="5" />
+    <setting id="connectioncheckinterval" label="30676" type="number" default="60" />
   </category>
 </settings>

@@ -93,7 +93,7 @@ void InstanceSettings::ReadSettings()
   // Advanced
   m_jellyfinUpdateIntervalHours = kodi::addon::GetSettingInt("jellyfinUpdateIntervalHours", 24);
   m_connectioncCheckTimeoutSecs = kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS);
-  m_connectioncCheckIntervalSecs = kodi::addon::GetSettingInt("connectioncheckinterval", DEFAULT_CONNECTION_CHECK_INTERVAL_SECS);
+  m_connectioncCheckIntervalSecs = kodi::addon::GetSettingInt("connectioncheckinterval", 60);
 }
 
 std::string InstanceSettings::GetJellyfinBaseUrl() const

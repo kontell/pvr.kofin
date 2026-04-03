@@ -188,6 +188,6 @@ namespace iptvsimple
     // Advanced
     int m_jellyfinUpdateIntervalHours = 24;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
-    int m_connectioncCheckIntervalSecs = DEFAULT_CONNECTION_CHECK_INTERVAL_SECS;
+    int m_connectioncCheckIntervalSecs = 60;
   };
 } //namespace iptvsimple
