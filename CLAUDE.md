@@ -14,27 +14,71 @@ The playback pipeline (DeviceProfile, PlaybackInfo requests, stream URL construc
 
 ## Build Commands
 
-```bash
-# Local Linux build
-mkdir -p build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-cmake --build . --config Release
+Uses the standard Kodi addon build system (`cmake/addons`). Requires a Kodi source tree for the target version. Dependencies (jsoncpp, pugixml, zlib, lzma) are built automatically.
 
-# Android ARM32 cross-compilation (requires NDK r25c + pre-built deps)
-mkdir -p build-android && cd build-android
-cmake .. \
-  -DCMAKE_TOOLCHAIN_FILE=/media/bluecon/docs/IT/kofin/android-ndk-r25c/build/cmake/android.toolchain.cmake \
-  -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-21 \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DKODI_INCLUDE_DIR=/media/bluecon/docs/IT/kofin/kodi-piers/xbmc/addons/kodi-dev-kit/include \
-  -DJSONCPP_ROOT=/media/bluecon/docs/IT/kofin/android-deps \
-  -DCMAKE_PREFIX_PATH=/media/bluecon/docs/IT/kofin/android-deps
-cmake --build . --config Release
+**Prerequisites:** The addon must be registered in the Kodi source's addon definitions:
+```bash
+mkdir -p <kodi-source>/cmake/addons/addons/pvr.kofin
+echo "pvr.kofin https://github.com/kontell/pvr.kofin main" > <kodi-source>/cmake/addons/addons/pvr.kofin/pvr.kofin.txt
+echo "all" > <kodi-source>/cmake/addons/addons/pvr.kofin/platforms.txt
 ```
 
-Build dependencies: `kodi-addons-dev`, `libjsoncpp-dev`, `libpugixml-dev`, `zlib1g-dev`, `liblzma-dev`.
+**Linux system build deps:** `kodi-addons-dev`, `libjsoncpp-dev`, `libpugixml-dev`, `zlib1g-dev`, `liblzma-dev`, `m4`, `autoconf`, `automake`, `libtool`, `autopoint`.
 
-No unit test suite — testing is manual against a running Jellyfin server on Android TV.
+```bash
+# Linux x86_64 (Kodi v21 Omega)
+# Kodi v21 source at /media/bluecon/docs/IT/kofin/kodi-omega-full/
+mkdir -p build && cd build
+cmake -DADDONS_TO_BUILD=pvr.kofin \
+  -DADDON_SRC_PREFIX=/media/bluecon/docs/IT/kofin \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=../../kodi-omega-full/build/addons \
+  -DPACKAGE_ZIP=1 \
+  ../../kodi-omega-full/cmake/addons
+make -j$(nproc)
+# Output: kodi-omega-full/build/addons/pvr.kofin/
+
+# Android ARM32 (Kodi v22 Piers)
+# Kodi v22 source at /media/bluecon/docs/IT/kofin/kodi-piers-full/
+# NDK r25c at /media/bluecon/docs/IT/kofin/android-ndk-r25c/
+mkdir -p build-android && cd build-android
+cmake -DADDONS_TO_BUILD=pvr.kofin \
+  -DADDON_SRC_PREFIX=/media/bluecon/docs/IT/kofin \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=../../kodi-piers-full/build/addons-android \
+  -DPACKAGE_ZIP=1 \
+  -DCMAKE_TOOLCHAIN_FILE=/media/bluecon/docs/IT/kofin/android-ndk-r25c/build/cmake/android.toolchain.cmake \
+  -DANDROID_ABI=armeabi-v7a -DANDROID_PLATFORM=android-21 \
+  -DCPU=armv7a \
+  ../../kodi-piers-full/cmake/addons
+make -j$(nproc)
+
+# Android ARM64 (Kodi v22 Piers)
+# Requires a wrapper toolchain to force ANDROID_ABI through ExternalProject:
+cat > /tmp/android-arm64-toolchain.cmake << 'EOF'
+set(ANDROID_ABI arm64-v8a CACHE STRING "" FORCE)
+set(ANDROID_PLATFORM android-21 CACHE STRING "" FORCE)
+include(/media/bluecon/docs/IT/kofin/android-ndk-r25c/build/cmake/android.toolchain.cmake)
+EOF
+mkdir -p build-android64 && cd build-android64
+cmake -DADDONS_TO_BUILD=pvr.kofin \
+  -DADDON_SRC_PREFIX=/media/bluecon/docs/IT/kofin \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=../../kodi-piers-full/build/addons-android64 \
+  -DPACKAGE_ZIP=1 \
+  -DCMAKE_TOOLCHAIN_FILE=/tmp/android-arm64-toolchain.cmake \
+  -DCPU=arm64-v8a \
+  ../../kodi-piers-full/cmake/addons
+make -j$(nproc)
+```
+
+**Packaging:** Create installable zips from the install prefix:
+```bash
+cd <kodi-source>/build/addons[-android[-64]]
+zip -r /media/bluecon/docs/IT/kofin/builds/pvr.kofin-<ver>-<platform>.zip pvr.kofin/
+```
+
+No unit test suite — testing is manual against a running Jellyfin server on Android TV and Linux.
 
 ## Settings
 

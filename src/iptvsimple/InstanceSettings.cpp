@@ -72,6 +72,7 @@ void InstanceSettings::ReadSettings()
   // Input stream
   m_inputStream = kodi::addon::GetSettingInt("inputStream", 0);
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
+  m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 0);
 
   // Catchup
   m_catchupEnabled = kodi::addon::GetSettingBoolean("catchupEnabled", false);

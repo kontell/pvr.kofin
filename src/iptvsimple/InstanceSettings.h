@@ -106,6 +106,9 @@ namespace iptvsimple
     int GetInputStream() const { return m_inputStream; }
     bool GetTimeshiftEnabled() const { return m_timeshiftEnabled; }
 
+    // In-progress recording input stream: 0 = adaptive, 1 = kodi internal
+    int GetInProgressInputStream() const { return m_inProgressInputStream; }
+
     // Catchup
     bool CatchupEnabled() const { return m_catchupEnabled; }
     const std::string& GetCatchupM3UPath() const { return m_catchupM3UPath; }
@@ -172,6 +175,7 @@ namespace iptvsimple
     // Input stream
     int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
     bool m_timeshiftEnabled = true;
+    int m_inProgressInputStream = 0;  // 0=adaptive, 1=kodi internal
 
     // Catchup
     bool m_catchupEnabled = false;

@@ -450,7 +450,7 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
   properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamUrl);
   properties.emplace_back(PVR_STREAM_PROPERTY_ISREALTIMESTREAM, inProgress ? "true" : "false");
 
-  if (inProgress)
+  if (inProgress && m_settings->GetInProgressInputStream() == 0)
   {
     properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
     properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");

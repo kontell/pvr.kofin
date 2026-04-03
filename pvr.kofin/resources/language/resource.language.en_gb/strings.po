@@ -1,7 +1,7 @@
 # Kodi Media Center language file
 # Addon Name: Kofin PVR for Jellyfin
 # Addon id: pvr.kofin
-# Addon Provider: kofin
+# Addon Provider: Kontell
 msgid ""
 msgstr ""
 "Project-Id-Version: pvr.kofin\n"
@@ -180,6 +180,14 @@ msgstr ""
 
 msgctxt "#30667"
 msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr ""
+
+msgctxt "#30668"
+msgid "In-progress recording input stream"
+msgstr ""
+
+msgctxt "#30669"
+msgid "The input stream to use for in-progress recording playback. Use Kodi internal if Adaptive causes crashes on your device."
 msgstr ""
 
 #: Advanced category
