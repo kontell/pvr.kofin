@@ -3,6 +3,13 @@ project(pvr.kofin)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR})
 
+# When cross-compiling (e.g., Android NDK), CMAKE_FIND_ROOT_PATH_MODE_PACKAGE
+# is set to ONLY which prevents find_package from searching CMAKE_PREFIX_PATH.
+# Add the addon depends path to CMAKE_FIND_ROOT_PATH so Kodi can be found.
+if(ADDON_DEPENDS_PATH)
+  list(APPEND CMAKE_FIND_ROOT_PATH ${ADDON_DEPENDS_PATH})
+endif()
+
 find_package(Kodi REQUIRED)
 find_package(JsonCpp REQUIRED)
 find_package(pugixml REQUIRED)
