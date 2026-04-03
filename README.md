@@ -10,6 +10,10 @@ Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replac
 
 **Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9.x or later with Live TV configured.
 
+## Installation
+
+Install via the [Kontell Repository](https://github.com/kontell/repository.kontell) for automatic updates.
+
 ## Features
 
 - Play Live TV channels from Jellyfin
