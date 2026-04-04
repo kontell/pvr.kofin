@@ -1,66 +1,110 @@
-name: Make Release
-# Create a release on the given branch
-# Release and tag name format will be <version>-<branch>
-# The body of the release will be created from the changelog.txt or news element in the addon.xml.in
+name: Release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
 
-on: workflow_dispatch
+env:
+  app_id: pvr.kofin
 
 jobs:
-  default:
+  build:
     runs-on: ubuntu-latest
-    name: Make Release
-
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux x86_64
+          - { name: "Linux x86_64 / Kodi 21", os: linux, arch: x86_64, kodi: 21, kodi_branch: Omega }
+          - { name: "Linux x86_64 / Kodi 22", os: linux, arch: x86_64, kodi: 22, kodi_branch: master }
+          # Linux armv7
+          - { name: "Linux armv7 / Kodi 21", os: linux, arch: armv7, kodi: 21, kodi_branch: Omega, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
+          - { name: "Linux armv7 / Kodi 22", os: linux, arch: armv7, kodi: 22, kodi_branch: master, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
+          # Linux aarch64
+          - { name: "Linux aarch64 / Kodi 21", os: linux, arch: aarch64, kodi: 21, kodi_branch: Omega, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
+          - { name: "Linux aarch64 / Kodi 22", os: linux, arch: aarch64, kodi: 22, kodi_branch: master, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
+          # Android armv7
+          - { name: "Android armv7 / Kodi 21", os: android, arch: armv7, kodi: 21, kodi_branch: Omega }
+          - { name: "Android armv7 / Kodi 22", os: android, arch: armv7, kodi: 22, kodi_branch: master }
+          # Android aarch64
+          - { name: "Android aarch64 / Kodi 21", os: android, arch: aarch64, kodi: 21, kodi_branch: Omega }
+          - { name: "Android aarch64 / Kodi 22", os: android, arch: aarch64, kodi: 22, kodi_branch: master }
+    name: ${{ matrix.name }}
     steps:
+    - name: Checkout addon
+      uses: actions/checkout@v4
+      with:
+        path: ${{ env.app_id }}
 
-      # Checkout the current repository into a directory (repositories name)
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          path: ${{ github.event.repository.name }}
+    - name: Checkout Kodi
+      uses: actions/checkout@v4
+      with:
+        repository: xbmc/xbmc
+        ref: ${{ matrix.kodi_branch }}
+        path: xbmc
+        sparse-checkout: |
+          version.txt
+          xbmc/interfaces/json-rpc/schema/version.txt
+          cmake/
+          xbmc/addons/AddonBindings.cmake
+          xbmc/addons/kodi-dev-kit/include/kodi/
+        sparse-checkout-cone-mode: false
+        fetch-depth: 1
 
-      # Install all dependencies required by the following steps
-      # - libxml2-utils, xmlstarlet: reading news and version from addon.xml.in
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install libxml2-utils xmlstarlet
+    - name: Install dependencies
+      run: |
+        sudo apt-get update -qq
+        sudo apt-get install -y autopoint ${{ matrix.cross_pkgs }}
 
-      # Create the variables required by the following steps
-      # - steps.required-variables.outputs.changes: latest entry in the changelog.txt (if exists), or addon.xml.in news element
-      # - steps.required-variables.outputs.version: version element from addon.xml.in
-      # - steps.required-variables.outputs.branch: branch of the triggering ref
-      # Note: we use a random EOF for 'changes' as is best practice for for multiline variables
-      - name: Get required variables
-        id: required-variables
-        run: |
-          changes=$(cat "$(find . -name changelog.txt)" | awk -v RS= 'NR==1')
-          if [ -z "$changes" ] ;
-          then
-            changes=$(xmlstarlet fo -R "$(find . -name addon.xml.in)" | xmlstarlet sel -t -v 'string(/addon/extension/news)' | awk -v RS= 'NR==1')
-          fi
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "changes<<$EOF" >> $GITHUB_OUTPUT
-          echo "$changes" >> $GITHUB_OUTPUT
-          echo "$EOF" >> $GITHUB_OUTPUT
-          version=$(xmlstarlet fo -R "$(find . -name addon.xml.in)" | xmlstarlet sel -t -v 'string(/addon/@version)')
-          echo "version=$version" >> $GITHUB_OUTPUT
-          branch=$(echo ${GITHUB_REF#refs/heads/})
-          echo "branch=$branch" >> $GITHUB_OUTPUT
-        working-directory: ${{ github.event.repository.name }}
+    - name: Setup Android NDK
+      if: matrix.os == 'android'
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r28c
+        local-cache: true
 
-      # Create a release at {steps.required-variables.outputs.branch}
-      # - tag and release name format: {steps.required-variables.outputs.version}-{steps.required-variables.outputs.branch} ie. 21.0.0-Omega
-      # - release body: {steps.required-variables.outputs.changes}
-      - name: Create Release
-        id: create-release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.required-variables.outputs.version }}-${{ steps.required-variables.outputs.branch }}
-          release_name: ${{ steps.required-variables.outputs.version }}-${{ steps.required-variables.outputs.branch }}
-          body: ${{ steps.required-variables.outputs.changes }}
-          draft: false
-          prerelease: false
-          commitish: ${{ steps.required-variables.outputs.branch }}
+    - name: Build
+      run: |
+        ${{ github.workspace }}/${app_id}/scripts/build.sh \
+          --os ${{ matrix.os }} \
+          --arch ${{ matrix.arch }} \
+          --kodi ${{ matrix.kodi }} \
+          --kodi-src ${{ github.workspace }}/xbmc \
+          ${{ matrix.os == 'android' && format('--ndk {0}', steps.setup-ndk.outputs.ndk-path) || '' }} \
+          --output ${{ github.workspace }}/artifacts \
+          --jobs $(getconf _NPROCESSORS_ONLN)
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}
+        path: ${{ github.workspace }}/artifacts/*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        merge-multiple: true
+
+    - name: Checkout addon (for version)
+      uses: actions/checkout@v4
+
+    - name: Get version
+      id: version
+      run: |
+        version=$(grep '^ *version=' pvr.kofin/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
+        echo "version=$version" >> $GITHUB_OUTPUT
+
+    - name: Create release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ github.ref_name || format('v{0}', steps.version.outputs.version) }}
+        name: ${{ env.app_id }} ${{ steps.version.outputs.version }}
+        draft: true
+        files: artifacts/*.zip
