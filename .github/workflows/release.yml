@@ -95,8 +95,11 @@ jobs:
         path: artifacts
         merge-multiple: true
 
-    - name: List artifacts
-      run: ls -la artifacts/
+    - name: Flatten artifacts
+      run: |
+        find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
+        find artifacts -mindepth 1 -type d -empty -delete
+        ls -la artifacts/
 
     - name: Checkout addon (for version)
       uses: actions/checkout@v5
