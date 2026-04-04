@@ -29,12 +29,12 @@ jobs:
     name: ${{ matrix.name }}
     steps:
     - name: Checkout addon
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         path: ${{ env.app_id }}
 
     - name: Checkout Kodi
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         repository: xbmc/xbmc
         ref: ${{ matrix.kodi_branch }}
