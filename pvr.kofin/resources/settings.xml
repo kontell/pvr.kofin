@@ -4,7 +4,7 @@
 
     <!-- Account -->
     <category id="account" label="30700">
-      <group id="1" label="30700">
+      <group id="1">
         <setting id="isLoggedIn" type="boolean">
           <level>4</level>
           <default>false</default>
@@ -151,7 +151,7 @@
 
     <!-- Playback -->
     <category id="playback" label="30620">
-      <group id="1" label="30620">
+      <group id="1">
         <setting id="forceTranscode" type="boolean" label="30622" help="30623">
           <level>0</level>
           <default>false</default>
@@ -273,7 +273,7 @@
 
     <!-- Catchup -->
     <category id="catchup" label="30730">
-      <group id="1" label="30730">
+      <group id="1">
         <setting id="catchupEnabled" type="boolean" label="30731" help="30732">
           <level>0</level>
           <default>false</default>
@@ -422,7 +422,7 @@
 
     <!-- Advanced -->
     <category id="advanced" label="30670">
-      <group id="1" label="30670">
+      <group id="1">
         <setting id="jellyfinUpdateIntervalHours" type="integer" label="30672" help="30673">
           <level>0</level>
           <default>24</default>
