@@ -89,6 +89,9 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     steps:
+    - name: Checkout addon (for version)
+      uses: actions/checkout@v5
+
     - name: Download all artifacts
       uses: actions/download-artifact@v4
       with:
@@ -100,9 +103,6 @@ jobs:
         find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
         find artifacts -mindepth 1 -type d -empty -delete
         ls -la artifacts/
-
-    - name: Checkout addon (for version)
-      uses: actions/checkout@v5
 
     - name: Get version
       id: version
