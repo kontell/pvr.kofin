@@ -93,9 +93,10 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         path: artifacts
+        merge-multiple: true
 
     - name: List artifacts
-      run: find artifacts -type f -name '*.zip'
+      run: ls -la artifacts/
 
     - name: Checkout addon (for version)
       uses: actions/checkout@v5
@@ -105,11 +106,16 @@ jobs:
       run: |
         version=$(grep '^ *version=' pvr.kofin/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
         echo "version=$version" >> $GITHUB_OUTPUT
+        if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+          echo "tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+        else
+          echo "tag=v$version" >> $GITHUB_OUTPUT
+        fi
 
     - name: Create release
       uses: softprops/action-gh-release@v2
       with:
-        tag_name: ${{ github.ref_name || format('v{0}', steps.version.outputs.version) }}
+        tag_name: ${{ steps.version.outputs.tag }}
         name: ${{ env.app_id }} ${{ steps.version.outputs.version }}
         draft: true
-        files: artifacts/**/*.zip
+        files: artifacts/*.zip
