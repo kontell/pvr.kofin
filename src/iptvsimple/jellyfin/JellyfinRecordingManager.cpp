@@ -914,24 +914,11 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
 
 PVR_ERROR JellyfinRecordingManager::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position)
 {
-  const std::string& recordingId = recording.GetRecordingId();
-
-  const std::string endpoint = "/Users/" + m_client->GetUserId()
-    + "/Items/" + recordingId + "?Fields=UserData";
-
-  Json::Value item = m_client->SendGet(endpoint);
-  if (!item.isNull() && item.isMember("UserData")
-      && item["UserData"].isMember("PlaybackPositionTicks"))
-  {
-    int64_t ticks = item["UserData"]["PlaybackPositionTicks"].asInt64();
-    position = static_cast<int>(ticks / 10000000LL);
-  }
-  else
-  {
-    position = 0;
-  }
-
-  return PVR_ERROR_NO_ERROR;
+  // Position is set via recording.SetLastPlayedPosition() in LoadRecordings.
+  // Returning NOT_IMPLEMENTED tells Kodi to use that value instead of polling
+  // the server per-recording every 10 seconds (which blocks the UI thread).
+  position = 0;
+  return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
 /***************************************************************************

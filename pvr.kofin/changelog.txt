@@ -1,3 +1,12 @@
+v0.2.4
+- Fix watched state sync: derive Kodi PlayCount from Jellyfin Played flag
+- Mark as watched/unwatched now correctly updates Jellyfin server
+- Fix UI hang when stopping a recording (async timer delete)
+- Stop per-recording polling of resume position (reduces network traffic and UI lag)
+- Clean up translations: remove old pvr.iptvsimple strings
+- Replace changelog with Kofin release history
+- Release workflow now includes changelog in release notes
+
 v0.2.3
 - Remove duplicate group headings in settings
 - Add CI/CD: build script, compile checks, multi-platform release workflow

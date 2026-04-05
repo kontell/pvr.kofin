@@ -1,6 +1,6 @@
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
 
-# Kofin PVR for Jellyfin
+# Kodi PVR for Jellyfin
 
 Kodi PVR client addon for [Jellyfin](https://jellyfin.org) Live TV. Provides native Kodi PVR integration for live TV channels, EPG, recordings, and timers from a Jellyfin server.
 
@@ -17,13 +17,12 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 ## Features
 
 - Play Live TV channels from Jellyfin
-- Play Catchup/ Archive from EPG (for direct play only)
+- Play Catchup/ Archive from EPG (direct play only)
 - Play in-progress recordings from beginning
 - Force re-muxing (for stream sharing)
 - Optional transcoding
-- Pause live tv (inputstream.ffmpegdirect timeshift)
+- Pause live tv (local or server buffer)
 - One-shot and series recording timers
-- Recording playback and management (view, delete)
 - inputstream.ffmpegdirect / inputstream.adaptive support
 - Login with username/ password or quick connect code
 
