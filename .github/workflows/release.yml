@@ -104,7 +104,7 @@ jobs:
         find artifacts -mindepth 1 -type d -empty -delete
         ls -la artifacts/
 
-    - name: Get version
+    - name: Get version and changelog
       id: version
       run: |
         version=$(grep '^ *version=' pvr.kofin/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
@@ -114,11 +114,18 @@ jobs:
         else
           echo "tag=v$version" >> $GITHUB_OUTPUT
         fi
+        # Extract latest changelog entry (first paragraph)
+        changes=$(awk -v RS= 'NR==1' pvr.kofin/changelog.txt)
+        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+        echo "changes<<$EOF" >> $GITHUB_OUTPUT
+        echo "$changes" >> $GITHUB_OUTPUT
+        echo "$EOF" >> $GITHUB_OUTPUT
 
     - name: Create release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.version.outputs.tag }}
         name: ${{ env.app_id }} ${{ steps.version.outputs.version }}
+        body: ${{ steps.version.outputs.changes }}
         draft: true
         files: artifacts/*.zip
