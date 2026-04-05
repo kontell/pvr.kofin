@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <thread>
 #include <ctime>
 
 using namespace iptvsimple;
@@ -302,13 +303,18 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
     ? "/LiveTv/SeriesTimers/" + jellyfinId
     : "/LiveTv/Timers/" + jellyfinId;
 
-  Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s", __FUNCTION__,
+  Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s (async)", __FUNCTION__,
               isSeries ? "series " : "", jellyfinId.c_str());
 
-  if (!m_client->SendDelete(endpoint))
-    return PVR_ERROR_SERVER_ERROR;
+  // Run DELETE + reload on a detached thread to avoid blocking the UI.
+  // The server-side operation (stopping a recording) can take several seconds.
+  auto client = m_client;
+  auto self = this;
+  std::thread([client, endpoint, self]() {
+    client->SendDelete(endpoint);
+    self->Reload();
+  }).detach();
 
-  Reload();
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -832,12 +838,11 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     if (item.isMember("Genres") && item["Genres"].isArray() && !item["Genres"].empty())
       recording.SetGenreDescription(item["Genres"][0].asString());
 
-    // Watched state from server
+    // Watched state from server — derive PlayCount from Played flag
     if (item.isMember("UserData"))
     {
       const Json::Value& ud = item["UserData"];
-      if (ud.isMember("PlayCount"))
-        recording.SetPlayCount(ud["PlayCount"].asInt());
+      recording.SetPlayCount(ud.get("Played", false).asBool() ? 1 : 0);
       if (ud.isMember("PlaybackPositionTicks"))
       {
         int64_t ticks = ud["PlaybackPositionTicks"].asInt64();
@@ -864,7 +869,6 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
 
   if (count == 0)
   {
-    // User explicitly marked as unwatched — clear played state on Jellyfin
     Logger::Log(LEVEL_INFO, "%s - Marking unplayed: %s", __FUNCTION__, recordingId.c_str());
     const std::string endpoint = "/Users/" + m_client->GetUserId()
       + "/PlayedItems/" + recordingId;
@@ -872,11 +876,10 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
   }
   else
   {
-    // Kodi auto-increments play count at playback start — don't mark as
-    // fully watched on Jellyfin. The resume position from
-    // SetRecordingLastPlayedPosition handles partial/full state.
-    Logger::Log(LEVEL_DEBUG, "%s - Ignoring play count increment to %d for %s",
-                __FUNCTION__, count, recordingId.c_str());
+    Logger::Log(LEVEL_INFO, "%s - Marking played: %s", __FUNCTION__, recordingId.c_str());
+    const std::string endpoint = "/Users/" + m_client->GetUserId()
+      + "/PlayedItems/" + recordingId;
+    m_client->SendPost(endpoint, "{}");
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -895,11 +898,8 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
   const std::string endpoint = "/Users/" + m_client->GetUserId()
     + "/Items/" + recordingId + "/UserData";
 
-  // Set position AND Played=false — a non-zero position with Played=false
-  // is what Jellyfin shows as "partially watched" in the dashboard.
   Json::Value body;
   body["PlaybackPositionTicks"] = static_cast<Json::Int64>(ticks);
-  body["Played"] = false;
 
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
