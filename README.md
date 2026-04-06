@@ -1,6 +1,6 @@
 [![License: GPL-2.0-or-later](https://img.shields.io/badge/License-GPL%20v2+-blue.svg)](LICENSE.md)
 
-# Kodi PVR for Jellyfin
+# Jellyfin PVR Client for Kodi
 
 Kodi PVR client addon for [Jellyfin](https://jellyfin.org) Live TV. Provides native Kodi PVR integration for live TV channels, EPG, recordings, and timers from a Jellyfin server.
 
@@ -9,10 +9,6 @@ Play cathup/ archive content from EPG in same manner as IPTV simple client (When
 Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replacing M3U/XMLTV data sources with Jellyfin REST API calls.
 
 **Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9.x or later with Live TV configured.
-
-## Installation
-
-Install via the [Kontell Repository](https://github.com/kontell/repository.kontell) for automatic updates.
 
 ## Features
 
@@ -25,6 +21,23 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - One-shot and series recording timers
 - inputstream.ffmpegdirect / inputstream.adaptive support
 - Login with username/ password or quick connect code
+
+## Installation
+
+Install via the [Kontell Repository](https://github.com/kontell/repository.kontell).
+
+## Configuration
+
+- After install go to: Add-ons -> My add-ons -> PVR clients -> Kofin PVR for Jellyfin -> Configure
+- Enter server details and logon
+- Reenter settings and restart add-on
+- Kodi PVR settings can be found in: Settings -> PVR & Live TV
+- Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
+
+## Catchup
+If supported by your provider cathup works with direct play only. Force remuxing must be disabled and streams must be within any bitrate limit set. To use it you must provie a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catuhup documentation.
+
+Note: Only tested with timeshift="days" element.
 
 ## License
 
