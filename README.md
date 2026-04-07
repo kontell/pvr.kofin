@@ -35,7 +35,7 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
 
 ## Catchup
-If supported by your provider cathup works with direct play only. Force remuxing must be disabled and streams must be within any bitrate limit set. To use it you must provie a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catuhup documentation.
+If supported by your provider cathup works with direct play only. Force remuxing must be disabled and streams must be within any bitrate limit set. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
 
 Note: Only tested with timeshift="days" element.
 
