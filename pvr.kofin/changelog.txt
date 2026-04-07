@@ -1,3 +1,9 @@
+v0.2.5
+- Rewrite recording playback state sync using Jellyfin Played flag and PlaybackPositionTicks only
+- Fix mark as watched/unwatched syncing to Jellyfin server
+- Fix resume position flickering on cursor hover
+- Playback start no longer marks recording as watched on Jellyfin
+
 v0.2.4
 - Fix watched state sync: derive Kodi PlayCount from Jellyfin Played flag
 - Mark as watched/unwatched now correctly updates Jellyfin server
