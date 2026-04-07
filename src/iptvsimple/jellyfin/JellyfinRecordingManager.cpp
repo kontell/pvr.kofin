@@ -869,17 +869,25 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
 
   if (count == 0)
   {
-    Logger::Log(LEVEL_INFO, "%s - Marking unplayed: %s", __FUNCTION__, recordingId.c_str());
+    // Mark as unwatched — send immediately (Kodi may not call Position(0) after this)
+    Logger::Log(LEVEL_INFO, "%s - Marking unwatched: %s", __FUNCTION__, recordingId.c_str());
     const std::string endpoint = "/Users/" + m_client->GetUserId()
-      + "/PlayedItems/" + recordingId;
-    m_client->SendDelete(endpoint);
+      + "/Items/" + recordingId + "/UserData";
+    Json::Value body;
+    body["Played"] = false;
+    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
+    Json::StreamWriterBuilder writer;
+    writer["indentation"] = "";
+    m_client->SendPost(endpoint, Json::writeString(writer, body));
   }
   else
   {
-    Logger::Log(LEVEL_INFO, "%s - Marking played: %s", __FUNCTION__, recordingId.c_str());
-    const std::string endpoint = "/Users/" + m_client->GetUserId()
-      + "/PlayedItems/" + recordingId;
-    m_client->SendPost(endpoint, "{}");
+    // Record the intent — defer to SetRecordingLastPlayedPosition(0) to
+    // distinguish "mark as watched" (PlayCount then Position=0) from
+    // "playback start" (PlayCount only, no Position=0)
+    m_recentPlayCountCalls[recordingId] = {count, std::chrono::steady_clock::now()};
+    Logger::Log(LEVEL_DEBUG, "%s - Recorded PlayCount(%d) for %s",
+                __FUNCTION__, count, recordingId.c_str());
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -889,23 +897,47 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
 {
   const std::string recordingId = recording.GetRecordingId();
 
-  if (lastplayedposition <= 0)
-    return PVR_ERROR_NO_ERROR;
-
-  // Convert seconds to 100ns ticks
-  int64_t ticks = static_cast<int64_t>(lastplayedposition) * 10000000LL;
+  if (lastplayedposition < 0)
+    lastplayedposition = 0;
 
   const std::string endpoint = "/Users/" + m_client->GetUserId()
     + "/Items/" + recordingId + "/UserData";
 
   Json::Value body;
-  body["PlaybackPositionTicks"] = static_cast<Json::Int64>(ticks);
-
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
 
-  Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
-              __FUNCTION__, lastplayedposition, recordingId.c_str());
+  if (lastplayedposition > 0)
+  {
+    // Normal position save
+    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(static_cast<int64_t>(lastplayedposition) * 10000000LL);
+    Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
+                __FUNCTION__, lastplayedposition, recordingId.c_str());
+  }
+  else
+  {
+    // Position=0 — check for a recent SetRecordingPlayCount to determine intent
+    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
+
+    auto it = m_recentPlayCountCalls.find(recordingId);
+    bool hadRecentPlayCount = (it != m_recentPlayCountCalls.end() &&
+      std::chrono::steady_clock::now() - it->second.second < std::chrono::seconds(2));
+
+    if (hadRecentPlayCount)
+    {
+      bool markPlayed = (it->second.first > 0);
+      body["Played"] = markPlayed;
+      m_recentPlayCountCalls.erase(it);
+      Logger::Log(LEVEL_INFO, "%s - Marking %s for %s",
+                  __FUNCTION__, markPlayed ? "watched" : "unwatched", recordingId.c_str());
+    }
+    else
+    {
+      // Reset resume position (no preceding PlayCount) — just clear position
+      Logger::Log(LEVEL_INFO, "%s - Clearing resume position for %s",
+                  __FUNCTION__, recordingId.c_str());
+    }
+  }
 
   m_client->SendPost(endpoint, Json::writeString(writer, body));
 
@@ -917,7 +949,7 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingLastPlayedPosition(const kodi::a
   // Position is set via recording.SetLastPlayedPosition() in LoadRecordings.
   // Returning NOT_IMPLEMENTED tells Kodi to use that value instead of polling
   // the server per-recording every 10 seconds (which blocks the UI thread).
-  position = 0;
+  position = -1;
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 

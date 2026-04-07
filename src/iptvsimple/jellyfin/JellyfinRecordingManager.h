@@ -92,6 +92,11 @@ private:
 
   std::mutex m_mutex;
 
+  // Track recent SetRecordingPlayCount calls to distinguish
+  // "mark watched/unwatched" (PlayCount then Position=0) from
+  // "playback start" (PlayCount only, no Position=0)
+  std::map<std::string, std::pair<int, std::chrono::steady_clock::time_point>> m_recentPlayCountCalls;
+
   std::shared_ptr<JellyfinClient> m_client;
   std::shared_ptr<JellyfinChannelLoader> m_channelLoader;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
