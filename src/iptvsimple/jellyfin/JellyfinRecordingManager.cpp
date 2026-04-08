@@ -8,6 +8,7 @@
 #include "JellyfinRecordingManager.h"
 
 #include "../utilities/Logger.h"
+#include <kodi/General.h>
 #include "../utilities/WebUtils.h"
 
 #include <algorithm>
@@ -320,6 +321,12 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
 
 PVR_ERROR JellyfinRecordingManager::UpdateTimer(const kodi::addon::PVRTimer& timer)
 {
+  // Jellyfin's DefaultLiveTvService.UpdateTimerAsync silently ignores updates
+  // to in-progress timers (checks GetActiveRecordingPath != null). Non-active
+  // timer updates are accepted but the API returns 204 without applying
+  // padding changes reliably. Disabled until Jellyfin fixes this server-side.
+  // See: jellyfin-allow-padding-update-on-inprogress-timers feature request.
+#if 0
   const int clientIndex = timer.GetClientIndex();
   const bool isSeries = (timer.GetTimerType() == TIMER_SERIES);
   std::string jellyfinId;
@@ -389,6 +396,11 @@ PVR_ERROR JellyfinRecordingManager::UpdateTimer(const kodi::addon::PVRTimer& tim
 
   Reload();
   return PVR_ERROR_NO_ERROR;
+#endif
+
+  Logger::Log(LEVEL_WARNING, "%s - Timer edits not supported by Jellyfin", __FUNCTION__);
+  kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Timer edits not supported by Jellyfin");
+  return PVR_ERROR_REJECTED;
 }
 
 /***************************************************************************
