@@ -83,6 +83,25 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
     types.emplace_back(type);
   }
 
+  // Type 4: Manual recording (channel + time, no EPG)
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(TIMER_ONCE_MANUAL);
+    type.SetDescription("Manual recording");
+    type.SetAttributes(
+      PVR_TIMER_TYPE_IS_MANUAL |
+      PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+      PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+      PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+      PVR_TIMER_TYPE_SUPPORTS_START_MARGIN |
+      PVR_TIMER_TYPE_SUPPORTS_END_MARGIN
+    );
+    types.emplace_back(type);
+  }
+
+  Logger::Log(LEVEL_INFO, "%s - Registered %d timer types", __FUNCTION__,
+              static_cast<int>(types.size()));
+
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -260,6 +279,82 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
                 __FUNCTION__, timer.GetTitle().c_str(), programId.c_str());
 
     m_client->SendPost("/LiveTv/SeriesTimers", bodyStr);
+
+    Reload();
+    return PVR_ERROR_NO_ERROR;
+  }
+  else if (timer.GetTimerType() == TIMER_ONCE_MANUAL)
+  {
+    // Manual recording — channel + time range, no EPG program ID.
+    // Get timer defaults (without programId) and fill in from Kodi's timer.
+    const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+    if (channelJfId.empty())
+    {
+      Logger::Log(LEVEL_ERROR, "%s - No Jellyfin channel ID for channel UID %d",
+                  __FUNCTION__, timer.GetClientChannelUid());
+      return PVR_ERROR_INVALID_PARAMETERS;
+    }
+
+    Json::Value defaults = m_client->SendGet("/LiveTv/Timers/Defaults");
+    if (defaults.isNull())
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Failed to get timer defaults", __FUNCTION__);
+      return PVR_ERROR_SERVER_ERROR;
+    }
+
+    defaults["ChannelId"] = channelJfId;
+
+    // GetStartTime() returns 0 for instant records (meaning "now"), and may
+    // return seconds-since-midnight when only the time is edited in the
+    // dialog (Kodi bug). Detect and fix both cases.
+    time_t startTime = timer.GetStartTime();
+    time_t endTime = timer.GetEndTime();
+    time_t now = std::time(nullptr);
+
+    if (startTime <= 0)
+      startTime = now;
+    else if (startTime < 86400) // Looks like time-of-day, not a real time_t
+    {
+      struct tm today;
+      gmtime_r(&now, &today);
+      today.tm_hour = static_cast<int>(startTime / 3600);
+      today.tm_min = static_cast<int>((startTime % 3600) / 60);
+      today.tm_sec = static_cast<int>(startTime % 60);
+      startTime = timegm(&today);
+    }
+
+    if (endTime <= 0)
+      endTime = now + 7200; // Default 2 hours
+    else if (endTime < 86400)
+    {
+      struct tm today;
+      gmtime_r(&now, &today);
+      today.tm_hour = static_cast<int>(endTime / 3600);
+      today.tm_min = static_cast<int>((endTime % 3600) / 60);
+      today.tm_sec = static_cast<int>(endTime % 60);
+      endTime = timegm(&today);
+    }
+
+    defaults["StartDate"] = FormatIso8601(startTime);
+    defaults["EndDate"] = FormatIso8601(endTime);
+    defaults["Name"] = timer.GetTitle().empty() ? "Manual Recording" : timer.GetTitle();
+    defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
+    defaults["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
+    defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
+    defaults["IsPostPaddingRequired"] = timer.GetMarginEnd() > 0;
+
+    // Do NOT set ProgramId — leave it empty so Jellyfin's RefreshTimers
+    // won't delete this timer when it can't find a matching programme.
+
+    Json::StreamWriterBuilder writer;
+    writer["indentation"] = "";
+    const std::string bodyStr = Json::writeString(writer, defaults);
+
+    Logger::Log(LEVEL_INFO, "%s - Creating manual timer: %s on channel %s (%s - %s)",
+                __FUNCTION__, defaults["Name"].asString().c_str(), channelJfId.c_str(),
+                defaults["StartDate"].asString().c_str(), defaults["EndDate"].asString().c_str());
+
+    m_client->SendPost("/LiveTv/Timers", bodyStr);
 
     Reload();
     return PVR_ERROR_NO_ERROR;
@@ -519,12 +614,16 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
     timer.SetTitle(item.get("Name", "").asString());
     timer.SetSummary(item.get("Overview", "").asString());
 
-    // Timer type: child of series or standalone
+    // Timer type: child of series, manual, or EPG-based
     const std::string seriesTimerId = item.get("SeriesTimerId", "").asString();
     if (!seriesTimerId.empty())
     {
       timer.SetTimerType(TIMER_ONCE_CREATED_BY_SERIES);
       timer.SetParentClientIndex(GenerateUid(seriesTimerId));
+    }
+    else if (item.get("IsManual", false).asBool())
+    {
+      timer.SetTimerType(TIMER_ONCE_MANUAL);
     }
     else
     {

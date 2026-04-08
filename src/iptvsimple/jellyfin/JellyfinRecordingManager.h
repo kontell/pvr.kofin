@@ -29,7 +29,8 @@ enum TimerTypeId
 {
   TIMER_ONCE_EPG = 1,                // One-shot recording from EPG programme
   TIMER_ONCE_CREATED_BY_SERIES = 2,  // Child of series timer (read-only)
-  TIMER_SERIES = 3                   // Series recording rule
+  TIMER_SERIES = 3,                  // Series recording rule
+  TIMER_ONCE_MANUAL = 4              // Manual recording (channel + time, no EPG)
 };
 
 class JellyfinRecordingManager

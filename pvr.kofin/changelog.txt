@@ -1,3 +1,9 @@
+v0.3.0
+- Add manual timer support (record by channel + time, no EPG required)
+- Disable timer editing with error notification (Jellyfin silently ignores updates)
+- Fix instant record start time (was showing 01:00 instead of current time)
+- Fix manual timer date when only time is edited in dialog
+
 v0.2.5
 - Rewrite recording playback state sync using Jellyfin Played flag and PlaybackPositionTicks only
 - Fix mark as watched/unwatched syncing to Jellyfin server
