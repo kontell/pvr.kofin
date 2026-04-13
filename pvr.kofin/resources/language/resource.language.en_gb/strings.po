@@ -149,17 +149,17 @@ msgctxt "#30651"
 msgid "Unlimited"
 msgstr ""
 
-#: Input stream
+#: InputStream
 msgctxt "#30660"
-msgid "Input stream"
+msgid "InputStream"
 msgstr ""
 
 msgctxt "#30661"
-msgid "Input stream"
+msgid "InputStream"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The input stream addon to use for playback. FFmpegDirect supports timeshift with a local device buffer. Adaptive supports timeshift with a buffer on the server. Kodi internal does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpegDirect supports timeshift with a local device buffer. Adaptive supports timeshift with a buffer on the server. Kodi internal does not support timeshift."
 msgstr ""
 
 msgctxt "#30663"
@@ -183,11 +183,11 @@ msgid "Buffer the live stream from the point playback began. Buffer is created o
 msgstr ""
 
 msgctxt "#30668"
-msgid "In-progress recording input stream"
+msgid "In-progress recording InputStream"
 msgstr ""
 
 msgctxt "#30669"
-msgid "The input stream to use for in-progress recording playback. Use Kodi internal if Adaptive causes crashes on your device."
+msgid "The InputStream to use for in-progress recording playback. Use Kodi internal if Adaptive causes crashes on your device."
 msgstr ""
 
 #: Advanced category
