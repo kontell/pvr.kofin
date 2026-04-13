@@ -12,9 +12,13 @@
 #include "JellyfinClient.h"
 
 #include <atomic>
+#include <chrono>
+#include <condition_variable>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <thread>
 
 #include <kodi/addon-instance/pvr/EPG.h>
 
@@ -28,6 +32,7 @@ class JellyfinChannelLoader
 public:
   JellyfinChannelLoader(std::shared_ptr<JellyfinClient> client,
                          std::shared_ptr<iptvsimple::InstanceSettings> settings);
+  ~JellyfinChannelLoader();
 
   bool LoadChannels(iptvsimple::Channels& channels, iptvsimple::ChannelGroups& channelGroups);
   PVR_ERROR LoadEpg(int channelUid, time_t start, time_t end,
@@ -68,7 +73,20 @@ private:
   std::atomic<uint32_t> m_sessionGen{0};  // generation counter — deferred threads check before sending
 
   void ScheduleDeferredPlayingReport();
-  Json::Value BuildSessionBody() const;
+  Json::Value BuildSessionBody(int64_t positionTicks = 0) const;
+  void StartProgressReporter();
+  void StopProgressReporter();
+
+  // Wall-clock start of the current session — used so progress reports
+  // send an incrementing PositionTicks (otherwise the dashboard timer resets).
+  std::chrono::steady_clock::time_point m_sessionStart{};
+
+  // Periodic Sessions/Playing/Progress keepalive — Jellyfin drops dashboard
+  // sessions after ~5 min without a ping.
+  std::thread m_progressThread;
+  std::mutex m_progressMutex;
+  std::condition_variable m_progressCv;
+  bool m_progressStop{true};
 
   std::shared_ptr<JellyfinClient> m_client;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;

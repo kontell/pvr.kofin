@@ -33,6 +33,11 @@ JellyfinChannelLoader::JellyfinChannelLoader(
 {
 }
 
+JellyfinChannelLoader::~JellyfinChannelLoader()
+{
+  StopProgressReporter();
+}
+
 bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& channelGroups)
 {
   Logger::Log(LEVEL_INFO, "%s - Loading channels from Jellyfin", __FUNCTION__);
@@ -694,9 +699,18 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
+  // Mark when playback began so progress reports carry an incrementing
+  // PositionTicks (otherwise the dashboard "time watched" counter resets
+  // on every ping).
+  m_sessionStart = std::chrono::steady_clock::now();
+
   // Schedule deferred Sessions/Playing report — gives Kodi time to connect
   // to the stream so the server has an active transcode job before we report.
   ScheduleDeferredPlayingReport();
+
+  // Start periodic Sessions/Playing/Progress keepalive so the dashboard
+  // keeps showing the session beyond the server's ~5min idle timeout.
+  StartProgressReporter();
 
   return streamUrl;
 }
@@ -705,6 +719,9 @@ void JellyfinChannelLoader::CloseLiveStream()
 {
   if (m_activeLiveStreamId.empty() && m_activePlaySessionId.empty())
     return;
+
+  // Stop the progress reporter before tearing down session state it reads.
+  StopProgressReporter();
 
   // Increment generation — cancels any pending deferred Sessions/Playing report
   ++m_sessionGen;
@@ -752,7 +769,7 @@ void JellyfinChannelLoader::CloseLiveStream()
   }).detach();
 }
 
-Json::Value JellyfinChannelLoader::BuildSessionBody() const
+Json::Value JellyfinChannelLoader::BuildSessionBody(int64_t positionTicks) const
 {
   Json::Value body;
   body["QueueableMediaTypes"] = "Video,Audio";
@@ -761,7 +778,7 @@ Json::Value JellyfinChannelLoader::BuildSessionBody() const
   body["MediaSourceId"] = m_activeMediaSourceId;
   body["PlayMethod"] = m_activePlayMethod;
   body["PlaySessionId"] = m_activePlaySessionId;
-  body["PositionTicks"] = 0;
+  body["PositionTicks"] = static_cast<Json::Int64>(positionTicks);
   body["IsPaused"] = false;
   body["IsMuted"] = false;
   body["VolumeLevel"] = 100;
@@ -790,6 +807,69 @@ void JellyfinChannelLoader::ScheduleDeferredPlayingReport()
     w["indentation"] = "";
     client->SendPost("/Sessions/Playing", Json::writeString(w, body));
   }).detach();
+}
+
+void JellyfinChannelLoader::StartProgressReporter()
+{
+  StopProgressReporter();
+
+  {
+    std::lock_guard<std::mutex> lock(m_progressMutex);
+    m_progressStop = false;
+  }
+
+  const uint32_t gen = m_sessionGen.load();
+  m_progressThread = std::thread([this, gen]() {
+    // Match jellyfin-web's 10s cadence — well below the server's idle timeout.
+    constexpr auto kInterval = std::chrono::seconds(10);
+    // Initial delay so we fire after the Sessions/Playing deferred report (3s).
+    constexpr auto kInitialDelay = std::chrono::seconds(10);
+
+    auto next = std::chrono::steady_clock::now() + kInitialDelay;
+    while (true)
+    {
+      std::unique_lock<std::mutex> lock(m_progressMutex);
+      if (m_progressCv.wait_until(lock, next, [this]() { return m_progressStop; }))
+        return;
+      lock.unlock();
+
+      if (m_sessionGen.load() != gen)
+        return;
+
+      auto client = m_client;
+      if (!client)
+        return;
+
+      // Jellyfin ticks are 100ns units. Use wall-clock elapsed so the
+      // dashboard "time watched" counter increases linearly.
+      const auto elapsed = std::chrono::steady_clock::now() - m_sessionStart;
+      const int64_t positionTicks =
+          std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() * 10;
+
+      Json::Value body = BuildSessionBody(positionTicks);
+      if (body["PlaySessionId"].asString().empty())
+        return;
+
+      Json::StreamWriterBuilder w;
+      w["indentation"] = "";
+      client->SendPost("/Sessions/Playing/Progress", Json::writeString(w, body));
+
+      next = std::chrono::steady_clock::now() + kInterval;
+    }
+  });
+}
+
+void JellyfinChannelLoader::StopProgressReporter()
+{
+  {
+    std::lock_guard<std::mutex> lock(m_progressMutex);
+    if (m_progressStop && !m_progressThread.joinable())
+      return;
+    m_progressStop = true;
+  }
+  m_progressCv.notify_all();
+  if (m_progressThread.joinable())
+    m_progressThread.join();
 }
 
 
