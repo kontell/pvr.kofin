@@ -142,7 +142,31 @@ CIptvSimpleAddon (addon.cpp)         — Kodi addon entry point, creates PVR ins
 - `pvr.kofin/resources/settings.xml` — user-facing settings (old flat format, categories for Server/Playback/Advanced)
 - `pvr.kofin/resources/language/resource.language.en_gb/strings.po` — localized strings (IDs 30600+)
 - `src/iptvsimple/InstanceSettings.h` — all settings with getters, bitrate table, codec name helpers
-- `VERSION` — single-line version string, read by CMakeLists.txt
+- `pvr.kofin/changelog.txt` — top paragraph is used as the GitHub release body
+- `.github/workflows/build.yml` — compile-check on every push (GCC/Clang × Omega/Piers)
+- `.github/workflows/release.yml` — on `v*` tag: builds 10-way matrix and drafts a GitHub release
+
+## Release Process
+
+Releases are cut by pushing a `v<version>` tag. GitHub Actions handles everything else.
+
+1. Bump `version="X.Y.Z"` in `pvr.kofin/addon.xml.in`.
+2. Prepend a new top entry to `pvr.kofin/changelog.txt`:
+   ```
+   v0.3.1
+   - <bullet>
+   - <bullet>
+
+   v0.3.0
+   ...
+   ```
+   The top paragraph (up to the first blank line) becomes the release body.
+3. Commit (`Bump to X.Y.Z: <summary>`) and push to `main`. `build.yml` verifies it compiles.
+4. Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`.
+5. `release.yml` cross-compiles 10 zips (Linux x86_64/armv7/aarch64 + Android armv7/aarch64, each × Kodi 21/22) and publishes a **draft** release on GitHub.
+6. Review draft on GitHub (`gh release view vX.Y.Z`), edit if needed, publish.
+
+Manual local builds into `/media/bluecon/docs/IT/kofin/builds/` are for test installs only — production zips come from the Release workflow.
 
 ## Android Packaging
 

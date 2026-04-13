@@ -1,3 +1,7 @@
+v0.3.1
+- Fix Jellyfin dashboard session dropping after 5 minutes during live TV playback
+- Rename "Input stream" to "InputStream" in settings
+
 v0.3.0
 - Add manual timer support (record by channel + time, no EPG required)
 - Disable timer editing with error notification (Jellyfin silently ignores updates)
