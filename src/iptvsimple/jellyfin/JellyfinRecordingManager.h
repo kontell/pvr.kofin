@@ -62,6 +62,10 @@ public:
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
 
+  // EPG-recording linkage: check if a recording exists for a given EPG entry
+  bool HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const;
+  std::string GetRecordingIdForEpg(unsigned int broadcastUid, int channelUid) const;
+
   // Reload cached data from Jellyfin
   void Reload();
 
@@ -91,7 +95,7 @@ private:
   std::vector<kodi::addon::PVRTimer> m_seriesTimers;
   std::vector<kodi::addon::PVRRecording> m_recordings;
 
-  std::mutex m_mutex;
+  mutable std::mutex m_mutex;
 
   // Track recent SetRecordingPlayCount calls to distinguish
   // "mark watched/unwatched" (PlayCount then Position=0) from

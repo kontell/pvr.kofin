@@ -12,6 +12,7 @@
 #include "../utilities/WebUtils.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
@@ -253,6 +254,13 @@ PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t en
       tag.SetFlags(flags);
 
     results.Add(tag);
+
+    // Index for recording-EPG matching (title + time → broadcast/channel UIDs)
+    if (item.isMember("StartDate"))
+    {
+      m_epgTitleIndex.emplace(NormaliseTitle(tag.GetTitle()),
+        EpgIndexEntry{broadcastUid, channelUid, tag.GetStartTime()});
+    }
   }
 
   Logger::Log(LEVEL_DEBUG, "%s - Loaded %d EPG entries for channel %d",
@@ -699,11 +707,6 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Mark when playback began so progress reports carry an incrementing
-  // PositionTicks (otherwise the dashboard "time watched" counter resets
-  // on every ping).
-  m_sessionStart = std::chrono::steady_clock::now();
-
   // Schedule deferred Sessions/Playing report — gives Kodi time to connect
   // to the stream so the server has an active transcode job before we report.
   ScheduleDeferredPlayingReport();
@@ -813,63 +816,66 @@ void JellyfinChannelLoader::StartProgressReporter()
 {
   StopProgressReporter();
 
-  {
-    std::lock_guard<std::mutex> lock(m_progressMutex);
-    m_progressStop = false;
-  }
+  // Per-session stop flag. Captured by value (shared_ptr) into the detached
+  // thread so the owner can signal stop and walk away — joining could deadlock
+  // against Kodi locks held during stream stop, particularly for catchup.
+  m_progressStop = std::make_shared<std::atomic<bool>>(false);
+  auto stopFlag = m_progressStop;
 
-  const uint32_t gen = m_sessionGen.load();
-  m_progressThread = std::thread([this, gen]() {
+  // Capture all session data by value — the thread must not touch loader
+  // members because the loader can be destroyed while the thread is in flight.
+  auto client = m_client;
+  Json::Value bodyTemplate = BuildSessionBody(0);
+  const auto sessionStart = std::chrono::steady_clock::now();
+
+  std::thread([client, stopFlag, bodyTemplate, sessionStart]() mutable {
     // Match jellyfin-web's 10s cadence — well below the server's idle timeout.
     constexpr auto kInterval = std::chrono::seconds(10);
     // Initial delay so we fire after the Sessions/Playing deferred report (3s).
     constexpr auto kInitialDelay = std::chrono::seconds(10);
+    // Sleep granularity — controls cancellation latency.
+    constexpr auto kTick = std::chrono::milliseconds(250);
 
-    auto next = std::chrono::steady_clock::now() + kInitialDelay;
+    auto sleepUntil = [&](std::chrono::steady_clock::time_point deadline) {
+      while (std::chrono::steady_clock::now() < deadline)
+      {
+        if (stopFlag->load(std::memory_order_relaxed))
+          return false;
+        std::this_thread::sleep_for(kTick);
+      }
+      return !stopFlag->load(std::memory_order_relaxed);
+    };
+
+    if (!sleepUntil(std::chrono::steady_clock::now() + kInitialDelay))
+      return;
+
     while (true)
     {
-      std::unique_lock<std::mutex> lock(m_progressMutex);
-      if (m_progressCv.wait_until(lock, next, [this]() { return m_progressStop; }))
-        return;
-      lock.unlock();
-
-      if (m_sessionGen.load() != gen)
-        return;
-
-      auto client = m_client;
-      if (!client)
-        return;
-
       // Jellyfin ticks are 100ns units. Use wall-clock elapsed so the
       // dashboard "time watched" counter increases linearly.
-      const auto elapsed = std::chrono::steady_clock::now() - m_sessionStart;
-      const int64_t positionTicks =
-          std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() * 10;
-
-      Json::Value body = BuildSessionBody(positionTicks);
-      if (body["PlaySessionId"].asString().empty())
-        return;
+      const auto elapsed = std::chrono::steady_clock::now() - sessionStart;
+      bodyTemplate["PositionTicks"] = static_cast<Json::Int64>(
+          std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() * 10);
 
       Json::StreamWriterBuilder w;
       w["indentation"] = "";
-      client->SendPost("/Sessions/Playing/Progress", Json::writeString(w, body));
+      client->SendPost("/Sessions/Playing/Progress", Json::writeString(w, bodyTemplate));
 
-      next = std::chrono::steady_clock::now() + kInterval;
+      if (!sleepUntil(std::chrono::steady_clock::now() + kInterval))
+        return;
     }
-  });
+  }).detach();
 }
 
 void JellyfinChannelLoader::StopProgressReporter()
 {
+  // Signal stop — detached reporter exits within ~kTick (250 ms). Drop our
+  // ref to the flag; the thread keeps it alive via its captured shared_ptr.
+  if (m_progressStop)
   {
-    std::lock_guard<std::mutex> lock(m_progressMutex);
-    if (m_progressStop && !m_progressThread.joinable())
-      return;
-    m_progressStop = true;
+    m_progressStop->store(true, std::memory_order_relaxed);
+    m_progressStop.reset();
   }
-  m_progressCv.notify_all();
-  if (m_progressThread.joinable())
-    m_progressThread.join();
 }
 
 
@@ -889,6 +895,60 @@ const std::string& JellyfinChannelLoader::GetJellyfinProgramId(unsigned int epgB
   if (it != m_epgUidToJellyfinProgramId.end())
     return it->second;
   return empty;
+}
+
+int JellyfinChannelLoader::GetChannelUid(const std::string& jellyfinId) const
+{
+  auto it = m_jellyfinIdToUid.find(jellyfinId);
+  if (it != m_jellyfinIdToUid.end())
+    return it->second;
+  return 0;
+}
+
+std::string JellyfinChannelLoader::NormaliseTitle(const std::string& title)
+{
+  std::string result;
+  result.reserve(title.size());
+  bool lastWasSpace = true; // trim leading
+  for (char c : title)
+  {
+    if (c == ' ' || c == '\t')
+    {
+      if (!lastWasSpace)
+        result += ' ';
+      lastWasSpace = true;
+    }
+    else
+    {
+      result += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+      lastWasSpace = false;
+    }
+  }
+  // trim trailing
+  if (!result.empty() && result.back() == ' ')
+    result.pop_back();
+  return result;
+}
+
+bool JellyfinChannelLoader::FindRecordingEpgMatch(const std::string& title, time_t dateCreated,
+                                                    unsigned int& outBroadcastUid, int& outChannelUid) const
+{
+  const std::string normTitle = NormaliseTitle(title);
+  auto range = m_epgTitleIndex.equal_range(normTitle);
+  constexpr time_t kTolerance = 300; // 5 minutes
+
+  time_t bestDelta = kTolerance + 1;
+  for (auto it = range.first; it != range.second; ++it)
+  {
+    time_t delta = std::abs(it->second.startTime - dateCreated);
+    if (delta < bestDelta)
+    {
+      bestDelta = delta;
+      outBroadcastUid = it->second.broadcastUid;
+      outChannelUid = it->second.channelUid;
+    }
+  }
+  return bestDelta <= kTolerance;
 }
 
 int JellyfinChannelLoader::GenerateUid(const std::string& str)

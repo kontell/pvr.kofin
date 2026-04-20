@@ -13,12 +13,10 @@
 
 #include <atomic>
 #include <chrono>
-#include <condition_variable>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <string>
-#include <thread>
+#include <vector>
 
 #include <kodi/addon-instance/pvr/EPG.h>
 
@@ -46,6 +44,17 @@ public:
 
   const std::string& GetJellyfinId(int channelUid) const;
   const std::string& GetJellyfinProgramId(unsigned int epgBroadcastUid) const;
+  int GetChannelUid(const std::string& jellyfinId) const;
+
+  // EPG-recording matching: find a recording's EPG entry by title + start time
+  struct EpgIndexEntry
+  {
+    unsigned int broadcastUid;
+    int channelUid;
+    time_t startTime;
+  };
+  bool FindRecordingEpgMatch(const std::string& title, time_t dateCreated,
+                             unsigned int& outBroadcastUid, int& outChannelUid) const;
 
 private:
   static int GenerateUid(const std::string& str);
@@ -63,6 +72,10 @@ private:
   // EPG broadcast UID -> Jellyfin program ID (for timer creation)
   std::map<unsigned int, std::string> m_epgUidToJellyfinProgramId;
 
+  // EPG title index for matching recordings to EPG entries
+  std::multimap<std::string, EpgIndexEntry> m_epgTitleIndex;
+  static std::string NormaliseTitle(const std::string& title);
+
   // Active session for reporting and cleanup
   std::string m_activeLiveStreamId;
   std::string m_activeItemId;
@@ -77,16 +90,10 @@ private:
   void StartProgressReporter();
   void StopProgressReporter();
 
-  // Wall-clock start of the current session — used so progress reports
-  // send an incrementing PositionTicks (otherwise the dashboard timer resets).
-  std::chrono::steady_clock::time_point m_sessionStart{};
-
-  // Periodic Sessions/Playing/Progress keepalive — Jellyfin drops dashboard
-  // sessions after ~5 min without a ping.
-  std::thread m_progressThread;
-  std::mutex m_progressMutex;
-  std::condition_variable m_progressCv;
-  bool m_progressStop{true};
+  // Per-session stop flag for the periodic /Sessions/Playing/Progress thread.
+  // Shared with the detached reporter so the owner can signal stop without
+  // joining (joining could deadlock against Kodi locks held during stop).
+  std::shared_ptr<std::atomic<bool>> m_progressStop;
 
   std::shared_ptr<JellyfinClient> m_client;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;

@@ -229,6 +229,7 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "customrequest", "DELETE");
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "X-Emby-Authorization", BuildAuthHeader());
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Content-Type", "application/json");
+  file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Connection", "close");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", "10");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "acceptencoding", "gzip, deflate");
 
@@ -257,6 +258,11 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
 
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "X-Emby-Authorization", BuildAuthHeader());
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Content-Type", "application/json");
+  // Don't let Kodi's curl pool cache this connection. A long-running playback
+  // produced dozens of idle keep-alive connections that Kodi's stop flow had
+  // to iterate at teardown, producing proportional UI hangs. Each POST opens
+  // a fresh TCP/TLS — cheap relative to the pool-teardown cost.
+  file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Connection", "close");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", "10");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "acceptencoding", "gzip, deflate");
 

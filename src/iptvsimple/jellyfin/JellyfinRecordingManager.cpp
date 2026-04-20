@@ -584,6 +584,28 @@ void JellyfinRecordingManager::Reload()
   LoadRecordings();
 }
 
+bool JellyfinRecordingManager::HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const
+{
+  std::lock_guard<std::mutex> lock(m_mutex);
+  for (const auto& rec : m_recordings)
+  {
+    if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)
+      return true;
+  }
+  return false;
+}
+
+std::string JellyfinRecordingManager::GetRecordingIdForEpg(unsigned int broadcastUid, int channelUid) const
+{
+  std::lock_guard<std::mutex> lock(m_mutex);
+  for (const auto& rec : m_recordings)
+  {
+    if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)
+      return rec.GetRecordingId();
+  }
+  return "";
+}
+
 PVR_ERROR JellyfinRecordingManager::LoadTimers()
 {
   const std::string endpoint = "/LiveTv/Timers";
@@ -888,22 +910,14 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     {
       int channelUid = 0;
       const std::string channelJfId = item.isMember("ChannelId") ? item["ChannelId"].asString() : "";
-      if (!channelJfId.empty() && channelJfId != "null")
-      {
-        channelUid = GenerateUid(
-          item.get("ChannelName", "").asString() +
-          m_client->GetBaseUrl() + "/LiveTv/Channels/" + channelJfId);
-      }
+      if (!channelJfId.empty() && channelJfId != "null" && m_channelLoader)
+        channelUid = m_channelLoader->GetChannelUid(channelJfId);
       // Fallback: get channel UID from timer data (in-progress recordings may lack ChannelId)
       if (channelUid == 0 && inProgress)
       {
-        auto it = m_timerNameToChannelUid.find(item.get("Name", "").asString());
-        if (it != m_timerNameToChannelUid.end())
-        {
-          channelUid = it->second;
-          Logger::Log(LEVEL_DEBUG, "%s - Recording '%s': got channelUid %d from timer cross-ref",
-                      __FUNCTION__, item.get("Name", "").asString().c_str(), channelUid);
-        }
+        auto it2 = m_timerNameToChannelUid.find(item.get("Name", "").asString());
+        if (it2 != m_timerNameToChannelUid.end())
+          channelUid = it2->second;
       }
       if (channelUid != 0)
         recording.SetChannelUid(channelUid);
@@ -964,6 +978,25 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     // Directory (group recordings by series name or parent folder)
     if (item.isMember("SeriesName") && !item["SeriesName"].asString().empty())
       recording.SetDirectory(item["SeriesName"].asString());
+
+    // EPG index fallback: Jellyfin strips ProgramId/ChannelId from completed recordings.
+    // Match by title + DateCreated against our EPG index to restore the link.
+    if (recording.GetEPGEventId() == 0 && m_channelLoader)
+    {
+      unsigned int matchedBroadcastUid = 0;
+      int matchedChannelUid = 0;
+      if (m_channelLoader->FindRecordingEpgMatch(
+            item.get("Name", "").asString(), recording.GetRecordingTime(),
+            matchedBroadcastUid, matchedChannelUid))
+      {
+        recording.SetEPGEventId(matchedBroadcastUid);
+        if (recording.GetChannelUid() == 0)
+          recording.SetChannelUid(matchedChannelUid);
+        Logger::Log(LEVEL_DEBUG, "%s - Recording '%s': matched EPG (broadcastUid=%u, channelUid=%d)",
+                    __FUNCTION__, item.get("Name", "").asString().c_str(),
+                    matchedBroadcastUid, matchedChannelUid);
+      }
+    }
 
     m_recordings.emplace_back(recording);
   }
