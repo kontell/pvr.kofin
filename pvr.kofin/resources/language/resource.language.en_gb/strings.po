@@ -159,11 +159,11 @@ msgid "InputStream"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpegDirect supports timeshift with a local device buffer. Adaptive supports timeshift with a buffer on the server. Kodi internal does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a buffer on the server. FFmpeg (Kodi internal) does not support timeshift."
 msgstr ""
 
 msgctxt "#30663"
-msgid "FFmpegDirect"
+msgid "FFmpeg Direct"
 msgstr ""
 
 msgctxt "#30664"
@@ -171,7 +171,7 @@ msgid "Adaptive"
 msgstr ""
 
 msgctxt "#30665"
-msgid "Kodi internal"
+msgid "FFmpeg (Kodi internal)"
 msgstr ""
 
 msgctxt "#30666"
@@ -187,7 +187,7 @@ msgid "In-progress recording InputStream"
 msgstr ""
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Use Kodi internal if Adaptive causes crashes on your device."
+msgid "The InputStream to use for in-progress recording playback. Use FFmpeg (Kodi internal) if Adaptive causes crashes on your device."
 msgstr ""
 
 #: Advanced category
@@ -313,7 +313,7 @@ msgid "Kofin PVR Settings"
 msgstr ""
 
 msgctxt "#30725"
-msgid "FFmpegDirect settings..."
+msgid "FFmpeg Direct settings..."
 msgstr ""
 
 msgctxt "#30726"

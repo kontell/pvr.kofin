@@ -927,10 +927,17 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     }
 
     // Timing: prefer StartDate/EndDate (live TV recordings), fall back to DateCreated/RunTimeTicks (library items)
+    // Note: Jellyfin has a bug where DateCreated stores server-local time with a
+    // Z suffix (claims UTC but isn't). Correct by subtracting local UTC offset.
     if (item.isMember("StartDate"))
       recording.SetRecordingTime(ParseIso8601(item["StartDate"].asString()));
     else if (item.isMember("DateCreated"))
-      recording.SetRecordingTime(ParseIso8601(item["DateCreated"].asString()));
+    {
+      time_t raw = ParseIso8601(item["DateCreated"].asString());
+      struct tm local_tm;
+      localtime_r(&raw, &local_tm);
+      recording.SetRecordingTime(raw - local_tm.tm_gmtoff);
+    }
 
     if (item.isMember("StartDate") && item.isMember("EndDate"))
     {

@@ -18,10 +18,11 @@ REPORT_INTERVAL = 10  # seconds between progress reports
 
 
 def build_auth_header(token, device_id):
+    version = xbmcaddon.Addon(ADDON_ID).getAddonInfo('version')
     header = (
         'MediaBrowser Client="Kofin PVR", Device="Kodi"'
         f', DeviceId="{device_id}"'
-        f', Version="1.0"'
+        f', Version="{version}"'
     )
     if token:
         header += f', Token="{token}"'
