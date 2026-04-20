@@ -11,8 +11,6 @@
 #include "../ChannelGroups.h"
 #include "JellyfinClient.h"
 
-#include <atomic>
-#include <chrono>
 #include <map>
 #include <memory>
 #include <string>
@@ -30,7 +28,6 @@ class JellyfinChannelLoader
 public:
   JellyfinChannelLoader(std::shared_ptr<JellyfinClient> client,
                          std::shared_ptr<iptvsimple::InstanceSettings> settings);
-  ~JellyfinChannelLoader();
 
   bool LoadChannels(iptvsimple::Channels& channels, iptvsimple::ChannelGroups& channelGroups);
   PVR_ERROR LoadEpg(int channelUid, time_t start, time_t end,
@@ -76,24 +73,13 @@ private:
   std::multimap<std::string, EpgIndexEntry> m_epgTitleIndex;
   static std::string NormaliseTitle(const std::string& title);
 
-  // Active session for reporting and cleanup
+  // Active session state (cleared on CloseLiveStream / new stream)
   std::string m_activeLiveStreamId;
   std::string m_activeItemId;
   std::string m_activeMediaSourceId;
   std::string m_activePlaySessionId;
   std::string m_activePlayMethod;         // "DirectPlay" or "Transcode"
-  bool m_activeIsRecording{false};        // true for recordings — skip Sessions/Playing/Stopped
-  std::atomic<uint32_t> m_sessionGen{0};  // generation counter — deferred threads check before sending
-
-  void ScheduleDeferredPlayingReport();
-  Json::Value BuildSessionBody(int64_t positionTicks = 0) const;
-  void StartProgressReporter();
-  void StopProgressReporter();
-
-  // Per-session stop flag for the periodic /Sessions/Playing/Progress thread.
-  // Shared with the detached reporter so the owner can signal stop without
-  // joining (joining could deadlock against Kodi locks held during stop).
-  std::shared_ptr<std::atomic<bool>> m_progressStop;
+  bool m_activeIsRecording{false};
 
   std::shared_ptr<JellyfinClient> m_client;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;

@@ -11,6 +11,8 @@
 #include "../utilities/Logger.h"
 #include "../utilities/WebUtils.h"
 
+#include <kodi/General.h>
+
 #include <algorithm>
 #include <cctype>
 #include <cmath>
@@ -19,7 +21,6 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
-#include <thread>
 #include <vector>
 
 using namespace iptvsimple;
@@ -34,10 +35,6 @@ JellyfinChannelLoader::JellyfinChannelLoader(
 {
 }
 
-JellyfinChannelLoader::~JellyfinChannelLoader()
-{
-  StopProgressReporter();
-}
 
 bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& channelGroups)
 {
@@ -535,7 +532,12 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  ScheduleDeferredPlayingReport();
+  // Persist session metadata for Python playback reporter
+  kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
+  kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
+  kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
+  kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
+  kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
 
   return streamUrl;
 }
@@ -707,13 +709,12 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Schedule deferred Sessions/Playing report — gives Kodi time to connect
-  // to the stream so the server has an active transcode job before we report.
-  ScheduleDeferredPlayingReport();
-
-  // Start periodic Sessions/Playing/Progress keepalive so the dashboard
-  // keeps showing the session beyond the server's ~5min idle timeout.
-  StartProgressReporter();
+  // Persist session metadata for Python playback reporter
+  kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
+  kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
+  kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
+  kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
+  kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
 
   return streamUrl;
 }
@@ -723,159 +724,15 @@ void JellyfinChannelLoader::CloseLiveStream()
   if (m_activeLiveStreamId.empty() && m_activePlaySessionId.empty())
     return;
 
-  // Stop the progress reporter before tearing down session state it reads.
-  StopProgressReporter();
+  Logger::Log(LEVEL_INFO, "%s - Clearing session %s, stream %s",
+              __FUNCTION__, m_activePlaySessionId.c_str(), m_activeLiveStreamId.c_str());
 
-  // Increment generation — cancels any pending deferred Sessions/Playing report
-  ++m_sessionGen;
-
-  const std::string liveStreamId = m_activeLiveStreamId;
-  const std::string playSessionId = m_activePlaySessionId;
-  const std::string mediaSourceId = m_activeMediaSourceId;
-  const std::string itemId = m_activeItemId;
   m_activeLiveStreamId.clear();
   m_activePlaySessionId.clear();
   m_activeMediaSourceId.clear();
   m_activeItemId.clear();
   m_activePlayMethod.clear();
-  const bool isRecording = m_activeIsRecording;
   m_activeIsRecording = false;
-
-  Logger::Log(LEVEL_INFO, "%s - Closing session %s, stream %s (async, recording=%s)",
-              __FUNCTION__, playSessionId.c_str(), liveStreamId.c_str(),
-              isRecording ? "yes" : "no");
-
-  auto client = m_client;
-  std::thread([client, playSessionId, mediaSourceId, itemId, liveStreamId, isRecording]() {
-    // Report playback stopped — skip for recordings because the server
-    // treats Sessions/Playing/Stopped as "fully watched" (sets Played=true,
-    // resets position to 0). Recording watched state is handled by
-    // SetRecordingPlayCount/SetRecordingLastPlayedPosition instead.
-    if (!isRecording && !playSessionId.empty() && !itemId.empty())
-    {
-      Json::Value stopBody;
-      stopBody["ItemId"] = itemId;
-      stopBody["MediaSourceId"] = mediaSourceId;
-      stopBody["PlaySessionId"] = playSessionId;
-      Json::StreamWriterBuilder w;
-      w["indentation"] = "";
-      client->SendPost("/Sessions/Playing/Stopped", Json::writeString(w, stopBody));
-    }
-
-    // Close the live stream (query param format; "{}" body forces POST via CFile)
-    if (!liveStreamId.empty())
-    {
-      const std::string endpoint = "/LiveStreams/Close?liveStreamId="
-        + WebUtils::UrlEncode(liveStreamId);
-      client->SendPost(endpoint, "{}");
-    }
-  }).detach();
-}
-
-Json::Value JellyfinChannelLoader::BuildSessionBody(int64_t positionTicks) const
-{
-  Json::Value body;
-  body["QueueableMediaTypes"] = "Video,Audio";
-  body["CanSeek"] = true;
-  body["ItemId"] = m_activeItemId;
-  body["MediaSourceId"] = m_activeMediaSourceId;
-  body["PlayMethod"] = m_activePlayMethod;
-  body["PlaySessionId"] = m_activePlaySessionId;
-  body["PositionTicks"] = static_cast<Json::Int64>(positionTicks);
-  body["IsPaused"] = false;
-  body["IsMuted"] = false;
-  body["VolumeLevel"] = 100;
-  return body;
-}
-
-void JellyfinChannelLoader::ScheduleDeferredPlayingReport()
-{
-  const uint32_t gen = m_sessionGen.load();
-  auto client = m_client;
-  auto body = BuildSessionBody();
-
-  Logger::Log(LEVEL_INFO, "%s - Scheduling Sessions/Playing (gen=%u, method=%s)",
-              __FUNCTION__, gen, m_activePlayMethod.c_str());
-
-  std::thread([this, client, body, gen]() {
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
-    if (m_sessionGen.load() != gen)
-    {
-      Logger::Log(LEVEL_INFO, "Deferred Sessions/Playing skipped — session generation changed");
-      return;
-    }
-
-    Json::StreamWriterBuilder w;
-    w["indentation"] = "";
-    client->SendPost("/Sessions/Playing", Json::writeString(w, body));
-  }).detach();
-}
-
-void JellyfinChannelLoader::StartProgressReporter()
-{
-  StopProgressReporter();
-
-  // Per-session stop flag. Captured by value (shared_ptr) into the detached
-  // thread so the owner can signal stop and walk away — joining could deadlock
-  // against Kodi locks held during stream stop, particularly for catchup.
-  m_progressStop = std::make_shared<std::atomic<bool>>(false);
-  auto stopFlag = m_progressStop;
-
-  // Capture all session data by value — the thread must not touch loader
-  // members because the loader can be destroyed while the thread is in flight.
-  auto client = m_client;
-  Json::Value bodyTemplate = BuildSessionBody(0);
-  const auto sessionStart = std::chrono::steady_clock::now();
-
-  std::thread([client, stopFlag, bodyTemplate, sessionStart]() mutable {
-    // Match jellyfin-web's 10s cadence — well below the server's idle timeout.
-    constexpr auto kInterval = std::chrono::seconds(10);
-    // Initial delay so we fire after the Sessions/Playing deferred report (3s).
-    constexpr auto kInitialDelay = std::chrono::seconds(10);
-    // Sleep granularity — controls cancellation latency.
-    constexpr auto kTick = std::chrono::milliseconds(250);
-
-    auto sleepUntil = [&](std::chrono::steady_clock::time_point deadline) {
-      while (std::chrono::steady_clock::now() < deadline)
-      {
-        if (stopFlag->load(std::memory_order_relaxed))
-          return false;
-        std::this_thread::sleep_for(kTick);
-      }
-      return !stopFlag->load(std::memory_order_relaxed);
-    };
-
-    if (!sleepUntil(std::chrono::steady_clock::now() + kInitialDelay))
-      return;
-
-    while (true)
-    {
-      // Jellyfin ticks are 100ns units. Use wall-clock elapsed so the
-      // dashboard "time watched" counter increases linearly.
-      const auto elapsed = std::chrono::steady_clock::now() - sessionStart;
-      bodyTemplate["PositionTicks"] = static_cast<Json::Int64>(
-          std::chrono::duration_cast<std::chrono::microseconds>(elapsed).count() * 10);
-
-      Json::StreamWriterBuilder w;
-      w["indentation"] = "";
-      client->SendPost("/Sessions/Playing/Progress", Json::writeString(w, bodyTemplate));
-
-      if (!sleepUntil(std::chrono::steady_clock::now() + kInterval))
-        return;
-    }
-  }).detach();
-}
-
-void JellyfinChannelLoader::StopProgressReporter()
-{
-  // Signal stop — detached reporter exits within ~kTick (250 ms). Drop our
-  // ref to the flag; the thread keeps it alive via its captured shared_ptr.
-  if (m_progressStop)
-  {
-    m_progressStop->store(true, std::memory_order_relaxed);
-    m_progressStop.reset();
-  }
 }
 
 

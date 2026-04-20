@@ -1037,22 +1037,13 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     }
     return;
   }
-  else if (settingName == "playbackStopped")
-  {
-    if (settingValue.GetString() == "trigger")
-    {
-      kodi::addon::SetSettingString("playbackStopped", "");
-      Logger::Log(LEVEL_INFO, "%s - Playback stopped (from service monitor)", __FUNCTION__);
-      if (m_channelLoader)
-        m_channelLoader->CloseLiveStream();
-    }
-    return;
-  }
-
   // Ignore programmatic updates to prevent callback loops
   if (settingName == "isLoggedIn" || settingName == "jellyfinServerName" ||
       settingName == "jellyfinDisplayUsername" || settingName == "jellyfinAccessToken" ||
-      settingName == "jellyfinUserId" || settingName == "playbackStopped")
+      settingName == "jellyfinUserId" ||
+      settingName == "sessionItemId" || settingName == "sessionMediaSourceId" ||
+      settingName == "sessionPlaySessionId" || settingName == "sessionLiveStreamId" ||
+      settingName == "sessionPlayMethod")
   {
     return;
   }

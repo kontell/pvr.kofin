@@ -1,40 +1,167 @@
+"""
+pvr.kofin playback reporter — reports playback state to Jellyfin dashboard.
+
+Uses xbmc.Player callbacks for start/stop/pause detection and urllib for HTTP
+(bypasses Kodi's curl pool entirely, avoiding the UI-hang bug from C++ reporter).
+"""
+import json
+import time
+import urllib.request
+import urllib.error
+
 import xbmc
 import xbmcaddon
 
 
-class PlayerMonitor(xbmc.Player):
+ADDON_ID = 'pvr.kofin'
+REPORT_INTERVAL = 10  # seconds between progress reports
+
+
+def build_auth_header(token, device_id):
+    header = (
+        'MediaBrowser Client="Kofin PVR", Device="Kodi"'
+        f', DeviceId="{device_id}"'
+        f', Version="1.0"'
+    )
+    if token:
+        header += f', Token="{token}"'
+    return header
+
+
+def post_json(base_url, endpoint, body, token, device_id):
+    """POST JSON to Jellyfin. Fire-and-forget — errors are logged, not raised."""
+    url = base_url.rstrip('/') + endpoint
+    data = json.dumps(body).encode('utf-8')
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Emby-Authorization': build_auth_header(token, device_id),
+    }
+    req = urllib.request.Request(url, data=data, headers=headers, method='POST')
+    try:
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            resp.read()
+    except (urllib.error.URLError, OSError) as e:
+        xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGWARNING)
+
+
+class PlaybackReporter(xbmc.Player):
+    def __init__(self):
+        super().__init__()
+        self.session = None
+        self.paused = False
+        self.start_time = None
+
+    def onAVStarted(self):
+        """Stream is up — read session data written by C++ addon and report start."""
+        addon = xbmcaddon.Addon(ADDON_ID)
+        item_id = addon.getSetting('sessionItemId')
+        if not item_id:
+            return
+
+        self.session = {
+            'ItemId': item_id,
+            'MediaSourceId': addon.getSetting('sessionMediaSourceId'),
+            'PlaySessionId': addon.getSetting('sessionPlaySessionId'),
+            'LiveStreamId': addon.getSetting('sessionLiveStreamId'),
+            'PlayMethod': addon.getSetting('sessionPlayMethod'),
+            'BaseUrl': addon.getSetting('jellyfinServerAddress'),
+            'Token': addon.getSetting('jellyfinAccessToken'),
+            'DeviceId': addon.getSetting('deviceId'),
+        }
+        self.paused = False
+        self.start_time = time.time()
+
+        content = 'live TV' if xbmc.getCondVisibility('PVR.IsPlayingTV') else \
+                  'recording' if xbmc.getCondVisibility('PVR.IsPlayingRecording') else \
+                  'video'
+        xbmc.log(f'pvr.kofin reporter: playback started ({content})', xbmc.LOGINFO)
+
+        self._send('/Sessions/Playing', self._build_body())
+
     def onPlayBackStopped(self):
-        xbmc.log("pvr.kofin service: playback stopped", xbmc.LOGINFO)
-        try:
-            addon = xbmcaddon.Addon('pvr.kofin')
-            addon.setSetting('playbackStopped', 'trigger')
-        except Exception:
-            pass
+        self._stop()
 
     def onPlayBackEnded(self):
-        xbmc.log("pvr.kofin service: playback ended", xbmc.LOGINFO)
-        try:
-            addon = xbmcaddon.Addon('pvr.kofin')
-            addon.setSetting('playbackStopped', 'trigger')
-        except Exception:
-            pass
+        self._stop()
 
     def onPlayBackError(self):
-        xbmc.log("pvr.kofin service: playback error", xbmc.LOGINFO)
-        try:
-            addon = xbmcaddon.Addon('pvr.kofin')
-            addon.setSetting('playbackStopped', 'trigger')
-        except Exception:
-            pass
+        self._stop()
+
+    def onPlayBackPaused(self):
+        self.paused = True
+
+    def onPlayBackResumed(self):
+        self.paused = False
+
+    def _stop(self):
+        if not self.session:
+            return
+        session = self.session
+        self.session = None
+
+        xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGINFO)
+
+        # Report playback stopped
+        self._send_with(session, '/Sessions/Playing/Stopped', {
+            'ItemId': session['ItemId'],
+            'MediaSourceId': session['MediaSourceId'],
+            'PlaySessionId': session['PlaySessionId'],
+        })
+
+        # Close the live stream if one was opened
+        live_stream_id = session.get('LiveStreamId', '')
+        if live_stream_id:
+            self._send_with(session, '/LiveStreams/Close', {
+                'LiveStreamId': live_stream_id,
+            })
+
+    def report_progress(self):
+        """Called from main loop. Sends progress if session is active."""
+        if not self.session:
+            return
+        self._send('/Sessions/Playing/Progress', self._build_body())
+
+    def _build_body(self):
+        elapsed = time.time() - self.start_time if self.start_time else 0
+        return {
+            'QueueableMediaTypes': 'Video,Audio',
+            'CanSeek': True,
+            'ItemId': self.session['ItemId'],
+            'MediaSourceId': self.session['MediaSourceId'],
+            'PlayMethod': self.session['PlayMethod'],
+            'PlaySessionId': self.session['PlaySessionId'],
+            'PositionTicks': int(elapsed * 10_000_000),
+            'IsPaused': self.paused,
+            'IsMuted': False,
+            'VolumeLevel': 100,
+        }
+
+    def _send(self, endpoint, body):
+        if not self.session:
+            return
+        self._send_with(self.session, endpoint, body)
+
+    def _send_with(self, session, endpoint, body):
+        base_url = session.get('BaseUrl', '')
+        token = session.get('Token', '')
+        device_id = session.get('DeviceId', '')
+        if not base_url or not token:
+            return
+        post_json(base_url, endpoint, body, token, device_id)
 
 
 if __name__ == '__main__':
     monitor = xbmc.Monitor()
-    player = PlayerMonitor()
-    xbmc.log("pvr.kofin service: started", xbmc.LOGINFO)
+    player = PlaybackReporter()
+    xbmc.log('pvr.kofin reporter: started', xbmc.LOGINFO)
 
     while not monitor.abortRequested():
-        if monitor.waitForAbort(1):
+        if monitor.waitForAbort(REPORT_INTERVAL):
             break
+        player.report_progress()
 
-    xbmc.log("pvr.kofin service: stopped", xbmc.LOGINFO)
+    # Clean up on exit — report stopped if still playing
+    if player.session:
+        player._stop()
+
+    xbmc.log('pvr.kofin reporter: stopped', xbmc.LOGINFO)

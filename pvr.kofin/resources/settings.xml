@@ -114,12 +114,34 @@
             <close>true</close>
           </control>
         </setting>
-        <setting id="playbackStopped" type="string">
+        <setting id="sessionItemId" type="string">
           <level>4</level>
           <default></default>
-          <constraints>
-            <allowempty>true</allowempty>
-          </constraints>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="sessionMediaSourceId" type="string">
+          <level>4</level>
+          <default></default>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="sessionPlaySessionId" type="string">
+          <level>4</level>
+          <default></default>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="sessionLiveStreamId" type="string">
+          <level>4</level>
+          <default></default>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="sessionPlayMethod" type="string">
+          <level>4</level>
+          <default></default>
+          <constraints><allowempty>true</allowempty></constraints>
           <control type="edit" format="string" />
         </setting>
         <setting id="jellyfinAccessToken" type="string">
