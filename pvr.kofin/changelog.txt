@@ -1,3 +1,9 @@
+v0.4.0
+- Play completed recordings from EPG timeline (title+time matching)
+- Rewrite playback reporting as Python service (fixes Kodi hang on stop)
+- Dashboard session persists for live TV, recordings, and in-progress recordings
+- Rename "Input stream" to "InputStream" in settings
+
 v0.3.1
 - Fix Jellyfin dashboard session dropping after 5 minutes during live TV playback
 - Rename "Input stream" to "InputStream" in settings
