@@ -15,12 +15,29 @@ import xbmcaddon
 
 ADDON_ID = 'pvr.kofin'
 REPORT_INTERVAL = 10  # seconds between progress reports
+SESSION_KEYS = (
+    'sessionItemId',
+    'sessionMediaSourceId',
+    'sessionPlaySessionId',
+    'sessionLiveStreamId',
+    'sessionPlayMethod',
+)
+
+
+def get_device_name():
+    name = xbmc.getInfoLabel('System.FriendlyName') or ''
+    name = name.strip()
+    if not name or name.lower() == 'kodi':
+        ip = (xbmc.getInfoLabel('Network.IPAddress') or '').strip()
+        name = f'Kodi ({ip})' if ip else 'Kodi'
+    return name
 
 
 def build_auth_header(token, device_id):
     version = xbmcaddon.Addon(ADDON_ID).getAddonInfo('version')
+    device = get_device_name().replace('"', '')
     header = (
-        'MediaBrowser Client="Kofin PVR", Device="Kodi"'
+        f'MediaBrowser Client="Kofin PVR", Device="{device}"'
         f', DeviceId="{device_id}"'
         f', Version="{version}"'
     )
@@ -54,6 +71,16 @@ class PlaybackReporter(xbmc.Player):
 
     def onAVStarted(self):
         """Stream is up — read session data written by C++ addon and report start."""
+        # Player callbacks fire for ALL playback, not just ours. Skip if the
+        # current file isn't a pvr.kofin stream — otherwise stale session
+        # settings would be replayed as a phantom kofin session.
+        try:
+            playing_file = self.getPlayingFile() if self.isPlaying() else ''
+        except RuntimeError:
+            return
+        if 'pvr.kofin' not in playing_file:
+            return
+
         addon = xbmcaddon.Addon(ADDON_ID)
         item_id = addon.getSetting('sessionItemId')
         if not item_id:
@@ -99,6 +126,12 @@ class PlaybackReporter(xbmc.Player):
             return
         session = self.session
         self.session = None
+
+        # Clear persisted session so the next non-kofin playback (e.g. a music
+        # track from another addon) isn't misreported as a resumed kofin session.
+        addon = xbmcaddon.Addon(ADDON_ID)
+        for key in SESSION_KEYS:
+            addon.setSetting(key, '')
 
         xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGINFO)
 

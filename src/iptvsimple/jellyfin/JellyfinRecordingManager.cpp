@@ -986,21 +986,24 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     if (item.isMember("SeriesName") && !item["SeriesName"].asString().empty())
       recording.SetDirectory(item["SeriesName"].asString());
 
-    // EPG index fallback: Jellyfin strips ProgramId/ChannelId from completed recordings.
-    // Match by title + DateCreated against our EPG index to restore the link.
+    // EPG index fallback: Jellyfin strips ProgramId/ChannelId from completed
+    // recordings and replaces Name with the episode title. SeriesName still
+    // holds the series title that the EPG is indexed under.
     if (recording.GetEPGEventId() == 0 && m_channelLoader)
     {
       unsigned int matchedBroadcastUid = 0;
       int matchedChannelUid = 0;
+      const std::string name = item.get("Name", "").asString();
+      const std::string seriesName = item.get("SeriesName", "").asString();
       if (m_channelLoader->FindRecordingEpgMatch(
-            item.get("Name", "").asString(), recording.GetRecordingTime(),
+            name, seriesName, recording.GetRecordingTime(),
             matchedBroadcastUid, matchedChannelUid))
       {
         recording.SetEPGEventId(matchedBroadcastUid);
         if (recording.GetChannelUid() == 0)
           recording.SetChannelUid(matchedChannelUid);
-        Logger::Log(LEVEL_DEBUG, "%s - Recording '%s': matched EPG (broadcastUid=%u, channelUid=%d)",
-                    __FUNCTION__, item.get("Name", "").asString().c_str(),
+        Logger::Log(LEVEL_DEBUG, "%s - Recording '%s' (series '%s'): matched EPG (broadcastUid=%u, channelUid=%d)",
+                    __FUNCTION__, name.c_str(), seriesName.c_str(),
                     matchedBroadcastUid, matchedChannelUid);
       }
     }

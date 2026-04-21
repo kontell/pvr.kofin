@@ -1,7 +1,9 @@
 v0.4.0
-- Play completed recordings from EPG timeline (title+time matching)
+- Play completed recordings from EPG timeline (match by SeriesName within air window)
 - Rewrite playback reporting as Python service (fixes Kodi hang on stop)
 - Dashboard session persists for live TV, recordings, and in-progress recordings
+- Report hostname/IP in device name instead of just "Kodi"
+- Guard Python reporter against replaying stale sessions on non-kofin playback
 - Rename "Input stream" to "InputStream" in settings
 
 v0.3.1

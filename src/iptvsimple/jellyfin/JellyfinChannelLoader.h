@@ -43,14 +43,16 @@ public:
   const std::string& GetJellyfinProgramId(unsigned int epgBroadcastUid) const;
   int GetChannelUid(const std::string& jellyfinId) const;
 
-  // EPG-recording matching: find a recording's EPG entry by title + start time
+  // EPG-recording matching: find a recording's EPG entry by title + time window
   struct EpgIndexEntry
   {
     unsigned int broadcastUid;
     int channelUid;
     time_t startTime;
+    time_t endTime;
   };
-  bool FindRecordingEpgMatch(const std::string& title, time_t dateCreated,
+  bool FindRecordingEpgMatch(const std::string& name, const std::string& seriesName,
+                             time_t dateCreated,
                              unsigned int& outBroadcastUid, int& outChannelUid) const;
 
 private:

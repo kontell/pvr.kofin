@@ -252,11 +252,15 @@ PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t en
 
     results.Add(tag);
 
-    // Index for recording-EPG matching (title + time → broadcast/channel UIDs)
-    if (item.isMember("StartDate"))
+    // Index for recording-EPG matching (title + time → broadcast/channel UIDs).
+    // Jellyfin strips ProgramId/ChannelId from completed recordings and may
+    // replace the series title with the episode title, so match against the
+    // recording's SeriesName and require DateCreated to fall within the
+    // programme's air window.
+    if (item.isMember("StartDate") && item.isMember("EndDate"))
     {
       m_epgTitleIndex.emplace(NormaliseTitle(tag.GetTitle()),
-        EpgIndexEntry{broadcastUid, channelUid, tag.GetStartTime()});
+        EpgIndexEntry{broadcastUid, channelUid, tag.GetStartTime(), tag.GetEndTime()});
     }
   }
 
@@ -787,25 +791,34 @@ std::string JellyfinChannelLoader::NormaliseTitle(const std::string& title)
   return result;
 }
 
-bool JellyfinChannelLoader::FindRecordingEpgMatch(const std::string& title, time_t dateCreated,
+bool JellyfinChannelLoader::FindRecordingEpgMatch(const std::string& name,
+                                                    const std::string& seriesName,
+                                                    time_t dateCreated,
                                                     unsigned int& outBroadcastUid, int& outChannelUid) const
 {
-  const std::string normTitle = NormaliseTitle(title);
-  auto range = m_epgTitleIndex.equal_range(normTitle);
-  constexpr time_t kTolerance = 300; // 5 minutes
+  // Small slack accommodates clock drift and a recording that starts a
+  // moment before the EPG programme begins (e.g. "record now" on an ad break).
+  constexpr time_t kSlack = 60;
 
-  time_t bestDelta = kTolerance + 1;
-  for (auto it = range.first; it != range.second; ++it)
-  {
-    time_t delta = std::abs(it->second.startTime - dateCreated);
-    if (delta < bestDelta)
+  auto tryMatch = [&](const std::string& title) -> bool {
+    if (title.empty())
+      return false;
+    auto range = m_epgTitleIndex.equal_range(NormaliseTitle(title));
+    for (auto it = range.first; it != range.second; ++it)
     {
-      bestDelta = delta;
-      outBroadcastUid = it->second.broadcastUid;
-      outChannelUid = it->second.channelUid;
+      const auto& entry = it->second;
+      if (dateCreated >= entry.startTime - kSlack && dateCreated <= entry.endTime + kSlack)
+      {
+        outBroadcastUid = entry.broadcastUid;
+        outChannelUid = entry.channelUid;
+        return true;
+      }
     }
-  }
-  return bestDelta <= kTolerance;
+    return false;
+  };
+
+  // Prefer SeriesName (stable across completion) over Name (may swap to episode title).
+  return tryMatch(seriesName) || tryMatch(name);
 }
 
 int JellyfinChannelLoader::GenerateUid(const std::string& str)
