@@ -11,7 +11,7 @@
   <extension
     point="kodi.pvrclient"
     library_@PLATFORM@="@LIBRARY_FILENAME@"/>
-  <extension point="xbmc.service" library="resources/scripts/service.py" start="startup"/>
+  <extension point="xbmc.service" library="resources/scripts/service.py" start="login"/>
   <extension point="xbmc.addon.metadata">
     <platform>@PLATFORM@</platform>
     <license>GPL-2.0-or-later</license>
