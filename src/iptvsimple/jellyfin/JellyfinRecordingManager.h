@@ -62,6 +62,10 @@ public:
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
 
+  // EPG-recording linkage: check if a recording exists for a given EPG entry
+  bool HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const;
+  std::string GetRecordingIdForEpg(unsigned int broadcastUid, int channelUid) const;
+
   // Reload cached data from Jellyfin
   void Reload();
 

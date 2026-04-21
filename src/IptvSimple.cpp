@@ -650,11 +650,33 @@ PVR_ERROR IptvSimple::IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& 
     isPlayable = false;
   }
 
+  // Also playable if a completed recording exists for this programme
+  if (!isPlayable && m_recordingManager)
+  {
+    isPlayable = m_recordingManager->HasRecordingForEpg(
+        tag.GetUniqueBroadcastId(), static_cast<int>(tag.GetUniqueChannelId()));
+  }
+
   return PVR_ERROR_NO_ERROR;
 }
 
 PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& tag, std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
+  // If a recording exists for this EPG entry, play the recording directly
+  if (m_recordingManager)
+  {
+    std::string recordingId = m_recordingManager->GetRecordingIdForEpg(
+        tag.GetUniqueBroadcastId(), static_cast<int>(tag.GetUniqueChannelId()));
+    if (!recordingId.empty())
+    {
+      Logger::Log(LogLevel::LEVEL_INFO, "%s - Playing recording %s for EPG '%s'",
+                  __FUNCTION__, recordingId.c_str(), tag.GetTitle().c_str());
+      kodi::addon::PVRRecording rec;
+      rec.SetRecordingId(recordingId);
+      return m_recordingManager->GetRecordingStreamProperties(rec, properties);
+    }
+  }
+
   Channel channel(m_settings);
   if (!GetChannel(tag.GetUniqueChannelId(), channel) || !channel.IsCatchupSupported())
     return PVR_ERROR_FAILED;

@@ -584,6 +584,28 @@ void JellyfinRecordingManager::Reload()
   LoadRecordings();
 }
 
+bool JellyfinRecordingManager::HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const
+{
+  std::lock_guard<std::mutex> lock(m_mutex);
+  for (const auto& rec : m_recordings)
+  {
+    if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)
+      return true;
+  }
+  return false;
+}
+
+std::string JellyfinRecordingManager::GetRecordingIdForEpg(unsigned int broadcastUid, int channelUid) const
+{
+  std::lock_guard<std::mutex> lock(m_mutex);
+  for (const auto& rec : m_recordings)
+  {
+    if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)
+      return rec.GetRecordingId();
+  }
+  return "";
+}
+
 PVR_ERROR JellyfinRecordingManager::LoadTimers()
 {
   const std::string endpoint = "/LiveTv/Timers";
