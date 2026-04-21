@@ -43,18 +43,6 @@ public:
   const std::string& GetJellyfinProgramId(unsigned int epgBroadcastUid) const;
   int GetChannelUid(const std::string& jellyfinId) const;
 
-  // EPG-recording matching: find a recording's EPG entry by title + time window
-  struct EpgIndexEntry
-  {
-    unsigned int broadcastUid;
-    int channelUid;
-    time_t startTime;
-    time_t endTime;
-  };
-  bool FindRecordingEpgMatch(const std::string& name, const std::string& seriesName,
-                             time_t dateCreated,
-                             unsigned int& outBroadcastUid, int& outChannelUid) const;
-
 private:
   static int GenerateUid(const std::string& str);
   static std::string FormatIso8601(time_t time);
@@ -70,10 +58,6 @@ private:
 
   // EPG broadcast UID -> Jellyfin program ID (for timer creation)
   std::map<unsigned int, std::string> m_epgUidToJellyfinProgramId;
-
-  // EPG title index for matching recordings to EPG entries
-  std::multimap<std::string, EpgIndexEntry> m_epgTitleIndex;
-  static std::string NormaliseTitle(const std::string& title);
 
   // Active session state (cleared on CloseLiveStream / new stream)
   std::string m_activeLiveStreamId;

@@ -584,28 +584,6 @@ void JellyfinRecordingManager::Reload()
   LoadRecordings();
 }
 
-bool JellyfinRecordingManager::HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const
-{
-  std::lock_guard<std::mutex> lock(m_mutex);
-  for (const auto& rec : m_recordings)
-  {
-    if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)
-      return true;
-  }
-  return false;
-}
-
-std::string JellyfinRecordingManager::GetRecordingIdForEpg(unsigned int broadcastUid, int channelUid) const
-{
-  std::lock_guard<std::mutex> lock(m_mutex);
-  for (const auto& rec : m_recordings)
-  {
-    if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)
-      return rec.GetRecordingId();
-  }
-  return "";
-}
-
 PVR_ERROR JellyfinRecordingManager::LoadTimers()
 {
   const std::string endpoint = "/LiveTv/Timers";
@@ -927,17 +905,10 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     }
 
     // Timing: prefer StartDate/EndDate (live TV recordings), fall back to DateCreated/RunTimeTicks (library items)
-    // Note: Jellyfin has a bug where DateCreated stores server-local time with a
-    // Z suffix (claims UTC but isn't). Correct by subtracting local UTC offset.
     if (item.isMember("StartDate"))
       recording.SetRecordingTime(ParseIso8601(item["StartDate"].asString()));
     else if (item.isMember("DateCreated"))
-    {
-      time_t raw = ParseIso8601(item["DateCreated"].asString());
-      struct tm local_tm;
-      localtime_r(&raw, &local_tm);
-      recording.SetRecordingTime(raw - local_tm.tm_gmtoff);
-    }
+      recording.SetRecordingTime(ParseIso8601(item["DateCreated"].asString()));
 
     if (item.isMember("StartDate") && item.isMember("EndDate"))
     {
@@ -985,28 +956,6 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     // Directory (group recordings by series name or parent folder)
     if (item.isMember("SeriesName") && !item["SeriesName"].asString().empty())
       recording.SetDirectory(item["SeriesName"].asString());
-
-    // EPG index fallback: Jellyfin strips ProgramId/ChannelId from completed
-    // recordings and replaces Name with the episode title. SeriesName still
-    // holds the series title that the EPG is indexed under.
-    if (recording.GetEPGEventId() == 0 && m_channelLoader)
-    {
-      unsigned int matchedBroadcastUid = 0;
-      int matchedChannelUid = 0;
-      const std::string name = item.get("Name", "").asString();
-      const std::string seriesName = item.get("SeriesName", "").asString();
-      if (m_channelLoader->FindRecordingEpgMatch(
-            name, seriesName, recording.GetRecordingTime(),
-            matchedBroadcastUid, matchedChannelUid))
-      {
-        recording.SetEPGEventId(matchedBroadcastUid);
-        if (recording.GetChannelUid() == 0)
-          recording.SetChannelUid(matchedChannelUid);
-        Logger::Log(LEVEL_DEBUG, "%s - Recording '%s' (series '%s'): matched EPG (broadcastUid=%u, channelUid=%d)",
-                    __FUNCTION__, name.c_str(), seriesName.c_str(),
-                    matchedBroadcastUid, matchedChannelUid);
-      }
-    }
 
     m_recordings.emplace_back(recording);
   }

@@ -251,17 +251,6 @@ PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t en
       tag.SetFlags(flags);
 
     results.Add(tag);
-
-    // Index for recording-EPG matching (title + time → broadcast/channel UIDs).
-    // Jellyfin strips ProgramId/ChannelId from completed recordings and may
-    // replace the series title with the episode title, so match against the
-    // recording's SeriesName and require DateCreated to fall within the
-    // programme's air window.
-    if (item.isMember("StartDate") && item.isMember("EndDate"))
-    {
-      m_epgTitleIndex.emplace(NormaliseTitle(tag.GetTitle()),
-        EpgIndexEntry{broadcastUid, channelUid, tag.GetStartTime(), tag.GetEndTime()});
-    }
   }
 
   Logger::Log(LEVEL_DEBUG, "%s - Loaded %d EPG entries for channel %d",
@@ -764,61 +753,6 @@ int JellyfinChannelLoader::GetChannelUid(const std::string& jellyfinId) const
   if (it != m_jellyfinIdToUid.end())
     return it->second;
   return 0;
-}
-
-std::string JellyfinChannelLoader::NormaliseTitle(const std::string& title)
-{
-  std::string result;
-  result.reserve(title.size());
-  bool lastWasSpace = true; // trim leading
-  for (char c : title)
-  {
-    if (c == ' ' || c == '\t')
-    {
-      if (!lastWasSpace)
-        result += ' ';
-      lastWasSpace = true;
-    }
-    else
-    {
-      result += static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-      lastWasSpace = false;
-    }
-  }
-  // trim trailing
-  if (!result.empty() && result.back() == ' ')
-    result.pop_back();
-  return result;
-}
-
-bool JellyfinChannelLoader::FindRecordingEpgMatch(const std::string& name,
-                                                    const std::string& seriesName,
-                                                    time_t dateCreated,
-                                                    unsigned int& outBroadcastUid, int& outChannelUid) const
-{
-  // Small slack accommodates clock drift and a recording that starts a
-  // moment before the EPG programme begins (e.g. "record now" on an ad break).
-  constexpr time_t kSlack = 60;
-
-  auto tryMatch = [&](const std::string& title) -> bool {
-    if (title.empty())
-      return false;
-    auto range = m_epgTitleIndex.equal_range(NormaliseTitle(title));
-    for (auto it = range.first; it != range.second; ++it)
-    {
-      const auto& entry = it->second;
-      if (dateCreated >= entry.startTime - kSlack && dateCreated <= entry.endTime + kSlack)
-      {
-        outBroadcastUid = entry.broadcastUid;
-        outChannelUid = entry.channelUid;
-        return true;
-      }
-    }
-    return false;
-  };
-
-  // Prefer SeriesName (stable across completion) over Name (may swap to episode title).
-  return tryMatch(seriesName) || tryMatch(name);
 }
 
 int JellyfinChannelLoader::GenerateUid(const std::string& str)
