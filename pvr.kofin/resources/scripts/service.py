@@ -71,14 +71,11 @@ class PlaybackReporter(xbmc.Player):
 
     def onAVStarted(self):
         """Stream is up — read session data written by C++ addon and report start."""
-        # Player callbacks fire for ALL playback, not just ours. Skip if the
-        # current file isn't a pvr.kofin stream — otherwise stale session
-        # settings would be replayed as a phantom kofin session.
-        try:
-            playing_file = self.getPlayingFile() if self.isPlaying() else ''
-        except RuntimeError:
-            return
-        if 'pvr.kofin' not in playing_file:
+        # Player callbacks fire for ALL playback. Skip if this isn't PVR —
+        # getPlayingFile() returns the resolved stream URL (not a pvr:// URL)
+        # so we gate on the PVR playback condition instead.
+        if not (xbmc.getCondVisibility('PVR.IsPlayingTV') or
+                xbmc.getCondVisibility('PVR.IsPlayingRecording')):
             return
 
         addon = xbmcaddon.Addon(ADDON_ID)
