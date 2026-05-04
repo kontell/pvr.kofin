@@ -94,6 +94,10 @@ set(KOFIN_HEADERS src/addon.h
 addon_version(pvr.kofin KOFIN)
 add_definitions(-DKOFIN_VERSION=${KOFIN_VERSION})
 
+if(WIN32)
+  add_definitions(-DLZMA_API_STATIC)
+endif()
+
 # Detect PVR API version for v21/v22 compatibility
 if(KODI_INCLUDE_DIR)
   if(EXISTS "${KODI_INCLUDE_DIR}/kodi/versions.h")

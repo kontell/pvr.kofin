@@ -9,6 +9,7 @@
 
 #include "../utilities/Logger.h"
 #include <kodi/General.h>
+#include "../utilities/TimeUtils.h"
 #include "../utilities/WebUtils.h"
 
 #include <algorithm>
@@ -315,24 +316,22 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
       startTime = now;
     else if (startTime < 86400) // Looks like time-of-day, not a real time_t
     {
-      struct tm today;
-      gmtime_r(&now, &today);
+      std::tm today = SafeGmtime(now);
       today.tm_hour = static_cast<int>(startTime / 3600);
       today.tm_min = static_cast<int>((startTime % 3600) / 60);
       today.tm_sec = static_cast<int>(startTime % 60);
-      startTime = timegm(&today);
+      startTime = SafeTimegm(&today);
     }
 
     if (endTime <= 0)
       endTime = now + 7200; // Default 2 hours
     else if (endTime < 86400)
     {
-      struct tm today;
-      gmtime_r(&now, &today);
+      std::tm today = SafeGmtime(now);
       today.tm_hour = static_cast<int>(endTime / 3600);
       today.tm_min = static_cast<int>((endTime % 3600) / 60);
       today.tm_sec = static_cast<int>(endTime % 60);
-      endTime = timegm(&today);
+      endTime = SafeTimegm(&today);
     }
 
     defaults["StartDate"] = FormatIso8601(startTime);
@@ -1097,22 +1096,21 @@ time_t JellyfinRecordingManager::ParseIso8601(const std::string& dateStr)
   if (dateStr.empty())
     return 0;
 
-  struct tm tm = {};
+  std::tm tm = {};
   if (sscanf(dateStr.c_str(), "%d-%d-%dT%d:%d:%d",
              &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
              &tm.tm_hour, &tm.tm_min, &tm.tm_sec) >= 6)
   {
     tm.tm_year -= 1900;
     tm.tm_mon -= 1;
-    return timegm(&tm);
+    return SafeTimegm(&tm);
   }
   return 0;
 }
 
 std::string JellyfinRecordingManager::FormatIso8601(time_t time)
 {
-  struct tm tm;
-  gmtime_r(&time, &tm);
+  std::tm tm = SafeGmtime(time);
   char buf[32];
   strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &tm);
   return std::string(buf);

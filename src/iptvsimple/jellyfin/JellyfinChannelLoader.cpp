@@ -9,6 +9,7 @@
 
 #include "../M3UParser.h"
 #include "../utilities/Logger.h"
+#include "../utilities/TimeUtils.h"
 #include "../utilities/WebUtils.h"
 
 #include <kodi/General.h>
@@ -768,8 +769,7 @@ int JellyfinChannelLoader::GenerateUid(const std::string& str)
 
 std::string JellyfinChannelLoader::FormatIso8601(time_t time)
 {
-  struct tm tm;
-  gmtime_r(&time, &tm);
+  std::tm tm = SafeGmtime(time);
   char buf[32];
   strftime(buf, sizeof(buf), "%Y-%m-%dT%H:%M:%SZ", &tm);
   return std::string(buf);
@@ -780,7 +780,7 @@ time_t JellyfinChannelLoader::ParseIso8601(const std::string& dateStr)
   if (dateStr.empty())
     return 0;
 
-  struct tm tm = {};
+  std::tm tm = {};
   // Parse "2024-01-15T20:00:00.0000000Z" or "2024-01-15T20:00:00Z"
   if (sscanf(dateStr.c_str(), "%d-%d-%dT%d:%d:%d",
              &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
@@ -788,7 +788,7 @@ time_t JellyfinChannelLoader::ParseIso8601(const std::string& dateStr)
   {
     tm.tm_year -= 1900;
     tm.tm_mon -= 1;
-    return timegm(&tm);
+    return SafeTimegm(&tm);
   }
 
   return 0;

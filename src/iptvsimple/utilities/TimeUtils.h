@@ -20,3 +20,23 @@ inline std::tm SafeLocaltime(const std::time_t& time)
 #endif
   return tm_snapshot;
 }
+
+inline std::tm SafeGmtime(const std::time_t& time)
+{
+  std::tm tm_snapshot;
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+  gmtime_s(&tm_snapshot, &time);
+#else
+  gmtime_r(&time, &tm_snapshot); // POSIX
+#endif
+  return tm_snapshot;
+}
+
+inline std::time_t SafeTimegm(std::tm* tm)
+{
+#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
+  return _mkgmtime(tm);
+#else
+  return timegm(tm); // POSIX (BSD/glibc extension)
+#endif
+}
