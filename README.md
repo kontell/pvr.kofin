@@ -48,6 +48,7 @@ Note: Only tested with timeshift="days" element.
 | Linux aarch64 (Pi 3+) | yes | yes |
 | Android ARM32 | yes | yes |
 | Android ARM64 | yes | yes |
+| Windows x86_64 | yes | yes |
 
 ## License
 

@@ -163,7 +163,7 @@ Releases are cut by pushing a `v<version>` tag. GitHub Actions handles everythin
    The top paragraph (up to the first blank line) becomes the release body.
 3. Commit (`Bump to X.Y.Z: <summary>`) and push to `main`. `build.yml` verifies it compiles.
 4. Tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`.
-5. `release.yml` cross-compiles 10 zips (Linux x86_64/armv7/aarch64 + Android armv7/aarch64, each × Kodi 21/22) and publishes a **draft** release on GitHub.
+5. `release.yml` cross-compiles 12 zips (Linux x86_64/armv7/aarch64 + Android armv7/aarch64 + Windows x86_64, each × Kodi 21/22) and publishes a **draft** release on GitHub. Windows builds run on `windows-2022` with MSVC; everything else runs on `ubuntu-latest` via `scripts/build.sh`.
 6. Review draft on GitHub (`gh release view vX.Y.Z`), edit if needed, publish.
 
 Manual local builds into `/media/bluecon/docs/IT/kofin/builds/` are for test installs only — production zips come from the Release workflow.

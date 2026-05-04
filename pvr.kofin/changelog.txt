@@ -1,3 +1,7 @@
+v0.5.0
+- Add Windows x86_64 release builds (Kodi 21 Omega, Kodi 22 Piers)
+- Drop stale Azure Pipelines config (CI consolidated in GitHub Actions)
+
 v0.4.0
 - Rewrite playback reporting as Python service (fixes Kodi hang on stop)
 - Dashboard session persists for live TV, recordings, and in-progress recordings
