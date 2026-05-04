@@ -115,11 +115,12 @@ jobs:
         cmake --build "${app_id}/build" --config Release --target "${app_id}"
 
         # Package: zip up the installed addon directory matching build.sh's naming.
+        # Git Bash on windows-2022 doesn't ship `zip`; 7z is pre-installed.
         VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
         ZIP_NAME="${app_id}-${VERSION}-windows-${{ matrix.arch }}-kodi${{ matrix.kodi }}.zip"
         mkdir -p artifacts
         cd install
-        zip -r "${WS}/artifacts/${ZIP_NAME}" "${app_id}/"
+        7z a -tzip "${WS}/artifacts/${ZIP_NAME}" "${app_id}/"
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
