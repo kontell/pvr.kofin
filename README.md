@@ -39,6 +39,16 @@ If supported by your provider cathup works with direct play only. Force remuxing
 
 Note: Only tested with timeshift="days" element.
 
+## Supported platforms
+
+| Platform | Kodi 21 (Omega) | Kodi 22 (Piers) |
+|----------|----------------|-----------------|
+| Linux x86_64 | yes | yes |
+| Linux armv7 (Pi 2+) | yes | yes |
+| Linux aarch64 (Pi 3+) | yes | yes |
+| Android ARM32 | yes | yes |
+| Android ARM64 | yes | yes |
+
 ## License
 
 This project is licensed under the [GPL-2.0-or-later](LICENSE.md) license.
