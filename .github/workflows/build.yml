@@ -75,7 +75,14 @@ jobs:
       shell: bash
       run: |
         mkdir -p xbmc/cmake/addons/addons/${app_id}
-        echo "${app_id} ${{ github.workspace }}/${app_id}" > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
+        # On Windows runners use pwd -W so the addon definition file contains
+        # forward-slash paths that CMake parses identically to Linux.
+        if [ "${RUNNER_OS}" = "Windows" ]; then
+          WS="$(pwd -W)"
+        else
+          WS="${{ github.workspace }}"
+        fi
+        echo "${app_id} ${WS}/${app_id}" > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
 
     - name: Configure (Linux)
       if: matrix.os == 'linux'
@@ -104,18 +111,21 @@ jobs:
       if: matrix.os == 'windows'
       shell: bash
       run: |
+        # pwd -W returns a forward-slash Windows path (e.g. D:/a/pvr.kofin/pvr.kofin)
+        # so CMake args are not mangled by bash backslash-escape processing.
+        WS="$(pwd -W)"
         cmake \
-          -B ${app_id}/build \
+          -B "${app_id}/build" \
           -G "Visual Studio 17 2022" -A x64 -T host=x64 \
-          -DADDONS_TO_BUILD=${app_id} \
-          -DADDON_SRC_PREFIX=${{ github.workspace }} \
-          -DADDONS_DEFINITION_DIR=${{ github.workspace }}/xbmc/cmake/addons/addons \
+          -DADDONS_TO_BUILD="${app_id}" \
+          -DADDON_SRC_PREFIX="${WS}" \
+          -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
           -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/output \
+          -DCMAKE_INSTALL_PREFIX="${WS}/output" \
           -DPACKAGE_ZIP=1 \
-          ${{ github.workspace }}/xbmc/cmake/addons
+          "${WS}/xbmc/cmake/addons"
 
     - name: Build (Windows)
       if: matrix.os == 'windows'
       shell: bash
-      run: cmake --build ${app_id}/build --config Release --target ${app_id}
+      run: cmake --build "${app_id}/build" --config Release --target "${app_id}"
