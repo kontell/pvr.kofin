@@ -3,6 +3,11 @@ on:
   push:
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Skip release creation — run the build matrix only'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -125,7 +130,9 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: |
+      startsWith(github.ref, 'refs/tags/v') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true')
     steps:
     - name: Checkout addon (for version)
       uses: actions/checkout@v5
