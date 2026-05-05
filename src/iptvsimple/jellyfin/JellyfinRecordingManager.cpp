@@ -36,15 +36,13 @@ JellyfinRecordingManager::JellyfinRecordingManager(
 
 PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTimerType>& types)
 {
-  // Manual recording — listed first so it's the default when adding a timer
-  // outside an EPG context. EPG-driven one-shot creation also falls back to
-  // this type (channel + time prefilled from the EPG entry).
+  // Type 1: One-shot EPG recording
   {
     kodi::addon::PVRTimerType type;
-    type.SetId(TIMER_ONCE_MANUAL);
-    type.SetDescription("Record once");
+    type.SetId(TIMER_ONCE_EPG);
+    type.SetDescription("Record once (EPG)");
     type.SetAttributes(
-      PVR_TIMER_TYPE_IS_MANUAL |
+      PVR_TIMER_TYPE_REQUIRES_EPG_TAG_ON_CREATE |
       PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
       PVR_TIMER_TYPE_SUPPORTS_START_TIME |
       PVR_TIMER_TYPE_SUPPORTS_END_TIME |
@@ -54,7 +52,23 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
     types.emplace_back(type);
   }
 
-  // Series recording rule
+  // Type 2: One-shot created by series rule (read-only child)
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(TIMER_ONCE_CREATED_BY_SERIES);
+    type.SetDescription("Record once (created by series rule)");
+    type.SetAttributes(
+      PVR_TIMER_TYPE_IS_READONLY |
+      PVR_TIMER_TYPE_FORBIDS_NEW_INSTANCES |
+      PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+      PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+      PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+      PVR_TIMER_TYPE_SUPPORTS_READONLY_DELETE
+    );
+    types.emplace_back(type);
+  }
+
+  // Type 3: Series recording rule
   {
     kodi::addon::PVRTimerType type;
     type.SetId(TIMER_SERIES);
@@ -70,18 +84,18 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
     types.emplace_back(type);
   }
 
-  // One-shot created by series rule (read-only child, never user-selectable)
+  // Type 4: Manual recording (channel + time, no EPG)
   {
     kodi::addon::PVRTimerType type;
-    type.SetId(TIMER_ONCE_CREATED_BY_SERIES);
-    type.SetDescription("Record once (created by series rule)");
+    type.SetId(TIMER_ONCE_MANUAL);
+    type.SetDescription("Manual recording");
     type.SetAttributes(
-      PVR_TIMER_TYPE_IS_READONLY |
-      PVR_TIMER_TYPE_FORBIDS_NEW_INSTANCES |
+      PVR_TIMER_TYPE_IS_MANUAL |
       PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
       PVR_TIMER_TYPE_SUPPORTS_START_TIME |
       PVR_TIMER_TYPE_SUPPORTS_END_TIME |
-      PVR_TIMER_TYPE_SUPPORTS_READONLY_DELETE
+      PVR_TIMER_TYPE_SUPPORTS_START_MARGIN |
+      PVR_TIMER_TYPE_SUPPORTS_END_MARGIN
     );
     types.emplace_back(type);
   }
@@ -121,7 +135,74 @@ PVR_ERROR JellyfinRecordingManager::GetTimers(kodi::addon::PVRTimersResultSet& r
 
 PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
 {
-  if (timer.GetTimerType() == TIMER_SERIES)
+  if (timer.GetTimerType() == TIMER_ONCE_EPG)
+  {
+    // Look up the Jellyfin program ID from the EPG broadcast UID
+    std::string programId = m_channelLoader->GetJellyfinProgramId(timer.GetEPGUid());
+
+    // Fallback: if the map is empty (Kodi used cached EPG after restart),
+    // query Jellyfin for programs on this channel around the timer's start time
+    if (programId.empty() && timer.GetStartTime() > 0)
+    {
+      Logger::Log(LEVEL_INFO, "%s - EPG map miss for UID %d, querying Jellyfin by channel+time",
+                  __FUNCTION__, timer.GetEPGUid());
+
+      const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+      if (!channelJfId.empty())
+      {
+        // Query programs in a 1-minute window around the start time
+        const std::string startIso = FormatIso8601(timer.GetStartTime());
+        const std::string endIso = FormatIso8601(timer.GetStartTime() + 60);
+        const std::string endpoint = "/LiveTv/Programs?ChannelIds=" + channelJfId
+          + "&MinStartDate=" + WebUtils::UrlEncode(startIso)
+          + "&MaxStartDate=" + WebUtils::UrlEncode(endIso)
+          + "&Limit=1";
+
+        Json::Value response = m_client->SendGet(endpoint);
+        if (!response.isNull() && response.isMember("Items") && !response["Items"].empty())
+        {
+          programId = response["Items"][0]["Id"].asString();
+          Logger::Log(LEVEL_INFO, "%s - Found program %s via channel+time fallback",
+                      __FUNCTION__, programId.c_str());
+        }
+      }
+    }
+
+    if (programId.empty())
+    {
+      Logger::Log(LEVEL_ERROR, "%s - No Jellyfin program ID for EPG UID %d",
+                  __FUNCTION__, timer.GetEPGUid());
+      return PVR_ERROR_INVALID_PARAMETERS;
+    }
+
+    // Get timer defaults from Jellyfin for this program
+    Json::Value defaults = m_client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
+    if (defaults.isNull())
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Failed to get timer defaults for program %s",
+                  __FUNCTION__, programId.c_str());
+      return PVR_ERROR_SERVER_ERROR;
+    }
+
+    // Apply user padding
+    defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
+    defaults["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
+    defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
+    defaults["IsPostPaddingRequired"] = timer.GetMarginEnd() > 0;
+
+    Json::StreamWriterBuilder writer;
+    writer["indentation"] = "";
+    const std::string bodyStr = Json::writeString(writer, defaults);
+
+    Logger::Log(LEVEL_INFO, "%s - Creating timer: %s (program %s)",
+                __FUNCTION__, timer.GetTitle().c_str(), programId.c_str());
+
+    m_client->SendPost("/LiveTv/Timers", bodyStr);
+
+    Reload();
+    return PVR_ERROR_NO_ERROR;
+  }
+  else if (timer.GetTimerType() == TIMER_SERIES)
   {
     // Look up Jellyfin program ID from EPG — same as single timers
     std::string programId = m_channelLoader->GetJellyfinProgramId(timer.GetEPGUid());
@@ -567,7 +648,7 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
     }
     else
     {
-      timer.SetTimerType(TIMER_ONCE_MANUAL);
+      timer.SetTimerType(TIMER_ONCE_EPG);
     }
 
     // Channel
