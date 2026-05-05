@@ -4,7 +4,7 @@
 
 Kodi PVR client addon for [Jellyfin](https://jellyfin.org) Live TV. Provides native Kodi PVR integration for live TV channels, EPG, recordings, and timers from a Jellyfin server.
 
-Play cathup/ archive content from EPG in same manner as IPTV simple client (When direct playing Jellyfin server acts only as proxy between client and provider).
+Play catchup/ archive content from EPG in same manner as IPTV simple client (When direct playing Jellyfin server acts only as proxy between client and provider).
 
 Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replacing M3U/XMLTV data sources with Jellyfin REST API calls.
 
@@ -35,7 +35,7 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
 
 ## Catchup
-If supported by your provider cathup works with direct play only. Force remuxing must be disabled and streams must be within any bitrate limit set. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
+If supported by your provider catchup works with direct play only. Force remuxing must be disabled and streams must be within any bitrate limit set. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
 
 Note: Only tested with timeshift="days" element.
 
