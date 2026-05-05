@@ -366,7 +366,7 @@ msgid "A provider-dependent format string for catchup URLs. Used as a default wh
 msgstr ""
 
 msgctxt "#30741"
-msgid "Catchup window"
+msgid "Catchup window (days)"
 msgstr ""
 
 msgctxt "#30742"
