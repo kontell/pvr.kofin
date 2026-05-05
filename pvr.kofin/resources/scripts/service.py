@@ -68,6 +68,8 @@ class PlaybackReporter(xbmc.Player):
         self.session = None
         self.paused = False
         self.start_time = None
+        self.is_recording = False
+        self.last_position_ticks = 0
 
     def onAVStarted(self):
         """Stream is up — read session data written by C++ addon and report start."""
@@ -83,6 +85,8 @@ class PlaybackReporter(xbmc.Player):
         if not item_id:
             return
 
+        self.is_recording = xbmc.getCondVisibility('PVR.IsPlayingRecording')
+        self.last_position_ticks = 0
         self.session = {
             'ItemId': item_id,
             'MediaSourceId': addon.getSetting('sessionMediaSourceId'),
@@ -114,14 +118,24 @@ class PlaybackReporter(xbmc.Player):
 
     def onPlayBackPaused(self):
         self.paused = True
+        self._capture_position()
 
     def onPlayBackResumed(self):
         self.paused = False
+        self._capture_position()
+
+    def onPlayBackSeek(self, seek_time, seek_offset):
+        if self.is_recording:
+            # seek_time is the new playhead in ms; ticks are 100ns
+            self.last_position_ticks = int(seek_time * 10_000)
 
     def _stop(self):
         if not self.session:
             return
+        self._capture_position()
         session = self.session
+        is_recording = self.is_recording
+        final_position_ticks = self.last_position_ticks
         self.session = None
 
         # Clear persisted session so the next non-kofin playback (e.g. a music
@@ -133,11 +147,17 @@ class PlaybackReporter(xbmc.Player):
         xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGINFO)
 
         # Report playback stopped
-        self._send_with(session, '/Sessions/Playing/Stopped', {
+        stopped_body = {
             'ItemId': session['ItemId'],
             'MediaSourceId': session['MediaSourceId'],
             'PlaySessionId': session['PlaySessionId'],
-        })
+        }
+        if is_recording:
+            # Without an explicit position the server's stop handler infers
+            # one — and infers wrong when seeks have shifted the playhead
+            # off the wall-clock elapsed value seen in /Progress events.
+            stopped_body['PositionTicks'] = final_position_ticks
+        self._send_with(session, '/Sessions/Playing/Stopped', stopped_body)
 
         # Close the live stream if one was opened
         live_stream_id = session.get('LiveStreamId', '')
@@ -153,7 +173,6 @@ class PlaybackReporter(xbmc.Player):
         self._send('/Sessions/Playing/Progress', self._build_body())
 
     def _build_body(self):
-        elapsed = time.time() - self.start_time if self.start_time else 0
         return {
             'QueueableMediaTypes': 'Video,Audio',
             'CanSeek': True,
@@ -161,11 +180,32 @@ class PlaybackReporter(xbmc.Player):
             'MediaSourceId': self.session['MediaSourceId'],
             'PlayMethod': self.session['PlayMethod'],
             'PlaySessionId': self.session['PlaySessionId'],
-            'PositionTicks': int(elapsed * 10_000_000),
+            'PositionTicks': self._position_ticks(),
             'IsPaused': self.paused,
             'IsMuted': False,
             'VolumeLevel': 100,
         }
+
+    def _position_ticks(self):
+        # Recordings: ask the player for the real playhead. Wall-clock elapsed
+        # drifts off the actual position after seeks/skips, and the server
+        # uses /Progress and /Stopped position to decide watched state. Live
+        # TV has no per-channel watched state — keep wall-clock elapsed there
+        # so live-TV reporting is byte-for-byte unchanged.
+        if self.is_recording:
+            self._capture_position()
+            return self.last_position_ticks
+        elapsed = time.time() - self.start_time if self.start_time else 0
+        return int(elapsed * 10_000_000)
+
+    def _capture_position(self):
+        if not self.is_recording:
+            return
+        try:
+            self.last_position_ticks = int(self.getTime() * 10_000_000)
+        except RuntimeError:
+            # Player not active (during stop teardown) — keep cached value
+            pass
 
     def _send(self, endpoint, body):
         if not self.session:
