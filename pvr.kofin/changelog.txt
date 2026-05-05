@@ -1,3 +1,6 @@
+v0.5.2
+- Fix regression in v0.5.1 that broke creating recordings from the EPG (restore "Record once (EPG)" timer type)
+
 v0.5.1
 - Fix recording playback being incorrectly marked watched after seek/skip then stop
 - Report real player position (not wall-clock elapsed) for recordings
