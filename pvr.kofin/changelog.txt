@@ -1,3 +1,8 @@
+v0.5.1
+- Fix recording playback being incorrectly marked watched after seek/skip then stop
+- Report real player position (not wall-clock elapsed) for recordings
+- Drop broken "Record once (EPG)" timer type; manual is now the default
+
 v0.5.0
 - Add Windows x86_64 release builds (Kodi 21 Omega, Kodi 22 Piers)
 - Drop stale Azure Pipelines config (CI consolidated in GitHub Actions)
