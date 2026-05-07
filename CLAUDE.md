@@ -135,6 +135,7 @@ CIptvSimpleAddon (addon.cpp)         — Kodi addon entry point, creates PVR ins
 - Stream URLs: Jellyfin may return `127.0.0.1` or `localhost` — `RewriteLocalhost()` fixes this
 - Recording deletion: `DELETE /Items/{id}` (primary), fallback `DELETE /LiveTv/Recordings/{id}`
 - **Jellyfin API key for direct testing:** `https://jelly.konell.xyz` — append `?api_key=dac2156d1aa14643af37e1ddde87d963` to any endpoint. UserId: `215f5fc3f7ff4a5581e8518b28203a4f`.
+- **Always verify API response shapes directly** before writing or modifying code that consumes Jellyfin API data. Fetch the relevant endpoint with the API key above and confirm which fields are actually present and their exact format — don't assume based on field names in the code or documentation alone.
 
 ## Key Files
 

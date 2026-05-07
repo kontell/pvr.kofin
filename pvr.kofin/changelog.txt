@@ -1,4 +1,5 @@
-v0.5.3
+v0.5.4
+- Fix recording Premiered date for completed recordings (fall back to DateCreated)
 - Set full recording date for skin Premiered info (not just year)
 - Default new timer type to manual recording instead of EPG
 

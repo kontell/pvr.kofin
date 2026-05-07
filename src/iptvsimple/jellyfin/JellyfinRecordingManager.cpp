@@ -957,9 +957,12 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     // Year + full date for skin $INFO[VideoPlayer.Premiered]
     if (item.isMember("ProductionYear"))
       recording.SetYear(item["ProductionYear"].asInt());
-    if (item.isMember("StartDate"))
     {
-      std::string iso = item["StartDate"].asString();
+      std::string iso;
+      if (item.isMember("StartDate"))
+        iso = item["StartDate"].asString();
+      else if (item.isMember("DateCreated"))
+        iso = item["DateCreated"].asString();
       if (iso.size() >= 10)
         recording.SetFirstAired(iso.substr(0, 10));
     }
