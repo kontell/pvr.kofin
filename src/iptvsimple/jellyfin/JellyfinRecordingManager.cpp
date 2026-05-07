@@ -36,6 +36,22 @@ JellyfinRecordingManager::JellyfinRecordingManager(
 
 PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTimerType>& types)
 {
+  // Type 4: Manual recording (channel + time, no EPG) — listed first so it is the default
+  {
+    kodi::addon::PVRTimerType type;
+    type.SetId(TIMER_ONCE_MANUAL);
+    type.SetDescription("Manual recording");
+    type.SetAttributes(
+      PVR_TIMER_TYPE_IS_MANUAL |
+      PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
+      PVR_TIMER_TYPE_SUPPORTS_START_TIME |
+      PVR_TIMER_TYPE_SUPPORTS_END_TIME |
+      PVR_TIMER_TYPE_SUPPORTS_START_MARGIN |
+      PVR_TIMER_TYPE_SUPPORTS_END_MARGIN
+    );
+    types.emplace_back(type);
+  }
+
   // Type 1: One-shot EPG recording
   {
     kodi::addon::PVRTimerType type;
@@ -80,22 +96,6 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
       PVR_TIMER_TYPE_SUPPORTS_ANY_CHANNEL |
       PVR_TIMER_TYPE_SUPPORTS_RECORD_ONLY_NEW_EPISODES |
       PVR_TIMER_TYPE_SUPPORTS_WEEKDAYS
-    );
-    types.emplace_back(type);
-  }
-
-  // Type 4: Manual recording (channel + time, no EPG)
-  {
-    kodi::addon::PVRTimerType type;
-    type.SetId(TIMER_ONCE_MANUAL);
-    type.SetDescription("Manual recording");
-    type.SetAttributes(
-      PVR_TIMER_TYPE_IS_MANUAL |
-      PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
-      PVR_TIMER_TYPE_SUPPORTS_START_TIME |
-      PVR_TIMER_TYPE_SUPPORTS_END_TIME |
-      PVR_TIMER_TYPE_SUPPORTS_START_MARGIN |
-      PVR_TIMER_TYPE_SUPPORTS_END_MARGIN
     );
     types.emplace_back(type);
   }
