@@ -23,9 +23,9 @@ msgctxt "Addon Description"
 msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
 msgstr ""
 
-#: Playback category
+#: Transcoding category
 msgctxt "#30620"
-msgid "Playback"
+msgid "Transcoding"
 msgstr ""
 
 msgctxt "#30622"
@@ -149,17 +149,17 @@ msgctxt "#30651"
 msgid "Unlimited"
 msgstr ""
 
-#: InputStream
+#: InputStream category
 msgctxt "#30660"
 msgid "InputStream"
 msgstr ""
 
 msgctxt "#30661"
-msgid "InputStream"
+msgid "InputStream addon"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a buffer on the server. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
 msgstr ""
 
 msgctxt "#30663"
@@ -436,4 +436,82 @@ msgstr ""
 
 msgctxt "#30771"
 msgid "Remote path (URL)"
+msgstr ""
+
+#: Reference playlist (advanced category)
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr ""
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr ""
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel codec/bitrate overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr ""
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr ""
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr ""
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr ""
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr ""
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr ""
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr ""
+
+#: Force-transcode codec toggles
+msgctxt "#30781"
+msgid "Force transcode AV1"
+msgstr ""
+
+msgctxt "#30782"
+msgid "Force the Jellyfin server to transcode AV1 streams. Enable if your device cannot decode AV1."
+msgstr ""
+
+msgctxt "#30783"
+msgid "Force transcode HEVC"
+msgstr ""
+
+msgctxt "#30784"
+msgid "Force the Jellyfin server to transcode HEVC streams. Enable if your device cannot decode HEVC."
+msgstr ""
+
+msgctxt "#30785"
+msgid "Force transcode MPEG-2"
+msgstr ""
+
+msgctxt "#30786"
+msgid "Force the Jellyfin server to transcode MPEG-2 streams. Enable if your device cannot decode MPEG-2."
+msgstr ""
+
+msgctxt "#30787"
+msgid "Force transcode VC-1"
+msgstr ""
+
+msgctxt "#30788"
+msgid "Force the Jellyfin server to transcode VC-1 streams. Enable if your device cannot decode VC-1."
+msgstr ""
+
+msgctxt "#30789"
+msgid "Force transcode VP9"
+msgstr ""
+
+msgctxt "#30790"
+msgid "Force the Jellyfin server to transcode VP9 streams. Enable if your device cannot decode VP9."
 msgstr ""

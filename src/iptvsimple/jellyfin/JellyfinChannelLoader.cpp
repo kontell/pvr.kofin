@@ -29,6 +29,49 @@ using namespace iptvsimple::data;
 using namespace iptvsimple::jellyfin;
 using namespace iptvsimple::utilities;
 
+namespace
+{
+bool ParseBoolProp(const std::string& value)
+{
+  std::string v = value;
+  std::transform(v.begin(), v.end(), v.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+  return v == "true" || v == "1" || v == "yes" || v == "on";
+}
+} // unnamed namespace
+
+ChannelOverrides ChannelOverrides::FromChannel(const Channel& channel)
+{
+  ChannelOverrides o;
+  const auto& props = channel.GetProperties();
+
+  auto get = [&](const std::string& key) -> const std::string* {
+    auto it = props.find(key);
+    return (it != props.end()) ? &it->second : nullptr;
+  };
+
+  if (const auto* v = get("kofin-force-remux"))
+    o.forceRemux = ParseBoolProp(*v);
+  if (const auto* v = get("kofin-force-transcode"))
+    o.forceTranscode = ParseBoolProp(*v);
+  if (const auto* v = get("kofin-bitrate-limit"))
+  {
+    int kbps = std::atoi(v->c_str());
+    if (kbps > 0)
+      o.bitrateBps = kbps * 1000;
+    else
+      o.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
+  }
+
+  // Inputstream override drives container selection in BuildDeviceProfile.
+  if (const auto* v = get(PVR_STREAM_PROPERTY_INPUTSTREAM))
+    o.inputstream = *v;
+  else if (const auto* v = get("inputstream"))
+    o.inputstream = *v;
+
+  return o;
+}
+
 JellyfinChannelLoader::JellyfinChannelLoader(
     std::shared_ptr<JellyfinClient> client,
     std::shared_ptr<iptvsimple::InstanceSettings> settings)
@@ -61,13 +104,34 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
     return true;
   }
 
-  // Create "All Channels" group
+  // Parse the reference playlist up-front so its data is available when each
+  // channel is added to the channels/groups stores.
+  M3UParser m3uParser(m_settings);
+  bool m3uLoaded = false;
+  if (m_settings->ReferencePlaylistEnabled() && !m_settings->GetReferencePlaylistPath().empty())
+    m3uLoaded = m3uParser.Parse();
+
+  // Always create the "Jellyfin" all-channels group.
   ChannelGroup allGroup;
   allGroup.SetGroupName("Jellyfin");
   allGroup.SetRadio(false);
-  int groupId = channelGroups.AddChannelGroup(allGroup);
+  const int jellyfinGroupId = channelGroups.AddChannelGroup(allGroup);
+
+  // Pre-create groups discovered in the reference playlist (preserves order).
+  std::map<std::string, int> m3uGroupIdByName;
+  if (m3uLoaded)
+  {
+    for (const auto& name : m3uParser.GetAllGroupNames())
+    {
+      ChannelGroup g;
+      g.SetGroupName(name);
+      g.SetRadio(false);
+      m3uGroupIdByName[name] = channelGroups.AddChannelGroup(g);
+    }
+  }
 
   int channelNumber = 1;
+  int matchedCount = 0;
 
   for (const auto& item : items)
   {
@@ -108,58 +172,68 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
     // Stream URL placeholder - actual URL resolved via PlaybackInfo in GetChannelStreamProperties
     channel.SetStreamURL(m_client->GetBaseUrl() + "/LiveTv/Channels/" + jellyfinId);
 
-    // Add channel (AddChannel sets the unique ID via its hash function)
-    std::vector<int> groupIdList = {groupId};
+    // Always-include the "Jellyfin" group; M3U groups are added per-match.
+    std::vector<int> groupIdList = {jellyfinGroupId};
+
+    // Apply reference-playlist data
+    if (m3uLoaded)
+    {
+      const M3UChannelInfo* info = m3uParser.GetChannelInfo(name);
+      if (info)
+      {
+        // Catchup (only when catchup is enabled by the user)
+        if (m_settings->CatchupEnabled() && info->hasCatchup)
+        {
+          channel.SetHasCatchup(true);
+          channel.SetCatchupMode(info->catchupMode);
+          channel.SetCatchupDays(info->catchupDays > 0 ? info->catchupDays : m_settings->GetCatchupDays());
+          if (!info->catchupSource.empty())
+            channel.SetCatchupSource(info->catchupSource);
+          if (info->catchupCorrectionHours != 0.0f)
+            channel.SetCatchupCorrectionSecs(static_cast<int>(info->catchupCorrectionHours * 3600.0f));
+          channel.ConfigureCatchupMode();
+        }
+
+        // KodiProps (inputstream.*, mimetype, http-*)
+        for (const auto& kv : info->kodiProps)
+          channel.AddProperty(kv.first, kv.second);
+
+        // KofinProps (kofin-*) — stored on the channel; consumed by ChannelOverrides::FromChannel
+        for (const auto& kv : info->kofinProps)
+          channel.AddProperty(kv.first, kv.second);
+
+        // Logo override
+        if (!info->tvgLogo.empty())
+          channel.SetIconPath(info->tvgLogo);
+
+        // M3U-defined groups (additive to the Jellyfin fallback)
+        for (const auto& gname : info->groupNames)
+        {
+          auto it = m3uGroupIdByName.find(gname);
+          if (it != m3uGroupIdByName.end())
+            groupIdList.push_back(it->second);
+        }
+
+        matchedCount++;
+      }
+    }
+
     if (channels.AddChannel(channel, groupIdList, channelGroups, true))
     {
       int uid = channel.GetUniqueId();
       m_jellyfinIdToUid[jellyfinId] = uid;
       m_uidToJellyfinId[uid] = jellyfinId;
 
-      Logger::Log(LEVEL_DEBUG, "%s - Added channel '%s' (uid=%d, jellyfinId=%s)",
-                  __FUNCTION__, name.c_str(), uid, jellyfinId.c_str());
+      Logger::Log(LEVEL_DEBUG, "%s - Added channel '%s' (uid=%d, jellyfinId=%s, groups=%zu)",
+                  __FUNCTION__, name.c_str(), uid, jellyfinId.c_str(), groupIdList.size());
     }
   }
 
   channelGroups.RemoveEmptyGroups();
 
-  // Apply catchup metadata from reference M3U (if configured)
-  if (m_settings->CatchupEnabled() && !m_settings->GetCatchupM3UPath().empty())
-  {
-    M3UParser m3uParser(m_settings);
-    if (m3uParser.Parse())
-    {
-      int matched = 0;
-      for (auto& channel : channels.GetChannelsListMutable())
-      {
-        const M3UCatchupInfo* info = m3uParser.GetCatchupInfo(channel.GetChannelName());
-        if (info && info->hasCatchup)
-        {
-          channel.SetHasCatchup(true);
-          channel.SetCatchupMode(info->mode);
-          channel.SetCatchupDays(info->days > 0 ? info->days : m_settings->GetCatchupDays());
-          if (!info->source.empty())
-            channel.SetCatchupSource(info->source);
-          if (info->correctionHours != 0.0f)
-            channel.SetCatchupCorrectionSecs(static_cast<int>(info->correctionHours * 3600.0f));
-
-          // Generate the catchup source URL from mode + stream URL
-          channel.ConfigureCatchupMode();
-
-          Logger::Log(LEVEL_DEBUG, "%s - Catchup matched '%s': mode=%d, days=%d, source='%s'",
-                      __FUNCTION__, channel.GetChannelName().c_str(),
-                      static_cast<int>(channel.GetCatchupMode()),
-                      channel.GetCatchupDays(),
-                      channel.GetCatchupSource().c_str());
-          matched++;
-        }
-      }
-      Logger::Log(LEVEL_INFO, "%s - Matched %d channels with catchup from reference M3U", __FUNCTION__, matched);
-    }
-  }
-
-  Logger::Log(LEVEL_INFO, "%s - Loaded %d channels from Jellyfin",
-              __FUNCTION__, static_cast<int>(items.size()));
+  Logger::Log(LEVEL_INFO,
+              "%s - Loaded %d channels from Jellyfin (%d matched in reference playlist)",
+              __FUNCTION__, static_cast<int>(items.size()), matchedCount);
   return true;
 }
 
@@ -259,12 +333,15 @@ PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t en
   return PVR_ERROR_NO_ERROR;
 }
 
-Json::Value JellyfinChannelLoader::BuildDeviceProfile()
+Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& overrides)
 {
   const std::string preferredVideo = m_settings->GetPreferredVideoCodecName();
   const std::string preferredAudio = m_settings->GetPreferredAudioCodecName();
-  const int maxBitrateBps = m_settings->GetMaxBitrateBps();
-  const bool forceTranscode = m_settings->GetForceTranscode();
+
+  // Per-channel overrides win over global settings; otherwise fall back.
+  const int maxBitrateBps = overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
+  const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
+  const bool forceTranscodeOverride = overrides.forceTranscode.value_or(false);
 
   Json::Value profile;
   profile["Name"] = "Kodi";
@@ -281,58 +358,108 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
       audioCodecs += std::string(",") + codec;
   }
 
+  // Allowed video codecs after applying global force-transcode toggles.
+  // Codec excluded here cannot direct-play and cannot be remuxed (codec-copied);
+  // the server will fall back to transcoding to the preferred codec.
+  std::vector<std::string> allowedVideoCodecs = {"av1", "h264", "hevc", "mpeg2video", "vp9", "vc1"};
+  auto excludeCodec = [&](bool toggle, const std::string& codec) {
+    if (toggle)
+      allowedVideoCodecs.erase(std::remove(allowedVideoCodecs.begin(), allowedVideoCodecs.end(), codec),
+                               allowedVideoCodecs.end());
+  };
+  excludeCodec(m_settings->GetForceTranscodeAV1(),   "av1");
+  excludeCodec(m_settings->GetForceTranscodeHEVC(),  "hevc");
+  excludeCodec(m_settings->GetForceTranscodeMPEG2(), "mpeg2video");
+  excludeCodec(m_settings->GetForceTranscodeVC1(),   "vc1");
+  excludeCodec(m_settings->GetForceTranscodeVP9(),   "vp9");
+
+  std::string allowedVideoCodecsCsv;
+  for (const auto& c : allowedVideoCodecs)
+  {
+    if (!allowedVideoCodecsCsv.empty())
+      allowedVideoCodecsCsv += ",";
+    allowedVideoCodecsCsv += c;
+  }
+
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
+  // Container choice: TS for everything except AV1 (which can't ride MPEG-TS).
+  // inputstream.adaptive accepts HLS+TS as long as we hand it the master
+  // playlist (with the CODECS="avc1.X,mp4a.X" attribute) instead of the bare
+  // media playlist — the master provides codec extradata so adaptive doesn't
+  // have to demux TS segments to find SPS/PPS. The master vs live URL choice
+  // is handled by PostProcessTranscodingUrl, not here.
+  const std::string container = (preferredVideo == "av1") ? "mp4" : "ts";
+
+  // MinSegments controls how many transcoded segments Jellyfin generates
+  // before returning the variant playlist. ffmpegdirect tolerates a 1-segment
+  // initial playlist (it polls), but inputstream.adaptive rejects it with
+  // "Codec id NN require extradata" — adaptive won't trust the master's
+  // CODECS attribute when the variant has only one segment, and won't poll
+  // for more. Buffering 3 segments first gives adaptive a populated playlist
+  // that matches the recording-playback shape (which always works). Costs
+  // ~10s of startup latency — acceptable trade for adaptive users.
+  const bool useAdaptive = overrides.inputstream.value_or("") == "inputstream.adaptive";
+  const std::string minSegments = useAdaptive ? "3" : "1";
+
   // TranscodingProfiles:
-  // - Force remux ON + unlimited bitrate → codec-copy into TS (remux)
-  // - All other cases → preferred codec only (AV1→fMP4, others→TS)
-  //   Covers: force remux with bitrate limit, no force remux with bitrate
-  //   limit exceeded, codec profile mismatch, etc.
+  // - Remux mode (forceRemux ON + unlimited bitrate + no per-channel forceTranscode)
+  //   → codec-copy the allowed codecs.
+  // - Otherwise → preferred codec only.
   Json::Value transcodingProfiles(Json::arrayValue);
 
-  if (forceTranscode && bitrateUnlimited)
+  const bool remuxMode = forceRemux && bitrateUnlimited && !forceTranscodeOverride;
+
+  if (remuxMode)
   {
-    // Remux: codec-copy all non-AV1 codecs into TS.
     Json::Value tp;
-    tp["Container"] = "ts";
+    tp["Container"] = container;
     tp["Type"] = "Video";
     tp["AudioCodec"] = audioCodecs;
-    tp["VideoCodec"] = "h264,hevc,mpeg2video";
+    // TS can't carry AV1; drop it from the codec-copy list when staying on TS.
+    std::string remuxCodecs;
+    for (const auto& c : allowedVideoCodecs)
+    {
+      if (c == "av1" && container == "ts")
+        continue;
+      if (!remuxCodecs.empty())
+        remuxCodecs += ",";
+      remuxCodecs += c;
+    }
+    tp["VideoCodec"] = remuxCodecs;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
     tp["MaxAudioChannels"] = "6";
-    tp["MinSegments"] = "1";
+    tp["MinSegments"] = minSegments;
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);
   }
   else
   {
-    // Transcode to preferred codec.
-    // AV1 → fMP4 (AV1 can't go in MPEG-TS), everything else → TS.
     Json::Value tp;
-    tp["Container"] = (preferredVideo == "av1") ? "mp4" : "ts";
+    tp["Container"] = container;
     tp["Type"] = "Video";
     tp["AudioCodec"] = audioCodecs;
     tp["VideoCodec"] = preferredVideo;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
     tp["MaxAudioChannels"] = "6";
-    tp["MinSegments"] = "1";
+    tp["MinSegments"] = minSegments;
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);
   }
   profile["TranscodingProfiles"] = transcodingProfiles;
 
-  // Direct play only when force remux is off AND no bitrate limit.
-  // For live TV (Protocol=Http), Jellyfin ignores MaxStreamingBitrate
-  // for DirectPlay decisions, so we must clear DirectPlayProfiles to
-  // force the server to use TranscodingProfiles when a limit is set.
+  // Direct play only when neither remux nor transcode is forced AND no
+  // bitrate limit. For live TV (Protocol=Http), Jellyfin ignores
+  // MaxStreamingBitrate for DirectPlay decisions, so we must clear
+  // DirectPlayProfiles to force TranscodingProfiles when a limit is set.
   Json::Value directPlayProfiles(Json::arrayValue);
-  if (!forceTranscode && bitrateUnlimited)
+  if (!forceRemux && !forceTranscodeOverride && bitrateUnlimited && !allowedVideoCodecs.empty())
   {
     Json::Value v;
     v["Type"] = "Video";
-    v["VideoCodec"] = "av1,h264,hevc,mpeg2video";
+    v["VideoCodec"] = allowedVideoCodecsCsv;
     directPlayProfiles.append(v);
     Json::Value a;
     a["Type"] = "Audio";
@@ -340,9 +467,12 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
   }
   profile["DirectPlayProfiles"] = directPlayProfiles;
 
-  // Codec profiles: constrain direct play to codecs the device can actually decode
+  // Codec profiles: constrain direct play to codecs the device can actually decode.
+  // These are no-ops when the codec is already excluded from DirectPlayProfiles.
   Json::Value codecProfiles(Json::arrayValue);
-  if (m_settings->GetTranscodeHi10P())
+  const bool h264Allowed = std::find(allowedVideoCodecs.begin(), allowedVideoCodecs.end(), "h264") != allowedVideoCodecs.end();
+  const bool hevcAllowed = std::find(allowedVideoCodecs.begin(), allowedVideoCodecs.end(), "hevc") != allowedVideoCodecs.end();
+  if (h264Allowed && m_settings->GetTranscodeHi10P())
   {
     Json::Value cp;
     cp["Type"] = "Video";
@@ -355,7 +485,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile()
     cp["Conditions"].append(cond);
     codecProfiles.append(cp);
   }
-  if (m_settings->GetTranscodeHevcRext())
+  if (hevcAllowed && m_settings->GetTranscodeHevcRext())
   {
     Json::Value cp;
     cp["Type"] = "Video";
@@ -537,12 +667,16 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
 }
 
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
-    const std::string& transcodingUrl)
+    const std::string& transcodingUrl, bool keepMaster)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
-  // - Replace "stream"/"master" with "live" for live TV
-  // - Recalculate audio/video bitrates
-  // SegmentContainer is left as-is (set correctly by server via dual TranscodingProfiles)
+  // - For ffmpegdirect/internal: replace "stream"/"master" with "live" so we
+  //   land on Jellyfin's bare media playlist (preferred by ffmpegdirect).
+  // - For inputstream.adaptive: keep "master" so we hit Jellyfin's master
+  //   playlist endpoint, which wraps the media playlist with proper
+  //   #EXT-X-STREAM-INF + CODECS attributes that adaptive needs to
+  //   construct codec extradata before opening segments.
+  // - Recalculate audio/video bitrates either way.
 
   auto qPos = transcodingUrl.find('?');
   if (qPos == std::string::npos)
@@ -568,8 +702,10 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
   }), params.end());
 
-  // Recalculate bitrates
-  const int maxBitrateBps = m_settings->GetMaxBitrateBps();
+  // Recalculate bitrates using the per-session limit (overrides applied at
+  // GetItemStreamUrl time; falls back to the global setting).
+  const int maxBitrateBps = m_activeMaxBitrateBps > 0
+    ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
   const int audioBitrate = 384000;
   const int videoBitrate = maxBitrateBps - audioBitrate;
 
@@ -584,11 +720,15 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   newParams += "&VideoBitrate=" + std::to_string(videoBitrate);
   newParams += "&AudioBitrate=" + std::to_string(audioBitrate);
 
-  // Replace "stream" or "master" with "live" in URL path for live TV
-  std::string search = (base.find("stream") != std::string::npos) ? "stream" : "master";
-  auto pos = base.find(search);
-  if (pos != std::string::npos)
-    base.replace(pos, search.length(), "live");
+  // Replace "stream"/"master" with "live" in URL path for live TV — unless
+  // the caller asked us to keep the master endpoint (adaptive needs it).
+  if (!keepMaster)
+  {
+    std::string search = (base.find("stream") != std::string::npos) ? "stream" : "master";
+    auto pos = base.find(search);
+    if (pos != std::string::npos)
+      base.replace(pos, search.length(), "live");
+  }
 
   return m_client->GetBaseUrl() + base + "?" + newParams;
 }
@@ -611,12 +751,14 @@ void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
   }
 }
 
-std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId)
+std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId,
+                                                    const ChannelOverrides& overrides)
 {
-  return GetItemStreamUrl(channelId);
+  return GetItemStreamUrl(channelId, overrides);
 }
 
-std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
+std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
+                                                    const ChannelOverrides& overrides)
 {
   Logger::Log(LEVEL_DEBUG, "%s - Getting stream URL for item %s", __FUNCTION__, itemId.c_str());
 
@@ -628,8 +770,11 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
 
   Json::Value body;
   body["UserId"] = m_client->GetUserId();
-  body["DeviceProfile"] = BuildDeviceProfile();
+  body["DeviceProfile"] = BuildDeviceProfile(overrides);
   body["AutoOpenLiveStream"] = true;
+  // Stash the override bitrate for PostProcessTranscodingUrl, which the server
+  // will echo into the URL params we then rewrite.
+  m_activeMaxBitrateBps = overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
 
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
@@ -670,7 +815,8 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId)
   // matching jellyfin-kodi's transcode() method (stream→live rewrite, bitrate recalc).
   if (hasTranscodingUrl)
   {
-    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString());
+    const bool keepMaster = overrides.inputstream.value_or("") == "inputstream.adaptive";
+    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster);
   }
   else if (source.isMember("Path") && !source["Path"].asString().empty())
   {

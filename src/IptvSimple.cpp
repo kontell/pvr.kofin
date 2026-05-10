@@ -464,13 +464,26 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
 {
   if (GetChannel(channel, m_currentChannel))
   {
-    // Resolve live stream URL from Jellyfin via PlaybackInfo
+    // Resolve live stream URL from Jellyfin via PlaybackInfo (with KofinProps overrides).
+    // If the channel didn't pin an inputstream via M3U, fall back to the global
+    // setting so BuildDeviceProfile / PostProcessTranscodingUrl pick the right
+    // container + URL endpoint for the actual inputstream Kodi will use.
+    auto overrides = iptvsimple::jellyfin::ChannelOverrides::FromChannel(m_currentChannel);
+    if (!overrides.inputstream)
+    {
+      switch (m_settings->GetInputStream())
+      {
+        case 0: overrides.inputstream = "inputstream.ffmpegdirect"; break;
+        case 1: overrides.inputstream = "inputstream.adaptive"; break;
+        case 2: overrides.inputstream = "inputstream.ffmpeg"; break;
+      }
+    }
     std::string streamURL;
     if (m_channelLoader)
     {
       const std::string& jellyfinId = m_channelLoader->GetJellyfinId(m_currentChannel.GetUniqueId());
       if (!jellyfinId.empty())
-        streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId);
+        streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId, overrides);
     }
 
     if (streamURL.empty())
@@ -486,6 +499,12 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
     properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
 
+    // Honor an inputstream override set via M3U KodiProps. Read directly
+    // from the property map (not GetInputStreamName(), which is cached when
+    // SetStreamURL() was called — before KodiProps were applied).
+    std::string channelInputstream = m_currentChannel.GetProperty(PVR_STREAM_PROPERTY_INPUTSTREAM);
+    if (channelInputstream.empty())
+      channelInputstream = m_currentChannel.GetProperty("inputstream");
     const int inputStream = m_settings->GetInputStream();
 
     // Catchup: if direct play + ffmpegdirect + channel supports catchup,
@@ -493,7 +512,14 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // CatchupController is persistent — if GetEPGTagStreamProperties was called
     // first, it stored the programme times and ProcessChannelForPlayback will
     // use them (same pattern as pvr.iptvsimple).
-    if (isDirectPlay && inputStream == 0 && m_currentChannel.IsCatchupSupported())
+    const bool useFfmpegDirect = !channelInputstream.empty()
+      ? channelInputstream == "inputstream.ffmpegdirect"
+      : inputStream == 0;
+    const bool useAdaptive = !channelInputstream.empty()
+      ? channelInputstream == "inputstream.adaptive"
+      : inputStream == 1;
+
+    if (isDirectPlay && useFfmpegDirect && m_currentChannel.IsCatchupSupported())
     {
       // Update channel's stream URL to the actual tuner URL
       m_currentChannel.SetStreamURL(streamURL);
@@ -532,7 +558,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
                   WebUtils::RedactUrl(streamURL).c_str(),
                   m_currentChannel.GetCatchupDays());
     }
-    else if (inputStream == 0) // FFmpegDirect without catchup
+    else if (useFfmpegDirect)
     {
       properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
       properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
@@ -540,12 +566,31 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       if (m_settings->GetTimeshiftEnabled())
         properties.emplace_back("inputstream.ffmpegdirect.stream_mode", "timeshift");
     }
-    else if (inputStream == 1) // Adaptive
+    else if (useAdaptive)
     {
       properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
       properties.emplace_back("inputstream.adaptive.manifest_type", "hls");
     }
-    // inputStream == 2: Kodi internal — no inputstream addon
+    else if (!channelInputstream.empty())
+    {
+      // Channel pinned a non-ffmpegdirect/adaptive inputstream (e.g. internal)
+      properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, channelInputstream);
+    }
+    // else inputStream == 2: Kodi internal — no inputstream addon
+
+    // Forward channel-level KodiProps from the M3U (inputstream.*, mimetype,
+    // http-* etc.). Skip kofin-* (consumed by ChannelOverrides) and skip the
+    // inputstream key itself (already set above). M3U props win over our
+    // defaults via emplace order — Kodi keeps the last value for a given key.
+    for (const auto& kv : m_currentChannel.GetProperties())
+    {
+      const std::string& key = kv.first;
+      if (key.rfind("kofin-", 0) == 0)
+        continue;
+      if (key == PVR_STREAM_PROPERTY_INPUTSTREAM || key == "inputstream")
+        continue;
+      properties.emplace_back(key, kv.second);
+    }
 
     Logger::Log(LogLevel::LEVEL_INFO, "%s - Stream URL: %s", __FUNCTION__, WebUtils::RedactUrl(streamURL).c_str());
 
@@ -681,13 +726,24 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (!GetChannel(tag.GetUniqueChannelId(), channel) || !channel.IsCatchupSupported())
     return PVR_ERROR_FAILED;
 
-  // Resolve the direct play URL for this channel
+  // Resolve the direct play URL for this channel (with KofinProps overrides).
+  // Same global-inputstream fallback as the live channel path.
+  auto epgOverrides = iptvsimple::jellyfin::ChannelOverrides::FromChannel(channel);
+  if (!epgOverrides.inputstream)
+  {
+    switch (m_settings->GetInputStream())
+    {
+      case 0: epgOverrides.inputstream = "inputstream.ffmpegdirect"; break;
+      case 1: epgOverrides.inputstream = "inputstream.adaptive"; break;
+      case 2: epgOverrides.inputstream = "inputstream.ffmpeg"; break;
+    }
+  }
   std::string streamURL;
   if (m_channelLoader)
   {
     const std::string& jellyfinId = m_channelLoader->GetJellyfinId(channel.GetUniqueId());
     if (!jellyfinId.empty())
-      streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId);
+      streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId, epgOverrides);
   }
 
   if (streamURL.empty())

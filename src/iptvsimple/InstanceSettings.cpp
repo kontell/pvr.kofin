@@ -65,6 +65,11 @@ void InstanceSettings::ReadSettings()
   m_forceTranscode = kodi::addon::GetSettingBoolean("forceTranscode", false);
   m_transcodeHi10P = kodi::addon::GetSettingBoolean("transcodeHi10P", true);
   m_transcodeHevcRext = kodi::addon::GetSettingBoolean("transcodeHevcRext", true);
+  m_forceTranscodeAV1 = kodi::addon::GetSettingBoolean("forceTranscodeAV1", false);
+  m_forceTranscodeHEVC = kodi::addon::GetSettingBoolean("forceTranscodeHEVC", false);
+  m_forceTranscodeMPEG2 = kodi::addon::GetSettingBoolean("forceTranscodeMPEG2", false);
+  m_forceTranscodeVC1 = kodi::addon::GetSettingBoolean("forceTranscodeVC1", false);
+  m_forceTranscodeVP9 = kodi::addon::GetSettingBoolean("forceTranscodeVP9", false);
   m_preferredVideoCodec = kodi::addon::GetSettingInt("preferredVideoCodec", 0);
   m_preferredAudioCodec = kodi::addon::GetSettingInt("preferredAudioCodec", 0);
   m_maxStreamingBitrate = kodi::addon::GetSettingInt("maxStreamingBitrate", 15);
@@ -74,15 +79,37 @@ void InstanceSettings::ReadSettings()
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
   m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 0);
 
+  // Reference playlist (with one-shot migration from legacy catchupM3U* keys)
+  {
+    const std::string newPathLocal = kodi::addon::GetSettingString("referencePlaylistPath", "");
+    const std::string newPathUrl = kodi::addon::GetSettingString("referencePlaylistUrl", "");
+    const int newPathType = kodi::addon::GetSettingInt("referencePlaylistPathType", -1);
+
+    const std::string legacyPathLocal = kodi::addon::GetSettingString("catchupM3UPath", "");
+    const std::string legacyPathUrl = kodi::addon::GetSettingString("catchupM3UUrl", "");
+    const int legacyPathType = kodi::addon::GetSettingInt("catchupM3UPathType", 0);
+
+    if (newPathType < 0 && (!legacyPathLocal.empty() || !legacyPathUrl.empty()))
+    {
+      // Migrate once
+      kodi::addon::SetSettingInt("referencePlaylistPathType", legacyPathType);
+      kodi::addon::SetSettingString("referencePlaylistPath", legacyPathLocal);
+      kodi::addon::SetSettingString("referencePlaylistUrl", legacyPathUrl);
+      m_referencePlaylistPath = (legacyPathType == 0) ? legacyPathLocal : legacyPathUrl;
+      // Default the new master toggle to whatever catchupEnabled was
+      if (kodi::addon::GetSettingBoolean("catchupEnabled", false))
+        kodi::addon::SetSettingBoolean("referencePlaylistEnabled", true);
+    }
+    else
+    {
+      const int pathType = (newPathType >= 0) ? newPathType : 0;
+      m_referencePlaylistPath = (pathType == 0) ? newPathLocal : newPathUrl;
+    }
+  }
+  m_referencePlaylistEnabled = kodi::addon::GetSettingBoolean("referencePlaylistEnabled", false);
+
   // Catchup
   m_catchupEnabled = kodi::addon::GetSettingBoolean("catchupEnabled", false);
-  {
-    int pathType = kodi::addon::GetSettingInt("catchupM3UPathType", 0);
-    if (pathType == 0) // Local file
-      m_catchupM3UPath = kodi::addon::GetSettingString("catchupM3UPath", "");
-    else // Network URL
-      m_catchupM3UPath = kodi::addon::GetSettingString("catchupM3UUrl", "");
-  }
   m_catchupQueryFormat = kodi::addon::GetSettingString("catchupQueryFormat", "");
   m_catchupDays = kodi::addon::GetSettingInt("catchupDays", 5);
   m_allChannelsCatchupMode = kodi::addon::GetSettingInt("allChannelsCatchupMode", 0);
