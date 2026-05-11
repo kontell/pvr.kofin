@@ -54,7 +54,6 @@ In addition to standard KodiProps, the following Kofin-specific properties can b
 Example reference playlist entry:
 ```
 #EXTINF:-1 tvg-id="bbc1" group-title="UK",BBC One
-#KODIPROP:kofin-force-remux=true
 #KODIPROP:inputstream=inputstream.ffmpegdirect
 #KODIPROP:catchup=default
 #KODIPROP:catchup-days=7
