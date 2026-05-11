@@ -168,13 +168,57 @@
           </constraints>
           <control type="edit" format="string" />
         </setting>
+        <!-- Legacy catchup-M3U keys (kept hidden so InstanceSettings::ReadSettings
+             can migrate values into referencePlaylist*; never shown in UI). -->
+        <setting id="catchupM3UPath" type="string">
+          <level>4</level>
+          <default></default>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="catchupM3UUrl" type="string">
+          <level>4</level>
+          <default></default>
+          <constraints><allowempty>true</allowempty></constraints>
+          <control type="edit" format="string" />
+        </setting>
+        <setting id="catchupM3UPathType" type="integer">
+          <level>4</level>
+          <default>0</default>
+          <control type="edit" format="integer" />
+        </setting>
       </group>
     </category>
 
-    <!-- Playback -->
-    <category id="playback" label="30620">
+    <!-- Transcoding -->
+    <category id="transcoding" label="30620">
       <group id="1">
         <setting id="forceTranscode" type="boolean" label="30622" help="30623">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="forceTranscodeAV1" type="boolean" label="30781" help="30782">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="forceTranscodeHEVC" type="boolean" label="30783" help="30784">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="forceTranscodeMPEG2" type="boolean" label="30785" help="30786">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="forceTranscodeVC1" type="boolean" label="30787" help="30788">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="forceTranscodeVP9" type="boolean" label="30789" help="30790">
           <level>0</level>
           <default>false</default>
           <control type="toggle" />
@@ -187,6 +231,11 @@
         <setting id="transcodeHevcRext" type="boolean" label="30722" help="30723">
           <level>0</level>
           <default>true</default>
+          <dependencies>
+            <dependency type="enable">
+              <condition operator="is" setting="forceTranscodeHEVC">false</condition>
+            </dependency>
+          </dependencies>
           <control type="toggle" />
         </setting>
         <setting id="preferredVideoCodec" type="integer" label="30624" help="30625">
@@ -240,7 +289,11 @@
           <control type="spinner" format="string" />
         </setting>
       </group>
-      <group id="2" label="30660">
+    </category>
+
+    <!-- InputStream -->
+    <category id="inputstream" label="30660">
+      <group id="1">
         <setting id="inputStream" type="integer" label="30661" help="30662">
           <level>0</level>
           <default>0</default>
@@ -299,53 +352,12 @@
         <setting id="catchupEnabled" type="boolean" label="30731" help="30732">
           <level>0</level>
           <default>false</default>
+          <dependencies>
+            <dependency type="enable">
+              <condition operator="is" setting="referencePlaylistEnabled">true</condition>
+            </dependency>
+          </dependencies>
           <control type="toggle" />
-        </setting>
-        <setting id="catchupM3UPathType" type="integer" label="30733" help="30734">
-          <level>0</level>
-          <default>0</default>
-          <constraints>
-            <options>
-              <option label="30770">0</option>
-              <option label="30771">1</option>
-            </options>
-          </constraints>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="catchupEnabled">true</condition>
-            </dependency>
-          </dependencies>
-          <control type="spinner" format="string" />
-        </setting>
-        <setting id="catchupM3UPath" type="path" label="30735" help="30736">
-          <level>0</level>
-          <default></default>
-          <constraints>
-            <allowempty>true</allowempty>
-          </constraints>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="catchupEnabled">true</condition>
-              <condition operator="is" setting="catchupM3UPathType">0</condition>
-            </dependency>
-          </dependencies>
-          <control type="button" format="file">
-            <heading>30735</heading>
-          </control>
-        </setting>
-        <setting id="catchupM3UUrl" type="string" label="30737" help="30738">
-          <level>0</level>
-          <default></default>
-          <constraints>
-            <allowempty>true</allowempty>
-          </constraints>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="catchupEnabled">true</condition>
-              <condition operator="is" setting="catchupM3UPathType">1</condition>
-            </dependency>
-          </dependencies>
-          <control type="edit" format="string" />
         </setting>
         <setting id="catchupQueryFormat" type="string" label="30739" help="30740">
           <level>0</level>
@@ -459,6 +471,59 @@
           <level>0</level>
           <default>60</default>
           <control type="edit" format="integer" />
+        </setting>
+      </group>
+      <group id="2" label="30772">
+        <setting id="referencePlaylistEnabled" type="boolean" label="30773" help="30774">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
+        <setting id="referencePlaylistPathType" type="integer" label="30775" help="30776">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30770">0</option>
+              <option label="30771">1</option>
+            </options>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="referencePlaylistEnabled">true</condition>
+            </dependency>
+          </dependencies>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="referencePlaylistPath" type="path" label="30777" help="30778">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="referencePlaylistEnabled">true</condition>
+              <condition operator="is" setting="referencePlaylistPathType">0</condition>
+            </dependency>
+          </dependencies>
+          <control type="button" format="file">
+            <heading>30777</heading>
+          </control>
+        </setting>
+        <setting id="referencePlaylistUrl" type="string" label="30779" help="30780">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="referencePlaylistEnabled">true</condition>
+              <condition operator="is" setting="referencePlaylistPathType">1</condition>
+            </dependency>
+          </dependencies>
+          <control type="edit" format="string" />
         </setting>
       </group>
     </category>

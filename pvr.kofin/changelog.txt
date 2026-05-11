@@ -1,3 +1,30 @@
+v0.6.5
+- Set MinSegments=3 in the Jellyfin device profile when using inputstream.adaptive so the initial variant playlist comes back populated with multiple segments. Adaptive rejects single-segment playlists with "Codec id NN require extradata" even when the master has CODECS attributes; recordings always worked because they came back populated. Adds ~10s of initial buffering for adaptive users; ffmpegdirect stays at MinSegments=1
+
+v0.6.4
+- Fix inputstream.adaptive playback of Jellyfin transcoded/remuxed live TV: keep TS container (not fMP4) and use master.m3u8 — adaptive constructs codec extradata from the master playlist's #EXT-X-STREAM-INF CODECS attribute and demuxes the TS segments cleanly. fMP4 with #EXT-X-MAP confused adaptive's parser; the recording playback path (which always worked with adaptive) was the reference
+
+v0.6.3
+- Fall back to the global InputStream setting when the channel doesn't pin one via M3U, so the device profile container (TS vs fMP4) and URL endpoint (live.m3u8 vs master.m3u8) match the inputstream Kodi actually uses
+- Update InputStream setting help text to warn that inputstream.adaptive doesn't currently work with Jellyfin's live transcode output; recommend FFmpeg Direct for transcoded/remuxed channels
+
+v0.6.2
+- Keep Jellyfin's master.m3u8 path (instead of rewriting to live.m3u8) when the channel uses inputstream.adaptive — adaptive needs the master playlist's #EXT-X-STREAM-INF CODECS attribute to construct codec extradata before opening fMP4 segments
+
+v0.6.1
+- Use fMP4 container in the Jellyfin device profile when the channel uses inputstream.adaptive (newer adaptive can't extract codec extradata from MPEG-TS HLS segments)
+- Trim whitespace on M3U prop values so trailing spaces don't break boolean parsing
+- Read inputstream override from channel properties instead of cached name (was set before KodiProps were applied)
+- Re-declare legacy catchupM3U* settings as hidden so migration reads stop spamming "is not a integer" errors
+
+v0.6.0
+- Reference playlist promoted to first-class M3U layer (channel groups, KodiProps, KofinProps); catchup is now one consumer of it
+- Channel groups from M3U group-title= and #EXTGRP: are added alongside the "Jellyfin" all-channels group
+- KodiProps (#KODIPROP, #EXTVLCOPT, #EXTVLCOPT--) honored: per-channel inputstream selection, mimetype, http-user-agent/referrer/reconnect
+- KofinProps for per-channel device-profile overrides: kofin-force-remux, kofin-bitrate-limit, kofin-force-transcode (e.g. force HDR transcode on a single channel)
+- New global force-transcode codec toggles: AV1, HEVC, MPEG-2, VC-1, VP9 (excludes the codec from direct play / remux)
+- Settings reorganised: Playback split into Transcoding + InputStream; reference-playlist path moved to Advanced. Existing M3U paths migrated automatically.
+
 v0.5.4
 - Fix recording Premiered date for completed recordings (fall back to DateCreated)
 - Set full recording date for skin Premiered info (not just year)

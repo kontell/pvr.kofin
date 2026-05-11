@@ -88,6 +88,11 @@ namespace iptvsimple
     bool GetForceTranscode() const { return m_forceTranscode; }
     bool GetTranscodeHi10P() const { return m_transcodeHi10P; }
     bool GetTranscodeHevcRext() const { return m_transcodeHevcRext; }
+    bool GetForceTranscodeAV1() const { return m_forceTranscodeAV1; }
+    bool GetForceTranscodeHEVC() const { return m_forceTranscodeHEVC; }
+    bool GetForceTranscodeMPEG2() const { return m_forceTranscodeMPEG2; }
+    bool GetForceTranscodeVC1() const { return m_forceTranscodeVC1; }
+    bool GetForceTranscodeVP9() const { return m_forceTranscodeVP9; }
     int GetPreferredVideoCodec() const { return m_preferredVideoCodec; }
     int GetPreferredAudioCodec() const { return m_preferredAudioCodec; }
     int GetMaxStreamingBitrateKbps() const
@@ -109,9 +114,12 @@ namespace iptvsimple
     // In-progress recording input stream: 0 = adaptive, 1 = kodi internal
     int GetInProgressInputStream() const { return m_inProgressInputStream; }
 
+    // Reference playlist (master toggle for the M3U layer; catchup also requires this on)
+    bool ReferencePlaylistEnabled() const { return m_referencePlaylistEnabled; }
+    const std::string& GetReferencePlaylistPath() const { return m_referencePlaylistPath; }
+
     // Catchup
-    bool CatchupEnabled() const { return m_catchupEnabled; }
-    const std::string& GetCatchupM3UPath() const { return m_catchupM3UPath; }
+    bool CatchupEnabled() const { return m_catchupEnabled && m_referencePlaylistEnabled; }
     const std::string& GetCatchupQueryFormat() const { return m_catchupQueryFormat; }
     int GetCatchupDays() const { return m_catchupDays; }
     int GetAllChannelsCatchupMode() const { return m_allChannelsCatchupMode; }
@@ -168,6 +176,11 @@ namespace iptvsimple
     bool m_forceTranscode = false;
     bool m_transcodeHi10P = true;
     bool m_transcodeHevcRext = true;
+    bool m_forceTranscodeAV1 = false;
+    bool m_forceTranscodeHEVC = false;
+    bool m_forceTranscodeMPEG2 = false;
+    bool m_forceTranscodeVC1 = false;
+    bool m_forceTranscodeVP9 = false;
     int m_preferredVideoCodec = 0;  // 0=H264, 1=H265, 2=AV1
     int m_preferredAudioCodec = 0;  // 0=AAC, 1=AC3, 2=MP3, 3=Opus
     int m_maxStreamingBitrate = 15; // index into BITRATE_TABLE (15=unlimited)
@@ -177,9 +190,12 @@ namespace iptvsimple
     bool m_timeshiftEnabled = true;
     int m_inProgressInputStream = 0;  // 0=adaptive, 1=kodi internal
 
+    // Reference playlist
+    bool m_referencePlaylistEnabled = false;
+    std::string m_referencePlaylistPath;
+
     // Catchup
     bool m_catchupEnabled = false;
-    std::string m_catchupM3UPath;
     std::string m_catchupQueryFormat;
     int m_catchupDays = 5;
     int m_allChannelsCatchupMode = 0;  // 0=disabled, 3=shift
