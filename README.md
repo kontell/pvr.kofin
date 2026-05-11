@@ -37,8 +37,6 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 ## Catchup
 If supported by your provider catchup works with direct play only. Force remuxing must be disabled, InputStream must be set to FFmpeg Direct, and streams must be within any bitrate limit set. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
 
-Note: Only tested with timeshift="days" element.
-
 ## Reference Playlist
 
 An optional M3U reference playlist can be configured to apply per-channel properties that Jellyfin doesn't provide. Channels are matched by name (case-insensitive) between the playlist and Jellyfin. The same `#KODIPROP:`, `#EXTVLCOPT:`, and `#EXTVLCOPT--` directives supported by IPTV Simple Client are honored, along with standard M3U tags like `group-title=` for channel grouping.
