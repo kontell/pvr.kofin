@@ -51,16 +51,6 @@ In addition to standard KodiProps, the following Kofin-specific properties can b
 | `kofin-force-transcode` | `true` / `false` | Force transcoding for this channel (overrides global setting) |
 | `kofin-bitrate-limit` | kbps (e.g. `4000`) | Set a bitrate limit for this channel (0 or omitted = unlimited) |
 
-Example reference playlist entry:
-```
-#EXTINF:-1 tvg-id="acme1" group-title="WB",ACME One
-#KODIPROP:inputstream=inputstream.ffmpegdirect
-#KODIPROP:catchup=default
-#KODIPROP:catchup-days=7
-#KODIPROP:catchup-source=https://example.com/catchup?channel=bbc1&start={utc}
-http://placeholder
-```
-
 ## Supported platforms
 
 | Platform | Kodi 21 (Omega) | Kodi 22 (Piers) |
