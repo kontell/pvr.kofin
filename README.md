@@ -35,9 +35,32 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
 
 ## Catchup
-If supported by your provider catchup works with direct play only. Force remuxing must be disabled and streams must be within any bitrate limit set. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
+If supported by your provider catchup works with direct play only. Force remuxing must be disabled, InputStream must be set to FFmpeg Direct, and streams must be within any bitrate limit set. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
 
 Note: Only tested with timeshift="days" element.
+
+## Reference Playlist
+
+An optional M3U reference playlist can be configured to apply per-channel properties that Jellyfin doesn't provide. Channels are matched by name (case-insensitive) between the playlist and Jellyfin. The same `#KODIPROP:`, `#EXTVLCOPT:`, and `#EXTVLCOPT--` directives supported by IPTV Simple Client are honored, along with standard M3U tags like `group-title=` for channel grouping.
+
+In addition to standard KodiProps, the following Kofin-specific properties can be set per channel:
+
+| Property | Values | Description |
+|----------|--------|-------------|
+| `kofin-force-remux` | `true` / `false` | Force remuxing for this channel (overrides global setting) |
+| `kofin-force-transcode` | `true` / `false` | Force transcoding for this channel (overrides global setting) |
+| `kofin-bitrate-limit` | kbps (e.g. `4000`) | Set a bitrate limit for this channel (0 or omitted = unlimited) |
+
+Example reference playlist entry:
+```
+#EXTINF:-1 tvg-id="bbc1" group-title="UK",BBC One
+#KODIPROP:kofin-force-remux=true
+#KODIPROP:inputstream=inputstream.ffmpegdirect
+#KODIPROP:catchup=default
+#KODIPROP:catchup-days=7
+#KODIPROP:catchup-source=https://example.com/catchup?channel=bbc1&start={utc}
+http://placeholder
+```
 
 ## Supported platforms
 
