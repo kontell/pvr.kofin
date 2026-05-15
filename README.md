@@ -12,7 +12,7 @@ Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replac
 
 ## Features
 
-- Play Live TV channels from Jellyfin
+- Play Jellyfin Live TV channels from Kodi EPG
 - Play Catchup/ Archive from EPG (direct play only)
 - Play in-progress recordings from beginning
 - Force re-muxing (for stream sharing)

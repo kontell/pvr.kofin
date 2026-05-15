@@ -676,7 +676,8 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   //   playlist endpoint, which wraps the media playlist with proper
   //   #EXT-X-STREAM-INF + CODECS attributes that adaptive needs to
   //   construct codec extradata before opening segments.
-  // - Recalculate audio/video bitrates either way.
+  // - Recalculate audio/video bitrates when the user set an explicit limit;
+  //   when unlimited, preserve the server's original values.
 
   auto qPos = transcodingUrl.find('?');
   if (qPos == std::string::npos)
@@ -697,17 +698,16 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     start = end + 1;
   }
 
-  // Strip existing AudioBitrate and VideoBitrate (recalculated below)
+  const int maxBitrateBps = m_activeMaxBitrateBps > 0
+    ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
+
+  // Strip the server's VideoBitrate/AudioBitrate — we always recalculate.
+  // When unlimited the server sends ~999Mbps which produces huge segments
+  // that block inputstream.adaptive's codec init; cap at source bitrate.
   params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
     return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
   }), params.end());
-
-  // Recalculate bitrates using the per-session limit (overrides applied at
-  // GetItemStreamUrl time; falls back to the global setting).
-  const int maxBitrateBps = m_activeMaxBitrateBps > 0
-    ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
-  const int audioBitrate = 384000;
-  const int videoBitrate = maxBitrateBps - audioBitrate;
 
   // Rebuild query string
   std::string newParams;
@@ -716,6 +716,19 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     if (!newParams.empty())
       newParams += "&";
     newParams += p;
+  }
+
+  const int audioBitrate = 384000;
+  int videoBitrate;
+  if (bitrateUnlimited)
+  {
+    const int sourceBps = m_activeSourceBitrateBps > 0
+      ? m_activeSourceBitrateBps : 30000000;
+    videoBitrate = sourceBps - audioBitrate;
+  }
+  else
+  {
+    videoBitrate = maxBitrateBps - audioBitrate;
   }
   newParams += "&VideoBitrate=" + std::to_string(videoBitrate);
   newParams += "&AudioBitrate=" + std::to_string(audioBitrate);
@@ -790,6 +803,8 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
   }
 
   const Json::Value& source = response["MediaSources"][0];
+
+  m_activeSourceBitrateBps = source.get("Bitrate", 0).asInt();
 
   // Track session state for reporting and cleanup
   m_activeLiveStreamId = source.get("LiveStreamId", "").asString();

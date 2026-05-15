@@ -1,3 +1,6 @@
+v0.6.6
+- Fix 4K HEVC-to-H264 transcode failing with "Codec id 27 require extradata" in inputstream.adaptive at unlimited bitrate: cap HLS VideoBitrate at the source stream bitrate (~30 Mbps) instead of the server's ~1 Gbps sentinel so segments stay small enough for adaptive's codec-init window
+
 v0.6.5
 - Set MinSegments=3 in the Jellyfin device profile when using inputstream.adaptive so the initial variant playlist comes back populated with multiple segments. Adaptive rejects single-segment playlists with "Codec id NN require extradata" even when the master has CODECS attributes; recordings always worked because they came back populated. Adds ~10s of initial buffering for adaptive users; ffmpegdirect stays at MinSegments=1
 
