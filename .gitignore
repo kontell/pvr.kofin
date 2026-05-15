@@ -49,3 +49,6 @@ obj-x86_64-linux-gnu/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Local-only notes that may contain secrets (API keys, test credentials)
+CLAUDE.md
