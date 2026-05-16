@@ -667,7 +667,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
 }
 
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
-    const std::string& transcodingUrl, bool keepMaster)
+    const std::string& transcodingUrl, bool keepMaster, bool isRemux)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
   // - For ffmpegdirect/internal: replace "stream"/"master" with "live" so we
@@ -700,11 +700,8 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
   const int maxBitrateBps = m_activeMaxBitrateBps > 0
     ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
-  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
   // Strip the server's VideoBitrate/AudioBitrate — we always recalculate.
-  // When unlimited the server sends ~999Mbps which produces huge segments
-  // that block inputstream.adaptive's codec init; cap at source bitrate.
   params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
     return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
   }), params.end());
@@ -719,8 +716,9 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   }
 
   const int audioBitrate = 384000;
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
   int videoBitrate;
-  if (bitrateUnlimited)
+  if (!isRemux && bitrateUnlimited)
   {
     const int sourceBps = m_activeSourceBitrateBps > 0
       ? m_activeSourceBitrateBps : 30000000;
@@ -826,12 +824,17 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
 
   std::string streamUrl;
 
-  // For force remux or server-initiated transcode: post-process the URL
-  // matching jellyfin-kodi's transcode() method (stream→live rewrite, bitrate recalc).
+  // Determine if this session is remux (codec-copy) vs real transcode.
+  const int maxBitrateBps = overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
+  const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
+  const bool forceTranscodeOverride = overrides.forceTranscode.value_or(false);
+  const bool isRemux = forceRemux && bitrateUnlimited && !forceTranscodeOverride;
+
   if (hasTranscodingUrl)
   {
     const bool keepMaster = overrides.inputstream.value_or("") == "inputstream.adaptive";
-    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster);
+    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster, isRemux);
   }
   else if (source.isMember("Path") && !source["Path"].asString().empty())
   {

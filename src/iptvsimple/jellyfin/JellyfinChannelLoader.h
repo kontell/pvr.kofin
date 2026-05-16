@@ -70,7 +70,7 @@ private:
   static time_t ParseIso8601(const std::string& dateStr);
   Json::Value BuildDeviceProfile(const ChannelOverrides& overrides);
   Json::Value BuildRecordingDeviceProfile();
-  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster);
+  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster, bool isRemux);
   void RewriteLocalhost(std::string& url);
 
   // Jellyfin channel ID <-> Kodi channel UID mappings
@@ -88,7 +88,7 @@ private:
   std::string m_activePlayMethod;         // "DirectPlay" or "Transcode"
   bool m_activeIsRecording{false};
   int m_activeMaxBitrateBps{0};            // bitrate ceiling used for current session (override-aware)
-  int m_activeSourceBitrateBps{0};         // source stream bitrate from PlaybackInfo (caps unlimited transcode)
+  int m_activeSourceBitrateBps{0};         // source stream bitrate from PlaybackInfo
 
   std::shared_ptr<JellyfinClient> m_client;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
