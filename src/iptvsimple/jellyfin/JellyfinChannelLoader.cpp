@@ -560,7 +560,10 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
 
   Json::Value body;
   body["UserId"] = m_client->GetUserId();
-  Json::Value deviceProfile = BuildDeviceProfile(overrides);
+  ChannelOverrides effectiveOverrides = overrides;
+  if (inProgress && !effectiveOverrides.forceTranscode.value_or(false))
+    effectiveOverrides.forceRemux = true;
+  Json::Value deviceProfile = BuildDeviceProfile(effectiveOverrides);
   if (inProgress)
     deviceProfile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
   // Recordings always play via inputstream.adaptive but overrides.inputstream
