@@ -116,6 +116,7 @@ void IptvSimple::ConnectionEstablished()
         m_jellyfinClient, m_channelLoader, m_settings);
   else
     m_recordingManager->SetClient(m_jellyfinClient);
+  m_recordingManager->SetChannels(&m_channels);
   m_recordingManager->Reload();
 
   kodi::Log(ADDON_LOG_INFO, "%s Starting separate client update thread...", __FUNCTION__);

@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "../Channels.h"
 #include "JellyfinClient.h"
 #include "JellyfinChannelLoader.h"
 
@@ -61,6 +62,7 @@ public:
   PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position);
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
+  void SetChannels(iptvsimple::Channels* channels) { m_channels = channels; }
 
   // EPG-recording linkage: check if a recording exists for a given EPG entry
   bool HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const;
@@ -105,6 +107,7 @@ private:
   std::shared_ptr<JellyfinClient> m_client;
   std::shared_ptr<JellyfinChannelLoader> m_channelLoader;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
+  iptvsimple::Channels* m_channels{nullptr};
 };
 
 } // namespace jellyfin

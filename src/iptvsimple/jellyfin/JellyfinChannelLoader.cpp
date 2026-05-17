@@ -553,65 +553,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   return profile;
 }
 
-Json::Value JellyfinChannelLoader::BuildRecordingDeviceProfile()
-{
-  // Recording profile: always remux (no DirectPlay), respects bitrate limit
-  // and preferred codec. Unlimited bitrate = codec copy, limited = server
-  // re-encodes to preferred codec within limit.
-  const int maxBitrateBps = m_settings->GetMaxBitrateBps();
-  const std::string preferredVideo = m_settings->GetPreferredVideoCodecName();
-  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
-
-  Json::Value profile;
-  profile["Name"] = "Kodi";
-  profile["MaxStreamingBitrate"] = maxBitrateBps;
-  profile["MaxStaticBitrate"] = maxBitrateBps;
-  profile["MusicStreamingTranscodingBitrate"] = 1280000;
-
-  Json::Value transcodingProfiles(Json::arrayValue);
-  if (bitrateUnlimited)
-  {
-    // Codec copy into TS
-    Json::Value tp;
-    tp["Container"] = "ts";
-    tp["Type"] = "Video";
-    tp["AudioCodec"] = m_settings->GetDirectPlayAudioCodecs();
-    tp["VideoCodec"] = "h264,hevc,av1,mpeg2video";
-    tp["Context"] = "Streaming";
-    tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
-    tp["MinSegments"] = "1";
-    tp["BreakOnNonKeyFrames"] = true;
-    transcodingProfiles.append(tp);
-  }
-  else
-  {
-    // Transcode to preferred codec
-    Json::Value tp;
-    tp["Container"] = (preferredVideo == "av1") ? "mp4" : "ts";
-    tp["Type"] = "Video";
-    tp["AudioCodec"] = m_settings->GetDirectPlayAudioCodecs();
-    tp["VideoCodec"] = preferredVideo;
-    tp["Context"] = "Streaming";
-    tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
-    tp["MinSegments"] = "1";
-    tp["BreakOnNonKeyFrames"] = true;
-    transcodingProfiles.append(tp);
-  }
-  profile["TranscodingProfiles"] = transcodingProfiles;
-
-  // Empty direct play profiles → Jellyfin will always remux
-  profile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
-  profile["CodecProfiles"] = Json::Value(Json::arrayValue);
-  profile["SubtitleProfiles"] = Json::Value(Json::arrayValue);
-  profile["ResponseProfiles"] = Json::Value(Json::arrayValue);
-  profile["ContainerProfiles"] = Json::Value(Json::arrayValue);
-
-  return profile;
-}
-
-std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& recordingId)
+std::string JellyfinChannelLoader::GetRecordingStreamUrl(
+    const std::string& recordingId, bool inProgress,
+    const ChannelOverrides& overrides)
 {
   Logger::Log(LEVEL_DEBUG, "%s - Getting recording stream URL for %s", __FUNCTION__, recordingId.c_str());
 
@@ -622,7 +566,10 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& reco
 
   Json::Value body;
   body["UserId"] = m_client->GetUserId();
-  body["DeviceProfile"] = BuildRecordingDeviceProfile();
+  Json::Value deviceProfile = BuildDeviceProfile(overrides);
+  if (inProgress)
+    deviceProfile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
+  body["DeviceProfile"] = deviceProfile;
   body["AutoOpenLiveStream"] = true;
 
   Json::StreamWriterBuilder writer;

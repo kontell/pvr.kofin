@@ -544,10 +544,35 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
   const std::string recordingId = recording.GetRecordingId();
   const bool inProgress = m_inProgressRecordingIds.count(recordingId) > 0;
 
-  // In-progress recordings: remux via PlaybackInfo + inputstream.adaptive
-  // (HLS with EVENT playlist type for live-edge seeking).
-  // Completed recordings: direct stream URL via Kodi's internal inputstream.
-  const std::string streamUrl = m_channelLoader->GetRecordingStreamUrl(recordingId);
+  iptvsimple::jellyfin::ChannelOverrides overrides;
+  if (inProgress && m_channels)
+  {
+    int channelUid = 0;
+    {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      for (const auto& rec : m_recordings)
+      {
+        if (rec.GetRecordingId() == recordingId)
+        {
+          channelUid = rec.GetChannelUid();
+          break;
+        }
+      }
+    }
+    if (channelUid > 0)
+    {
+      iptvsimple::data::Channel channel(m_settings);
+      if (m_channels->GetChannel(channelUid, channel))
+      {
+        auto channelOverrides = ChannelOverrides::FromChannel(channel);
+        overrides.forceTranscode = channelOverrides.forceTranscode;
+        overrides.bitrateBps = channelOverrides.bitrateBps;
+      }
+    }
+  }
+
+  const std::string streamUrl = m_channelLoader->GetRecordingStreamUrl(
+      recordingId, inProgress, overrides);
   if (streamUrl.empty())
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to get recording stream URL for %s",
