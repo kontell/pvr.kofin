@@ -81,7 +81,7 @@ msgid "Maximum streaming bitrate"
 msgstr ""
 
 msgctxt "#30635"
-msgid "The maximum bitrate for streaming. Lower values force the server to transcode when the source exceeds the limit."
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
 msgstr ""
 
 #: Bitrate options
@@ -326,11 +326,11 @@ msgid "Catchup"
 msgstr ""
 
 msgctxt "#30731"
-msgid "Enable catchup"
+msgid "Enable catchup (IPTV)"
 msgstr ""
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and streams must be within the bitrate limit. Requires a reference M3U file that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr ""
 
 msgctxt "#30733"
@@ -477,41 +477,69 @@ msgstr ""
 
 #: Force-transcode codec toggles
 msgctxt "#30781"
-msgid "Force transcode AV1"
+msgid "Direct play video codecs"
 msgstr ""
 
 msgctxt "#30782"
-msgid "Force the Jellyfin server to transcode AV1 streams. Enable if your device cannot decode AV1."
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
 msgstr ""
 
 msgctxt "#30783"
-msgid "Force transcode HEVC"
+msgid "Direct play audio codecs"
 msgstr ""
 
 msgctxt "#30784"
-msgid "Force the Jellyfin server to transcode HEVC streams. Enable if your device cannot decode HEVC."
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
 msgstr ""
 
-msgctxt "#30785"
-msgid "Force transcode MPEG-2"
+msgctxt "#30796"
+msgid "MPEG-2"
 msgstr ""
 
-msgctxt "#30786"
-msgid "Force the Jellyfin server to transcode MPEG-2 streams. Enable if your device cannot decode MPEG-2."
+msgctxt "#30797"
+msgid "VP9"
 msgstr ""
 
-msgctxt "#30787"
-msgid "Force transcode VC-1"
+msgctxt "#30798"
+msgid "VC-1"
 msgstr ""
 
-msgctxt "#30788"
-msgid "Force the Jellyfin server to transcode VC-1 streams. Enable if your device cannot decode VC-1."
+msgctxt "#30799"
+msgid "MP2"
 msgstr ""
 
-msgctxt "#30789"
-msgid "Force transcode VP9"
+msgctxt "#30800"
+msgid "EAC3"
 msgstr ""
 
-msgctxt "#30790"
-msgid "Force the Jellyfin server to transcode VP9 streams. Enable if your device cannot decode VP9."
+msgctxt "#30801"
+msgid "FLAC"
+msgstr ""
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr ""
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr ""
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr ""
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed."
+msgstr ""
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr ""
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr ""
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
 msgstr ""

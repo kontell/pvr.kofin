@@ -18,6 +18,7 @@
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
+#include <set>
 #include <cstring>
 #include <ctime>
 #include <iomanip>
@@ -350,35 +351,62 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   profile["MusicStreamingTranscodingBitrate"] = 1280000;
   profile["TimelineOffsetSeconds"] = 5;
 
-  // Build audio codec list with preferred codec first
+  // Build audio codec list: preferred codec first, then the rest from the
+  // allowed list. Codecs not in the list will be transcoded.
+  const std::string& allowedAudio = m_settings->GetDirectPlayAudioCodecs();
   std::string audioCodecs = preferredAudio;
-  for (const char* codec : {"aac", "mp3", "ac3", "eac3", "opus", "flac"})
+  std::string::size_type aStart = 0;
+  while (aStart < allowedAudio.length())
   {
-    if (preferredAudio != codec)
-      audioCodecs += std::string(",") + codec;
+    auto aEnd = allowedAudio.find(',', aStart);
+    if (aEnd == std::string::npos)
+      aEnd = allowedAudio.length();
+    std::string codec = allowedAudio.substr(aStart, aEnd - aStart);
+    if (codec != preferredAudio)
+      audioCodecs += "," + codec;
+    aStart = aEnd + 1;
   }
 
-  // Allowed video codecs after applying global force-transcode toggles.
-  // Codec excluded here cannot direct-play and cannot be remuxed (codec-copied);
-  // the server will fall back to transcoding to the preferred codec.
-  std::vector<std::string> allowedVideoCodecs = {"av1", "h264", "hevc", "mpeg2video", "vp9", "vc1"};
-  auto excludeCodec = [&](bool toggle, const std::string& codec) {
-    if (toggle)
-      allowedVideoCodecs.erase(std::remove(allowedVideoCodecs.begin(), allowedVideoCodecs.end(), codec),
-                               allowedVideoCodecs.end());
-  };
-  excludeCodec(m_settings->GetForceTranscodeAV1(),   "av1");
-  excludeCodec(m_settings->GetForceTranscodeHEVC(),  "hevc");
-  excludeCodec(m_settings->GetForceTranscodeMPEG2(), "mpeg2video");
-  excludeCodec(m_settings->GetForceTranscodeVC1(),   "vc1");
-  excludeCodec(m_settings->GetForceTranscodeVP9(),   "vp9");
+  // Allowed video codecs from settings. Virtual entries h264_10bit and
+  // hevc_rext are mapped to their real codec names; they control CodecProfile
+  // conditions below rather than adding separate codec entries.
+  const std::string& rawVideoCodecs = m_settings->GetDirectPlayVideoCodecs();
 
-  std::string allowedVideoCodecsCsv;
-  for (const auto& c : allowedVideoCodecs)
+  // Parse comma-delimited tokens into a set for exact matching.
+  std::set<std::string> videoTokens;
   {
+    std::string::size_type s = 0;
+    while (s < rawVideoCodecs.length())
+    {
+      auto e = rawVideoCodecs.find(',', s);
+      if (e == std::string::npos)
+        e = rawVideoCodecs.length();
+      videoTokens.insert(rawVideoCodecs.substr(s, e - s));
+      s = e + 1;
+    }
+  }
+
+  const bool h264Allowed = videoTokens.count("h264") > 0;
+  const bool h264_10bitAllowed = videoTokens.count("h264_10bit") > 0;
+  const bool hevcAllowed = videoTokens.count("hevc") > 0;
+  const bool hevcRextAllowed = videoTokens.count("hevc_rext") > 0;
+
+  // Build the actual codec CSV for the device profile, mapping virtual
+  // entries back to real codec names.
+  std::string allowedVideoCodecsCsv;
+  auto addCodec = [&](const std::string& codec) {
     if (!allowedVideoCodecsCsv.empty())
       allowedVideoCodecsCsv += ",";
-    allowedVideoCodecsCsv += c;
+    allowedVideoCodecsCsv += codec;
+  };
+  if (h264Allowed || h264_10bitAllowed)
+    addCodec("h264");
+  if (hevcAllowed || hevcRextAllowed)
+    addCodec("hevc");
+  for (const auto& token : videoTokens)
+  {
+    if (token != "h264" && token != "h264_10bit" && token != "hevc" && token != "hevc_rext")
+      addCodec(token);
   }
 
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
@@ -418,18 +446,25 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     tp["AudioCodec"] = audioCodecs;
     // TS can't carry AV1; drop it from the codec-copy list when staying on TS.
     std::string remuxCodecs;
-    for (const auto& c : allowedVideoCodecs)
+    std::string::size_type rStart = 0;
+    while (rStart < allowedVideoCodecsCsv.length())
     {
-      if (c == "av1" && container == "ts")
-        continue;
-      if (!remuxCodecs.empty())
-        remuxCodecs += ",";
-      remuxCodecs += c;
+      auto rEnd = allowedVideoCodecsCsv.find(',', rStart);
+      if (rEnd == std::string::npos)
+        rEnd = allowedVideoCodecsCsv.length();
+      std::string c = allowedVideoCodecsCsv.substr(rStart, rEnd - rStart);
+      if (!(c == "av1" && container == "ts"))
+      {
+        if (!remuxCodecs.empty())
+          remuxCodecs += ",";
+        remuxCodecs += c;
+      }
+      rStart = rEnd + 1;
     }
     tp["VideoCodec"] = remuxCodecs;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = "6";
+    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
     tp["MinSegments"] = minSegments;
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);
@@ -443,7 +478,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     tp["VideoCodec"] = preferredVideo;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = "6";
+    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
     tp["MinSegments"] = minSegments;
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);
@@ -455,7 +490,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // MaxStreamingBitrate for DirectPlay decisions, so we must clear
   // DirectPlayProfiles to force TranscodingProfiles when a limit is set.
   Json::Value directPlayProfiles(Json::arrayValue);
-  if (!forceRemux && !forceTranscodeOverride && bitrateUnlimited && !allowedVideoCodecs.empty())
+  if (!forceRemux && !forceTranscodeOverride && bitrateUnlimited && !allowedVideoCodecsCsv.empty())
   {
     Json::Value v;
     v["Type"] = "Video";
@@ -467,12 +502,10 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   }
   profile["DirectPlayProfiles"] = directPlayProfiles;
 
-  // Codec profiles: constrain direct play to codecs the device can actually decode.
-  // These are no-ops when the codec is already excluded from DirectPlayProfiles.
+  // Codec profiles: constrain direct play to sub-variants the device can decode.
+  // h264 without h264_10bit → limit to 8-bit; hevc without hevc_rext → limit to main/main10.
   Json::Value codecProfiles(Json::arrayValue);
-  const bool h264Allowed = std::find(allowedVideoCodecs.begin(), allowedVideoCodecs.end(), "h264") != allowedVideoCodecs.end();
-  const bool hevcAllowed = std::find(allowedVideoCodecs.begin(), allowedVideoCodecs.end(), "hevc") != allowedVideoCodecs.end();
-  if (h264Allowed && m_settings->GetTranscodeHi10P())
+  if (h264Allowed && !h264_10bitAllowed)
   {
     Json::Value cp;
     cp["Type"] = "Video";
@@ -485,7 +518,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     cp["Conditions"].append(cond);
     codecProfiles.append(cp);
   }
-  if (hevcAllowed && m_settings->GetTranscodeHevcRext())
+  if (hevcAllowed && !hevcRextAllowed)
   {
     Json::Value cp;
     cp["Type"] = "Video";
@@ -542,11 +575,11 @@ Json::Value JellyfinChannelLoader::BuildRecordingDeviceProfile()
     Json::Value tp;
     tp["Container"] = "ts";
     tp["Type"] = "Video";
-    tp["AudioCodec"] = "aac,mp3,ac3,eac3,opus,flac";
+    tp["AudioCodec"] = m_settings->GetDirectPlayAudioCodecs();
     tp["VideoCodec"] = "h264,hevc,av1,mpeg2video";
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = "6";
+    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
     tp["MinSegments"] = "1";
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);
@@ -557,11 +590,11 @@ Json::Value JellyfinChannelLoader::BuildRecordingDeviceProfile()
     Json::Value tp;
     tp["Container"] = (preferredVideo == "av1") ? "mp4" : "ts";
     tp["Type"] = "Video";
-    tp["AudioCodec"] = "aac,mp3,ac3,eac3,opus,flac";
+    tp["AudioCodec"] = m_settings->GetDirectPlayAudioCodecs();
     tp["VideoCodec"] = preferredVideo;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = "6";
+    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
     tp["MinSegments"] = "1";
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);

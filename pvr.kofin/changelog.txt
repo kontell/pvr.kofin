@@ -1,3 +1,9 @@
+v0.6.8
+- Replace per-codec force-transcode toggles with multi-select Direct play video/audio codec lists
+- Add MP2 to the audio codec list (common in DVB broadcasts)
+- Add Maximum audio channels setting (Stereo/5.1/7.1) — was hardcoded to 6
+- Update settings descriptions: bitrate limit disables direct play, catchup requires unlimited
+
 v0.6.7
 - Fix v0.6.6 regression where force-remux caused force-transcode: only cap VideoBitrate at source bitrate for actual transcode sessions, not remux — Jellyfin's CanStreamCopyVideo re-checks the URL's VideoBitrate on each master.m3u8 request and denies copy when it's below the source bitrate
 

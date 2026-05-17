@@ -198,45 +198,46 @@
           <default>false</default>
           <control type="toggle" />
         </setting>
-        <setting id="forceTranscodeAV1" type="boolean" label="30781" help="30782">
+        <setting id="directPlayVideoCodecs" type="list[string]" label="30781" help="30782">
           <level>0</level>
-          <default>false</default>
-          <control type="toggle" />
+          <default>h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1</default>
+          <constraints>
+            <options>
+              <option label="30626">h264</option>
+              <option label="30802">h264_10bit</option>
+              <option label="30627">hevc</option>
+              <option label="30803">hevc_rext</option>
+              <option label="30628">av1</option>
+              <option label="30796">mpeg2video</option>
+              <option label="30797">vp9</option>
+              <option label="30798">vc1</option>
+            </options>
+            <delimiter>,</delimiter>
+          </constraints>
+          <control type="list" format="string">
+            <multiselect>true</multiselect>
+            <hidevalue>true</hidevalue>
+          </control>
         </setting>
-        <setting id="forceTranscodeHEVC" type="boolean" label="30783" help="30784">
+        <setting id="directPlayAudioCodecs" type="list[string]" label="30783" help="30784">
           <level>0</level>
-          <default>false</default>
-          <control type="toggle" />
-        </setting>
-        <setting id="forceTranscodeMPEG2" type="boolean" label="30785" help="30786">
-          <level>0</level>
-          <default>false</default>
-          <control type="toggle" />
-        </setting>
-        <setting id="forceTranscodeVC1" type="boolean" label="30787" help="30788">
-          <level>0</level>
-          <default>false</default>
-          <control type="toggle" />
-        </setting>
-        <setting id="forceTranscodeVP9" type="boolean" label="30789" help="30790">
-          <level>0</level>
-          <default>false</default>
-          <control type="toggle" />
-        </setting>
-        <setting id="transcodeHi10P" type="boolean" label="30720" help="30721">
-          <level>0</level>
-          <default>true</default>
-          <control type="toggle" />
-        </setting>
-        <setting id="transcodeHevcRext" type="boolean" label="30722" help="30723">
-          <level>0</level>
-          <default>true</default>
-          <dependencies>
-            <dependency type="enable">
-              <condition operator="is" setting="forceTranscodeHEVC">false</condition>
-            </dependency>
-          </dependencies>
-          <control type="toggle" />
+          <default>aac,mp2,mp3,ac3,eac3,opus,flac</default>
+          <constraints>
+            <options>
+              <option label="30631">aac</option>
+              <option label="30799">mp2</option>
+              <option label="30633">mp3</option>
+              <option label="30632">ac3</option>
+              <option label="30800">eac3</option>
+              <option label="30715">opus</option>
+              <option label="30801">flac</option>
+            </options>
+            <delimiter>,</delimiter>
+          </constraints>
+          <control type="list" format="string">
+            <multiselect>true</multiselect>
+            <hidevalue>true</hidevalue>
+          </control>
         </setting>
         <setting id="preferredVideoCodec" type="integer" label="30624" help="30625">
           <level>0</level>
@@ -259,6 +260,18 @@
               <option label="30632">1</option>
               <option label="30633">2</option>
               <option label="30715">3</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="maxAudioChannels" type="integer" label="30791" help="30792">
+          <level>0</level>
+          <default>6</default>
+          <constraints>
+            <options>
+              <option label="30793">2</option>
+              <option label="30794">6</option>
+              <option label="30795">8</option>
             </options>
           </constraints>
           <control type="spinner" format="string" />

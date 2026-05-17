@@ -63,15 +63,11 @@ void InstanceSettings::ReadSettings()
 
   // Transcoding
   m_forceTranscode = kodi::addon::GetSettingBoolean("forceTranscode", false);
-  m_transcodeHi10P = kodi::addon::GetSettingBoolean("transcodeHi10P", true);
-  m_transcodeHevcRext = kodi::addon::GetSettingBoolean("transcodeHevcRext", true);
-  m_forceTranscodeAV1 = kodi::addon::GetSettingBoolean("forceTranscodeAV1", false);
-  m_forceTranscodeHEVC = kodi::addon::GetSettingBoolean("forceTranscodeHEVC", false);
-  m_forceTranscodeMPEG2 = kodi::addon::GetSettingBoolean("forceTranscodeMPEG2", false);
-  m_forceTranscodeVC1 = kodi::addon::GetSettingBoolean("forceTranscodeVC1", false);
-  m_forceTranscodeVP9 = kodi::addon::GetSettingBoolean("forceTranscodeVP9", false);
+  m_directPlayVideoCodecs = kodi::addon::GetSettingString("directPlayVideoCodecs", "h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1");
+  m_directPlayAudioCodecs = kodi::addon::GetSettingString("directPlayAudioCodecs", "aac,mp2,mp3,ac3,eac3,opus,flac");
   m_preferredVideoCodec = kodi::addon::GetSettingInt("preferredVideoCodec", 0);
   m_preferredAudioCodec = kodi::addon::GetSettingInt("preferredAudioCodec", 0);
+  m_maxAudioChannels = kodi::addon::GetSettingInt("maxAudioChannels", 6);
   m_maxStreamingBitrate = kodi::addon::GetSettingInt("maxStreamingBitrate", 15);
 
   // Input stream

@@ -86,15 +86,11 @@ namespace iptvsimple
 
     // Transcoding
     bool GetForceTranscode() const { return m_forceTranscode; }
-    bool GetTranscodeHi10P() const { return m_transcodeHi10P; }
-    bool GetTranscodeHevcRext() const { return m_transcodeHevcRext; }
-    bool GetForceTranscodeAV1() const { return m_forceTranscodeAV1; }
-    bool GetForceTranscodeHEVC() const { return m_forceTranscodeHEVC; }
-    bool GetForceTranscodeMPEG2() const { return m_forceTranscodeMPEG2; }
-    bool GetForceTranscodeVC1() const { return m_forceTranscodeVC1; }
-    bool GetForceTranscodeVP9() const { return m_forceTranscodeVP9; }
+    const std::string& GetDirectPlayVideoCodecs() const { return m_directPlayVideoCodecs; }
+    const std::string& GetDirectPlayAudioCodecs() const { return m_directPlayAudioCodecs; }
     int GetPreferredVideoCodec() const { return m_preferredVideoCodec; }
     int GetPreferredAudioCodec() const { return m_preferredAudioCodec; }
+    int GetMaxAudioChannels() const { return m_maxAudioChannels; }
     int GetMaxStreamingBitrateKbps() const
     {
       if (m_maxStreamingBitrate >= 0 && m_maxStreamingBitrate < BITRATE_TABLE_SIZE)
@@ -174,15 +170,11 @@ namespace iptvsimple
 
     // Transcoding
     bool m_forceTranscode = false;
-    bool m_transcodeHi10P = true;
-    bool m_transcodeHevcRext = true;
-    bool m_forceTranscodeAV1 = false;
-    bool m_forceTranscodeHEVC = false;
-    bool m_forceTranscodeMPEG2 = false;
-    bool m_forceTranscodeVC1 = false;
-    bool m_forceTranscodeVP9 = false;
+    std::string m_directPlayVideoCodecs = "h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1";
+    std::string m_directPlayAudioCodecs = "aac,mp2,mp3,ac3,eac3,opus,flac";
     int m_preferredVideoCodec = 0;  // 0=H264, 1=H265, 2=AV1
     int m_preferredAudioCodec = 0;  // 0=AAC, 1=AC3, 2=MP3, 3=Opus
+    int m_maxAudioChannels = 6;
     int m_maxStreamingBitrate = 15; // index into BITRATE_TABLE (15=unlimited)
 
     // Input stream
