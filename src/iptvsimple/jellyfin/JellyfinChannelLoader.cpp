@@ -411,13 +411,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
 
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
-  // Container choice: TS for everything except AV1 (which can't ride MPEG-TS).
-  // inputstream.adaptive accepts HLS+TS as long as we hand it the master
-  // playlist (with the CODECS="avc1.X,mp4a.X" attribute) instead of the bare
-  // media playlist — the master provides codec extradata so adaptive doesn't
-  // have to demux TS segments to find SPS/PPS. The master vs live URL choice
-  // is handled by PostProcessTranscodingUrl, not here.
-  const std::string container = (preferredVideo == "av1") ? "mp4" : "ts";
+  // Container choice: AV1 can't ride MPEG-TS so transcode-to-AV1 needs fMP4.
+  // Remux always uses TS (AV1 is stripped from the remux codec list below).
+  const std::string transcodeContainer = (preferredVideo == "av1") ? "mp4" : "ts";
 
   // inputstream.adaptive rejects single-segment transcode playlists with
   // "Codec id NN require extradata". Remux segments are instant and work
@@ -435,10 +431,10 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   if (remuxMode)
   {
     Json::Value tp;
-    tp["Container"] = container;
+    tp["Container"] = "ts";
     tp["Type"] = "Video";
     tp["AudioCodec"] = audioCodecs;
-    // TS can't carry AV1; drop it from the codec-copy list when staying on TS.
+    // TS can't carry AV1; drop it from the remux codec list.
     std::string remuxCodecs;
     std::string::size_type rStart = 0;
     while (rStart < allowedVideoCodecsCsv.length())
@@ -447,7 +443,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       if (rEnd == std::string::npos)
         rEnd = allowedVideoCodecsCsv.length();
       std::string c = allowedVideoCodecsCsv.substr(rStart, rEnd - rStart);
-      if (!(c == "av1" && container == "ts"))
+      if (c != "av1")
       {
         if (!remuxCodecs.empty())
           remuxCodecs += ",";
@@ -466,7 +462,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   else
   {
     Json::Value tp;
-    tp["Container"] = container;
+    tp["Container"] = transcodeContainer;
     tp["Type"] = "Video";
     tp["AudioCodec"] = audioCodecs;
     tp["VideoCodec"] = preferredVideo;
