@@ -1105,6 +1105,23 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     return;
   }
 
+  // list[string] settings can't be read by GetSettingString — capture them
+  // here where TransferSettings delivers the value as a plain string.
+  // Session SetSettingString calls re-trigger TransferSettings which
+  // re-delivers codec lists with stale values from the XML round-trip,
+  // so skip capture when the suppress flag is set around those writes.
+  if (settingName == "directPlayVideoCodecs" || settingName == "directPlayAudioCodecs")
+  {
+    if (!m_settings->GetSuppressCodecCapture())
+    {
+      if (settingName == "directPlayVideoCodecs")
+        m_settings->SetDirectPlayVideoCodecs(settingValue.GetString());
+      else
+        m_settings->SetDirectPlayAudioCodecs(settingValue.GetString());
+    }
+    return;
+  }
+
   // For regular settings, re-read all settings and flag for reload
   m_settings->ReadSettings();
 

@@ -63,8 +63,9 @@ void InstanceSettings::ReadSettings()
 
   // Transcoding
   m_forceTranscode = kodi::addon::GetSettingBoolean("forceTranscode", false);
-  m_directPlayVideoCodecs = kodi::addon::GetSettingString("directPlayVideoCodecs", "h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1");
-  m_directPlayAudioCodecs = kodi::addon::GetSettingString("directPlayAudioCodecs", "aac,mp2,mp3,ac3,eac3,opus,flac");
+  // directPlayVideoCodecs / directPlayAudioCodecs are list[string] settings —
+  // GetSettingString can't read them. They arrive via SetSetting (TransferSettings
+  // default case) and are captured in OnSettingChanged.
   m_preferredVideoCodec = kodi::addon::GetSettingInt("preferredVideoCodec", 0);
   m_preferredAudioCodec = kodi::addon::GetSettingInt("preferredAudioCodec", 0);
   m_maxAudioChannels = kodi::addon::GetSettingInt("maxAudioChannels", 6);

@@ -419,16 +419,10 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // is handled by PostProcessTranscodingUrl, not here.
   const std::string container = (preferredVideo == "av1") ? "mp4" : "ts";
 
-  // MinSegments controls how many transcoded segments Jellyfin generates
-  // before returning the variant playlist. ffmpegdirect tolerates a 1-segment
-  // initial playlist (it polls), but inputstream.adaptive rejects it with
-  // "Codec id NN require extradata" — adaptive won't trust the master's
-  // CODECS attribute when the variant has only one segment, and won't poll
-  // for more. Buffering 3 segments first gives adaptive a populated playlist
-  // that matches the recording-playback shape (which always works). Costs
-  // ~10s of startup latency — acceptable trade for adaptive users.
+  // inputstream.adaptive rejects single-segment transcode playlists with
+  // "Codec id NN require extradata". Remux segments are instant and work
+  // with 1; transcode needs 3 when adaptive is the inputstream.
   const bool useAdaptive = overrides.inputstream.value_or("") == "inputstream.adaptive";
-  const std::string minSegments = useAdaptive ? "3" : "1";
 
   // TranscodingProfiles:
   // - Remux mode (forceRemux ON + unlimited bitrate + no per-channel forceTranscode)
@@ -465,7 +459,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
     tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
-    tp["MinSegments"] = minSegments;
+    tp["MinSegments"] = useAdaptive ? "3" : "1";
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);
   }
@@ -479,7 +473,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
     tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
-    tp["MinSegments"] = minSegments;
+    tp["MinSegments"] = useAdaptive ? "3" : "1";
     tp["BreakOnNonKeyFrames"] = true;
     transcodingProfiles.append(tp);
   }
@@ -569,6 +563,17 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   Json::Value deviceProfile = BuildDeviceProfile(overrides);
   if (inProgress)
     deviceProfile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
+  // Recordings always play via inputstream.adaptive but overrides.inputstream
+  // isn't set, so BuildDeviceProfile leaves MinSegments=1 in the transcode
+  // branch. Bump it to 3 — adaptive needs a populated variant playlist.
+  // Only touch the transcode profile (single codec); leave remux (multi-codec) at 1.
+  if (!deviceProfile["TranscodingProfiles"].empty())
+  {
+    Json::Value& tp = deviceProfile["TranscodingProfiles"][0];
+    const std::string vc = tp.get("VideoCodec", "").asString();
+    if (vc.find(',') == std::string::npos)
+      tp["MinSegments"] = "3";
+  }
   body["DeviceProfile"] = deviceProfile;
   body["AutoOpenLiveStream"] = true;
 
@@ -606,19 +611,12 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
 
   if (hasTranscodingUrl)
   {
-    // Prepend base URL — no live rewrite or bitrate recalc needed for recordings
     streamUrl = m_client->GetBaseUrl() + source["TranscodingUrl"].asString();
   }
-  else if (source.isMember("Path") && !source["Path"].asString().empty())
+  else
   {
-    streamUrl = source["Path"].asString();
-  }
-
-  if (streamUrl.empty())
-  {
-    Logger::Log(LEVEL_ERROR, "%s - No stream URL resolved for recording %s",
-                __FUNCTION__, recordingId.c_str());
-    return "";
+    streamUrl = m_client->GetBaseUrl() + "/Videos/" + recordingId
+      + "/stream?static=true&api_key=" + m_client->GetAccessToken();
   }
 
   RewriteLocalhost(streamUrl);
@@ -636,12 +634,16 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Persist session metadata for Python playback reporter
+  // Persist session metadata for Python playback reporter.
+  // Each SetSettingString triggers TransferSettings which re-delivers
+  // list[string] codec settings with stale values — suppress capture.
+  m_settings->SetSuppressCodecCapture(true);
   kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
   kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
   kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
   kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
   kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
+  m_settings->SetSuppressCodecCapture(false);
 
   return streamUrl;
 }
@@ -847,12 +849,14 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Persist session metadata for Python playback reporter
+  // Persist session metadata for Python playback reporter.
+  m_settings->SetSuppressCodecCapture(true);
   kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
   kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
   kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
   kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
   kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
+  m_settings->SetSuppressCodecCapture(false);
 
   return streamUrl;
 }
