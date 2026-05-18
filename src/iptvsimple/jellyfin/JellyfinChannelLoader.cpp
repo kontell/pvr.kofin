@@ -410,8 +410,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       addCodec(token);
   }
 
-  // Container choice: AV1 can't ride MPEG-TS so transcode-to-AV1 needs fMP4.
-  const std::string transcodeContainer = (preferredVideo == "av1") ? "mp4" : "ts";
+  // Always request TS container in the profile. PostProcessTranscodingUrl
+  // switches to fMP4 when the server is actually transcoding to AV1.
+  const std::string transcodeContainer = "ts";
 
   // inputstream.adaptive rejects single-segment transcode playlists with
   // "Codec id NN require extradata". Remux segments are instant and work
@@ -421,12 +422,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // Build video codec list for TranscodingProfile: preferred first, then
   // remaining allowed codecs. The preferred codec is always included even if
   // not in the allowed list — it's the transcode target when re-encoding.
-  // AV1 is stripped when container is TS (MPEG-TS can't carry AV1).
   std::string transcodingVideoCodecs;
   {
     auto addTranscodeCodec = [&](const std::string& codec) {
-      if (transcodeContainer == "ts" && codec == "av1")
-        return;
       if (!transcodingVideoCodecs.empty())
         transcodingVideoCodecs += ",";
       transcodingVideoCodecs += codec;
@@ -674,6 +672,35 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
   const int maxBitrateBps = m_activeMaxBitrateBps > 0
     ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
+
+  // AV1 can't ride MPEG-TS. If the server is transcoding video and AV1 is the
+  // preferred (first) codec, switch the segment container to fMP4.
+  {
+    std::string transcodeReasons;
+    std::string videoCodec;
+    for (const auto& p : params)
+    {
+      if (p.find("TranscodeReasons=") == 0)
+        transcodeReasons = p.substr(17);
+      else if (p.find("VideoCodec=") == 0)
+        videoCodec = p.substr(11);
+    }
+    bool videoTranscoded =
+        transcodeReasons.find("VideoCodecNotSupported") != std::string::npos ||
+        transcodeReasons.find("ContainerBitrateExceedsLimit") != std::string::npos ||
+        transcodeReasons.find("VideoProfileNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoLevelNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoBitDepthNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoFramerateNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoResolutionNotSupported") != std::string::npos;
+
+    if (videoTranscoded && videoCodec.substr(0, 3) == "av1")
+    {
+      for (auto& p : params)
+        if (p.find("SegmentContainer=") == 0)
+          p = "SegmentContainer=mp4";
+    }
+  }
 
   // Strip the server's VideoBitrate/AudioBitrate — we always recalculate.
   params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
