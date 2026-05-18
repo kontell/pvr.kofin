@@ -465,12 +465,22 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // bitrate limit. For live TV (Protocol=Http), Jellyfin ignores
   // MaxStreamingBitrate for DirectPlay decisions, so we must clear
   // DirectPlayProfiles to force TranscodingProfiles when a limit is set.
+  // DirectPlay video codecs: allowed list + preferred (if not already in it).
+  // Setting a preferred codec implies the device can decode it.
+  std::string directPlayVideoCodecs = allowedVideoCodecsCsv;
+  if (allowedVideoCodecsCsv.find(preferredVideo) == std::string::npos)
+  {
+    if (!directPlayVideoCodecs.empty())
+      directPlayVideoCodecs += ",";
+    directPlayVideoCodecs += preferredVideo;
+  }
+
   Json::Value directPlayProfiles(Json::arrayValue);
-  if (!forceRemux && !forceTranscodeActive && bitrateUnlimited && !allowedVideoCodecsCsv.empty())
+  if (!forceRemux && !forceTranscodeActive && bitrateUnlimited && !directPlayVideoCodecs.empty())
   {
     Json::Value v;
     v["Type"] = "Video";
-    v["VideoCodec"] = allowedVideoCodecsCsv;
+    v["VideoCodec"] = directPlayVideoCodecs;
     v["AudioCodec"] = audioCodecs;
     directPlayProfiles.append(v);
     Json::Value a;
