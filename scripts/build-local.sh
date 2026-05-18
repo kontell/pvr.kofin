@@ -16,7 +16,7 @@ BUILDS_DIR="/media/bluecon/docs/dev/builds"
 BUILD_TYPE="Release"
 [[ "${1:-}" == "--debug" ]] && BUILD_TYPE="Debug"
 
-ADDON_VERSION=$(grep 'version=' "$ADDON_DIR/pvr.kofin/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
+ADDON_VERSION=$(sed -n '/<?xml/!s/.*version="\([^"]*\)".*/\1/p' "$ADDON_DIR/pvr.kofin/addon.xml.in" | head -1)
 ZIP_NAME="pvr.kofin-${ADDON_VERSION}-linux-x86_64-omega.zip"
 INSTALL_DIR="$KODI_SRC/build/addons"
 
