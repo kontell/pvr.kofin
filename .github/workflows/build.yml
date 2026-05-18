@@ -1,7 +1,7 @@
 name: Build
 on:
   push:
-    branches: ['**']
+    branches: [main]
   pull_request:
 env:
   app_id: pvr.kofin
