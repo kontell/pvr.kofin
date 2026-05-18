@@ -63,6 +63,7 @@ void InstanceSettings::ReadSettings()
 
   // Transcoding
   m_forceTranscode = kodi::addon::GetSettingBoolean("forceTranscode", false);
+  m_forceTranscoding = kodi::addon::GetSettingBoolean("forceTranscoding", false);
   // directPlayVideoCodecs / directPlayAudioCodecs are list[string] settings —
   // GetSettingString can't read them. They arrive via SetSetting (TransferSettings
   // default case) and are captured in OnSettingChanged.

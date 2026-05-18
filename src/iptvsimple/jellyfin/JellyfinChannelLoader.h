@@ -70,7 +70,7 @@ private:
   static std::string FormatIso8601(time_t time);
   static time_t ParseIso8601(const std::string& dateStr);
   Json::Value BuildDeviceProfile(const ChannelOverrides& overrides);
-  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster, bool isRemux);
+  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster, bool forceTranscode);
   void RewriteLocalhost(std::string& url);
 
   // Jellyfin channel ID <-> Kodi channel UID mappings
