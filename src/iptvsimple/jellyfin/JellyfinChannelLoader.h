@@ -71,6 +71,7 @@ private:
   static time_t ParseIso8601(const std::string& dateStr);
   Json::Value BuildDeviceProfile(const ChannelOverrides& overrides);
   std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster, bool forceTranscode);
+  void WriteSessionFile();
   void RewriteLocalhost(std::string& url);
 
   // Jellyfin channel ID <-> Kodi channel UID mappings

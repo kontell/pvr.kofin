@@ -5,23 +5,18 @@ Uses xbmc.Player callbacks for start/stop/pause detection and urllib for HTTP
 (bypasses Kodi's curl pool entirely, avoiding the UI-hang bug from C++ reporter).
 """
 import json
+import os
 import time
 import urllib.request
 import urllib.error
 
 import xbmc
 import xbmcaddon
+import xbmcvfs
 
 
 ADDON_ID = 'pvr.kofin'
 REPORT_INTERVAL = 10  # seconds between progress reports
-SESSION_KEYS = (
-    'sessionItemId',
-    'sessionMediaSourceId',
-    'sessionPlaySessionId',
-    'sessionLiveStreamId',
-    'sessionPlayMethod',
-)
 
 
 def get_device_name():
@@ -81,7 +76,15 @@ class PlaybackReporter(xbmc.Player):
             return
 
         addon = xbmcaddon.Addon(ADDON_ID)
-        item_id = addon.getSetting('sessionItemId')
+        session_path = os.path.join(
+            xbmcvfs.translatePath(addon.getAddonInfo('profile')),
+            'session.json')
+        try:
+            with open(session_path, 'r') as f:
+                session_data = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return
+        item_id = session_data.get('ItemId', '')
         if not item_id:
             return
 
@@ -89,10 +92,10 @@ class PlaybackReporter(xbmc.Player):
         self.last_position_ticks = 0
         self.session = {
             'ItemId': item_id,
-            'MediaSourceId': addon.getSetting('sessionMediaSourceId'),
-            'PlaySessionId': addon.getSetting('sessionPlaySessionId'),
-            'LiveStreamId': addon.getSetting('sessionLiveStreamId'),
-            'PlayMethod': addon.getSetting('sessionPlayMethod'),
+            'MediaSourceId': session_data.get('MediaSourceId', ''),
+            'PlaySessionId': session_data.get('PlaySessionId', ''),
+            'LiveStreamId': session_data.get('LiveStreamId', ''),
+            'PlayMethod': session_data.get('PlayMethod', ''),
             'BaseUrl': addon.getSetting('jellyfinServerAddress'),
             'Token': addon.getSetting('jellyfinAccessToken'),
             'DeviceId': addon.getSetting('deviceId'),
@@ -141,8 +144,13 @@ class PlaybackReporter(xbmc.Player):
         # Clear persisted session so the next non-kofin playback (e.g. a music
         # track from another addon) isn't misreported as a resumed kofin session.
         addon = xbmcaddon.Addon(ADDON_ID)
-        for key in SESSION_KEYS:
-            addon.setSetting(key, '')
+        session_path = os.path.join(
+            xbmcvfs.translatePath(addon.getAddonInfo('profile')),
+            'session.json')
+        try:
+            os.remove(session_path)
+        except OSError:
+            pass
 
         xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGINFO)
 

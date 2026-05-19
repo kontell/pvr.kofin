@@ -12,6 +12,7 @@
 #include "../utilities/TimeUtils.h"
 #include "../utilities/WebUtils.h"
 
+#include <kodi/Filesystem.h>
 #include <kodi/General.h>
 
 #include <algorithm>
@@ -624,18 +625,29 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Persist session metadata for Python playback reporter.
-  // Each SetSettingString triggers TransferSettings which re-delivers
-  // list[string] codec settings with stale values — suppress capture.
-  m_settings->SetSuppressCodecCapture(true);
-  kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
-  kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
-  kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
-  kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
-  kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
-  m_settings->SetSuppressCodecCapture(false);
+  WriteSessionFile();
 
   return streamUrl;
+}
+
+void JellyfinChannelLoader::WriteSessionFile()
+{
+  const std::string path = m_settings->GetUserPath() + "session.json";
+  Json::Value session;
+  session["ItemId"] = m_activeItemId;
+  session["MediaSourceId"] = m_activeMediaSourceId;
+  session["PlaySessionId"] = m_activePlaySessionId;
+  session["LiveStreamId"] = m_activeLiveStreamId;
+  session["PlayMethod"] = m_activePlayMethod;
+  Json::StreamWriterBuilder writer;
+  writer["indentation"] = "";
+  const std::string data = Json::writeString(writer, session);
+  kodi::vfs::CFile file;
+  if (file.OpenFileForWrite(path, true))
+  {
+    file.Write(data.c_str(), data.size());
+    file.Close();
+  }
 }
 
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
@@ -862,14 +874,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Persist session metadata for Python playback reporter.
-  m_settings->SetSuppressCodecCapture(true);
-  kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
-  kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
-  kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
-  kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
-  kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
-  m_settings->SetSuppressCodecCapture(false);
+  WriteSessionFile();
 
   return streamUrl;
 }

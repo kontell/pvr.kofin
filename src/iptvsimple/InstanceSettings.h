@@ -133,9 +133,6 @@ namespace iptvsimple
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
     int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
 
-    bool GetSuppressCodecCapture() const { return m_suppressCodecCapture; }
-    void SetSuppressCodecCapture(bool v) { m_suppressCodecCapture = v; }
-
     // Codec name helpers for device profile
     std::string GetPreferredVideoCodecName() const
     {
@@ -208,7 +205,5 @@ namespace iptvsimple
     int m_jellyfinUpdateIntervalHours = 24;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
     int m_connectioncCheckIntervalSecs = 60;
-
-    bool m_suppressCodecCapture = false;
   };
 } //namespace iptvsimple
