@@ -86,6 +86,7 @@ namespace iptvsimple
 
     // Transcoding
     bool GetForceTranscode() const { return m_forceTranscode; }
+    bool GetForceTranscoding() const { return m_forceTranscoding; }
     const std::string& GetDirectPlayVideoCodecs() const { return m_directPlayVideoCodecs; }
     const std::string& GetDirectPlayAudioCodecs() const { return m_directPlayAudioCodecs; }
     void SetDirectPlayVideoCodecs(const std::string& v) { m_directPlayVideoCodecs = v; }
@@ -132,9 +133,6 @@ namespace iptvsimple
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
     int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
 
-    bool GetSuppressCodecCapture() const { return m_suppressCodecCapture; }
-    void SetSuppressCodecCapture(bool v) { m_suppressCodecCapture = v; }
-
     // Codec name helpers for device profile
     std::string GetPreferredVideoCodecName() const
     {
@@ -175,8 +173,9 @@ namespace iptvsimple
 
     // Transcoding
     bool m_forceTranscode = false;
+    bool m_forceTranscoding = false;
     std::string m_directPlayVideoCodecs = "h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1";
-    std::string m_directPlayAudioCodecs = "aac,mp2,mp3,ac3,eac3,opus,flac";
+    std::string m_directPlayAudioCodecs = "aac,mp2,mp3,ac3,eac3,opus,flac,dts";
     int m_preferredVideoCodec = 0;  // 0=H264, 1=H265, 2=AV1
     int m_preferredAudioCodec = 0;  // 0=AAC, 1=AC3, 2=MP3, 3=Opus
     int m_maxAudioChannels = 6;
@@ -206,7 +205,5 @@ namespace iptvsimple
     int m_jellyfinUpdateIntervalHours = 24;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
     int m_connectioncCheckIntervalSecs = 60;
-
-    bool m_suppressCodecCapture = false;
   };
 } //namespace iptvsimple

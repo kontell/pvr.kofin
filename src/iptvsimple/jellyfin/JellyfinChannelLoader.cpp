@@ -12,6 +12,7 @@
 #include "../utilities/TimeUtils.h"
 #include "../utilities/WebUtils.h"
 
+#include <kodi/Filesystem.h>
 #include <kodi/General.h>
 
 #include <algorithm>
@@ -342,7 +343,8 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // Per-channel overrides win over global settings; otherwise fall back.
   const int maxBitrateBps = overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
   const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
-  const bool forceTranscodeOverride = overrides.forceTranscode.value_or(false);
+  const bool forceTranscodeActive = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
   Json::Value profile;
   profile["Name"] = "Kodi";
@@ -409,63 +411,46 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       addCodec(token);
   }
 
-  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
-
-  // Container choice: AV1 can't ride MPEG-TS so transcode-to-AV1 needs fMP4.
-  // Remux always uses TS (AV1 is stripped from the remux codec list below).
-  const std::string transcodeContainer = (preferredVideo == "av1") ? "mp4" : "ts";
+  // Always request TS container in the profile. PostProcessTranscodingUrl
+  // switches to fMP4 when the server is actually transcoding to AV1.
+  const std::string transcodeContainer = "ts";
 
   // inputstream.adaptive rejects single-segment transcode playlists with
   // "Codec id NN require extradata". Remux segments are instant and work
   // with 1; transcode needs 3 when adaptive is the inputstream.
   const bool useAdaptive = overrides.inputstream.value_or("") == "inputstream.adaptive";
 
-  // TranscodingProfiles:
-  // - Remux mode (forceRemux ON + unlimited bitrate + no per-channel forceTranscode)
-  //   → codec-copy the allowed codecs.
-  // - Otherwise → preferred codec only.
-  Json::Value transcodingProfiles(Json::arrayValue);
-
-  const bool remuxMode = forceRemux && bitrateUnlimited && !forceTranscodeOverride;
-
-  if (remuxMode)
+  // Build video codec list for TranscodingProfile: preferred first, then
+  // remaining allowed codecs. The preferred codec is always included even if
+  // not in the allowed list — it's the transcode target when re-encoding.
+  std::string transcodingVideoCodecs;
   {
-    Json::Value tp;
-    tp["Container"] = "ts";
-    tp["Type"] = "Video";
-    tp["AudioCodec"] = audioCodecs;
-    // TS can't carry AV1; drop it from the remux codec list.
-    std::string remuxCodecs;
-    std::string::size_type rStart = 0;
-    while (rStart < allowedVideoCodecsCsv.length())
+    auto addTranscodeCodec = [&](const std::string& codec) {
+      if (!transcodingVideoCodecs.empty())
+        transcodingVideoCodecs += ",";
+      transcodingVideoCodecs += codec;
+    };
+    addTranscodeCodec(preferredVideo);
+    std::string::size_type vStart = 0;
+    while (vStart < allowedVideoCodecsCsv.length())
     {
-      auto rEnd = allowedVideoCodecsCsv.find(',', rStart);
-      if (rEnd == std::string::npos)
-        rEnd = allowedVideoCodecsCsv.length();
-      std::string c = allowedVideoCodecsCsv.substr(rStart, rEnd - rStart);
-      if (c != "av1")
-      {
-        if (!remuxCodecs.empty())
-          remuxCodecs += ",";
-        remuxCodecs += c;
-      }
-      rStart = rEnd + 1;
+      auto vEnd = allowedVideoCodecsCsv.find(',', vStart);
+      if (vEnd == std::string::npos)
+        vEnd = allowedVideoCodecsCsv.length();
+      std::string codec = allowedVideoCodecsCsv.substr(vStart, vEnd - vStart);
+      if (codec != preferredVideo)
+        addTranscodeCodec(codec);
+      vStart = vEnd + 1;
     }
-    tp["VideoCodec"] = remuxCodecs;
-    tp["Context"] = "Streaming";
-    tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
-    tp["MinSegments"] = useAdaptive ? "3" : "1";
-    tp["BreakOnNonKeyFrames"] = true;
-    transcodingProfiles.append(tp);
   }
-  else
+
+  Json::Value transcodingProfiles(Json::arrayValue);
   {
     Json::Value tp;
     tp["Container"] = transcodeContainer;
     tp["Type"] = "Video";
     tp["AudioCodec"] = audioCodecs;
-    tp["VideoCodec"] = preferredVideo;
+    tp["VideoCodec"] = transcodingVideoCodecs;
     tp["Context"] = "Streaming";
     tp["Protocol"] = "hls";
     tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
@@ -479,12 +464,23 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // bitrate limit. For live TV (Protocol=Http), Jellyfin ignores
   // MaxStreamingBitrate for DirectPlay decisions, so we must clear
   // DirectPlayProfiles to force TranscodingProfiles when a limit is set.
+  // DirectPlay video codecs: allowed list + preferred (if not already in it).
+  // Setting a preferred codec implies the device can decode it.
+  std::string directPlayVideoCodecs = allowedVideoCodecsCsv;
+  if (allowedVideoCodecsCsv.find(preferredVideo) == std::string::npos)
+  {
+    if (!directPlayVideoCodecs.empty())
+      directPlayVideoCodecs += ",";
+    directPlayVideoCodecs += preferredVideo;
+  }
+
   Json::Value directPlayProfiles(Json::arrayValue);
-  if (!forceRemux && !forceTranscodeOverride && bitrateUnlimited && !allowedVideoCodecsCsv.empty())
+  if (!forceRemux && !forceTranscodeActive && bitrateUnlimited && !directPlayVideoCodecs.empty())
   {
     Json::Value v;
     v["Type"] = "Video";
-    v["VideoCodec"] = allowedVideoCodecsCsv;
+    v["VideoCodec"] = directPlayVideoCodecs;
+    v["AudioCodec"] = audioCodecs;
     directPlayProfiles.append(v);
     Json::Value a;
     a["Type"] = "Audio";
@@ -557,23 +553,16 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   Json::Value body;
   body["UserId"] = m_client->GetUserId();
   ChannelOverrides effectiveOverrides = overrides;
-  if (inProgress && !effectiveOverrides.forceTranscode.value_or(false))
+  if (inProgress)
     effectiveOverrides.forceRemux = true;
   Json::Value deviceProfile = BuildDeviceProfile(effectiveOverrides);
   if (inProgress)
     deviceProfile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
-  // Recordings always play via inputstream.adaptive but overrides.inputstream
-  // isn't set, so BuildDeviceProfile leaves MinSegments=1 in the transcode
-  // branch. Bump it to 3 — adaptive needs a populated variant playlist.
-  // Only touch the transcode profile (single codec); leave remux (multi-codec) at 1.
+  // Recordings play via inputstream.adaptive which needs MinSegments >= 3.
   if (!deviceProfile["TranscodingProfiles"].empty())
-  {
-    Json::Value& tp = deviceProfile["TranscodingProfiles"][0];
-    const std::string vc = tp.get("VideoCodec", "").asString();
-    if (vc.find(',') == std::string::npos)
-      tp["MinSegments"] = "3";
-  }
+    deviceProfile["TranscodingProfiles"][0]["MinSegments"] = "3";
   body["DeviceProfile"] = deviceProfile;
+  m_activeMaxBitrateBps = effectiveOverrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
   body["AutoOpenLiveStream"] = true;
 
   Json::StreamWriterBuilder writer;
@@ -591,6 +580,8 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
 
   const Json::Value& source = response["MediaSources"][0];
 
+  m_activeSourceBitrateBps = source.get("Bitrate", 0).asInt();
+
   // Track session state for reporting and cleanup
   m_activeLiveStreamId = source.get("LiveStreamId", "").asString();
   m_activePlaySessionId = response.get("PlaySessionId", "").asString();
@@ -607,10 +598,11 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
               hasTranscodingUrl ? "present" : "absent");
 
   std::string streamUrl;
+  const bool forceTranscodeActive = effectiveOverrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
 
   if (hasTranscodingUrl)
   {
-    streamUrl = m_client->GetBaseUrl() + source["TranscodingUrl"].asString();
+    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), true, forceTranscodeActive);
   }
   else
   {
@@ -633,22 +625,33 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Persist session metadata for Python playback reporter.
-  // Each SetSettingString triggers TransferSettings which re-delivers
-  // list[string] codec settings with stale values — suppress capture.
-  m_settings->SetSuppressCodecCapture(true);
-  kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
-  kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
-  kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
-  kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
-  kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
-  m_settings->SetSuppressCodecCapture(false);
+  WriteSessionFile();
 
   return streamUrl;
 }
 
+void JellyfinChannelLoader::WriteSessionFile()
+{
+  const std::string path = m_settings->GetUserPath() + "session.json";
+  Json::Value session;
+  session["ItemId"] = m_activeItemId;
+  session["MediaSourceId"] = m_activeMediaSourceId;
+  session["PlaySessionId"] = m_activePlaySessionId;
+  session["LiveStreamId"] = m_activeLiveStreamId;
+  session["PlayMethod"] = m_activePlayMethod;
+  Json::StreamWriterBuilder writer;
+  writer["indentation"] = "";
+  const std::string data = Json::writeString(writer, session);
+  kodi::vfs::CFile file;
+  if (file.OpenFileForWrite(path, true))
+  {
+    file.Write(data.c_str(), data.size());
+    file.Close();
+  }
+}
+
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
-    const std::string& transcodingUrl, bool keepMaster, bool isRemux)
+    const std::string& transcodingUrl, bool keepMaster, bool forceTranscode)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
   // - For ffmpegdirect/internal: replace "stream"/"master" with "live" so we
@@ -682,6 +685,35 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   const int maxBitrateBps = m_activeMaxBitrateBps > 0
     ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
 
+  // AV1 can't ride MPEG-TS. If the server is transcoding video and AV1 is the
+  // preferred (first) codec, switch the segment container to fMP4.
+  {
+    std::string transcodeReasons;
+    std::string videoCodec;
+    for (const auto& p : params)
+    {
+      if (p.find("TranscodeReasons=") == 0)
+        transcodeReasons = p.substr(17);
+      else if (p.find("VideoCodec=") == 0)
+        videoCodec = p.substr(11);
+    }
+    bool videoTranscoded =
+        transcodeReasons.find("VideoCodecNotSupported") != std::string::npos ||
+        transcodeReasons.find("ContainerBitrateExceedsLimit") != std::string::npos ||
+        transcodeReasons.find("VideoProfileNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoLevelNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoBitDepthNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoFramerateNotSupported") != std::string::npos ||
+        transcodeReasons.find("VideoResolutionNotSupported") != std::string::npos;
+
+    if (videoTranscoded && videoCodec.substr(0, 3) == "av1")
+    {
+      for (auto& p : params)
+        if (p.find("SegmentContainer=") == 0)
+          p = "SegmentContainer=mp4";
+    }
+  }
+
   // Strip the server's VideoBitrate/AudioBitrate — we always recalculate.
   params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
     return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
@@ -697,13 +729,12 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   }
 
   const int audioBitrate = 384000;
-  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
   int videoBitrate;
-  if (!isRemux && bitrateUnlimited)
+  if (forceTranscode)
   {
     const int sourceBps = m_activeSourceBitrateBps > 0
       ? m_activeSourceBitrateBps : 30000000;
-    videoBitrate = sourceBps - audioBitrate;
+    videoBitrate = std::min(sourceBps, maxBitrateBps) - audioBitrate;
   }
   else
   {
@@ -805,17 +836,12 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
 
   std::string streamUrl;
 
-  // Determine if this session is remux (codec-copy) vs real transcode.
-  const int maxBitrateBps = overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
-  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
-  const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
-  const bool forceTranscodeOverride = overrides.forceTranscode.value_or(false);
-  const bool isRemux = forceRemux && bitrateUnlimited && !forceTranscodeOverride;
+  const bool forceTranscodeActive = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
 
   if (hasTranscodingUrl)
   {
     const bool keepMaster = overrides.inputstream.value_or("") == "inputstream.adaptive";
-    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster, isRemux);
+    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster, forceTranscodeActive);
   }
   else if (source.isMember("Path") && !source["Path"].asString().empty())
   {
@@ -848,14 +874,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
 
-  // Persist session metadata for Python playback reporter.
-  m_settings->SetSuppressCodecCapture(true);
-  kodi::addon::SetSettingString("sessionItemId", m_activeItemId);
-  kodi::addon::SetSettingString("sessionMediaSourceId", m_activeMediaSourceId);
-  kodi::addon::SetSettingString("sessionPlaySessionId", m_activePlaySessionId);
-  kodi::addon::SetSettingString("sessionLiveStreamId", m_activeLiveStreamId);
-  kodi::addon::SetSettingString("sessionPlayMethod", m_activePlayMethod);
-  m_settings->SetSuppressCodecCapture(false);
+  WriteSessionFile();
 
   return streamUrl;
 }

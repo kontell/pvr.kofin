@@ -114,36 +114,6 @@
             <close>true</close>
           </control>
         </setting>
-        <setting id="sessionItemId" type="string">
-          <level>4</level>
-          <default></default>
-          <constraints><allowempty>true</allowempty></constraints>
-          <control type="edit" format="string" />
-        </setting>
-        <setting id="sessionMediaSourceId" type="string">
-          <level>4</level>
-          <default></default>
-          <constraints><allowempty>true</allowempty></constraints>
-          <control type="edit" format="string" />
-        </setting>
-        <setting id="sessionPlaySessionId" type="string">
-          <level>4</level>
-          <default></default>
-          <constraints><allowempty>true</allowempty></constraints>
-          <control type="edit" format="string" />
-        </setting>
-        <setting id="sessionLiveStreamId" type="string">
-          <level>4</level>
-          <default></default>
-          <constraints><allowempty>true</allowempty></constraints>
-          <control type="edit" format="string" />
-        </setting>
-        <setting id="sessionPlayMethod" type="string">
-          <level>4</level>
-          <default></default>
-          <constraints><allowempty>true</allowempty></constraints>
-          <control type="edit" format="string" />
-        </setting>
         <setting id="jellyfinAccessToken" type="string">
           <level>4</level>
           <default></default>
@@ -198,6 +168,11 @@
           <default>false</default>
           <control type="toggle" />
         </setting>
+        <setting id="forceTranscoding" type="boolean" label="30806" help="30807">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
         <setting id="directPlayVideoCodecs" type="list[string]" label="30781" help="30782">
           <level>0</level>
           <default>h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1</default>
@@ -221,7 +196,7 @@
         </setting>
         <setting id="directPlayAudioCodecs" type="list[string]" label="30783" help="30784">
           <level>0</level>
-          <default>aac,mp2,mp3,ac3,eac3,opus,flac</default>
+          <default>aac,mp2,mp3,ac3,eac3,opus,flac,dts</default>
           <constraints>
             <options>
               <option label="30631">aac</option>
@@ -231,6 +206,7 @@
               <option label="30800">eac3</option>
               <option label="30715">opus</option>
               <option label="30801">flac</option>
+              <option label="30805">dts</option>
             </options>
             <delimiter>,</delimiter>
           </constraints>
