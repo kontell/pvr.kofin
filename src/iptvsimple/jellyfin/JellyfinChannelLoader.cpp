@@ -56,6 +56,8 @@ ChannelOverrides ChannelOverrides::FromChannel(const Channel& channel)
     o.forceRemux = ParseBoolProp(*v);
   if (const auto* v = get("kofin-force-transcode"))
     o.forceTranscode = ParseBoolProp(*v);
+  if (const auto* v = get("kofin-force-direct-play"))
+    o.forceDirectPlay = ParseBoolProp(*v);
   if (const auto* v = get("kofin-bitrate-limit"))
   {
     int kbps = std::atoi(v->c_str());
@@ -341,7 +343,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   const std::string preferredAudio = m_settings->GetPreferredAudioCodecName();
 
   // Per-channel overrides win over global settings; otherwise fall back.
-  const int maxBitrateBps = overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
+  const bool forceDirectPlay = overrides.forceDirectPlay.value_or(m_settings->GetForceDirectPlay());
+  const int maxBitrateBps = forceDirectPlay ? 1000000000
+      : overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
   const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
   const bool forceTranscodeActive = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
@@ -475,7 +479,19 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   }
 
   Json::Value directPlayProfiles(Json::arrayValue);
-  if (!forceRemux && !forceTranscodeActive && bitrateUnlimited && !directPlayVideoCodecs.empty())
+  if (forceDirectPlay)
+  {
+    Json::Value v;
+    v["Type"] = "Video";
+    v["Container"] = "";
+    v["VideoCodec"] = "";
+    v["AudioCodec"] = "";
+    directPlayProfiles.append(v);
+    Json::Value a;
+    a["Type"] = "Audio";
+    directPlayProfiles.append(a);
+  }
+  else if (!forceRemux && !forceTranscodeActive && bitrateUnlimited && !directPlayVideoCodecs.empty())
   {
     Json::Value v;
     v["Type"] = "Video";
@@ -554,7 +570,10 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   body["UserId"] = m_client->GetUserId();
   ChannelOverrides effectiveOverrides = overrides;
   if (inProgress)
+  {
     effectiveOverrides.forceRemux = true;
+    effectiveOverrides.forceDirectPlay = false;
+  }
   Json::Value deviceProfile = BuildDeviceProfile(effectiveOverrides);
   if (inProgress)
     deviceProfile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);

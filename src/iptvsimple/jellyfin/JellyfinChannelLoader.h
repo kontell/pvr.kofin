@@ -33,12 +33,13 @@ struct ChannelOverrides
   std::optional<bool> forceRemux;        // kofin-force-remux
   std::optional<int>  bitrateBps;         // kofin-bitrate-limit (kbps × 1000)
   std::optional<bool> forceTranscode;     // kofin-force-transcode
+  std::optional<bool> forceDirectPlay;    // kofin-force-direct-play
   // inputstream override (PVR_STREAM_PROPERTY_INPUTSTREAM from M3U KodiProps).
   // Drives Jellyfin device-profile Container choice — inputstream.adaptive
   // can only consume fMP4 for HEVC/AV1, while ffmpegdirect prefers TS.
   std::optional<std::string> inputstream;
 
-  bool Empty() const { return !forceRemux && !bitrateBps && !forceTranscode && !inputstream; }
+  bool Empty() const { return !forceRemux && !bitrateBps && !forceTranscode && !forceDirectPlay && !inputstream; }
   static ChannelOverrides FromChannel(const iptvsimple::data::Channel& channel);
 };
 

@@ -1,3 +1,8 @@
+v0.7.1
+- Add "Force direct play" global setting and kofin-force-direct-play per-channel KofinProp — sends wildcard DirectPlayProfile so the server proxies streams without transcoding or remuxing
+- Force direct play hides all other transcoding settings when active
+- Does not apply to in-progress recordings (always HLS remux)
+
 v0.7.0
 - Unified TranscodingProfile: single profile with preferred codec first, then all allowed codecs — server codec-copies when it can, transcodes to preferred when it must
 - Add "Force transcoding" global setting — caps bitrate at source to force re-encode to preferred codec (previously per-channel only via kofin-force-transcode)

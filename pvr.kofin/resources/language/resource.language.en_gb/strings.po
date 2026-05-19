@@ -528,6 +528,14 @@ msgctxt "#30807"
 msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
 msgstr ""
 
+msgctxt "#30808"
+msgid "Force direct play"
+msgstr ""
+
+msgctxt "#30809"
+msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgstr ""
+
 msgctxt "#30802"
 msgid "H264 10-bit"
 msgstr ""
