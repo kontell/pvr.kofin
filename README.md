@@ -45,9 +45,11 @@ In addition to standard KodiProps, the following Kofin-specific properties can b
 
 | Property | Values | Description |
 |----------|--------|-------------|
+| `kofin-force-direct-play` | `true` / `false` | Force direct play for this channel — server proxies the stream without transcoding or remuxing |
 | `kofin-force-remux` | `true` / `false` | Force remuxing for this channel (overrides global setting) |
 | `kofin-force-transcode` | `true` / `false` | Force transcoding for this channel (overrides global setting) |
 | `kofin-bitrate-limit` | kbps (e.g. `4000`) | Set a bitrate limit for this channel (0 or omitted = unlimited) |
+| `kofin-disable-pvr` | `true` / `false` | Disable recording for this channel — hides the record option in the EPG |
 
 ## Supported platforms
 

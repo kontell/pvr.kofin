@@ -717,6 +717,23 @@ PVR_ERROR IptvSimple::IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& 
   return PVR_ERROR_NO_ERROR;
 }
 
+PVR_ERROR IptvSimple::IsEPGTagRecordable(const kodi::addon::PVREPGTag& tag, bool& isRecordable)
+{
+  Channel channel(m_settings);
+  if (GetChannel(tag.GetUniqueChannelId(), channel))
+  {
+    const auto& props = channel.GetProperties();
+    auto it = props.find("kofin-disable-pvr");
+    if (it != props.end() && it->second == "true")
+    {
+      isRecordable = false;
+      return PVR_ERROR_NO_ERROR;
+    }
+  }
+  isRecordable = true;
+  return PVR_ERROR_NO_ERROR;
+}
+
 PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& tag, std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   // If a recording exists for this EPG entry, play the recording directly
