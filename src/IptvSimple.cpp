@@ -496,9 +496,18 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // Check if this is a direct play URL (tuner URL, not a Jellyfin transcode URL)
     const bool isDirectPlay = streamURL.find(m_settings->GetJellyfinBaseUrl()) != 0;
 
+    // Detect stream type: transcoded URLs are always Jellyfin HLS; direct play
+    // URLs come straight from the tuner and could be HLS, DASH, TS, etc.
+    const StreamType streamType = isDirectPlay
+        ? StreamUtils::GetStreamType(streamURL, "", false)
+        : StreamType::HLS;
+    const std::string mimeType = StreamUtils::GetMimeType(streamType);
+    const std::string manifestType = StreamUtils::GetManifestType(streamType);
+
     // Set stream properties
     properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
-    properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
+    if (!mimeType.empty())
+      properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, mimeType);
 
     // Honor an inputstream override set via M3U KodiProps. Read directly
     // from the property map (not GetInputStreamName(), which is cached when
@@ -562,7 +571,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     else if (useFfmpegDirect)
     {
       properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
-      properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
+      if (!manifestType.empty())
+        properties.emplace_back("inputstream.ffmpegdirect.manifest_type", manifestType);
       properties.emplace_back("inputstream.ffmpegdirect.is_realtime_stream", "true");
       if (m_settings->GetTimeshiftEnabled())
         properties.emplace_back("inputstream.ffmpegdirect.stream_mode", "timeshift");
@@ -570,7 +580,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     else if (useAdaptive)
     {
       properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
-      properties.emplace_back("inputstream.adaptive.manifest_type", "hls");
+      if (!manifestType.empty())
+        properties.emplace_back("inputstream.adaptive.manifest_type", manifestType);
     }
     else if (!channelInputstream.empty())
     {
