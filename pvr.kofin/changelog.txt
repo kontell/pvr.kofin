@@ -1,3 +1,13 @@
+v0.7.0
+- Unified TranscodingProfile: single profile with preferred codec first, then all allowed codecs — server codec-copies when it can, transcodes to preferred when it must
+- Add "Force transcoding" global setting — caps bitrate at source to force re-encode to preferred codec (previously per-channel only via kofin-force-transcode)
+- Fix fMP4 container crash on in-progress recordings: profile always requests TS, PostProcessTranscodingUrl switches to fMP4 only for actual AV1 video transcodes
+- Preferred video codec included in DirectPlayProfiles — setting a preferred codec implies the device can decode it
+- DTS added to audio codec options
+- Session metadata moved from Kodi settings to file — eliminates "Unknown setting type" log spam for list[string] codec settings
+- Release build matrix now runs on pull requests for cross-platform compile verification
+- Fix doubled CI checks on PRs
+
 v0.6.8
 - Replace per-codec force-transcode toggles with multi-select Direct play video/audio codec lists
 - Add MP2 to the audio codec list (common in DVB broadcasts)
