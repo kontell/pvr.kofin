@@ -415,26 +415,23 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       addCodec(token);
   }
 
-  // Always request TS container in the profile. PostProcessTranscodingUrl
-  // switches to fMP4 when the server is actually transcoding to AV1.
-  const std::string transcodeContainer = "ts";
-
   // inputstream.adaptive rejects single-segment transcode playlists with
   // "Codec id NN require extradata". Remux segments are instant and work
   // with 1; transcode needs 3 when adaptive is the inputstream.
   const bool useAdaptive = overrides.inputstream.value_or("") == "inputstream.adaptive";
+  const std::string minSegs = useAdaptive ? "3" : "1";
+  const std::string maxCh = std::to_string(m_settings->GetMaxAudioChannels());
 
-  // Build video codec list for TranscodingProfile: preferred first, then
-  // remaining allowed codecs. The preferred codec is always included even if
-  // not in the allowed list — it's the transcode target when re-encoding.
-  std::string transcodingVideoCodecs;
+  // Build TS codec list: all allowed codecs (preferred first) except AV1,
+  // which can't ride MPEG-TS and gets its own fMP4 profile.
+  std::string tsVideoCodecs;
   {
-    auto addTranscodeCodec = [&](const std::string& codec) {
-      if (!transcodingVideoCodecs.empty())
-        transcodingVideoCodecs += ",";
-      transcodingVideoCodecs += codec;
+    auto addCodecToList = [&](const std::string& codec) {
+      if (codec == "av1") return;
+      if (!tsVideoCodecs.empty()) tsVideoCodecs += ",";
+      tsVideoCodecs += codec;
     };
-    addTranscodeCodec(preferredVideo);
+    addCodecToList(preferredVideo);
     std::string::size_type vStart = 0;
     while (vStart < allowedVideoCodecsCsv.length())
     {
@@ -443,24 +440,46 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
         vEnd = allowedVideoCodecsCsv.length();
       std::string codec = allowedVideoCodecsCsv.substr(vStart, vEnd - vStart);
       if (codec != preferredVideo)
-        addTranscodeCodec(codec);
+        addCodecToList(codec);
       vStart = vEnd + 1;
     }
   }
 
+  // Two TranscodingProfiles: fMP4 for AV1, TS for everything else.
+  // The server ranks profiles by codec-copy compatibility and picks the
+  // best match. Order controls preference when ranks are equal.
+  Json::Value fmp4Profile;
+  fmp4Profile["Container"] = "mp4";
+  fmp4Profile["Type"] = "Video";
+  fmp4Profile["AudioCodec"] = audioCodecs;
+  fmp4Profile["VideoCodec"] = "av1";
+  fmp4Profile["Context"] = "Streaming";
+  fmp4Profile["Protocol"] = "hls";
+  fmp4Profile["MaxAudioChannels"] = maxCh;
+  fmp4Profile["MinSegments"] = minSegs;
+  fmp4Profile["BreakOnNonKeyFrames"] = true;
+
+  Json::Value tsProfile;
+  tsProfile["Container"] = "ts";
+  tsProfile["Type"] = "Video";
+  tsProfile["AudioCodec"] = audioCodecs;
+  tsProfile["VideoCodec"] = tsVideoCodecs;
+  tsProfile["Context"] = "Streaming";
+  tsProfile["Protocol"] = "hls";
+  tsProfile["MaxAudioChannels"] = maxCh;
+  tsProfile["MinSegments"] = minSegs;
+  tsProfile["BreakOnNonKeyFrames"] = true;
+
   Json::Value transcodingProfiles(Json::arrayValue);
+  if (preferredVideo == "av1")
   {
-    Json::Value tp;
-    tp["Container"] = transcodeContainer;
-    tp["Type"] = "Video";
-    tp["AudioCodec"] = audioCodecs;
-    tp["VideoCodec"] = transcodingVideoCodecs;
-    tp["Context"] = "Streaming";
-    tp["Protocol"] = "hls";
-    tp["MaxAudioChannels"] = std::to_string(m_settings->GetMaxAudioChannels());
-    tp["MinSegments"] = useAdaptive ? "3" : "1";
-    tp["BreakOnNonKeyFrames"] = true;
-    transcodingProfiles.append(tp);
+    transcodingProfiles.append(fmp4Profile);
+    transcodingProfiles.append(tsProfile);
+  }
+  else
+  {
+    transcodingProfiles.append(tsProfile);
+    transcodingProfiles.append(fmp4Profile);
   }
   profile["TranscodingProfiles"] = transcodingProfiles;
 
@@ -703,36 +722,6 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
   const int maxBitrateBps = m_activeMaxBitrateBps > 0
     ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
-
-  // AV1 can't ride MPEG-TS. If the server is transcoding video and AV1 is the
-  // preferred (first) codec, switch the segment container to fMP4.
-  {
-    std::string transcodeReasons;
-    std::string videoCodec;
-    for (const auto& p : params)
-    {
-      if (p.find("TranscodeReasons=") == 0)
-        transcodeReasons = p.substr(17);
-      else if (p.find("VideoCodec=") == 0)
-        videoCodec = p.substr(11);
-    }
-    bool videoTranscoded =
-        transcodeReasons.find("VideoCodecNotSupported") != std::string::npos ||
-        transcodeReasons.find("ContainerBitrateExceedsLimit") != std::string::npos ||
-        transcodeReasons.find("VideoProfileNotSupported") != std::string::npos ||
-        transcodeReasons.find("VideoLevelNotSupported") != std::string::npos ||
-        transcodeReasons.find("VideoBitDepthNotSupported") != std::string::npos ||
-        transcodeReasons.find("VideoFramerateNotSupported") != std::string::npos ||
-        transcodeReasons.find("VideoResolutionNotSupported") != std::string::npos ||
-        transcodeReasons.find("DirectPlayError") != std::string::npos;
-
-    if (videoTranscoded && videoCodec.substr(0, 3) == "av1")
-    {
-      for (auto& p : params)
-        if (p.find("SegmentContainer=") == 0)
-          p = "SegmentContainer=mp4";
-    }
-  }
 
   // Strip the server's VideoBitrate/AudioBitrate — we always recalculate.
   params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
