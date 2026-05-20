@@ -1,3 +1,6 @@
+v0.7.2
+- Fix AV1 fMP4 container switch not triggering when server reports DirectPlayError transcode reason
+
 v0.7.1
 - Add "Force direct play" global setting and kofin-force-direct-play per-channel KofinProp — sends wildcard DirectPlayProfile so the server proxies streams without transcoding or remuxing
 - Force direct play hides all other transcoding settings when active
