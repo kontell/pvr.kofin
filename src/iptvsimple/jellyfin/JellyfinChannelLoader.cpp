@@ -723,7 +723,8 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
         transcodeReasons.find("VideoLevelNotSupported") != std::string::npos ||
         transcodeReasons.find("VideoBitDepthNotSupported") != std::string::npos ||
         transcodeReasons.find("VideoFramerateNotSupported") != std::string::npos ||
-        transcodeReasons.find("VideoResolutionNotSupported") != std::string::npos;
+        transcodeReasons.find("VideoResolutionNotSupported") != std::string::npos ||
+        transcodeReasons.find("DirectPlayError") != std::string::npos;
 
     if (videoTranscoded && videoCodec.substr(0, 3) == "av1")
     {
