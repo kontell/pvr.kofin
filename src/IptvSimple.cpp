@@ -984,7 +984,7 @@ bool IptvSimple::OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recordi
     return false;
 
   const std::string streamUrl = m_jellyfinClient->GetBaseUrl()
-    + "/Videos/" + recordingId + "/stream?static=true&api_key="
+    + "/Videos/" + recordingId + "/stream?static=true&ApiKey="
     + m_jellyfinClient->GetAccessToken();
 
   Logger::Log(LEVEL_INFO, "%s - Opening recording stream for %s", __FUNCTION__, recordingId.c_str());

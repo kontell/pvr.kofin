@@ -626,19 +626,17 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   else
   {
     streamUrl = m_client->GetBaseUrl() + "/Videos/" + recordingId
-      + "/stream?static=true&api_key=" + m_client->GetAccessToken();
+      + "/stream?static=true&ApiKey=" + m_client->GetAccessToken();
   }
 
   RewriteLocalhost(streamUrl);
 
-  // Append api_key if it's a Jellyfin URL
   const std::string baseUrl = m_client->GetBaseUrl();
   if (streamUrl.find(baseUrl) == 0 &&
-      streamUrl.find("api_key=") == std::string::npos &&
       streamUrl.find("ApiKey=") == std::string::npos)
   {
     streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
-    streamUrl += "api_key=" + m_client->GetAccessToken();
+    streamUrl += "ApiKey=" + m_client->GetAccessToken();
   }
 
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
@@ -875,20 +873,18 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
     streamUrl = m_client->GetBaseUrl() + "/Videos/" + itemId + "/live.m3u8"
       + "?LiveStreamId=" + WebUtils::UrlEncode(m_activeLiveStreamId)
       + "&MediaSourceId=" + WebUtils::UrlEncode(mediaSourceId)
-      + "&api_key=" + m_client->GetAccessToken();
+      + "&ApiKey=" + m_client->GetAccessToken();
   }
 
   // Fix localhost/127.0.0.1 references from tuner providers
   RewriteLocalhost(streamUrl);
 
-  // Only append api_key to Jellyfin server URLs, not third-party tuner URLs
   const std::string baseUrl = m_client->GetBaseUrl();
   if (streamUrl.find(baseUrl) == 0 &&
-      streamUrl.find("api_key=") == std::string::npos &&
       streamUrl.find("ApiKey=") == std::string::npos)
   {
     streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
-    streamUrl += "api_key=" + m_client->GetAccessToken();
+    streamUrl += "ApiKey=" + m_client->GetAccessToken();
   }
 
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,

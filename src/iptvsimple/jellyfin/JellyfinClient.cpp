@@ -227,7 +227,7 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   }
 
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "customrequest", "DELETE");
-  file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "X-Emby-Authorization", BuildAuthHeader());
+  file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Authorization", BuildAuthHeader());
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Content-Type", "application/json");
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Connection", "close");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", "10");
@@ -256,7 +256,7 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
     return result;
   }
 
-  file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "X-Emby-Authorization", BuildAuthHeader());
+  file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Authorization", BuildAuthHeader());
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Content-Type", "application/json");
   // Don't let Kodi's curl pool cache this connection. A long-running playback
   // produced dozens of idle keep-alive connections that Kodi's stop flow had
