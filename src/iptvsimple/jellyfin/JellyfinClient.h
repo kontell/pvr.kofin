@@ -33,6 +33,7 @@ public:
 
   // Server info
   bool FetchServerInfo(std::string& serverName);
+  bool GetStorageInfo(uint64_t& totalBytes, uint64_t& usedBytes);
 
   // HTTP methods
   Json::Value SendGet(const std::string& endpoint);

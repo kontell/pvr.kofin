@@ -356,6 +356,21 @@ PVR_ERROR IptvSimple::GetConnectionString(std::string& connection)
   return PVR_ERROR_NO_ERROR;
 }
 
+PVR_ERROR IptvSimple::GetDriveSpace(uint64_t& total, uint64_t& used)
+{
+  if (!m_jellyfinClient)
+    return PVR_ERROR_SERVER_ERROR;
+
+  uint64_t totalBytes = 0;
+  uint64_t usedBytes = 0;
+  if (!m_jellyfinClient->GetStorageInfo(totalBytes, usedBytes))
+    return PVR_ERROR_NOT_IMPLEMENTED;
+
+  total = totalBytes / 1024;
+  used = usedBytes / 1024;
+  return PVR_ERROR_NO_ERROR;
+}
+
 void IptvSimple::Process()
 {
   static const int TIMER_RECORDING_POLL_SECS = 60;
