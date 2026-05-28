@@ -45,14 +45,10 @@ set(KOFIN_SOURCES src/addon.cpp
                   src/iptvsimple/jellyfin/JellyfinChannelLoader.cpp
                   src/iptvsimple/jellyfin/JellyfinRecordingManager.cpp
                   src/iptvsimple/data/Channel.cpp
-                  src/iptvsimple/data/ChannelEpg.cpp
                   src/iptvsimple/data/ChannelGroup.cpp
                   src/iptvsimple/data/Provider.cpp
-                  src/iptvsimple/data/EpgEntry.cpp
-                  src/iptvsimple/data/EpgGenre.cpp
                   src/iptvsimple/utilities/FileUtils.cpp
                   src/iptvsimple/utilities/Logger.cpp
-                  src/iptvsimple/utilities/SettingsMigration.cpp
                   src/iptvsimple/utilities/StreamUtils.cpp
                   src/iptvsimple/utilities/WebUtils.cpp
                   src/iptvsimple/utilities/WebStreamExtractor.cpp
@@ -74,15 +70,11 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/jellyfin/JellyfinRecordingManager.h
                   src/iptvsimple/data/BaseEntry.h
                   src/iptvsimple/data/Channel.h
-                  src/iptvsimple/data/ChannelEpg.h
                   src/iptvsimple/data/ChannelGroup.h
                   src/iptvsimple/data/Provider.h
-                  src/iptvsimple/data/EpgEntry.h
-                  src/iptvsimple/data/EpgGenre.h
                   src/iptvsimple/data/StreamEntry.h
                   src/iptvsimple/utilities/FileUtils.h
                   src/iptvsimple/utilities/Logger.h
-                  src/iptvsimple/utilities/SettingsMigration.h
                   src/iptvsimple/utilities/StreamUtils.h
                   src/iptvsimple/utilities/TimeUtils.h
                   src/iptvsimple/utilities/WebUtils.h
