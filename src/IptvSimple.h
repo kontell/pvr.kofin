@@ -17,6 +17,7 @@
 #include "iptvsimple/jellyfin/JellyfinClient.h"
 #include "iptvsimple/jellyfin/JellyfinChannelLoader.h"
 #include "iptvsimple/jellyfin/JellyfinRecordingManager.h"
+#include "iptvsimple/jellyfin/JellyfinAuth.h"
 
 #include <atomic>
 #include <mutex>
@@ -118,12 +119,6 @@ public:
 
 protected:
   void Process();
-  void TestConnection();
-  void RunLogin();
-  bool LoginWithPassword();
-  bool LoginWithQuickConnect();
-  void RunLogout();
-  void FetchAndStoreServerName();
 
 private:
   static const int PROCESS_LOOP_WAIT_SECS = 2;
@@ -138,6 +133,7 @@ private:
   std::shared_ptr<iptvsimple::jellyfin::JellyfinClient> m_jellyfinClient;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinChannelLoader> m_channelLoader;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinRecordingManager> m_recordingManager;
+  std::shared_ptr<iptvsimple::jellyfin::JellyfinAuth> m_auth;
 
   std::atomic<bool> m_running{false};
   std::thread m_thread;

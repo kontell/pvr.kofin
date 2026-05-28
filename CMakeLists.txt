@@ -44,6 +44,7 @@ set(KOFIN_SOURCES src/addon.cpp
                   src/iptvsimple/jellyfin/JellyfinClient.cpp
                   src/iptvsimple/jellyfin/JellyfinChannelLoader.cpp
                   src/iptvsimple/jellyfin/JellyfinRecordingManager.cpp
+                  src/iptvsimple/jellyfin/JellyfinAuth.cpp
                   src/iptvsimple/data/Channel.cpp
                   src/iptvsimple/data/ChannelEpg.cpp
                   src/iptvsimple/data/ChannelGroup.cpp
@@ -72,6 +73,7 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/jellyfin/JellyfinClient.h
                   src/iptvsimple/jellyfin/JellyfinChannelLoader.h
                   src/iptvsimple/jellyfin/JellyfinRecordingManager.h
+                  src/iptvsimple/jellyfin/JellyfinAuth.h
                   src/iptvsimple/data/BaseEntry.h
                   src/iptvsimple/data/Channel.h
                   src/iptvsimple/data/ChannelEpg.h
