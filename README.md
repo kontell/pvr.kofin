@@ -2,7 +2,7 @@
 
 # Kofin PVR for Jellyfin
 
-Kodi PVR client addon for [Jellyfin](https://jellyfin.org) Live TV. Provides native Kodi PVR integration for live TV channels, EPG, recordings, and timers from a Jellyfin server.
+Kodi PVR client addon for [Jellyfin](https://jellyfin.org) Live TV. Provides Kodi PVR integration for live TV channels, EPG, recordings, and timers from a Jellyfin server.
 
 Play catchup/ archive content from EPG in same manner as IPTV simple client.
 
