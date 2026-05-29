@@ -41,7 +41,7 @@ msgid "Preferred video codec"
 msgstr ""
 
 msgctxt "#30625"
-msgid "The video codec to request when transcoding."
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1."
 msgstr ""
 
 msgctxt "#30626"
