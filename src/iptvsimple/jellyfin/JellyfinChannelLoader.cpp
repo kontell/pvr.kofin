@@ -607,6 +607,8 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   writer["indentation"] = "";
   const std::string bodyStr = Json::writeString(writer, body);
 
+  Logger::Log(LEVEL_DEBUG, "%s - PlaybackInfo request body: %s", __FUNCTION__, bodyStr.c_str());
+
   Json::Value response = m_client->SendPost(endpoint, bodyStr);
 
   if (response.isNull() || !response.isMember("MediaSources") || response["MediaSources"].empty())
@@ -811,6 +813,8 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
   const std::string bodyStr = Json::writeString(writer, body);
+
+  Logger::Log(LEVEL_DEBUG, "%s - PlaybackInfo request body: %s", __FUNCTION__, bodyStr.c_str());
 
   Json::Value response = m_client->SendPost(endpoint, bodyStr);
 
