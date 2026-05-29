@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "EpgGenre.h"
 #include "../InstanceSettings.h"
 
 #include <memory>
