@@ -1,3 +1,10 @@
+v0.8.0
+- Dual TranscodingProfiles: AV1 streams use an fMP4 container and all other codecs use TS, replacing the transcoding-URL container-switch hack — the server selects the container by codec-copy compatibility
+- Jellyfin v12 compatibility: use the non-deprecated Authorization header and ApiKey query parameter (instead of X-Emby-Authorization / api_key)
+- Show Jellyfin server disk space in Kodi (recordings storage free/used)
+- Preferred video codec setting clarified: AV1 is only used when the source codec is also AV1
+- Internal: removed dead code inherited from pvr.iptvsimple; moved Jellyfin login/auth into a dedicated JellyfinAuth module
+
 v0.7.2
 - Fix AV1 fMP4 container switch not triggering when server reports DirectPlayError transcode reason
 
