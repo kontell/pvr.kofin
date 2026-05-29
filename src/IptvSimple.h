@@ -44,6 +44,7 @@ public:
   PVR_ERROR GetBackendName(std::string& name) override;
   PVR_ERROR GetBackendVersion(std::string& version) override;
   PVR_ERROR GetConnectionString(std::string& connection) override;
+  PVR_ERROR GetDriveSpace(uint64_t& total, uint64_t& used) override;
 
   PVR_ERROR OnSystemSleep() override;
   PVR_ERROR OnSystemWake() override;

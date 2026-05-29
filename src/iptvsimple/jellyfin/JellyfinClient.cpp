@@ -183,6 +183,32 @@ bool JellyfinClient::FetchServerInfo(std::string& serverName)
   return true;
 }
 
+bool JellyfinClient::GetStorageInfo(uint64_t& totalBytes, uint64_t& usedBytes)
+{
+  Json::Value response = SendGet("/System/Info/Storage");
+  if (response.isNull() || !response.isMember("Libraries"))
+    return false;
+
+  totalBytes = 0;
+  usedBytes = 0;
+
+  for (const auto& lib : response["Libraries"])
+  {
+    if (lib.get("Name", "").asString() != "Recordings")
+      continue;
+    if (!lib.isMember("Folders") || lib["Folders"].empty())
+      break;
+    const Json::Value& folder = lib["Folders"][0];
+    uint64_t free = folder.get("FreeSpace", 0).asUInt64();
+    uint64_t used = folder.get("UsedSpace", 0).asUInt64();
+    totalBytes = free + used;
+    usedBytes = used;
+    return true;
+  }
+
+  return false;
+}
+
 /***************************************************************************
  * HTTP Methods
  **************************************************************************/
