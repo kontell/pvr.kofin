@@ -256,11 +256,37 @@ bool M3UParser::Parse()
   // a per-entry group-title= overrides or another #EXTGRP: appears.
   std::vector<std::string> currentExtGrpNames;
 
-  // Per-entry pending state — applied when the URL line is seen.
+  // Per-entry pending state — flushed on the next #EXTINF, a URL line, or EOF.
+  // The stream URL is optional; entries are matched to Jellyfin channels by name.
   M3UChannelInfo pending;
   std::string pendingChannelName;
   bool pendingHasEntry = false;
   bool pendingGroupsFromBeginDirective = false;
+
+  const char* const fn = __FUNCTION__;
+
+  // Commit the current pending entry (if any), keyed by lowercase channel name.
+  // Idempotent — clears pending state so an entry is never stored twice.
+  auto finalizePending = [&]()
+  {
+    if (pendingHasEntry && !pendingChannelName.empty())
+    {
+      // If duplicate channel name, last one wins.
+      m_channels[ToLower(pendingChannelName)] = pending;
+
+      Logger::Log(LEVEL_DEBUG,
+                  "%s - Parsed '%s': groups=%zu kodiProps=%zu kofinProps=%zu catchup=%s",
+                  fn, pendingChannelName.c_str(),
+                  pending.groupNames.size(), pending.kodiProps.size(),
+                  pending.kofinProps.size(),
+                  pending.hasCatchup ? "yes" : "no");
+    }
+
+    pendingHasEntry = false;
+    pendingChannelName.clear();
+    pending = M3UChannelInfo{};
+    pendingGroupsFromBeginDirective = false;
+  };
 
   const int defaultCatchupMode = m_settings->GetAllChannelsCatchupMode();
   const int defaultCatchupDays = m_settings->GetCatchupDays();
@@ -277,7 +303,10 @@ bool M3UParser::Parse()
 
     if (line.rfind(EXTINF, 0) == 0)
     {
-      // Start a new entry. Apply pending if URL was missing (defensive).
+      // Flush the previous entry first — commits it even if it had no URL line.
+      finalizePending();
+
+      // Start a new entry.
       pending = M3UChannelInfo{};
       pendingChannelName.clear();
       pendingHasEntry = true;
@@ -385,28 +414,13 @@ bool M3UParser::Parse()
     if (line[0] == '#' || line[0] == '\0')
       continue;
 
-    // URL line — finalize pending entry.
-    if (pendingHasEntry && !pendingChannelName.empty())
-    {
-      // Persist by lowercase channel name. If duplicate, last one wins.
-      m_channels[ToLower(pendingChannelName)] = pending;
-
-      Logger::Log(LEVEL_DEBUG,
-                  "%s - Parsed '%s': groups=%zu kodiProps=%zu kofinProps=%zu catchup=%s",
-                  __FUNCTION__, pendingChannelName.c_str(),
-                  pending.groupNames.size(), pending.kodiProps.size(),
-                  pending.kofinProps.size(),
-                  pending.hasCatchup ? "yes" : "no");
-    }
-
-    // Reset pending; clear group adoption flag so next entry without groups
-    // picks up the current #EXTGRP directive again.
-    pendingHasEntry = false;
-    pendingChannelName.clear();
-    pending = M3UChannelInfo{};
-    if (!pendingGroupsFromBeginDirective)
-      pendingGroupsFromBeginDirective = false; // explicit reset
+    // URL line — finalize the pending entry. The URL itself is unused (entries
+    // are matched to Jellyfin channels by name), so it is optional.
+    finalizePending();
   }
+
+  // Flush the final entry — the last record may have no trailing URL line.
+  finalizePending();
 
   Logger::Log(LEVEL_INFO,
               "%s - Parsed %zu entries, %zu unique groups from reference playlist",
