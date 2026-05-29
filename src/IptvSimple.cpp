@@ -19,9 +19,6 @@
 #include <memory>
 
 #include <kodi/General.h>
-#include <kodi/gui/dialogs/Keyboard.h>
-#include <kodi/gui/dialogs/Progress.h>
-#include <kodi/gui/dialogs/Select.h>
 #include <kodi/tools/StringUtils.h>
 
 using namespace iptvsimple;
@@ -35,6 +32,7 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
   m_channelGroups.Clear();
   m_providers.Clear();
   connectionManager = new ConnectionManager(*this, m_settings);
+  m_auth = std::make_shared<iptvsimple::jellyfin::JellyfinAuth>(m_settings);
 
   // Register PVR settings menu hook so "Client specific settings" works
   AddMenuHook(kodi::addon::PVRMenuhook(1, 30724, PVR_MENUHOOK_SETTING));
@@ -87,6 +85,7 @@ void IptvSimple::ConnectionEstablished()
 
   // Create Jellyfin client
   m_jellyfinClient = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
+  m_auth->SetClient(m_jellyfinClient);
 
   Logger::Log(LEVEL_INFO, "%s Connecting to Jellyfin at %s", __FUNCTION__,
               m_jellyfinClient->GetBaseUrl().c_str());
@@ -102,7 +101,7 @@ void IptvSimple::ConnectionEstablished()
   Logger::Log(LEVEL_INFO, "%s Authenticated, loading channels", __FUNCTION__);
 
   // Fetch/update server name
-  FetchAndStoreServerName();
+  m_auth->FetchAndStoreServerName();
 
   // Reuse existing loader/manager to preserve EPG program ID mappings across reconnects
   if (!m_channelLoader)
@@ -123,181 +122,6 @@ void IptvSimple::ConnectionEstablished()
 
   m_running = true;
   m_thread = std::thread([&] { Process(); });
-}
-
-void IptvSimple::TestConnection()
-{
-  m_settings->ReadSettings();
-
-  if (m_settings->GetJellyfinServerAddress().empty())
-  {
-    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", kodi::addon::GetLocalizedString(30714));
-    return;
-  }
-
-  auto testClient = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
-
-  if (testClient->Authenticate())
-  {
-    kodi::QueueNotification(QUEUE_INFO, "Kofin PVR", "Connection successful!");
-    Logger::Log(LEVEL_INFO, "%s - Test connection successful", __FUNCTION__);
-  }
-  else
-  {
-    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Connection failed.");
-    Logger::Log(LEVEL_ERROR, "%s - Test connection failed", __FUNCTION__);
-  }
-}
-
-void IptvSimple::RunLogin()
-{
-  m_settings->ReadSettings();
-
-  if (m_settings->GetJellyfinServerAddress().empty())
-  {
-    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", kodi::addon::GetLocalizedString(30714));
-    return;
-  }
-
-  // Show Select dialog: Username/Password or Quick Connect
-  std::vector<std::string> entries;
-  entries.push_back(kodi::addon::GetLocalizedString(30706)); // "Username/Password"
-  entries.push_back(kodi::addon::GetLocalizedString(30707)); // "Quick Connect"
-
-  int selected = kodi::gui::dialogs::Select::Show(
-    kodi::addon::GetLocalizedString(30708), entries); // "Choose login method"
-
-  if (selected < 0)
-    return; // cancelled
-
-  bool success = false;
-  if (selected == 0)
-    success = LoginWithPassword();
-  else
-    success = LoginWithQuickConnect();
-
-  if (success)
-  {
-    FetchAndStoreServerName();
-    m_settings->SetIsLoggedIn(true);
-    kodi::QueueNotification(QUEUE_INFO, "Kofin PVR", kodi::addon::GetLocalizedString(30711));
-  }
-}
-
-bool IptvSimple::LoginWithPassword()
-{
-  std::string username;
-  if (!kodi::gui::dialogs::Keyboard::ShowAndGetInput(username,
-      kodi::addon::GetLocalizedString(30709), false, false))
-    return false;
-
-  if (username.empty())
-    return false;
-
-  std::string password;
-  if (!kodi::gui::dialogs::Keyboard::ShowAndGetInput(password,
-      kodi::addon::GetLocalizedString(30710), false, true))
-    return false;
-
-  auto client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
-
-  if (!client->AuthenticateByPassword(username, password))
-  {
-    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", kodi::addon::GetLocalizedString(30713));
-    return false;
-  }
-
-  // AuthenticateByPassword -> SetAuthFromResponse already persisted token, userId, displayUsername
-  return true;
-}
-
-bool IptvSimple::LoginWithQuickConnect()
-{
-  auto qcClient = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
-
-  std::string code;
-  if (!qcClient->StartQuickConnect(code))
-  {
-    Logger::Log(LEVEL_ERROR, "%s - Failed to initiate Quick Connect", __FUNCTION__);
-    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Quick Connect initiation failed");
-    return false;
-  }
-
-  auto progress = std::make_unique<kodi::gui::dialogs::CProgress>();
-  progress->SetHeading("Kofin PVR - Quick Connect");
-  progress->SetLine(1, "Enter this code in your Jellyfin dashboard:");
-  progress->SetLine(2, "Code: " + code);
-  progress->SetLine(3, "Waiting for authorization...");
-  progress->SetCanCancel(true);
-  progress->SetPercentage(0);
-  progress->ShowProgressBar(true);
-  progress->Open();
-
-  const int maxAttempts = 100;
-  std::string userId, accessToken;
-
-  for (int attempt = 0; attempt < maxAttempts; ++attempt)
-  {
-    if (progress->IsCanceled())
-    {
-      Logger::Log(LEVEL_INFO, "%s - Quick Connect cancelled by user", __FUNCTION__);
-      return false;
-    }
-
-    progress->SetPercentage(attempt * 100 / maxAttempts);
-
-    if (qcClient->CheckQuickConnect(userId, accessToken))
-    {
-      progress.reset();
-      Logger::Log(LEVEL_INFO, "%s - Quick Connect authenticated", __FUNCTION__);
-      return true;
-    }
-
-    // Stepped sleep: check cancel every 200ms instead of blocking 3s
-    for (int ms = 0; ms < 3000; ms += 200)
-    {
-      if (progress->IsCanceled())
-        break;
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
-  }
-
-  progress.reset();
-  Logger::Log(LEVEL_ERROR, "%s - Quick Connect timed out", __FUNCTION__);
-  kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Quick Connect timed out");
-  return false;
-}
-
-void IptvSimple::RunLogout()
-{
-  m_settings->SetJellyfinAccessToken("");
-  m_settings->SetJellyfinUserId("");
-  m_settings->SetJellyfinServerName("");
-  m_settings->SetJellyfinDisplayUsername("");
-  m_settings->SetIsLoggedIn(false);
-
-  kodi::QueueNotification(QUEUE_INFO, "Kofin PVR", kodi::addon::GetLocalizedString(30712));
-  Logger::Log(LEVEL_INFO, "%s - User logged out", __FUNCTION__);
-}
-
-void IptvSimple::FetchAndStoreServerName()
-{
-  auto client = m_jellyfinClient;
-  if (!client)
-    client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
-
-  // Fetch server name (public endpoint, no auth needed)
-  std::string serverName;
-  if (client->FetchServerInfo(serverName))
-    m_settings->SetJellyfinServerName(serverName);
-
-  // If display username not yet set (e.g. Quick Connect), fetch it
-  if (m_settings->GetJellyfinDisplayUsername().empty() && !m_settings->GetJellyfinUserId().empty())
-  {
-    Json::Value userInfo = client->SendGet("/Users/" + m_settings->GetJellyfinUserId());
-    if (!userInfo.isNull() && userInfo.isMember("Name"))
-      m_settings->SetJellyfinDisplayUsername(userInfo["Name"].asString());
-  }
 }
 
 bool IptvSimple::Initialise()
@@ -1091,7 +915,7 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     if (settingValue.GetString() == "trigger")
     {
       kodi::addon::SetSettingString("loginButton", "");
-      RunLogin();
+      m_auth->RunLogin();
     }
     return;
   }
@@ -1100,7 +924,7 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     if (settingValue.GetString() == "trigger")
     {
       kodi::addon::SetSettingString("logoutButton", "");
-      RunLogout();
+      m_auth->RunLogout();
     }
     return;
   }
@@ -1109,7 +933,7 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     if (settingValue.GetString() == "trigger")
     {
       kodi::addon::SetSettingString("testConnection", "");
-      TestConnection();
+      m_auth->TestConnection();
     }
     return;
   }
