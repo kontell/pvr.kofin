@@ -422,16 +422,22 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   const std::string minSegs = useAdaptive ? "3" : "1";
   const std::string maxCh = std::to_string(m_settings->GetMaxAudioChannels());
 
-  // Build TS codec list: all allowed codecs (preferred first) except AV1,
-  // which can't ride MPEG-TS and gets its own fMP4 profile.
+  // Build TS codec list: all allowed codecs except AV1, which can't ride
+  // MPEG-TS and gets its own fMP4 profile. The leading codec is what a forced
+  // transcode targets, so it should be the most efficient TS-capable codec:
+  // HEVC when AV1 is preferred (AV1 itself is excluded here), otherwise the
+  // preferred codec. Falls back to the preferred codec when HEVC isn't allowed.
   std::string tsVideoCodecs;
   {
+    const bool hevcInList = hevcAllowed || hevcRextAllowed;
+    const std::string tsLead =
+        (preferredVideo == "av1" && hevcInList) ? "hevc" : preferredVideo;
     auto addCodecToList = [&](const std::string& codec) {
       if (codec == "av1") return;
       if (!tsVideoCodecs.empty()) tsVideoCodecs += ",";
       tsVideoCodecs += codec;
     };
-    addCodecToList(preferredVideo);
+    addCodecToList(tsLead);
     std::string::size_type vStart = 0;
     while (vStart < allowedVideoCodecsCsv.length())
     {
@@ -439,7 +445,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       if (vEnd == std::string::npos)
         vEnd = allowedVideoCodecsCsv.length();
       std::string codec = allowedVideoCodecsCsv.substr(vStart, vEnd - vStart);
-      if (codec != preferredVideo)
+      if (codec != tsLead)
         addCodecToList(codec);
       vStart = vEnd + 1;
     }
