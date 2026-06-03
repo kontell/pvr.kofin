@@ -1,3 +1,8 @@
+v0.9.0
+- Add "Allowed HDR types" setting: choose which HDR/Dolby Vision formats pass through to your display; unselected formats are tone-mapped to SDR by the server (HEVC, AV1, VP9)
+- Add "Maximum resolution" setting: cap playback resolution; higher-resolution sources are downscaled by the server
+- TS transcoding profile leads with HEVC when AV1 is the preferred codec, so a forced transcode targets the more efficient codec
+
 v0.8.0
 - Dual TranscodingProfiles: AV1 streams use an fMP4 container and all other codecs use TS, replacing the transcoding-URL container-switch hack — the server selects the container by codec-copy compatibility
 - Jellyfin v12 compatibility: use the non-deprecated Authorization header and ApiKey query parameter (instead of X-Emby-Authorization / api_key)

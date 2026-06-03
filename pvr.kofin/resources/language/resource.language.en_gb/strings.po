@@ -563,3 +563,85 @@ msgstr ""
 msgctxt "#30795"
 msgid "Surround 7.1 (8)"
 msgstr ""
+
+#: Allowed HDR types (allowedHdrTypes)
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr ""
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgstr ""
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr ""
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr ""
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr ""
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr ""
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr ""
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr ""
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr ""
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr ""
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr ""
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr ""
+
+#: Maximum resolution (maxResolution)
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr ""
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgstr ""
+
+msgctxt "#30824"
+msgid "480p"
+msgstr ""
+
+msgctxt "#30825"
+msgid "720p"
+msgstr ""
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr ""
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr ""
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr ""
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr ""
