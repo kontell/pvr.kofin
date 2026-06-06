@@ -558,6 +558,90 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     cp["Conditions"].append(cond);
     codecProfiles.append(cp);
   }
+
+  // HDR: advertise which VideoRangeTypes the display accepts, per codec. The
+  // server tone-maps/transcodes formats the user didn't select; SDR is always
+  // allowed. These are separate CodecProfiles (Jellyfin ANDs them with the
+  // bit-depth/profile ones above). When every type is selected (the default),
+  // nothing is emitted — identical to prior behavior.
+  if (!forceDirectPlay)
+  {
+    static const std::set<std::string> kAllHdr = {
+      "HDR10", "HLG", "HDR10Plus", "DOVI", "DOVIWithHDR10", "DOVIWithHLG",
+      "DOVIWithSDR", "DOVIWithEL", "DOVIWithHDR10Plus", "DOVIWithELHDR10Plus"};
+    static const std::set<std::string> kVp9Hdr = {"HDR10", "HLG", "HDR10Plus"};
+
+    // Parse the selection CSV, keeping only known tokens.
+    std::set<std::string> hdrSel;
+    {
+      const std::string& raw = m_settings->GetAllowedHdrTypes();
+      std::string::size_type s = 0;
+      while (s < raw.length())
+      {
+        auto e = raw.find(',', s);
+        if (e == std::string::npos)
+          e = raw.length();
+        std::string tok = raw.substr(s, e - s);
+        if (kAllHdr.count(tok))
+          hdrSel.insert(tok);
+        s = e + 1;
+      }
+    }
+
+    // hevc and av1 share the full capability set: av1 has no Profile-7
+    // enhancement layer, but the EL tokens are harmless (no av1 source ever
+    // classifies as EL). vp9 carries no Dolby Vision.
+    auto emitHdr = [&](const char* codec, const std::set<std::string>& cap,
+                       bool canDovi, bool present) {
+      if (!present)
+        return;
+      // Only restrict when the user deselected something this codec can carry.
+      bool restricts = false;
+      for (const auto& t : cap)
+        if (!hdrSel.count(t)) { restricts = true; break; }
+      if (!restricts)
+        return;
+      std::string value = "SDR"; // always allowed; must lead the list
+      for (const auto& t : kAllHdr) // iterate canonical set for deterministic order
+        if (cap.count(t) && hdrSel.count(t))
+          value += "|" + t;
+      if (canDovi && hdrSel.count("HDR10"))
+        value += "|DOVIInvalid"; // invalid DV is served as its HDR10 base layer
+      Json::Value cp;
+      cp["Type"] = "Video";
+      cp["Codec"] = codec;
+      Json::Value cond;
+      cond["Condition"] = "EqualsAny";
+      cond["Property"] = "VideoRangeType";
+      cond["Value"] = value;
+      cond["IsRequired"] = false;
+      cp["Conditions"] = Json::Value(Json::arrayValue);
+      cp["Conditions"].append(cond);
+      codecProfiles.append(cp);
+    };
+
+    emitHdr("hevc", kAllHdr, true, hevcAllowed || hevcRextAllowed);
+    emitHdr("av1", kAllHdr, true, videoTokens.count("av1") > 0);
+    emitHdr("vp9", kVp9Hdr, false, videoTokens.count("vp9") > 0);
+  }
+
+  // Maximum resolution: cap by width (Jellyfin uses width only). A codec-less
+  // Video CodecProfile applies to all video codecs; wider sources are
+  // downscaled by the server. Unlimited (0) or force-direct-play emits nothing.
+  const int maxWidth = forceDirectPlay ? 0 : m_settings->GetMaxWidth();
+  if (maxWidth > 0)
+  {
+    Json::Value cp;
+    cp["Type"] = "Video";
+    Json::Value cond;
+    cond["Condition"] = "LessThanEqual";
+    cond["Property"] = "Width";
+    cond["Value"] = std::to_string(maxWidth);
+    cond["IsRequired"] = false;
+    cp["Conditions"] = Json::Value(Json::arrayValue);
+    cp["Conditions"].append(cond);
+    codecProfiles.append(cp);
+  }
   profile["CodecProfiles"] = codecProfiles;
 
   // Subtitle profiles

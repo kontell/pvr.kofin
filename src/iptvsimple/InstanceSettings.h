@@ -23,6 +23,10 @@ namespace iptvsimple
   };
   static const int BITRATE_TABLE_SIZE = 16;
 
+  // Max-resolution table: index -> max width px (matches settings.xml options 0-5)
+  static const int MAX_WIDTH_TABLE[] = { 854, 1280, 1920, 2560, 3840, 0 }; // 0 = unlimited
+  static const int MAX_WIDTH_TABLE_SIZE = 6;
+
   class InstanceSettings
   {
   public:
@@ -92,6 +96,8 @@ namespace iptvsimple
     const std::string& GetDirectPlayAudioCodecs() const { return m_directPlayAudioCodecs; }
     void SetDirectPlayVideoCodecs(const std::string& v) { m_directPlayVideoCodecs = v; }
     void SetDirectPlayAudioCodecs(const std::string& v) { m_directPlayAudioCodecs = v; }
+    const std::string& GetAllowedHdrTypes() const { return m_allowedHdrTypes; }
+    void SetAllowedHdrTypes(const std::string& v) { m_allowedHdrTypes = v; }
     int GetPreferredVideoCodec() const { return m_preferredVideoCodec; }
     int GetPreferredAudioCodec() const { return m_preferredAudioCodec; }
     int GetMaxAudioChannels() const { return m_maxAudioChannels; }
@@ -105,6 +111,13 @@ namespace iptvsimple
     {
       int kbps = GetMaxStreamingBitrateKbps();
       return (kbps > 0) ? kbps * 1000 : 1000000000;
+    }
+    // Max video width in px (0 = unlimited). Resolution is capped by width only.
+    int GetMaxWidth() const
+    {
+      if (m_maxResolution >= 0 && m_maxResolution < MAX_WIDTH_TABLE_SIZE)
+        return MAX_WIDTH_TABLE[m_maxResolution];
+      return 0; // unlimited
     }
 
     // Input stream: 0 = ffmpegdirect, 1 = adaptive, 2 = kodi internal
@@ -178,10 +191,12 @@ namespace iptvsimple
     bool m_forceDirectPlay = false;
     std::string m_directPlayVideoCodecs = "h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1";
     std::string m_directPlayAudioCodecs = "aac,mp2,mp3,ac3,eac3,opus,flac,dts";
+    std::string m_allowedHdrTypes = "HDR10,HLG,HDR10Plus,DOVI,DOVIWithHDR10,DOVIWithHLG,DOVIWithSDR,DOVIWithEL,DOVIWithHDR10Plus,DOVIWithELHDR10Plus";
     int m_preferredVideoCodec = 0;  // 0=H264, 1=H265, 2=AV1
     int m_preferredAudioCodec = 0;  // 0=AAC, 1=AC3, 2=MP3, 3=Opus
     int m_maxAudioChannels = 6;
     int m_maxStreamingBitrate = 15; // index into BITRATE_TABLE (15=unlimited)
+    int m_maxResolution = 5;        // index into MAX_WIDTH_TABLE (5=unlimited)
 
     // Input stream
     int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
