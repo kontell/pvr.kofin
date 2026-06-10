@@ -1,8 +1,15 @@
 """
-pvr.kofin playback reporter — reports playback state to Jellyfin dashboard.
+pvr.kofin playback reporter — reports playback state to the Jellyfin server.
 
-Uses xbmc.Player callbacks for start/stop/pause detection and urllib for HTTP
-(bypasses Kodi's curl pool entirely, avoiding the UI-hang bug from C++ reporter).
+This lives in Python because the binary PVR addon API exposes no player-event
+callbacks. Once a channel or recording is handed to an inputstream via
+GetChannelStreamProperties/GetRecordingStreamProperties, the C++ addon drops
+out of the data path and never sees start/stop/pause/resume/seek — and even
+CloseLiveStream is unreliable under the stream-properties path. Kodi delivers
+those events only through xbmc.Player/xbmc.Monitor (the script API, with no
+binary-addon equivalent), so backend session reporting — Sessions/Playing,
+.../Progress, .../Stopped, and LiveStreams/Close — has to run from a service
+script. HTTP uses urllib directly, independent of Kodi's HTTP stack.
 """
 import json
 import os
