@@ -14,6 +14,7 @@
 #include "iptvsimple/utilities/TimeUtils.h"
 #include "iptvsimple/utilities/WebUtils.h"
 
+#include <algorithm>
 #include <chrono>
 #include <ctime>
 #include <memory>
@@ -213,7 +214,10 @@ void IptvSimple::Process()
     refreshTimer += elapsed;
     timerRecordingPollTimer += elapsed;
 
-    if (refreshTimer >= static_cast<unsigned int>(m_settings->GetJellyfinUpdateIntervalHours() * 3600))
+    // Clamp to a minimum of 1 hour: the settings control has no minimum, so a
+    // 0 or negative interval would make this always true and reload every loop.
+    const int updateIntervalHours = std::max(1, m_settings->GetJellyfinUpdateIntervalHours());
+    if (refreshTimer >= static_cast<unsigned int>(updateIntervalHours * 3600))
       m_reloadChannelsGroupsAndEPG = true;
 
     // Poll timers/recordings every 60s so Kodi learns about new/changed
@@ -321,7 +325,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     std::string streamURL;
     if (m_channelLoader)
     {
-      const std::string& jellyfinId = m_channelLoader->GetJellyfinId(m_currentChannel.GetUniqueId());
+      const std::string jellyfinId = m_channelLoader->GetJellyfinId(m_currentChannel.GetUniqueId());
       if (!jellyfinId.empty())
         streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId, overrides);
     }
@@ -609,7 +613,7 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   std::string streamURL;
   if (m_channelLoader)
   {
-    const std::string& jellyfinId = m_channelLoader->GetJellyfinId(channel.GetUniqueId());
+    const std::string jellyfinId = m_channelLoader->GetJellyfinId(channel.GetUniqueId());
     if (!jellyfinId.empty())
       streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId, epgOverrides);
   }

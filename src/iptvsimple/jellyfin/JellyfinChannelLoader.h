@@ -14,6 +14,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <vector>
@@ -62,8 +63,11 @@ public:
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
 
-  const std::string& GetJellyfinId(int channelUid) const;
-  const std::string& GetJellyfinProgramId(unsigned int epgBroadcastUid) const;
+  // Return by value (not const ref): callers may hold the result across a
+  // subsequent network call, during which the worker thread can rebuild the
+  // backing map. A reference would dangle; a copy is safe.
+  std::string GetJellyfinId(int channelUid) const;
+  std::string GetJellyfinProgramId(unsigned int epgBroadcastUid) const;
   int GetChannelUid(const std::string& jellyfinId) const;
 
 private:
@@ -74,6 +78,13 @@ private:
   std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster, bool forceTranscode);
   void WriteSessionFile();
   void RewriteLocalhost(std::string& url);
+
+  // Guards the three lookup maps below. They are rebuilt on the worker thread
+  // (LoadChannels, via Process()/ConnectionEstablished) and read/written from
+  // Kodi's PVR-callback threads (LoadEpg, GetJellyfinId, GetJellyfinProgramId,
+  // GetChannelUid), so every access must be serialised. Held only around map
+  // operations — never across the HTTP calls in LoadChannels/LoadEpg.
+  mutable std::mutex m_dataMutex;
 
   // Jellyfin channel ID <-> Kodi channel UID mappings
   std::map<std::string, int> m_jellyfinIdToUid;
