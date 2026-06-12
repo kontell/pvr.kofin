@@ -27,6 +27,33 @@ using namespace iptvsimple::data;
 using namespace iptvsimple::utilities;
 using namespace kodi::tools;
 
+namespace
+{
+
+// Append the stream URL, MIME type, inputstream and manifest_type for a catchup
+// stream played via inputstream.ffmpegdirect. MIME and manifest_type are derived
+// from the resolved catchup URL (and the channel's catchup-TS flag) rather than
+// assuming HLS: TS catchup sources — Xtream-codes, Flussonic "mpegts", and
+// shift/append on a .ts base — must NOT be labelled HLS, or ffmpegdirect tries to
+// parse raw MPEG-TS as an HLS playlist and fails. GetMimeType()/GetManifestType()
+// return "" for TS/unknown types, matching pvr.iptvsimple's SetAllStreamProperties.
+void AppendFfmpegDirectCatchupProperties(std::vector<kodi::addon::PVRStreamProperty>& properties,
+                                         const std::string& streamURL, bool isCatchupTSStream)
+{
+  const StreamType streamType = StreamUtils::GetStreamType(streamURL, "", isCatchupTSStream);
+  const std::string mimeType = StreamUtils::GetMimeType(streamType);
+  const std::string manifestType = StreamUtils::GetManifestType(streamType);
+
+  properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
+  if (!mimeType.empty())
+    properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, mimeType);
+  properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
+  if (!manifestType.empty())
+    properties.emplace_back("inputstream.ffmpegdirect.manifest_type", manifestType);
+}
+
+} // unnamed namespace
+
 IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple::IConnectionListener(instance), m_settings(new InstanceSettings())
 {
   m_channels.Clear();
@@ -396,12 +423,11 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       else
         streamURL = m_catchupController->ProcessStreamUrl(m_currentChannel);
 
-      // Update the stream URL property (was set to raw tuner URL earlier)
+      // Update the stream URL property (was set to raw tuner URL earlier).
+      // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
+      // sources aren't mislabelled as HLS (see AppendFfmpegDirectCatchupProperties).
       properties.clear();
-      properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
-      properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
-      properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
-      properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
+      AppendFfmpegDirectCatchupProperties(properties, streamURL, m_currentChannel.IsCatchupTSStream());
 
       for (const auto& prop : catchupProperties)
         properties.emplace_back(prop.first, prop.second);
@@ -650,10 +676,9 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   const std::string catchupUrl = m_catchupController->GetCatchupUrl(channel);
   if (!catchupUrl.empty())
   {
-    properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, catchupUrl);
-    properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
-    properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
-    properties.emplace_back("inputstream.ffmpegdirect.manifest_type", "hls");
+    // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
+    // sources aren't mislabelled as HLS (see AppendFfmpegDirectCatchupProperties).
+    AppendFfmpegDirectCatchupProperties(properties, catchupUrl, channel.IsCatchupTSStream());
 
     for (const auto& prop : catchupProperties)
       properties.emplace_back(prop.first, prop.second);
