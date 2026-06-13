@@ -137,6 +137,11 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
   int channelNumber = 1;
   int matchedCount = 0;
 
+  // Build the lookup maps into locals, then swap them in under m_dataMutex at
+  // the end, so readers on other threads never observe a half-rebuilt map.
+  std::map<std::string, int> jellyfinIdToUid;
+  std::map<int, std::string> uidToJellyfinId;
+
   for (const auto& item : items)
   {
     const std::string jellyfinId = item["Id"].asString();
@@ -225,12 +230,18 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
     if (channels.AddChannel(channel, groupIdList, channelGroups, true))
     {
       int uid = channel.GetUniqueId();
-      m_jellyfinIdToUid[jellyfinId] = uid;
-      m_uidToJellyfinId[uid] = jellyfinId;
+      jellyfinIdToUid[jellyfinId] = uid;
+      uidToJellyfinId[uid] = jellyfinId;
 
       Logger::Log(LEVEL_DEBUG, "%s - Added channel '%s' (uid=%d, jellyfinId=%s, groups=%zu)",
                   __FUNCTION__, name.c_str(), uid, jellyfinId.c_str(), groupIdList.size());
     }
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(m_dataMutex);
+    m_jellyfinIdToUid = std::move(jellyfinIdToUid);
+    m_uidToJellyfinId = std::move(uidToJellyfinId);
   }
 
   channelGroups.RemoveEmptyGroups();
@@ -244,14 +255,17 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
 PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t end,
                                           kodi::addon::PVREPGTagsResultSet& results)
 {
-  auto it = m_uidToJellyfinId.find(channelUid);
-  if (it == m_uidToJellyfinId.end())
+  std::string jellyfinId;
   {
-    Logger::Log(LEVEL_ERROR, "%s - No Jellyfin ID for channel UID %d", __FUNCTION__, channelUid);
-    return PVR_ERROR_INVALID_PARAMETERS;
+    std::lock_guard<std::mutex> lock(m_dataMutex);
+    auto it = m_uidToJellyfinId.find(channelUid);
+    if (it == m_uidToJellyfinId.end())
+    {
+      Logger::Log(LEVEL_ERROR, "%s - No Jellyfin ID for channel UID %d", __FUNCTION__, channelUid);
+      return PVR_ERROR_INVALID_PARAMETERS;
+    }
+    jellyfinId = it->second;
   }
-
-  const std::string& jellyfinId = it->second;
 
   // Use MaxStartDate (not MaxEndDate) - Jellyfin API returns programmes that start before this time
   const std::string endpoint = "/LiveTv/Programs?ChannelIds=" + jellyfinId
@@ -279,7 +293,10 @@ PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t en
 
     const std::string jellyfinProgramId = item["Id"].asString();
     const unsigned int broadcastUid = static_cast<unsigned int>(GenerateUid(jellyfinProgramId));
-    m_epgUidToJellyfinProgramId[broadcastUid] = jellyfinProgramId;
+    {
+      std::lock_guard<std::mutex> lock(m_dataMutex);
+      m_epgUidToJellyfinProgramId[broadcastUid] = jellyfinProgramId;
+    }
 
     tag.SetUniqueBroadcastId(broadcastUid);
     tag.SetUniqueChannelId(static_cast<unsigned int>(channelUid));
@@ -995,26 +1012,27 @@ void JellyfinChannelLoader::CloseLiveStream()
 }
 
 
-const std::string& JellyfinChannelLoader::GetJellyfinId(int channelUid) const
+std::string JellyfinChannelLoader::GetJellyfinId(int channelUid) const
 {
-  static const std::string empty;
+  std::lock_guard<std::mutex> lock(m_dataMutex);
   auto it = m_uidToJellyfinId.find(channelUid);
   if (it != m_uidToJellyfinId.end())
     return it->second;
-  return empty;
+  return {};
 }
 
-const std::string& JellyfinChannelLoader::GetJellyfinProgramId(unsigned int epgBroadcastUid) const
+std::string JellyfinChannelLoader::GetJellyfinProgramId(unsigned int epgBroadcastUid) const
 {
-  static const std::string empty;
+  std::lock_guard<std::mutex> lock(m_dataMutex);
   auto it = m_epgUidToJellyfinProgramId.find(epgBroadcastUid);
   if (it != m_epgUidToJellyfinProgramId.end())
     return it->second;
-  return empty;
+  return {};
 }
 
 int JellyfinChannelLoader::GetChannelUid(const std::string& jellyfinId) const
 {
+  std::lock_guard<std::mutex> lock(m_dataMutex);
   auto it = m_jellyfinIdToUid.find(jellyfinId);
   if (it != m_jellyfinIdToUid.end())
     return it->second;

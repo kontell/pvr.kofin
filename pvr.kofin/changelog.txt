@@ -1,3 +1,7 @@
+v0.9.2
+- Fix a potential crash from a data race on the Jellyfin channel/EPG lookup maps when a background channel/EPG reload coincided with browsing the guide or starting playback (map access is now synchronised)
+- Clamp the channel update interval to a minimum of 1 hour so a 0 value can't trigger a continuous reload loop
+
 v0.9.1
 - Fix catchup playback for TS-based sources (Xtream Codes, Flussonic mpegts, shift/append on a .ts stream): MIME and manifest type are now derived from the resolved catchup URL instead of always being labelled HLS, so inputstream.ffmpegdirect no longer fails trying to parse raw MPEG-TS as a playlist
 

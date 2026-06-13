@@ -147,7 +147,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
       Logger::Log(LEVEL_INFO, "%s - EPG map miss for UID %d, querying Jellyfin by channel+time",
                   __FUNCTION__, timer.GetEPGUid());
 
-      const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+      const std::string channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
       if (!channelJfId.empty())
       {
         // Query programs in a 1-minute window around the start time
@@ -212,7 +212,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
       Logger::Log(LEVEL_INFO, "%s - Series timer EPG map miss for UID %d, querying by channel+time",
                   __FUNCTION__, timer.GetEPGUid());
 
-      const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+      const std::string channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
       if (!channelJfId.empty())
       {
         const std::string startIso = FormatIso8601(timer.GetStartTime());
@@ -288,7 +288,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
   {
     // Manual recording — channel + time range, no EPG program ID.
     // Get timer defaults (without programId) and fill in from Kodi's timer.
-    const std::string& channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
+    const std::string channelJfId = m_channelLoader->GetJellyfinId(timer.GetClientChannelUid());
     if (channelJfId.empty())
     {
       Logger::Log(LEVEL_ERROR, "%s - No Jellyfin channel ID for channel UID %d",
