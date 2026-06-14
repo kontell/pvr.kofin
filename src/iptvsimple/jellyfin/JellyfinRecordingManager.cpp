@@ -592,6 +592,12 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
     properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
     properties.emplace_back("inputstream.adaptive.manifest_type", "hls");
+    // Jellyfin serves an in-progress recording as an EVENT/no-ENDLIST HLS playlist,
+    // which inputstream.adaptive classifies as "live" and starts ~16s (its live-delay
+    // floor) behind the playlist head. Because the transcode has only published a few
+    // segments when the playlist is first read, that lands ~30s into the recording
+    // instead of at the start. play_timeshift_buffer makes it begin at segment 0.
+    properties.emplace_back("inputstream.adaptive.play_timeshift_buffer", "true");
   }
 
   return PVR_ERROR_NO_ERROR;
