@@ -592,6 +592,7 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.adaptive");
     properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, "application/vnd.apple.mpegurl");
     properties.emplace_back("inputstream.adaptive.manifest_type", "hls");
+    properties.emplace_back("inputstream.adaptive.play_timeshift_buffer", "true");
   }
 
   return PVR_ERROR_NO_ERROR;

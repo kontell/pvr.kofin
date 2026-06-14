@@ -1,3 +1,6 @@
+v0.9.3
+- Play in-progress recordings from the beginning instead of starting roughly 30 seconds in (the still-transcoding stream was being treated as live, so playback began near the playlist head rather than at the start)
+
 v0.9.2
 - Fix a potential crash from a data race on the Jellyfin channel/EPG lookup maps when a background channel/EPG reload coincided with browsing the guide or starting playback (map access is now synchronised)
 - Clamp the channel update interval to a minimum of 1 hour so a 0 value can't trigger a continuous reload loop
