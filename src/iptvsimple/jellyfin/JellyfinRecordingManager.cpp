@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <thread>
 #include <ctime>
 
 using namespace iptvsimple;
@@ -398,17 +397,14 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
     ? "/LiveTv/SeriesTimers/" + jellyfinId
     : "/LiveTv/Timers/" + jellyfinId;
 
-  Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s (async)", __FUNCTION__,
+  Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s", __FUNCTION__,
               isSeries ? "series " : "", jellyfinId.c_str());
 
-  // Run DELETE + reload on a detached thread to avoid blocking the UI.
-  // The server-side operation (stopping a recording) can take several seconds.
-  auto client = m_client;
-  auto self = this;
-  std::thread([client, endpoint, self]() {
-    client->SendDelete(endpoint);
-    self->Reload();
-  }).detach();
+  // The caller runs this off Kodi's main thread; the server-side operation
+  // (stopping a recording) can take several seconds. Reload afterwards so the
+  // model reflects the deletion before the caller triggers Kodi UI updates.
+  m_client->SendDelete(endpoint);
+  Reload();
 
   return PVR_ERROR_NO_ERROR;
 }

@@ -725,41 +725,58 @@ PVR_ERROR IptvSimple::GetTimers(kodi::addon::PVRTimersResultSet& results)
   return PVR_ERROR_NO_ERROR;
 }
 
+void IptvSimple::RunTimerOpAsync(std::function<void()> op)
+{
+  std::thread(std::move(op)).detach();
+}
+
 PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
 {
-  if (m_recordingManager)
-  {
-    PVR_ERROR ret = m_recordingManager->AddTimer(timer);
-    if (ret == PVR_ERROR_NO_ERROR)
+  if (!m_recordingManager)
+    return PVR_ERROR_NOT_IMPLEMENTED;
+
+  // Run the create (program lookup + POST + model reload) off Kodi's main
+  // thread: synchronously it blocks the UI for several seconds. PVRTimer is a
+  // POD-backed value type, so capturing it by value is a safe deep copy. The
+  // triggers fire only after Reload() completes, so Kodi re-reads fresh data
+  // (the in-progress recording, EPG "play recording" entry, widgets).
+  RunTimerOpAsync([this, timer]() {
+    if (m_recordingManager->AddTimer(timer) == PVR_ERROR_NO_ERROR)
     {
       TriggerTimerUpdate();
-      // A timer for a currently-airing programme starts an in-progress
-      // recording immediately, so refresh recordings too (not just on the
-      // 60s poll) to update widgets and the EPG "play recording" entry.
       TriggerRecordingUpdate();
       TriggerEpgUpdate(timer.GetClientChannelUid());
     }
-    return ret;
-  }
-  return PVR_ERROR_NOT_IMPLEMENTED;
+    else
+    {
+      kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Failed to add timer");
+    }
+  });
+  return PVR_ERROR_NO_ERROR;
 }
 
 PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete)
 {
-  if (m_recordingManager)
-  {
-    PVR_ERROR ret = m_recordingManager->DeleteTimer(timer, forceDelete);
-    if (ret == PVR_ERROR_NO_ERROR)
+  if (!m_recordingManager)
+    return PVR_ERROR_NOT_IMPLEMENTED;
+
+  // As with AddTimer, run the delete + reload off the main thread and trigger
+  // UI updates only after the reload completes. Previously the triggers fired
+  // before the async reload, so Kodi briefly re-read stale data (the deleted
+  // timer / still-in-progress recording).
+  RunTimerOpAsync([this, timer, forceDelete]() {
+    if (m_recordingManager->DeleteTimer(timer, forceDelete) == PVR_ERROR_NO_ERROR)
     {
       TriggerTimerUpdate();
-      // Deleting an in-progress timer stops its recording, so refresh
-      // recordings too (not just on the 60s poll).
       TriggerRecordingUpdate();
       TriggerEpgUpdate(timer.GetClientChannelUid());
     }
-    return ret;
-  }
-  return PVR_ERROR_NOT_IMPLEMENTED;
+    else
+    {
+      kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Failed to delete timer");
+    }
+  });
+  return PVR_ERROR_NO_ERROR;
 }
 
 PVR_ERROR IptvSimple::UpdateTimer(const kodi::addon::PVRTimer& timer)
