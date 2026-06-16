@@ -603,11 +603,34 @@ void JellyfinRecordingManager::Reload()
   LoadTimers();
   LoadSeriesTimers();
   LoadRecordings();
+
+  // The red "recording" indicator in the guide tracks the timer state. Jellyfin
+  // reports a just-created timer as InProgress immediately, but its recording
+  // isn't playable from the EPG for a couple of seconds (it materialises after
+  // the timer — see IptvSimple::AddTimer). Until the recording exists in the
+  // model, present EPG-linked in-progress timers as Scheduled (clock icon) so
+  // the red dot only appears once the recording is actually playable. Runs
+  // after LoadRecordings so the recordings snapshot is current; manual/non-EPG
+  // timers (no EPGUid) are left as RECORDING.
+  std::lock_guard<std::mutex> lock(m_mutex);
+  for (auto& timer : m_timers)
+  {
+    if (timer.GetState() == PVR_TIMER_STATE_RECORDING && timer.GetEPGUid() != 0 &&
+        !HasRecordingForEpgLocked(timer.GetEPGUid(), timer.GetClientChannelUid()))
+    {
+      timer.SetState(PVR_TIMER_STATE_SCHEDULED);
+    }
+  }
 }
 
 bool JellyfinRecordingManager::HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const
 {
   std::lock_guard<std::mutex> lock(m_mutex);
+  return HasRecordingForEpgLocked(broadcastUid, channelUid);
+}
+
+bool JellyfinRecordingManager::HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const
+{
   for (const auto& rec : m_recordings)
   {
     if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)

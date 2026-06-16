@@ -76,6 +76,9 @@ private:
   PVR_ERROR LoadSeriesTimers();
   PVR_ERROR LoadRecordings();
 
+  // Same as HasRecordingForEpg but assumes m_mutex is already held.
+  bool HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const;
+
   static int GenerateUid(const std::string& str);
   static time_t ParseIso8601(const std::string& dateStr);
   static std::string FormatIso8601(time_t time);

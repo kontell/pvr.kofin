@@ -767,6 +767,10 @@ PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
       {
         std::this_thread::sleep_for(std::chrono::seconds(2));
         m_recordingManager->Reload();
+        // TriggerTimerUpdate too: once the recording materialises, the timer's
+        // state flips Scheduled -> Recording (see JellyfinRecordingManager::
+        // Reload), which is what turns the guide's clock icon into the red dot.
+        TriggerTimerUpdate();
         TriggerRecordingUpdate();
         TriggerEpgUpdate(timer.GetClientChannelUid());
       }
