@@ -741,15 +741,35 @@ PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
   // triggers fire only after Reload() completes, so Kodi re-reads fresh data
   // (the in-progress recording, EPG "play recording" entry, widgets).
   RunTimerOpAsync([this, timer]() {
-    if (m_recordingManager->AddTimer(timer) == PVR_ERROR_NO_ERROR)
-    {
-      TriggerTimerUpdate();
-      TriggerRecordingUpdate();
-      TriggerEpgUpdate(timer.GetClientChannelUid());
-    }
-    else
+    if (m_recordingManager->AddTimer(timer) != PVR_ERROR_NO_ERROR)
     {
       kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Failed to add timer");
+      return;
+    }
+
+    TriggerTimerUpdate();
+    TriggerRecordingUpdate();
+    TriggerEpgUpdate(timer.GetClientChannelUid());
+
+    // Jellyfin creates the timer synchronously but materializes the in-progress
+    // recording a few seconds later, so the reload above (run right after the
+    // POST) doesn't see it yet. If this timer is recording now, reload a few
+    // more times until the recording appears, so the recordings widgets and the
+    // EPG "play recording" entry update promptly instead of waiting for the next
+    // 60s poll. Future timers skip this (nothing to materialize yet).
+    const time_t now = std::time(nullptr);
+    const bool recordingNow = timer.GetStartTime() <= now && now < timer.GetEndTime();
+    if (recordingNow)
+    {
+      for (int attempt = 0; attempt < 5 && m_running &&
+           !m_recordingManager->HasRecordingForEpg(timer.GetEPGUid(), timer.GetClientChannelUid());
+           ++attempt)
+      {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        m_recordingManager->Reload();
+        TriggerRecordingUpdate();
+        TriggerEpgUpdate(timer.GetClientChannelUid());
+      }
     }
   });
   return PVR_ERROR_NO_ERROR;
