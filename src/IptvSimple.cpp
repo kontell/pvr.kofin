@@ -733,6 +733,10 @@ PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
     if (ret == PVR_ERROR_NO_ERROR)
     {
       TriggerTimerUpdate();
+      // A timer for a currently-airing programme starts an in-progress
+      // recording immediately, so refresh recordings too (not just on the
+      // 60s poll) to update widgets and the EPG "play recording" entry.
+      TriggerRecordingUpdate();
       TriggerEpgUpdate(timer.GetClientChannelUid());
     }
     return ret;
@@ -748,6 +752,9 @@ PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool force
     if (ret == PVR_ERROR_NO_ERROR)
     {
       TriggerTimerUpdate();
+      // Deleting an in-progress timer stops its recording, so refresh
+      // recordings too (not just on the 60s poll).
+      TriggerRecordingUpdate();
       TriggerEpgUpdate(timer.GetClientChannelUid());
     }
     return ret;
