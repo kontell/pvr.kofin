@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <thread>
 #include <ctime>
 
 using namespace iptvsimple;
@@ -398,17 +397,14 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
     ? "/LiveTv/SeriesTimers/" + jellyfinId
     : "/LiveTv/Timers/" + jellyfinId;
 
-  Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s (async)", __FUNCTION__,
+  Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s", __FUNCTION__,
               isSeries ? "series " : "", jellyfinId.c_str());
 
-  // Run DELETE + reload on a detached thread to avoid blocking the UI.
-  // The server-side operation (stopping a recording) can take several seconds.
-  auto client = m_client;
-  auto self = this;
-  std::thread([client, endpoint, self]() {
-    client->SendDelete(endpoint);
-    self->Reload();
-  }).detach();
+  // The caller runs this off Kodi's main thread; the server-side operation
+  // (stopping a recording) can take several seconds. Reload afterwards so the
+  // model reflects the deletion before the caller triggers Kodi UI updates.
+  m_client->SendDelete(endpoint);
+  Reload();
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -607,11 +603,34 @@ void JellyfinRecordingManager::Reload()
   LoadTimers();
   LoadSeriesTimers();
   LoadRecordings();
+
+  // The red "recording" indicator in the guide tracks the timer state. Jellyfin
+  // reports a just-created timer as InProgress immediately, but its recording
+  // isn't playable from the EPG for a couple of seconds (it materialises after
+  // the timer — see IptvSimple::AddTimer). Until the recording exists in the
+  // model, present EPG-linked in-progress timers as Scheduled (clock icon) so
+  // the red dot only appears once the recording is actually playable. Runs
+  // after LoadRecordings so the recordings snapshot is current; manual/non-EPG
+  // timers (no EPGUid) are left as RECORDING.
+  std::lock_guard<std::mutex> lock(m_mutex);
+  for (auto& timer : m_timers)
+  {
+    if (timer.GetState() == PVR_TIMER_STATE_RECORDING && timer.GetEPGUid() != 0 &&
+        !HasRecordingForEpgLocked(timer.GetEPGUid(), timer.GetClientChannelUid()))
+    {
+      timer.SetState(PVR_TIMER_STATE_SCHEDULED);
+    }
+  }
 }
 
 bool JellyfinRecordingManager::HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const
 {
   std::lock_guard<std::mutex> lock(m_mutex);
+  return HasRecordingForEpgLocked(broadcastUid, channelUid);
+}
+
+bool JellyfinRecordingManager::HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const
+{
   for (const auto& rec : m_recordings)
   {
     if (rec.GetEPGEventId() == broadcastUid && rec.GetChannelUid() == channelUid)

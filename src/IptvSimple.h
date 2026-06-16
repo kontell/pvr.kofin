@@ -20,6 +20,7 @@
 #include "iptvsimple/jellyfin/JellyfinAuth.h"
 
 #include <atomic>
+#include <functional>
 #include <mutex>
 #include <thread>
 
@@ -142,6 +143,12 @@ private:
   std::atomic_bool m_reloadChannelsGroupsAndEPG{false};
   std::atomic_bool m_needsRestart{false};
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
+
+  // Runs a timer add/delete (network chain + model reload) on a detached
+  // worker so Kodi's main thread isn't blocked, then lets the op trigger UI
+  // updates once the reload has completed. Caveat: the worker captures `this`
+  // and, like the pre-existing detached operations, is not joined on teardown.
+  void RunTimerOpAsync(std::function<void()> op);
 
   // Recording byte-stream (used by Recordings section playback path)
   bool OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recording);

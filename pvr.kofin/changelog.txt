@@ -1,3 +1,9 @@
+v0.10.0
+- Starting a recording no longer freezes the Kodi UI for several seconds: the timer is now created on a background thread instead of blocking the interface while the Jellyfin requests complete
+- Recordings, home-screen widgets, and the EPG "Play recording" menu entry now refresh as soon as a recording starts or stops, instead of waiting up to 60 seconds for the next background poll
+- Stopping a recording no longer briefly shows the deleted timer and still-in-progress recording: the UI now refreshes only after the change has been applied on the server and reloaded
+- When recording a live programme from the guide, the entry shows the scheduled (clock) icon until the recording is ready, then switches to the red recording icon — matching when "Play recording" actually becomes available
+
 v0.9.3
 - Play in-progress recordings from the beginning instead of starting roughly 30 seconds in (the still-transcoding stream was being treated as live, so playback began near the playlist head rather than at the start)
 

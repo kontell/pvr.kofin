@@ -725,34 +725,82 @@ PVR_ERROR IptvSimple::GetTimers(kodi::addon::PVRTimersResultSet& results)
   return PVR_ERROR_NO_ERROR;
 }
 
+void IptvSimple::RunTimerOpAsync(std::function<void()> op)
+{
+  std::thread(std::move(op)).detach();
+}
+
 PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
 {
-  if (m_recordingManager)
-  {
-    PVR_ERROR ret = m_recordingManager->AddTimer(timer);
-    if (ret == PVR_ERROR_NO_ERROR)
+  if (!m_recordingManager)
+    return PVR_ERROR_NOT_IMPLEMENTED;
+
+  // Run the create (program lookup + POST + model reload) off Kodi's main
+  // thread: synchronously it blocks the UI for several seconds. PVRTimer is a
+  // POD-backed value type, so capturing it by value is a safe deep copy. The
+  // triggers fire only after Reload() completes, so Kodi re-reads fresh data
+  // (the in-progress recording, EPG "play recording" entry, widgets).
+  RunTimerOpAsync([this, timer]() {
+    if (m_recordingManager->AddTimer(timer) != PVR_ERROR_NO_ERROR)
     {
-      TriggerTimerUpdate();
-      TriggerEpgUpdate(timer.GetClientChannelUid());
+      kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Failed to add timer");
+      return;
     }
-    return ret;
-  }
-  return PVR_ERROR_NOT_IMPLEMENTED;
+
+    TriggerTimerUpdate();
+    TriggerRecordingUpdate();
+    TriggerEpgUpdate(timer.GetClientChannelUid());
+
+    // Jellyfin creates the timer synchronously but materializes the in-progress
+    // recording a few seconds later, so the reload above (run right after the
+    // POST) doesn't see it yet. If this timer is recording now, reload a few
+    // more times until the recording appears, so the recordings widgets and the
+    // EPG "play recording" entry update promptly instead of waiting for the next
+    // 60s poll. Future timers skip this (nothing to materialize yet).
+    const time_t now = std::time(nullptr);
+    const bool recordingNow = timer.GetStartTime() <= now && now < timer.GetEndTime();
+    if (recordingNow)
+    {
+      for (int attempt = 0; attempt < 5 && m_running &&
+           !m_recordingManager->HasRecordingForEpg(timer.GetEPGUid(), timer.GetClientChannelUid());
+           ++attempt)
+      {
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        m_recordingManager->Reload();
+        // TriggerTimerUpdate too: once the recording materialises, the timer's
+        // state flips Scheduled -> Recording (see JellyfinRecordingManager::
+        // Reload), which is what turns the guide's clock icon into the red dot.
+        TriggerTimerUpdate();
+        TriggerRecordingUpdate();
+        TriggerEpgUpdate(timer.GetClientChannelUid());
+      }
+    }
+  });
+  return PVR_ERROR_NO_ERROR;
 }
 
 PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete)
 {
-  if (m_recordingManager)
-  {
-    PVR_ERROR ret = m_recordingManager->DeleteTimer(timer, forceDelete);
-    if (ret == PVR_ERROR_NO_ERROR)
+  if (!m_recordingManager)
+    return PVR_ERROR_NOT_IMPLEMENTED;
+
+  // As with AddTimer, run the delete + reload off the main thread and trigger
+  // UI updates only after the reload completes. Previously the triggers fired
+  // before the async reload, so Kodi briefly re-read stale data (the deleted
+  // timer / still-in-progress recording).
+  RunTimerOpAsync([this, timer, forceDelete]() {
+    if (m_recordingManager->DeleteTimer(timer, forceDelete) == PVR_ERROR_NO_ERROR)
     {
       TriggerTimerUpdate();
+      TriggerRecordingUpdate();
       TriggerEpgUpdate(timer.GetClientChannelUid());
     }
-    return ret;
-  }
-  return PVR_ERROR_NOT_IMPLEMENTED;
+    else
+    {
+      kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Failed to delete timer");
+    }
+  });
+  return PVR_ERROR_NO_ERROR;
 }
 
 PVR_ERROR IptvSimple::UpdateTimer(const kodi::addon::PVRTimer& timer)
