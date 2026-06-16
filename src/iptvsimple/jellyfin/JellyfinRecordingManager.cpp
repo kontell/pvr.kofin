@@ -1132,6 +1132,78 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingLastPlayedPosition(const kodi::a
 }
 
 /***************************************************************************
+ * Recorded-stream byte path (Recordings window playback)
+ *
+ * Streams the raw recording file via /Videos/{id}/stream?static=true using
+ * kodi::vfs::CFile. Used by the PVR Recordings section, which opens recordings
+ * directly rather than via GetRecordingStreamProperties. Only one recording
+ * plays at a time and Kodi drives Open/Read/Seek/Close on a single playback
+ * thread, so this state is independent of the data model and not guarded by
+ * m_mutex.
+ **************************************************************************/
+
+bool JellyfinRecordingManager::OpenRecordedStream(const kodi::addon::PVRRecording& recording)
+{
+  CloseRecordedStream();
+
+  const std::string recordingId = recording.GetRecordingId();
+  if (!m_client)
+    return false;
+
+  const std::string streamUrl = m_client->GetBaseUrl()
+    + "/Videos/" + recordingId + "/stream?static=true&ApiKey="
+    + m_client->GetAccessToken();
+
+  Logger::Log(LEVEL_INFO, "%s - Opening recording stream for %s", __FUNCTION__, recordingId.c_str());
+
+  if (!m_recordingStream.OpenFile(streamUrl, ADDON_READ_NO_CACHE))
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
+    return false;
+  }
+
+  m_recordingStreamOpen = true;
+  Logger::Log(LEVEL_INFO, "%s - Recording stream open, length: %lld",
+              __FUNCTION__, static_cast<long long>(m_recordingStream.GetLength()));
+  return true;
+}
+
+void JellyfinRecordingManager::CloseRecordedStream()
+{
+  if (m_recordingStreamOpen)
+  {
+    Logger::Log(LEVEL_INFO, "%s - Closing recording stream", __FUNCTION__);
+    m_recordingStream.Close();
+    m_recordingStreamOpen = false;
+  }
+}
+
+int JellyfinRecordingManager::ReadRecordedStream(unsigned char* buffer, unsigned int size)
+{
+  if (!m_recordingStreamOpen)
+    return -1;
+
+  auto bytesRead = m_recordingStream.Read(buffer, size);
+  return static_cast<int>(bytesRead);
+}
+
+int64_t JellyfinRecordingManager::SeekRecordedStream(int64_t position, int whence)
+{
+  if (!m_recordingStreamOpen)
+    return -1;
+
+  return m_recordingStream.Seek(position, whence);
+}
+
+int64_t JellyfinRecordingManager::LengthRecordedStream()
+{
+  if (!m_recordingStreamOpen)
+    return -1;
+
+  return m_recordingStream.GetLength();
+}
+
+/***************************************************************************
  * Utilities
  **************************************************************************/
 

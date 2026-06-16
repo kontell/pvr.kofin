@@ -25,7 +25,6 @@
 #include <thread>
 
 #include <kodi/addon-instance/PVR.h>
-#include <kodi/Filesystem.h>
 
 class ATTR_DLL_LOCAL IptvSimple : public iptvsimple::IConnectionListener
 {
@@ -149,14 +148,4 @@ private:
   // updates once the reload has completed. Caveat: the worker captures `this`
   // and, like the pre-existing detached operations, is not joined on teardown.
   void RunTimerOpAsync(std::function<void()> op);
-
-  // Recording byte-stream (used by Recordings section playback path)
-  bool OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recording);
-  void CloseRecordedStreamImpl();
-  int ReadRecordedStreamImpl(unsigned char* buffer, unsigned int size);
-  int64_t SeekRecordedStreamImpl(int64_t position, int whence);
-  int64_t LengthRecordedStreamImpl();
-
-  kodi::vfs::CFile m_recordingStream;
-  bool m_recordingStreamOpen{false};
 };
