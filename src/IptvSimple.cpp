@@ -891,84 +891,24 @@ PVR_ERROR IptvSimple::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecor
  * It goes directly to OpenRecordedStream / ReadRecordedStream.
  **************************************************************************/
 
-bool IptvSimple::OpenRecordedStreamImpl(const kodi::addon::PVRRecording& recording)
-{
-  CloseRecordedStreamImpl();
-
-  const std::string recordingId = recording.GetRecordingId();
-  if (!m_jellyfinClient)
-    return false;
-
-  const std::string streamUrl = m_jellyfinClient->GetBaseUrl()
-    + "/Videos/" + recordingId + "/stream?static=true&ApiKey="
-    + m_jellyfinClient->GetAccessToken();
-
-  Logger::Log(LEVEL_INFO, "%s - Opening recording stream for %s", __FUNCTION__, recordingId.c_str());
-
-  if (!m_recordingStream.OpenFile(streamUrl, ADDON_READ_NO_CACHE))
-  {
-    Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
-    return false;
-  }
-
-  m_recordingStreamOpen = true;
-  Logger::Log(LEVEL_INFO, "%s - Recording stream open, length: %lld",
-              __FUNCTION__, static_cast<long long>(m_recordingStream.GetLength()));
-  return true;
-}
-
-void IptvSimple::CloseRecordedStreamImpl()
-{
-  if (m_recordingStreamOpen)
-  {
-    Logger::Log(LEVEL_INFO, "%s - Closing recording stream", __FUNCTION__);
-    m_recordingStream.Close();
-    m_recordingStreamOpen = false;
-  }
-}
-
-int IptvSimple::ReadRecordedStreamImpl(unsigned char* buffer, unsigned int size)
-{
-  if (!m_recordingStreamOpen)
-    return -1;
-
-  ssize_t bytesRead = m_recordingStream.Read(buffer, size);
-  return static_cast<int>(bytesRead);
-}
-
-int64_t IptvSimple::SeekRecordedStreamImpl(int64_t position, int whence)
-{
-  if (!m_recordingStreamOpen)
-    return -1;
-
-  return m_recordingStream.Seek(position, whence);
-}
-
-int64_t IptvSimple::LengthRecordedStreamImpl()
-{
-  if (!m_recordingStreamOpen)
-    return -1;
-
-  return m_recordingStream.GetLength();
-}
-
-// Kodi v22 (PVR API 9.x) adds streamId parameter to all recording stream methods
+// The byte-stream itself lives in JellyfinRecordingManager; these overrides
+// just adapt the Kodi v21/v22 signatures (v22 adds a streamId) and delegate.
 #ifdef KODI_PVR_API_V9
 bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId)
 {
   streamId = 1;
-  return OpenRecordedStreamImpl(recording);
+  return m_recordingManager && m_recordingManager->OpenRecordedStream(recording);
 }
-void IptvSimple::CloseRecordedStream(int64_t) { CloseRecordedStreamImpl(); }
-int IptvSimple::ReadRecordedStream(int64_t, unsigned char* buffer, unsigned int size) { return ReadRecordedStreamImpl(buffer, size); }
-int64_t IptvSimple::SeekRecordedStream(int64_t, int64_t position, int whence) { return SeekRecordedStreamImpl(position, whence); }
-int64_t IptvSimple::LengthRecordedStream(int64_t) { return LengthRecordedStreamImpl(); }
+void IptvSimple::CloseRecordedStream(int64_t) { if (m_recordingManager) m_recordingManager->CloseRecordedStream(); }
+int IptvSimple::ReadRecordedStream(int64_t, unsigned char* buffer, unsigned int size) { return m_recordingManager ? m_recordingManager->ReadRecordedStream(buffer, size) : -1; }
+int64_t IptvSimple::SeekRecordedStream(int64_t, int64_t position, int whence) { return m_recordingManager ? m_recordingManager->SeekRecordedStream(position, whence) : -1; }
+int64_t IptvSimple::LengthRecordedStream(int64_t) { return m_recordingManager ? m_recordingManager->LengthRecordedStream() : -1; }
 #else
-bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording) { return OpenRecordedStreamImpl(recording); }
-void IptvSimple::CloseRecordedStream() { CloseRecordedStreamImpl(); }
-int IptvSimple::ReadRecordedStream(unsigned char* buffer, unsigned int size) { return ReadRecordedStreamImpl(buffer, size); }
-int64_t IptvSimple::SeekRecordedStream(int64_t position, int whence) { return SeekRecordedStreamImpl(position, whence); }
-int64_t IptvSimple::LengthRecordedStream() { return LengthRecordedStreamImpl(); }
+bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording) { return m_recordingManager && m_recordingManager->OpenRecordedStream(recording); }
+void IptvSimple::CloseRecordedStream() { if (m_recordingManager) m_recordingManager->CloseRecordedStream(); }
+int IptvSimple::ReadRecordedStream(unsigned char* buffer, unsigned int size) { return m_recordingManager ? m_recordingManager->ReadRecordedStream(buffer, size) : -1; }
+int64_t IptvSimple::SeekRecordedStream(int64_t position, int whence) { return m_recordingManager ? m_recordingManager->SeekRecordedStream(position, whence) : -1; }
+int64_t IptvSimple::LengthRecordedStream() { return m_recordingManager ? m_recordingManager->LengthRecordedStream() : -1; }
 #endif
 
 /***************************************************************************

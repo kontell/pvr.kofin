@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 
+#include <kodi/Filesystem.h>
 #include <kodi/addon-instance/pvr/Timers.h>
 #include <kodi/addon-instance/pvr/Recordings.h>
 
@@ -34,7 +35,7 @@ enum TimerTypeId
   TIMER_ONCE_MANUAL = 4              // Manual recording (channel + time, no EPG)
 };
 
-class JellyfinRecordingManager
+class ATTR_DLL_LOCAL JellyfinRecordingManager
 {
 public:
   JellyfinRecordingManager(std::shared_ptr<JellyfinClient> client,
@@ -60,6 +61,14 @@ public:
   PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count);
   PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition);
   PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position);
+
+  // Recorded-stream byte path (PVR Recordings window playback; raw static
+  // stream). One playback at a time, driven on Kodi's playback thread.
+  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording);
+  void CloseRecordedStream();
+  int ReadRecordedStream(unsigned char* buffer, unsigned int size);
+  int64_t SeekRecordedStream(int64_t position, int whence);
+  int64_t LengthRecordedStream();
 
   void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
   void SetChannels(iptvsimple::Channels* channels) { m_channels = channels; }
@@ -111,6 +120,11 @@ private:
   std::shared_ptr<JellyfinChannelLoader> m_channelLoader;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
   iptvsimple::Channels* m_channels{nullptr};
+
+  // Recorded-stream byte path state. Single playback at a time, accessed on
+  // Kodi's playback thread — independent of the data model, so not under m_mutex.
+  kodi::vfs::CFile m_recordingStream;
+  bool m_recordingStreamOpen{false};
 };
 
 } // namespace jellyfin
