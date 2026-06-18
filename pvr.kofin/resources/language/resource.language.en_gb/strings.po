@@ -187,7 +187,7 @@ msgid "In-progress recording InputStream"
 msgstr ""
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Use FFmpeg (Kodi internal) if Adaptive causes crashes on your device."
+msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
 msgstr ""
 
 #: Advanced category
@@ -330,7 +330,7 @@ msgid "Enable catchup (IPTV)"
 msgstr ""
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr ""
 
 msgctxt "#30733"
@@ -549,7 +549,7 @@ msgid "Maximum audio channels"
 msgstr ""
 
 msgctxt "#30792"
-msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed."
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
 msgstr ""
 
 msgctxt "#30793"
