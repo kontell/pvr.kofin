@@ -434,11 +434,6 @@
         <setting id="catchupEnabled" type="boolean" label="30731" help="30732">
           <level>0</level>
           <default>false</default>
-          <dependencies>
-            <dependency type="enable">
-              <condition operator="is" setting="referencePlaylistEnabled">true</condition>
-            </dependency>
-          </dependencies>
           <control type="toggle" />
         </setting>
         <setting id="catchupQueryFormat" type="string" label="30739" help="30740">
