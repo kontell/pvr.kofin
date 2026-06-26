@@ -2,15 +2,647 @@
 # Addon Name: Kofin PVR for Jellyfin
 # Addon id: pvr.kofin
 # Addon Provider: Kontell
+# Note: machine-translated (LLM), pending native review.
 msgid ""
 msgstr ""
 "Project-Id-Version: pvr.kofin\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: \n"
-"Language-Team: fr_ca\n"
+"PO-Revision-Date: 2026-06-26 00:00+0000\n"
+"Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
+"Language-Team: French (Canada)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: fr_ca\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: fr_CA\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgctxt "Addon Summary"
+msgid "Kodi PVR addon for Jellyfin Live TV."
+msgstr "Extension PVR Kodi pour la TV en direct Jellyfin."
+
+msgctxt "Addon Description"
+msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Intégration PVR native de Kodi pour la TV en direct Jellyfin. Fournit les chaînes de TV en direct, le guide des programmes (EPG), les enregistrements et les programmations depuis un serveur Jellyfin."
+
+#: Transcoding category
+msgctxt "#30620"
+msgid "Transcoding"
+msgstr "Transcodage"
+
+msgctxt "#30622"
+msgid "Force remuxing"
+msgstr "Forcer le remuxage"
+
+msgctxt "#30623"
+msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgstr "Force le serveur Jellyfin à remuxer tous les flux de TV en direct en HLS au lieu de les lire directement. Permet le partage de flux s'il est activé dans les paramètres du tuner Jellyfin."
+
+msgctxt "#30624"
+msgid "Preferred video codec"
+msgstr "Codec vidéo préféré"
+
+msgctxt "#30625"
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1 or the source codec is turned off for direct play."
+msgstr "Le codec vidéo à demander lors du transcodage. L'AV1 ne sera pas choisi par Jellyfin pour l'encodage, sauf si le codec source est lui aussi de l'AV1 ou si le codec source est désactivé pour la lecture directe."
+
+msgctxt "#30626"
+msgid "H264"
+msgstr "H264"
+
+msgctxt "#30627"
+msgid "H265/HEVC"
+msgstr "H265/HEVC"
+
+msgctxt "#30628"
+msgid "AV1"
+msgstr "AV1"
+
+msgctxt "#30629"
+msgid "Preferred audio codec"
+msgstr "Codec audio préféré"
+
+msgctxt "#30630"
+msgid "The audio codec to request when transcoding."
+msgstr "Le codec audio à demander lors du transcodage."
+
+msgctxt "#30631"
+msgid "AAC"
+msgstr "AAC"
+
+msgctxt "#30632"
+msgid "AC3"
+msgstr "AC3"
+
+msgctxt "#30633"
+msgid "MP3"
+msgstr "MP3"
+
+msgctxt "#30634"
+msgid "Maximum streaming bitrate"
+msgstr "Débit de diffusion en continu maximal"
+
+msgctxt "#30635"
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
+msgstr "Toute valeur autre qu'illimité désactive la lecture directe. Si un flux est inférieur à la limite, il sera remuxé ; s'il est supérieur, il sera transcodé."
+
+#: Bitrate options
+msgctxt "#30636"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30637"
+msgid "2 Mbps"
+msgstr "2 Mbps"
+
+msgctxt "#30638"
+msgid "3 Mbps"
+msgstr "3 Mbps"
+
+msgctxt "#30639"
+msgid "5 Mbps"
+msgstr "5 Mbps"
+
+msgctxt "#30640"
+msgid "8 Mbps"
+msgstr "8 Mbps"
+
+msgctxt "#30641"
+msgid "10 Mbps"
+msgstr "10 Mbps"
+
+msgctxt "#30642"
+msgid "15 Mbps"
+msgstr "15 Mbps"
+
+msgctxt "#30643"
+msgid "20 Mbps"
+msgstr "20 Mbps"
+
+msgctxt "#30644"
+msgid "25 Mbps"
+msgstr "25 Mbps"
+
+msgctxt "#30645"
+msgid "30 Mbps"
+msgstr "30 Mbps"
+
+msgctxt "#30646"
+msgid "40 Mbps"
+msgstr "40 Mbps"
+
+msgctxt "#30647"
+msgid "60 Mbps"
+msgstr "60 Mbps"
+
+msgctxt "#30648"
+msgid "80 Mbps"
+msgstr "80 Mbps"
+
+msgctxt "#30649"
+msgid "100 Mbps"
+msgstr "100 Mbps"
+
+msgctxt "#30650"
+msgid "120 Mbps"
+msgstr "120 Mbps"
+
+msgctxt "#30651"
+msgid "Unlimited"
+msgstr "Illimité"
+
+#: InputStream category
+msgctxt "#30660"
+msgid "InputStream"
+msgstr "InputStream"
+
+msgctxt "#30661"
+msgid "InputStream addon"
+msgstr "Extension InputStream"
+
+msgctxt "#30662"
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgstr "L'extension InputStream à utiliser pour la lecture. FFmpeg Direct prend en charge le différé avec un tampon local sur l'appareil. Adaptive prend en charge le différé avec un tampon côté serveur. FFmpeg (interne à Kodi) ne prend pas en charge le différé."
+
+msgctxt "#30663"
+msgid "FFmpeg Direct"
+msgstr "FFmpeg Direct"
+
+msgctxt "#30664"
+msgid "Adaptive"
+msgstr "Adaptive"
+
+msgctxt "#30665"
+msgid "FFmpeg (Kodi internal)"
+msgstr "FFmpeg (interne à Kodi)"
+
+msgctxt "#30666"
+msgid "Enable timeshift"
+msgstr "Activer le différé"
+
+msgctxt "#30667"
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr "Met en mémoire tampon le flux en direct à partir du moment où la lecture a commencé. Le tampon est créé sur le client ; contrôlez sa taille maximale via les paramètres d'inputstream.ffmpegdirect."
+
+msgctxt "#30668"
+msgid "In-progress recording InputStream"
+msgstr "InputStream pour enregistrement en cours"
+
+msgctxt "#30669"
+msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
+msgstr "L'InputStream à utiliser pour la lecture des enregistrements en cours. Adaptive peut avancer dans un enregistrement en cours. FFmpeg ne peut pas avancer, mais peut être plus robuste."
+
+#: Advanced category
+msgctxt "#30670"
+msgid "Advanced"
+msgstr "Avancé"
+
+msgctxt "#30672"
+msgid "Channel reload interval (hours)"
+msgstr "Intervalle de rechargement des chaînes (heures)"
+
+msgctxt "#30673"
+msgid "How often to reload channel data from Jellyfin."
+msgstr "Fréquence de rechargement des données de chaînes depuis Jellyfin."
+
+msgctxt "#30674"
+msgid "Connection check timeout (seconds)"
+msgstr "Délai d'expiration de la vérification de connexion (secondes)"
+
+msgctxt "#30675"
+msgid "How long to wait for a response when checking the Jellyfin server connection."
+msgstr "Durée d'attente d'une réponse lors de la vérification de la connexion au serveur Jellyfin."
+
+msgctxt "#30676"
+msgid "Connection check interval (seconds)"
+msgstr "Intervalle de vérification de connexion (secondes)"
+
+msgctxt "#30677"
+msgid "How often to check if the Jellyfin server is reachable."
+msgstr "Fréquence de vérification de l'accessibilité du serveur Jellyfin."
+
+#: Account category
+msgctxt "#30700"
+msgid "Account"
+msgstr "Compte"
+
+msgctxt "#30701"
+msgid "Server address"
+msgstr "Adresse du serveur"
+
+msgctxt "#30702"
+msgid "The URL of your Jellyfin server."
+msgstr "L'URL de votre serveur Jellyfin."
+
+msgctxt "#30703"
+msgid "Login"
+msgstr "Connexion"
+
+msgctxt "#30704"
+msgid "Server name"
+msgstr "Nom du serveur"
+
+msgctxt "#30705"
+msgid "Logout"
+msgstr "Déconnexion"
+
+msgctxt "#30706"
+msgid "Username/Password"
+msgstr "Nom d'utilisateur / mot de passe"
+
+msgctxt "#30707"
+msgid "Quick Connect"
+msgstr "Quick Connect"
+
+msgctxt "#30708"
+msgid "Choose login method"
+msgstr "Choisir la méthode de connexion"
+
+msgctxt "#30709"
+msgid "Enter username"
+msgstr "Saisir le nom d'utilisateur"
+
+msgctxt "#30710"
+msgid "Enter password"
+msgstr "Saisir le mot de passe"
+
+msgctxt "#30711"
+msgid "Login successful! Restart addon to connect."
+msgstr "Connexion réussie ! Redémarrez l'extension pour vous connecter."
+
+msgctxt "#30712"
+msgid "Logged out successfully."
+msgstr "Déconnexion réussie."
+
+msgctxt "#30713"
+msgid "Login failed. Check credentials."
+msgstr "Échec de la connexion. Vérifiez vos identifiants."
+
+msgctxt "#30714"
+msgid "Enter a server address first."
+msgstr "Saisissez d'abord une adresse de serveur."
+
+msgctxt "#30715"
+msgid "Opus"
+msgstr "Opus"
+
+msgctxt "#30716"
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgctxt "#30717"
+msgid "Test Connection"
+msgstr "Tester la connexion"
+
+msgctxt "#30720"
+msgid "Transcode H264 10-bit (Hi10P)"
+msgstr "Transcoder le H264 10 bits (Hi10P)"
+
+msgctxt "#30721"
+msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
+msgstr "Force le transcodage du contenu H264 10 bits. Activez cette option si votre appareil ne prend pas en charge le décodage Hi10P."
+
+msgctxt "#30722"
+msgid "Transcode HEVC range extensions"
+msgstr "Transcoder les extensions de plage HEVC"
+
+msgctxt "#30723"
+msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
+msgstr "Force le transcodage du contenu HEVC avec profils d'extensions de plage (4:2:2, 4:4:4). Activez cette option si votre appareil ne prend en charge que Main et Main 10."
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr "Paramètres Kofin PVR"
+
+msgctxt "#30725"
+msgid "FFmpeg Direct settings..."
+msgstr "Paramètres de FFmpeg Direct..."
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr "Redémarrer l'extension"
+
+#: Catchup category
+msgctxt "#30730"
+msgid "Catchup"
+msgstr "TV de rattrapage"
+
+msgctxt "#30731"
+msgid "Enable catchup (IPTV)"
+msgstr "Activer le rattrapage (IPTV)"
+
+msgctxt "#30732"
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Active la TV de rattrapage/archive si votre fournisseur la prend en charge. Ne fonctionne qu'avec la lecture directe : le remuxage forcé doit donc être désactivé et le débit réglé sur illimité. Nécessite un fichier M3U de référence (configuré dans la section Avancé) qui correspond aux noms de vos chaînes Jellyfin et contient les balises de rattrapage omises par Jellyfin."
+
+msgctxt "#30733"
+msgid "Reference M3U location"
+msgstr "Emplacement du M3U de référence"
+
+msgctxt "#30734"
+msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
+msgstr "Choisissez si le fichier M3U de référence est stocké localement ou accessible via une URL."
+
+msgctxt "#30735"
+msgid "Reference M3U file"
+msgstr "Fichier M3U de référence"
+
+msgctxt "#30736"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "Chemin vers le fichier M3U de référence sur le système de fichiers local."
+
+msgctxt "#30737"
+msgid "Reference M3U URL"
+msgstr "URL du M3U de référence"
+
+msgctxt "#30738"
+msgid "URL of the reference M3U file."
+msgstr "URL du fichier M3U de référence."
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr "Chaîne de format de requête"
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr "Une chaîne de format dépendant du fournisseur pour les URL de rattrapage. Utilisée par défaut lorsque les chaînes ne spécifient pas leur propre catchup-source. Ex. : &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+
+msgctxt "#30741"
+msgid "Catchup window (days)"
+msgstr "Fenêtre de rattrapage (jours)"
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr "Le nombre de jours dans le passé pendant lesquels il est possible de revoir un programme."
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr "Mode de rattrapage par défaut pour toutes les chaînes"
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr "Si activé, toutes les chaînes sont supposées prendre en charge le rattrapage selon ce mode. Les chaînes possédant des balises de rattrapage explicites dans le M3U utiliseront leur propre mode."
+
+msgctxt "#30745"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr "Lire depuis l'EPG en mode TV en direct (différé)"
+
+msgctxt "#30746"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
+msgstr "Lorsque cette option est activée, sélectionner un programme passé le lit comme un flux en direct différé (possibilité d'avancer/reculer dans la fenêtre de rattrapage). Lorsqu'elle est désactivée, il est lu comme une vidéo délimitée."
+
+msgctxt "#30747"
+msgid "Buffer before programme start (minutes)"
+msgstr "Marge avant le début du programme (minutes)"
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr "Temps de marge supplémentaire avant le début du programme lors de la lecture en tant que vidéo délimitée."
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr "Marge après la fin du programme (minutes)"
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr "Temps de marge supplémentaire après la fin du programme lors de la lecture en tant que vidéo délimitée."
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr "Rattrapage uniquement sur les programmes terminés"
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr "N'autoriser le rattrapage que sur les programmes déjà terminés. Le programme en cours de diffusion ne peut pas être regardé en rattrapage tant qu'il n'est pas terminé."
+
+#: Catchup enum values
+msgctxt "#30760"
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgctxt "#30761"
+msgid "Default"
+msgstr "Par défaut"
+
+msgctxt "#30762"
+msgid "Append"
+msgstr "Ajout"
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr "Décalage (SIPTV)"
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr "Chemin local"
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
+msgstr "Chemin distant (URL)"
+
+#: Reference playlist (advanced category)
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr "Liste de lecture de référence"
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr "Utiliser une liste de lecture de référence"
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr "Charge une liste de lecture M3U de référence qui enrichit les chaînes Jellyfin avec des groupes de chaînes, des KodiProps (sélection de l'inputstream, en-têtes), des KofinProps (surcharges par chaîne) et des métadonnées de rattrapage. Les chaînes sont associées par nom (insensible à la casse)."
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr "Emplacement de la liste de lecture de référence"
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr "Choisissez si la liste de lecture de référence est stockée localement ou accessible via une URL."
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr "Fichier de liste de lecture de référence"
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "Chemin vers le fichier M3U de référence sur le système de fichiers local."
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr "URL de la liste de lecture de référence"
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr "URL de la liste de lecture M3U de référence."
+
+#: Force-transcode codec toggles
+msgctxt "#30781"
+msgid "Direct play video codecs"
+msgstr "Codecs vidéo en lecture directe"
+
+msgctxt "#30782"
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
+msgstr "Codecs vidéo pouvant être lus directement ou remuxés. Les codecs non sélectionnés seront transcodés vers le codec vidéo préféré."
+
+msgctxt "#30783"
+msgid "Direct play audio codecs"
+msgstr "Codecs audio en lecture directe"
+
+msgctxt "#30784"
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
+msgstr "Codecs audio pouvant être copiés tels quels. Les codecs non sélectionnés seront transcodés vers le codec audio préféré."
+
+msgctxt "#30796"
+msgid "MPEG-2"
+msgstr "MPEG-2"
+
+msgctxt "#30797"
+msgid "VP9"
+msgstr "VP9"
+
+msgctxt "#30798"
+msgid "VC-1"
+msgstr "VC-1"
+
+msgctxt "#30799"
+msgid "MP2"
+msgstr "MP2"
+
+msgctxt "#30800"
+msgid "EAC3"
+msgstr "EAC3"
+
+msgctxt "#30801"
+msgid "FLAC"
+msgstr "FLAC"
+
+msgctxt "#30805"
+msgid "DTS"
+msgstr "DTS"
+
+msgctxt "#30806"
+msgid "Force transcoding"
+msgstr "Forcer le transcodage"
+
+msgctxt "#30807"
+msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgstr "Force le serveur à transcoder vers le codec vidéo préféré au lieu de remuxer. Le débit est plafonné au débit source (ou au débit de diffusion en continu maximal, selon la valeur la plus basse) afin de déclencher le réencodage."
+
+msgctxt "#30808"
+msgid "Force direct play"
+msgstr "Forcer la lecture directe"
+
+msgctxt "#30809"
+msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgstr "Force le serveur à lire tous les flux directement, sans transcodage ni remuxage. L'appareil doit pouvoir décoder nativement le format source. Ne s'applique pas aux enregistrements en cours. Peut aussi être défini par chaîne via la propriété M3U kofin-force-direct-play."
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr "H264 10-bit"
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr "HEVC Range Extensions"
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr "Nombre maximal de canaux audio"
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
+msgstr "Nombre maximal de canaux audio autorisés lors du transcodage. Les flux comportant davantage de canaux seront remixés vers un nombre inférieur. Sans effet sur la lecture directe."
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr "Stéréo (2)"
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr "Surround 5.1 (6)"
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
+msgstr "Surround 7.1 (8)"
+
+#: Allowed HDR types (allowedHdrTypes)
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr "Types HDR autorisés"
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgstr "Formats HDR autorisés à être transmis à votre écran. Les formats non sélectionnés sont convertis en SDR par mappage tonal sur le serveur. Le SDR est toujours autorisé. Sans effet lorsque « Forcer la lecture directe » est activé."
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr "HDR10"
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr "HLG"
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr "Dolby Vision (repli HDR10)"
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr "Dolby Vision (repli HLG)"
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr "Dolby Vision (repli SDR)"
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr "Dolby Vision Profile 7 (EL)"
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr "Dolby Vision + HDR10+"
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr "Dolby Vision Profile 7 + HDR10+"
+
+#: Maximum resolution (maxResolution)
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr "Résolution maximale"
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgstr "Limite la vidéo par sa largeur ; les sources de résolution supérieure sont réduites par le serveur. Sans effet lorsque « Forcer la lecture directe » est activé."
+
+msgctxt "#30824"
+msgid "480p"
+msgstr "480p"
+
+msgctxt "#30825"
+msgid "720p"
+msgstr "720p"
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr "1080p"
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr "1440p"
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr "2160p (4K)"
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr "Illimité"

@@ -2,15 +2,647 @@
 # Addon Name: Kofin PVR for Jellyfin
 # Addon id: pvr.kofin
 # Addon Provider: Kontell
+# Note: machine-translated (LLM), pending native review.
 msgid ""
 msgstr ""
 "Project-Id-Version: pvr.kofin\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: \n"
-"Language-Team: ko_kr\n"
+"PO-Revision-Date: 2026-06-26 00:00+0000\n"
+"Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
+"Language-Team: Korean\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ko_kr\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: ko_KR\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "Addon Summary"
+msgid "Kodi PVR addon for Jellyfin Live TV."
+msgstr "Jellyfin 라이브 TV용 Kodi PVR 애드온."
+
+msgctxt "Addon Description"
+msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Jellyfin 라이브 TV를 위한 네이티브 Kodi PVR 통합. Jellyfin 서버에서 라이브 TV 채널, EPG, 녹화 및 타이머를 제공합니다."
+
+#: Transcoding category
+msgctxt "#30620"
+msgid "Transcoding"
+msgstr "트랜스코딩"
+
+msgctxt "#30622"
+msgid "Force remuxing"
+msgstr "리먹스 강제"
+
+msgctxt "#30623"
+msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgstr "Jellyfin 서버가 모든 라이브 TV 스트림을 직접 재생하는 대신 HLS로 리먹스하도록 강제합니다. Jellyfin 튜너 설정에서 활성화된 경우 스트림 공유를 허용합니다."
+
+msgctxt "#30624"
+msgid "Preferred video codec"
+msgstr "선호 비디오 코덱"
+
+msgctxt "#30625"
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1 or the source codec is turned off for direct play."
+msgstr "트랜스코딩 시 요청하는 비디오 코덱. 소스 코덱도 AV1이거나 소스 코덱의 직접 재생이 꺼져 있지 않으면 Jellyfin은 인코딩에 AV1을 선택하지 않습니다."
+
+msgctxt "#30626"
+msgid "H264"
+msgstr "H264"
+
+msgctxt "#30627"
+msgid "H265/HEVC"
+msgstr "H265/HEVC"
+
+msgctxt "#30628"
+msgid "AV1"
+msgstr "AV1"
+
+msgctxt "#30629"
+msgid "Preferred audio codec"
+msgstr "선호 오디오 코덱"
+
+msgctxt "#30630"
+msgid "The audio codec to request when transcoding."
+msgstr "트랜스코딩 시 요청하는 오디오 코덱."
+
+msgctxt "#30631"
+msgid "AAC"
+msgstr "AAC"
+
+msgctxt "#30632"
+msgid "AC3"
+msgstr "AC3"
+
+msgctxt "#30633"
+msgid "MP3"
+msgstr "MP3"
+
+msgctxt "#30634"
+msgid "Maximum streaming bitrate"
+msgstr "최대 스트리밍 비트레이트"
+
+msgctxt "#30635"
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
+msgstr "무제한 이외의 값은 직접 재생을 비활성화합니다. 스트림이 제한보다 낮으면 리먹스되고, 높으면 트랜스코딩됩니다."
+
+#: Bitrate options
+msgctxt "#30636"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30637"
+msgid "2 Mbps"
+msgstr "2 Mbps"
+
+msgctxt "#30638"
+msgid "3 Mbps"
+msgstr "3 Mbps"
+
+msgctxt "#30639"
+msgid "5 Mbps"
+msgstr "5 Mbps"
+
+msgctxt "#30640"
+msgid "8 Mbps"
+msgstr "8 Mbps"
+
+msgctxt "#30641"
+msgid "10 Mbps"
+msgstr "10 Mbps"
+
+msgctxt "#30642"
+msgid "15 Mbps"
+msgstr "15 Mbps"
+
+msgctxt "#30643"
+msgid "20 Mbps"
+msgstr "20 Mbps"
+
+msgctxt "#30644"
+msgid "25 Mbps"
+msgstr "25 Mbps"
+
+msgctxt "#30645"
+msgid "30 Mbps"
+msgstr "30 Mbps"
+
+msgctxt "#30646"
+msgid "40 Mbps"
+msgstr "40 Mbps"
+
+msgctxt "#30647"
+msgid "60 Mbps"
+msgstr "60 Mbps"
+
+msgctxt "#30648"
+msgid "80 Mbps"
+msgstr "80 Mbps"
+
+msgctxt "#30649"
+msgid "100 Mbps"
+msgstr "100 Mbps"
+
+msgctxt "#30650"
+msgid "120 Mbps"
+msgstr "120 Mbps"
+
+msgctxt "#30651"
+msgid "Unlimited"
+msgstr "무제한"
+
+#: InputStream category
+msgctxt "#30660"
+msgid "InputStream"
+msgstr "InputStream"
+
+msgctxt "#30661"
+msgid "InputStream addon"
+msgstr "InputStream 애드온"
+
+msgctxt "#30662"
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgstr "재생에 사용할 InputStream 애드온. FFmpeg Direct는 기기의 로컬 버퍼로 타임시프트를 지원합니다. Adaptive는 서버 측 버퍼로 타임시프트를 지원합니다. FFmpeg(Kodi 내장)는 타임시프트를 지원하지 않습니다."
+
+msgctxt "#30663"
+msgid "FFmpeg Direct"
+msgstr "FFmpeg Direct"
+
+msgctxt "#30664"
+msgid "Adaptive"
+msgstr "Adaptive"
+
+msgctxt "#30665"
+msgid "FFmpeg (Kodi internal)"
+msgstr "FFmpeg(Kodi 내장)"
+
+msgctxt "#30666"
+msgid "Enable timeshift"
+msgstr "타임시프트 활성화"
+
+msgctxt "#30667"
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr "재생이 시작된 시점부터 라이브 스트림을 버퍼링합니다. 버퍼는 클라이언트에 생성되며, 최대 크기는 inputstream.ffmpegdirect 설정에서 조정합니다."
+
+msgctxt "#30668"
+msgid "In-progress recording InputStream"
+msgstr "진행 중인 녹화용 InputStream"
+
+msgctxt "#30669"
+msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
+msgstr "진행 중인 녹화 재생에 사용할 InputStream. Adaptive는 진행 중인 녹화에서 앞으로 건너뛸 수 있습니다. FFmpeg는 앞으로 건너뛸 수 없지만 더 안정적일 수 있습니다."
+
+#: Advanced category
+msgctxt "#30670"
+msgid "Advanced"
+msgstr "고급"
+
+msgctxt "#30672"
+msgid "Channel reload interval (hours)"
+msgstr "채널 다시 로드 간격(시간)"
+
+msgctxt "#30673"
+msgid "How often to reload channel data from Jellyfin."
+msgstr "Jellyfin에서 채널 데이터를 다시 로드하는 빈도."
+
+msgctxt "#30674"
+msgid "Connection check timeout (seconds)"
+msgstr "연결 확인 시간 초과(초)"
+
+msgctxt "#30675"
+msgid "How long to wait for a response when checking the Jellyfin server connection."
+msgstr "Jellyfin 서버 연결을 확인할 때 응답을 기다리는 시간."
+
+msgctxt "#30676"
+msgid "Connection check interval (seconds)"
+msgstr "연결 확인 간격(초)"
+
+msgctxt "#30677"
+msgid "How often to check if the Jellyfin server is reachable."
+msgstr "Jellyfin 서버에 연결할 수 있는지 확인하는 빈도."
+
+#: Account category
+msgctxt "#30700"
+msgid "Account"
+msgstr "계정"
+
+msgctxt "#30701"
+msgid "Server address"
+msgstr "서버 주소"
+
+msgctxt "#30702"
+msgid "The URL of your Jellyfin server."
+msgstr "Jellyfin 서버의 URL."
+
+msgctxt "#30703"
+msgid "Login"
+msgstr "로그인"
+
+msgctxt "#30704"
+msgid "Server name"
+msgstr "서버 이름"
+
+msgctxt "#30705"
+msgid "Logout"
+msgstr "로그아웃"
+
+msgctxt "#30706"
+msgid "Username/Password"
+msgstr "사용자 이름/비밀번호"
+
+msgctxt "#30707"
+msgid "Quick Connect"
+msgstr "Quick Connect"
+
+msgctxt "#30708"
+msgid "Choose login method"
+msgstr "로그인 방법 선택"
+
+msgctxt "#30709"
+msgid "Enter username"
+msgstr "사용자 이름 입력"
+
+msgctxt "#30710"
+msgid "Enter password"
+msgstr "비밀번호 입력"
+
+msgctxt "#30711"
+msgid "Login successful! Restart addon to connect."
+msgstr "로그인 성공! 연결하려면 애드온을 다시 시작하세요."
+
+msgctxt "#30712"
+msgid "Logged out successfully."
+msgstr "성공적으로 로그아웃했습니다."
+
+msgctxt "#30713"
+msgid "Login failed. Check credentials."
+msgstr "로그인 실패. 자격 증명을 확인하세요."
+
+msgctxt "#30714"
+msgid "Enter a server address first."
+msgstr "먼저 서버 주소를 입력하세요."
+
+msgctxt "#30715"
+msgid "Opus"
+msgstr "Opus"
+
+msgctxt "#30716"
+msgid "Username"
+msgstr "사용자 이름"
+
+msgctxt "#30717"
+msgid "Test Connection"
+msgstr "연결 테스트"
+
+msgctxt "#30720"
+msgid "Transcode H264 10-bit (Hi10P)"
+msgstr "H264 10비트(Hi10P) 트랜스코딩"
+
+msgctxt "#30721"
+msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
+msgstr "H264 10비트 콘텐츠의 트랜스코딩을 강제합니다. 기기가 Hi10P 디코딩을 지원하지 않는 경우 활성화하세요."
+
+msgctxt "#30722"
+msgid "Transcode HEVC range extensions"
+msgstr "HEVC 범위 확장 트랜스코딩"
+
+msgctxt "#30723"
+msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
+msgstr "범위 확장 프로파일(4:2:2, 4:4:4)이 있는 HEVC 콘텐츠의 트랜스코딩을 강제합니다. 기기가 Main 및 Main 10만 지원하는 경우 활성화하세요."
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr "Kofin PVR 설정"
+
+msgctxt "#30725"
+msgid "FFmpeg Direct settings..."
+msgstr "FFmpeg Direct 설정..."
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr "애드온 다시 시작"
+
+#: Catchup category
+msgctxt "#30730"
+msgid "Catchup"
+msgstr "다시보기"
+
+msgctxt "#30731"
+msgid "Enable catchup (IPTV)"
+msgstr "다시보기 활성화(IPTV)"
+
+msgctxt "#30732"
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "제공업체가 지원하는 경우 다시보기/아카이브 TV를 활성화합니다. 직접 재생에서만 작동하므로 리먹스 강제를 꺼야 하고 비트레이트를 무제한으로 설정해야 합니다. Jellyfin 채널 이름과 일치하고 Jellyfin이 생략하는 다시보기 태그를 포함하는 참조 M3U 파일(고급 섹션에서 구성)이 필요합니다."
+
+msgctxt "#30733"
+msgid "Reference M3U location"
+msgstr "참조 M3U 위치"
+
+msgctxt "#30734"
+msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
+msgstr "참조 M3U 파일을 로컬에 저장할지 URL을 통해 액세스할지 선택합니다."
+
+msgctxt "#30735"
+msgid "Reference M3U file"
+msgstr "참조 M3U 파일"
+
+msgctxt "#30736"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "로컬 파일 시스템의 참조 M3U 파일 경로."
+
+msgctxt "#30737"
+msgid "Reference M3U URL"
+msgstr "참조 M3U URL"
+
+msgctxt "#30738"
+msgid "URL of the reference M3U file."
+msgstr "참조 M3U 파일의 URL."
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr "쿼리 형식 문자열"
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr "다시보기 URL을 위한 제공업체 종속 형식 문자열. 채널이 자체 catchup-source를 지정하지 않을 때 기본값으로 사용됩니다. 예: &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+
+msgctxt "#30741"
+msgid "Catchup window (days)"
+msgstr "다시보기 기간(일)"
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr "프로그램을 지나간 시점으로 다시 볼 수 있는 과거 일수."
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr "모든 채널의 기본 다시보기 모드"
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr "설정하면 모든 채널이 이 모드로 다시보기를 지원한다고 가정합니다. M3U에 명시적 다시보기 태그가 있는 채널은 자체 모드를 사용합니다."
+
+msgctxt "#30745"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr "라이브 TV 모드에서 EPG로부터 재생(타임시프트)"
+
+msgctxt "#30746"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
+msgstr "활성화하면 지나간 프로그램을 선택할 때 타임시프트된 라이브 스트림으로 재생됩니다(다시보기 기간 내에서 앞으로/뒤로 건너뛰기 가능). 비활성화하면 범위가 제한된 동영상으로 재생됩니다."
+
+msgctxt "#30747"
+msgid "Buffer before programme start (minutes)"
+msgstr "프로그램 시작 전 버퍼(분)"
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr "범위가 제한된 동영상으로 재생할 때 프로그램 시작 전의 추가 버퍼 시간."
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr "프로그램 종료 후 버퍼(분)"
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr "범위가 제한된 동영상으로 재생할 때 프로그램 종료 후의 추가 버퍼 시간."
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr "종료된 프로그램만 다시보기"
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr "이미 종료된 프로그램에 대해서만 다시보기 재생을 허용합니다. 현재 방송 중인 프로그램은 종료될 때까지 다시보기로 시청할 수 없습니다."
+
+#: Catchup enum values
+msgctxt "#30760"
+msgid "Disabled"
+msgstr "비활성화됨"
+
+msgctxt "#30761"
+msgid "Default"
+msgstr "기본값"
+
+msgctxt "#30762"
+msgid "Append"
+msgstr "추가"
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr "시프트(SIPTV)"
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr "로컬 경로"
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
+msgstr "원격 경로(URL)"
+
+#: Reference playlist (advanced category)
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr "참조 재생 목록"
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr "참조 재생 목록 사용"
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr "채널 그룹, KodiProps(InputStream 선택, 헤더), KofinProps(채널별 재정의), 다시보기 메타데이터로 Jellyfin 채널을 보강하는 참조 M3U 재생 목록을 로드합니다. 채널은 이름으로 일치됩니다(대소문자 구분 안 함)."
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr "참조 재생 목록 위치"
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr "참조 재생 목록을 로컬에 저장할지 URL을 통해 액세스할지 선택합니다."
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr "참조 재생 목록 파일"
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "로컬 파일 시스템의 참조 M3U 파일 경로."
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr "참조 재생 목록 URL"
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr "참조 M3U 재생 목록의 URL."
+
+#: Force-transcode codec toggles
+msgctxt "#30781"
+msgid "Direct play video codecs"
+msgstr "직접 재생 비디오 코덱"
+
+msgctxt "#30782"
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
+msgstr "직접 재생하거나 리먹스할 수 있는 비디오 코덱. 선택하지 않은 코덱은 선호 비디오 코덱으로 트랜스코딩됩니다."
+
+msgctxt "#30783"
+msgid "Direct play audio codecs"
+msgstr "직접 재생 오디오 코덱"
+
+msgctxt "#30784"
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
+msgstr "그대로 복사할 수 있는 오디오 코덱. 선택하지 않은 코덱은 선호 오디오 코덱으로 트랜스코딩됩니다."
+
+msgctxt "#30796"
+msgid "MPEG-2"
+msgstr "MPEG-2"
+
+msgctxt "#30797"
+msgid "VP9"
+msgstr "VP9"
+
+msgctxt "#30798"
+msgid "VC-1"
+msgstr "VC-1"
+
+msgctxt "#30799"
+msgid "MP2"
+msgstr "MP2"
+
+msgctxt "#30800"
+msgid "EAC3"
+msgstr "EAC3"
+
+msgctxt "#30801"
+msgid "FLAC"
+msgstr "FLAC"
+
+msgctxt "#30805"
+msgid "DTS"
+msgstr "DTS"
+
+msgctxt "#30806"
+msgid "Force transcoding"
+msgstr "트랜스코딩 강제"
+
+msgctxt "#30807"
+msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgstr "서버가 리먹스 대신 선호 비디오 코덱으로 트랜스코딩하도록 강제합니다. 재인코딩을 트리거하기 위해 비트레이트는 소스 비트레이트(또는 최대 스트리밍 비트레이트 중 더 낮은 값)로 제한됩니다."
+
+msgctxt "#30808"
+msgid "Force direct play"
+msgstr "직접 재생 강제"
+
+msgctxt "#30809"
+msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgstr "서버가 트랜스코딩이나 리먹스 없이 모든 스트림을 직접 재생하도록 강제합니다. 기기가 소스 형식을 기본적으로 디코딩할 수 있어야 합니다. 진행 중인 녹화에는 적용되지 않습니다. kofin-force-direct-play M3U 속성을 통해 채널별로 설정할 수도 있습니다."
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr "H264 10-bit"
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr "HEVC Range Extensions"
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr "최대 오디오 채널 수"
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
+msgstr "트랜스코딩 시 허용되는 최대 오디오 채널 수. 채널이 더 많은 스트림은 다운믹스됩니다. 직접 재생에는 영향을 주지 않습니다."
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr "스테레오(2)"
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr "서라운드 5.1(6)"
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
+msgstr "서라운드 7.1(8)"
+
+#: Allowed HDR types (allowedHdrTypes)
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr "허용되는 HDR 유형"
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgstr "디스플레이로 전달이 허용되는 HDR 형식. 선택하지 않은 형식은 서버에서 톤 매핑을 통해 SDR로 변환됩니다. SDR은 항상 허용됩니다. 직접 재생 강제가 켜져 있으면 영향을 주지 않습니다."
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr "HDR10"
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr "HLG"
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr "Dolby Vision(HDR10 대체)"
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr "Dolby Vision(HLG 대체)"
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr "Dolby Vision(SDR 대체)"
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr "Dolby Vision Profile 7 (EL)"
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr "Dolby Vision + HDR10+"
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr "Dolby Vision Profile 7 + HDR10+"
+
+#: Maximum resolution (maxResolution)
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr "최대 해상도"
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgstr "너비로 비디오를 제한합니다. 더 높은 해상도의 소스는 서버에서 축소됩니다. 직접 재생 강제가 켜져 있으면 영향을 주지 않습니다."
+
+msgctxt "#30824"
+msgid "480p"
+msgstr "480p"
+
+msgctxt "#30825"
+msgid "720p"
+msgstr "720p"
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr "1080p"
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr "1440p"
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr "2160p (4K)"
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr "무제한"

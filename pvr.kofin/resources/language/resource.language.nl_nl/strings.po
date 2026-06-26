@@ -2,15 +2,647 @@
 # Addon Name: Kofin PVR for Jellyfin
 # Addon id: pvr.kofin
 # Addon Provider: Kontell
+# Note: machine-translated (LLM), pending native review.
 msgid ""
 msgstr ""
 "Project-Id-Version: pvr.kofin\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: \n"
-"Language-Team: nl_nl\n"
+"PO-Revision-Date: 2026-06-26 00:00+0000\n"
+"Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
+"Language-Team: Dutch\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: nl_nl\n"
+"Language: nl_NL\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "Addon Summary"
+msgid "Kodi PVR addon for Jellyfin Live TV."
+msgstr "Kodi-PVR-add-on voor Jellyfin live-tv."
+
+msgctxt "Addon Description"
+msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Native Kodi-PVR-integratie voor Jellyfin live-tv. Biedt live-tv-kanalen, EPG, opnamen en timers van een Jellyfin-server."
+
+#: Transcoding category
+msgctxt "#30620"
+msgid "Transcoding"
+msgstr "Transcoderen"
+
+msgctxt "#30622"
+msgid "Force remuxing"
+msgstr "Remuxen forceren"
+
+msgctxt "#30623"
+msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgstr "Dwingt de Jellyfin-server om alle live-tv-streams te remuxen naar HLS in plaats van ze direct af te spelen. Maakt het delen van streams mogelijk als dit is ingeschakeld in de Jellyfin-tunerinstellingen."
+
+msgctxt "#30624"
+msgid "Preferred video codec"
+msgstr "Voorkeurscodec voor video"
+
+msgctxt "#30625"
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1 or the source codec is turned off for direct play."
+msgstr "De videocodec die bij het transcoderen wordt aangevraagd. AV1 wordt door Jellyfin niet voor het coderen gekozen, tenzij de broncodec ook AV1 is of de broncodec is uitgeschakeld voor direct afspelen."
+
+msgctxt "#30626"
+msgid "H264"
+msgstr "H264"
+
+msgctxt "#30627"
+msgid "H265/HEVC"
+msgstr "H265/HEVC"
+
+msgctxt "#30628"
+msgid "AV1"
+msgstr "AV1"
+
+msgctxt "#30629"
+msgid "Preferred audio codec"
+msgstr "Voorkeurscodec voor audio"
+
+msgctxt "#30630"
+msgid "The audio codec to request when transcoding."
+msgstr "De audiocodec die bij het transcoderen wordt aangevraagd."
+
+msgctxt "#30631"
+msgid "AAC"
+msgstr "AAC"
+
+msgctxt "#30632"
+msgid "AC3"
+msgstr "AC3"
+
+msgctxt "#30633"
+msgid "MP3"
+msgstr "MP3"
+
+msgctxt "#30634"
+msgid "Maximum streaming bitrate"
+msgstr "Maximale streamingbitrate"
+
+msgctxt "#30635"
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
+msgstr "Elke andere waarde dan onbeperkt schakelt direct afspelen uit. Als een stream onder de limiet zit, wordt deze geremuxt; zit deze erboven, dan wordt deze getranscodeerd."
+
+#: Bitrate options
+msgctxt "#30636"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30637"
+msgid "2 Mbps"
+msgstr "2 Mbps"
+
+msgctxt "#30638"
+msgid "3 Mbps"
+msgstr "3 Mbps"
+
+msgctxt "#30639"
+msgid "5 Mbps"
+msgstr "5 Mbps"
+
+msgctxt "#30640"
+msgid "8 Mbps"
+msgstr "8 Mbps"
+
+msgctxt "#30641"
+msgid "10 Mbps"
+msgstr "10 Mbps"
+
+msgctxt "#30642"
+msgid "15 Mbps"
+msgstr "15 Mbps"
+
+msgctxt "#30643"
+msgid "20 Mbps"
+msgstr "20 Mbps"
+
+msgctxt "#30644"
+msgid "25 Mbps"
+msgstr "25 Mbps"
+
+msgctxt "#30645"
+msgid "30 Mbps"
+msgstr "30 Mbps"
+
+msgctxt "#30646"
+msgid "40 Mbps"
+msgstr "40 Mbps"
+
+msgctxt "#30647"
+msgid "60 Mbps"
+msgstr "60 Mbps"
+
+msgctxt "#30648"
+msgid "80 Mbps"
+msgstr "80 Mbps"
+
+msgctxt "#30649"
+msgid "100 Mbps"
+msgstr "100 Mbps"
+
+msgctxt "#30650"
+msgid "120 Mbps"
+msgstr "120 Mbps"
+
+msgctxt "#30651"
+msgid "Unlimited"
+msgstr "Onbeperkt"
+
+#: InputStream category
+msgctxt "#30660"
+msgid "InputStream"
+msgstr "InputStream"
+
+msgctxt "#30661"
+msgid "InputStream addon"
+msgstr "InputStream-add-on"
+
+msgctxt "#30662"
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgstr "De InputStream-add-on die voor het afspelen wordt gebruikt. FFmpeg Direct ondersteunt timeshift met een lokale buffer op het apparaat. Adaptive ondersteunt timeshift met een buffer aan de serverzijde. FFmpeg (intern in Kodi) ondersteunt geen timeshift."
+
+msgctxt "#30663"
+msgid "FFmpeg Direct"
+msgstr "FFmpeg Direct"
+
+msgctxt "#30664"
+msgid "Adaptive"
+msgstr "Adaptive"
+
+msgctxt "#30665"
+msgid "FFmpeg (Kodi internal)"
+msgstr "FFmpeg (intern in Kodi)"
+
+msgctxt "#30666"
+msgid "Enable timeshift"
+msgstr "Timeshift inschakelen"
+
+msgctxt "#30667"
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr "Buffert de livestream vanaf het punt waarop het afspelen begon. De buffer wordt op de client aangemaakt; bepaal de maximale grootte via de instellingen van inputstream.ffmpegdirect."
+
+msgctxt "#30668"
+msgid "In-progress recording InputStream"
+msgstr "InputStream voor lopende opname"
+
+msgctxt "#30669"
+msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
+msgstr "De InputStream die voor het afspelen van lopende opnamen wordt gebruikt. Adaptive kan vooruitspoelen in een lopende opname. FFmpeg kan niet vooruitspoelen, maar is mogelijk robuuster."
+
+#: Advanced category
+msgctxt "#30670"
+msgid "Advanced"
+msgstr "Geavanceerd"
+
+msgctxt "#30672"
+msgid "Channel reload interval (hours)"
+msgstr "Interval voor herladen van kanalen (uren)"
+
+msgctxt "#30673"
+msgid "How often to reload channel data from Jellyfin."
+msgstr "Hoe vaak de kanaalgegevens uit Jellyfin opnieuw worden geladen."
+
+msgctxt "#30674"
+msgid "Connection check timeout (seconds)"
+msgstr "Time-out van verbindingscontrole (seconden)"
+
+msgctxt "#30675"
+msgid "How long to wait for a response when checking the Jellyfin server connection."
+msgstr "Hoe lang er op een reactie wordt gewacht bij het controleren van de verbinding met de Jellyfin-server."
+
+msgctxt "#30676"
+msgid "Connection check interval (seconds)"
+msgstr "Interval van verbindingscontrole (seconden)"
+
+msgctxt "#30677"
+msgid "How often to check if the Jellyfin server is reachable."
+msgstr "Hoe vaak wordt gecontroleerd of de Jellyfin-server bereikbaar is."
+
+#: Account category
+msgctxt "#30700"
+msgid "Account"
+msgstr "Account"
+
+msgctxt "#30701"
+msgid "Server address"
+msgstr "Serveradres"
+
+msgctxt "#30702"
+msgid "The URL of your Jellyfin server."
+msgstr "De URL van je Jellyfin-server."
+
+msgctxt "#30703"
+msgid "Login"
+msgstr "Aanmelden"
+
+msgctxt "#30704"
+msgid "Server name"
+msgstr "Servernaam"
+
+msgctxt "#30705"
+msgid "Logout"
+msgstr "Afmelden"
+
+msgctxt "#30706"
+msgid "Username/Password"
+msgstr "Gebruikersnaam/wachtwoord"
+
+msgctxt "#30707"
+msgid "Quick Connect"
+msgstr "Quick Connect"
+
+msgctxt "#30708"
+msgid "Choose login method"
+msgstr "Aanmeldmethode kiezen"
+
+msgctxt "#30709"
+msgid "Enter username"
+msgstr "Voer de gebruikersnaam in"
+
+msgctxt "#30710"
+msgid "Enter password"
+msgstr "Voer het wachtwoord in"
+
+msgctxt "#30711"
+msgid "Login successful! Restart addon to connect."
+msgstr "Aanmelden geslaagd! Start de add-on opnieuw om verbinding te maken."
+
+msgctxt "#30712"
+msgid "Logged out successfully."
+msgstr "Afmelden geslaagd."
+
+msgctxt "#30713"
+msgid "Login failed. Check credentials."
+msgstr "Aanmelden mislukt. Controleer de inloggegevens."
+
+msgctxt "#30714"
+msgid "Enter a server address first."
+msgstr "Voer eerst een serveradres in."
+
+msgctxt "#30715"
+msgid "Opus"
+msgstr "Opus"
+
+msgctxt "#30716"
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+msgctxt "#30717"
+msgid "Test Connection"
+msgstr "Verbinding testen"
+
+msgctxt "#30720"
+msgid "Transcode H264 10-bit (Hi10P)"
+msgstr "H264 10-bits (Hi10P) transcoderen"
+
+msgctxt "#30721"
+msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
+msgstr "Forceert het transcoderen van H264-10-bits-inhoud. Schakel dit in als je apparaat geen Hi10P-decodering ondersteunt."
+
+msgctxt "#30722"
+msgid "Transcode HEVC range extensions"
+msgstr "HEVC range extensions transcoderen"
+
+msgctxt "#30723"
+msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
+msgstr "Forceert het transcoderen van HEVC-inhoud met range-extension-profielen (4:2:2, 4:4:4). Schakel dit in als je apparaat alleen Main en Main 10 ondersteunt."
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr "Kofin PVR-instellingen"
+
+msgctxt "#30725"
+msgid "FFmpeg Direct settings..."
+msgstr "FFmpeg Direct-instellingen..."
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr "Add-on opnieuw starten"
+
+#: Catchup category
+msgctxt "#30730"
+msgid "Catchup"
+msgstr "Catch-up"
+
+msgctxt "#30731"
+msgid "Enable catchup (IPTV)"
+msgstr "Catch-up inschakelen (IPTV)"
+
+msgctxt "#30732"
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Schakelt catch-up-/archief-tv in als je provider dit ondersteunt. Werkt alleen met direct afspelen, dus remuxen forceren moet uitgeschakeld zijn en de bitrate op onbeperkt staan. Vereist een referentie-M3U-bestand (geconfigureerd in het gedeelte Geavanceerd) dat overeenkomt met je Jellyfin-kanaalnamen en catch-up-tags bevat die door Jellyfin worden weggelaten."
+
+msgctxt "#30733"
+msgid "Reference M3U location"
+msgstr "Locatie van referentie-M3U"
+
+msgctxt "#30734"
+msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
+msgstr "Kies of het referentie-M3U-bestand lokaal wordt opgeslagen of via een URL wordt benaderd."
+
+msgctxt "#30735"
+msgid "Reference M3U file"
+msgstr "Referentie-M3U-bestand"
+
+msgctxt "#30736"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "Pad naar het referentie-M3U-bestand in het lokale bestandssysteem."
+
+msgctxt "#30737"
+msgid "Reference M3U URL"
+msgstr "Referentie-M3U-URL"
+
+msgctxt "#30738"
+msgid "URL of the reference M3U file."
+msgstr "URL van het referentie-M3U-bestand."
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr "Opmaakreeks voor query"
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr "Een providerafhankelijke opmaakreeks voor catch-up-URL's. Wordt als standaard gebruikt wanneer kanalen geen eigen catchup-source opgeven. Bijv. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+
+msgctxt "#30741"
+msgid "Catchup window (days)"
+msgstr "Catch-up-venster (dagen)"
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr "Het aantal dagen in het verleden waarin een programma kan worden teruggekeken."
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr "Standaard catch-up-modus voor alle kanalen"
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr "Indien ingesteld, wordt aangenomen dat alle kanalen catch-up in deze modus ondersteunen. Kanalen met expliciete catch-up-tags in de M3U gebruiken hun eigen modus."
+
+msgctxt "#30745"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr "Afspelen vanuit EPG in live-tv-modus (timeshift)"
+
+msgctxt "#30746"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
+msgstr "Indien ingeschakeld, wordt een geselecteerd programma uit het verleden afgespeeld als een time-shifted livestream (vooruit-/terugspoelen binnen het catch-up-venster mogelijk). Indien uitgeschakeld, wordt het afgespeeld als een begrensde video."
+
+msgctxt "#30747"
+msgid "Buffer before programme start (minutes)"
+msgstr "Buffer vóór begin van programma (minuten)"
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr "Extra buffertijd vóór het begin van het programma bij afspelen als begrensde video."
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr "Buffer na einde van programma (minuten)"
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr "Extra buffertijd na het einde van het programma bij afspelen als begrensde video."
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr "Catch-up alleen voor beëindigde programma's"
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr "Sta catch-up-weergave alleen toe voor programma's die al zijn afgelopen. Het programma dat momenteel wordt uitgezonden, kan pas als catch-up worden bekeken nadat het is afgelopen."
+
+#: Catchup enum values
+msgctxt "#30760"
+msgid "Disabled"
+msgstr "Uitgeschakeld"
+
+msgctxt "#30761"
+msgid "Default"
+msgstr "Standaard"
+
+msgctxt "#30762"
+msgid "Append"
+msgstr "Toevoegen"
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr "Verschuiving (SIPTV)"
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr "Lokaal pad"
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
+msgstr "Extern pad (URL)"
+
+#: Reference playlist (advanced category)
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr "Referentieafspeellijst"
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr "Referentieafspeellijst gebruiken"
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr "Laadt een referentie-M3U-afspeellijst die Jellyfin-kanalen verrijkt met kanaalgroepen, KodiProps (InputStream-selectie, headers), KofinProps (overschrijvingen per kanaal) en catch-up-metadata. Kanalen worden op naam gekoppeld (niet hoofdlettergevoelig)."
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr "Locatie van referentieafspeellijst"
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr "Kies of de referentieafspeellijst lokaal wordt opgeslagen of via een URL wordt benaderd."
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr "Referentieafspeellijstbestand"
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "Pad naar het referentie-M3U-bestand in het lokale bestandssysteem."
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr "URL van referentieafspeellijst"
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr "URL van de referentie-M3U-afspeellijst."
+
+#: Force-transcode codec toggles
+msgctxt "#30781"
+msgid "Direct play video codecs"
+msgstr "Videocodecs voor direct afspelen"
+
+msgctxt "#30782"
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
+msgstr "Videocodecs die direct kunnen worden afgespeeld of geremuxt. Niet-geselecteerde codecs worden getranscodeerd naar de voorkeurscodec voor video."
+
+msgctxt "#30783"
+msgid "Direct play audio codecs"
+msgstr "Audiocodecs voor direct afspelen"
+
+msgctxt "#30784"
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
+msgstr "Audiocodecs die ongewijzigd kunnen worden doorgegeven. Niet-geselecteerde codecs worden getranscodeerd naar de voorkeurscodec voor audio."
+
+msgctxt "#30796"
+msgid "MPEG-2"
+msgstr "MPEG-2"
+
+msgctxt "#30797"
+msgid "VP9"
+msgstr "VP9"
+
+msgctxt "#30798"
+msgid "VC-1"
+msgstr "VC-1"
+
+msgctxt "#30799"
+msgid "MP2"
+msgstr "MP2"
+
+msgctxt "#30800"
+msgid "EAC3"
+msgstr "EAC3"
+
+msgctxt "#30801"
+msgid "FLAC"
+msgstr "FLAC"
+
+msgctxt "#30805"
+msgid "DTS"
+msgstr "DTS"
+
+msgctxt "#30806"
+msgid "Force transcoding"
+msgstr "Transcoderen forceren"
+
+msgctxt "#30807"
+msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgstr "Dwingt de server om naar de voorkeurscodec voor video te transcoderen in plaats van te remuxen. De bitrate wordt beperkt tot de bronbitrate (of de maximale streamingbitrate, afhankelijk van welke lager is) om hercodering te activeren."
+
+msgctxt "#30808"
+msgid "Force direct play"
+msgstr "Direct afspelen forceren"
+
+msgctxt "#30809"
+msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgstr "Dwingt de server om alle streams direct af te spelen, zonder transcoderen of remuxen. Het apparaat moet het bronformaat native kunnen decoderen. Geldt niet voor lopende opnamen. Kan ook per kanaal worden ingesteld via de M3U-eigenschap kofin-force-direct-play."
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr "H264 10-bit"
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr "HEVC Range Extensions"
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr "Maximaal aantal audiokanalen"
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
+msgstr "Maximaal aantal audiokanalen dat bij het transcoderen is toegestaan. Streams met meer kanalen worden gedownmixt. Geen effect op direct afspelen."
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr "Stereo (2)"
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr "Surround 5.1 (6)"
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
+msgstr "Surround 7.1 (8)"
+
+#: Allowed HDR types (allowedHdrTypes)
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr "Toegestane HDR-typen"
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgstr "HDR-formaten die naar je scherm mogen worden doorgegeven. Niet-geselecteerde formaten worden door de server via tone-mapping omgezet naar SDR. SDR is altijd toegestaan. Geen effect wanneer 'Direct afspelen forceren' is ingeschakeld."
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr "HDR10"
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr "HLG"
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr "Dolby Vision (HDR10-fallback)"
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr "Dolby Vision (HLG-fallback)"
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr "Dolby Vision (SDR-fallback)"
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr "Dolby Vision Profile 7 (EL)"
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr "Dolby Vision + HDR10+"
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr "Dolby Vision Profile 7 + HDR10+"
+
+#: Maximum resolution (maxResolution)
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr "Maximale resolutie"
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgstr "Begrenst de video op breedte; bronnen met een hogere resolutie worden door de server verkleind. Geen effect wanneer 'Direct afspelen forceren' is ingeschakeld."
+
+msgctxt "#30824"
+msgid "480p"
+msgstr "480p"
+
+msgctxt "#30825"
+msgid "720p"
+msgstr "720p"
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr "1080p"
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr "1440p"
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr "2160p (4K)"
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr "Onbeperkt"

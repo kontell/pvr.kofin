@@ -2,15 +2,647 @@
 # Addon Name: Kofin PVR for Jellyfin
 # Addon id: pvr.kofin
 # Addon Provider: Kontell
+# Note: machine-translated (LLM), pending native review.
 msgid ""
 msgstr ""
 "Project-Id-Version: pvr.kofin\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: \n"
-"Language-Team: cs_cz\n"
+"PO-Revision-Date: 2026-06-26 00:00+0000\n"
+"Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
+"Language-Team: Czech\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: cs_cz\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: cs_CZ\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
+
+msgctxt "Addon Summary"
+msgid "Kodi PVR addon for Jellyfin Live TV."
+msgstr "Doplněk PVR pro Kodi pro živou televizi Jellyfin."
+
+msgctxt "Addon Description"
+msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Nativní integrace PVR v Kodi pro živou televizi Jellyfin. Poskytuje kanály živé televize, EPG, nahrávky a časovače ze serveru Jellyfin."
+
+#: Transcoding category
+msgctxt "#30620"
+msgid "Transcoding"
+msgstr "Překódování"
+
+msgctxt "#30622"
+msgid "Force remuxing"
+msgstr "Vynutit remux"
+
+msgctxt "#30623"
+msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgstr "Vynutí, aby server Jellyfin remuxoval všechny streamy živé televize do HLS místo přímého přehrávání. Umožňuje sdílení streamů, pokud je povoleno v nastavení tuneru Jellyfin."
+
+msgctxt "#30624"
+msgid "Preferred video codec"
+msgstr "Preferovaný videokodek"
+
+msgctxt "#30625"
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1 or the source codec is turned off for direct play."
+msgstr "Videokodek požadovaný při překódování. Jellyfin nezvolí AV1 pro kódování, pokud zdrojový kodek není rovněž AV1 nebo pokud zdrojový kodek není vypnut pro přímé přehrávání."
+
+msgctxt "#30626"
+msgid "H264"
+msgstr "H264"
+
+msgctxt "#30627"
+msgid "H265/HEVC"
+msgstr "H265/HEVC"
+
+msgctxt "#30628"
+msgid "AV1"
+msgstr "AV1"
+
+msgctxt "#30629"
+msgid "Preferred audio codec"
+msgstr "Preferovaný zvukový kodek"
+
+msgctxt "#30630"
+msgid "The audio codec to request when transcoding."
+msgstr "Zvukový kodek požadovaný při překódování."
+
+msgctxt "#30631"
+msgid "AAC"
+msgstr "AAC"
+
+msgctxt "#30632"
+msgid "AC3"
+msgstr "AC3"
+
+msgctxt "#30633"
+msgid "MP3"
+msgstr "MP3"
+
+msgctxt "#30634"
+msgid "Maximum streaming bitrate"
+msgstr "Maximální datový tok streamování"
+
+msgctxt "#30635"
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
+msgstr "Jakákoli hodnota kromě „neomezeno“ vypne přímé přehrávání. Pokud je stream pod limitem, bude remuxován, a pokud nad ním, bude překódován."
+
+#: Bitrate options
+msgctxt "#30636"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30637"
+msgid "2 Mbps"
+msgstr "2 Mbps"
+
+msgctxt "#30638"
+msgid "3 Mbps"
+msgstr "3 Mbps"
+
+msgctxt "#30639"
+msgid "5 Mbps"
+msgstr "5 Mbps"
+
+msgctxt "#30640"
+msgid "8 Mbps"
+msgstr "8 Mbps"
+
+msgctxt "#30641"
+msgid "10 Mbps"
+msgstr "10 Mbps"
+
+msgctxt "#30642"
+msgid "15 Mbps"
+msgstr "15 Mbps"
+
+msgctxt "#30643"
+msgid "20 Mbps"
+msgstr "20 Mbps"
+
+msgctxt "#30644"
+msgid "25 Mbps"
+msgstr "25 Mbps"
+
+msgctxt "#30645"
+msgid "30 Mbps"
+msgstr "30 Mbps"
+
+msgctxt "#30646"
+msgid "40 Mbps"
+msgstr "40 Mbps"
+
+msgctxt "#30647"
+msgid "60 Mbps"
+msgstr "60 Mbps"
+
+msgctxt "#30648"
+msgid "80 Mbps"
+msgstr "80 Mbps"
+
+msgctxt "#30649"
+msgid "100 Mbps"
+msgstr "100 Mbps"
+
+msgctxt "#30650"
+msgid "120 Mbps"
+msgstr "120 Mbps"
+
+msgctxt "#30651"
+msgid "Unlimited"
+msgstr "Neomezeno"
+
+#: InputStream category
+msgctxt "#30660"
+msgid "InputStream"
+msgstr "InputStream"
+
+msgctxt "#30661"
+msgid "InputStream addon"
+msgstr "Doplněk InputStream"
+
+msgctxt "#30662"
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgstr "Doplněk InputStream použitý pro přehrávání. FFmpeg Direct podporuje časový posun s místní vyrovnávací pamětí v zařízení. Adaptive podporuje časový posun s vyrovnávací pamětí na straně serveru. FFmpeg (interní v Kodi) časový posun nepodporuje."
+
+msgctxt "#30663"
+msgid "FFmpeg Direct"
+msgstr "FFmpeg Direct"
+
+msgctxt "#30664"
+msgid "Adaptive"
+msgstr "Adaptive"
+
+msgctxt "#30665"
+msgid "FFmpeg (Kodi internal)"
+msgstr "FFmpeg (interní v Kodi)"
+
+msgctxt "#30666"
+msgid "Enable timeshift"
+msgstr "Povolit časový posun"
+
+msgctxt "#30667"
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr "Ukládá živý stream do vyrovnávací paměti od okamžiku, kdy začalo přehrávání. Vyrovnávací paměť se vytváří na klientovi; maximální velikost nastavte v nastavení inputstream.ffmpegdirect."
+
+msgctxt "#30668"
+msgid "In-progress recording InputStream"
+msgstr "InputStream pro probíhající nahrávku"
+
+msgctxt "#30669"
+msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
+msgstr "InputStream použitý pro přehrávání probíhajících nahrávek. Adaptive umí v probíhající nahrávce přetáčet vpřed. FFmpeg přetáčet vpřed neumí, ale může být spolehlivější."
+
+#: Advanced category
+msgctxt "#30670"
+msgid "Advanced"
+msgstr "Pokročilé"
+
+msgctxt "#30672"
+msgid "Channel reload interval (hours)"
+msgstr "Interval opětovného načítání kanálů (hodiny)"
+
+msgctxt "#30673"
+msgid "How often to reload channel data from Jellyfin."
+msgstr "Jak často se data kanálů znovu načítají z Jellyfinu."
+
+msgctxt "#30674"
+msgid "Connection check timeout (seconds)"
+msgstr "Časový limit kontroly připojení (sekundy)"
+
+msgctxt "#30675"
+msgid "How long to wait for a response when checking the Jellyfin server connection."
+msgstr "Jak dlouho čekat na odpověď při kontrole připojení k serveru Jellyfin."
+
+msgctxt "#30676"
+msgid "Connection check interval (seconds)"
+msgstr "Interval kontroly připojení (sekundy)"
+
+msgctxt "#30677"
+msgid "How often to check if the Jellyfin server is reachable."
+msgstr "Jak často se kontroluje, zda je server Jellyfin dostupný."
+
+#: Account category
+msgctxt "#30700"
+msgid "Account"
+msgstr "Účet"
+
+msgctxt "#30701"
+msgid "Server address"
+msgstr "Adresa serveru"
+
+msgctxt "#30702"
+msgid "The URL of your Jellyfin server."
+msgstr "URL adresa vašeho serveru Jellyfin."
+
+msgctxt "#30703"
+msgid "Login"
+msgstr "Přihlásit"
+
+msgctxt "#30704"
+msgid "Server name"
+msgstr "Název serveru"
+
+msgctxt "#30705"
+msgid "Logout"
+msgstr "Odhlásit"
+
+msgctxt "#30706"
+msgid "Username/Password"
+msgstr "Uživatelské jméno/heslo"
+
+msgctxt "#30707"
+msgid "Quick Connect"
+msgstr "Quick Connect"
+
+msgctxt "#30708"
+msgid "Choose login method"
+msgstr "Vyberte způsob přihlášení"
+
+msgctxt "#30709"
+msgid "Enter username"
+msgstr "Zadejte uživatelské jméno"
+
+msgctxt "#30710"
+msgid "Enter password"
+msgstr "Zadejte heslo"
+
+msgctxt "#30711"
+msgid "Login successful! Restart addon to connect."
+msgstr "Přihlášení proběhlo úspěšně! Restartujte doplněk pro připojení."
+
+msgctxt "#30712"
+msgid "Logged out successfully."
+msgstr "Odhlášení proběhlo úspěšně."
+
+msgctxt "#30713"
+msgid "Login failed. Check credentials."
+msgstr "Přihlášení se nezdařilo. Zkontrolujte přihlašovací údaje."
+
+msgctxt "#30714"
+msgid "Enter a server address first."
+msgstr "Nejprve zadejte adresu serveru."
+
+msgctxt "#30715"
+msgid "Opus"
+msgstr "Opus"
+
+msgctxt "#30716"
+msgid "Username"
+msgstr "Uživatelské jméno"
+
+msgctxt "#30717"
+msgid "Test Connection"
+msgstr "Otestovat připojení"
+
+msgctxt "#30720"
+msgid "Transcode H264 10-bit (Hi10P)"
+msgstr "Překódovat H264 10bitový (Hi10P)"
+
+msgctxt "#30721"
+msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
+msgstr "Vynutí překódování obsahu H264 10bitový. Povolte, pokud vaše zařízení nepodporuje dekódování Hi10P."
+
+msgctxt "#30722"
+msgid "Transcode HEVC range extensions"
+msgstr "Překódovat rozšíření rozsahu HEVC"
+
+msgctxt "#30723"
+msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
+msgstr "Vynutí překódování obsahu HEVC s profily rozšíření rozsahu (4:2:2, 4:4:4). Povolte, pokud vaše zařízení podporuje pouze Main a Main 10."
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr "Nastavení Kofin PVR"
+
+msgctxt "#30725"
+msgid "FFmpeg Direct settings..."
+msgstr "Nastavení FFmpeg Direct..."
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr "Restartovat doplněk"
+
+#: Catchup category
+msgctxt "#30730"
+msgid "Catchup"
+msgstr "Catchup"
+
+msgctxt "#30731"
+msgid "Enable catchup (IPTV)"
+msgstr "Povolit catchup (IPTV)"
+
+msgctxt "#30732"
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Povolí catchup/archivní televizi, pokud ji váš poskytovatel podporuje. Funguje pouze s přímým přehráváním, takže vynucený remux musí být vypnutý a datový tok nastaven na „neomezeno“. Vyžaduje referenční soubor M3U (nakonfigurovaný v sekci Pokročilé), který odpovídá názvům vašich kanálů Jellyfin a obsahuje značky catchup, které Jellyfin vynechává."
+
+msgctxt "#30733"
+msgid "Reference M3U location"
+msgstr "Umístění referenčního M3U"
+
+msgctxt "#30734"
+msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
+msgstr "Vyberte, zda je referenční soubor M3U uložen místně, nebo přístupný přes URL."
+
+msgctxt "#30735"
+msgid "Reference M3U file"
+msgstr "Referenční soubor M3U"
+
+msgctxt "#30736"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "Cesta k referenčnímu souboru M3U v místním systému souborů."
+
+msgctxt "#30737"
+msgid "Reference M3U URL"
+msgstr "URL referenčního M3U"
+
+msgctxt "#30738"
+msgid "URL of the reference M3U file."
+msgstr "URL referenčního souboru M3U."
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr "Formátovací řetězec dotazu"
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr "Formátovací řetězec závislý na poskytovateli pro URL adresy catchup. Použije se jako výchozí, když kanály neuvádějí vlastní catchup-source. Např. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+
+msgctxt "#30741"
+msgid "Catchup window (days)"
+msgstr "Okno catchup (dny)"
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr "Počet dní do minulosti, ve kterých je možné zpětně zhlédnout pořad."
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr "Výchozí režim catchup pro všechny kanály"
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr "Pokud je nastaveno, předpokládá se, že všechny kanály podporují catchup v tomto režimu. Kanály s explicitními značkami catchup v M3U použijí vlastní režim."
+
+msgctxt "#30745"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr "Přehrát z EPG v režimu živé televize (časový posun)"
+
+msgctxt "#30746"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
+msgstr "Když je povoleno, výběr minulého pořadu jej přehraje jako živý stream s časovým posunem (lze přetáčet vpřed/vzad v rámci okna catchup). Když je zakázáno, přehraje se jako ohraničené video."
+
+msgctxt "#30747"
+msgid "Buffer before programme start (minutes)"
+msgstr "Vyrovnávací paměť před začátkem pořadu (minuty)"
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr "Dodatečná doba vyrovnávací paměti před začátkem pořadu při přehrávání jako ohraničené video."
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr "Vyrovnávací paměť po konci pořadu (minuty)"
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr "Dodatečná doba vyrovnávací paměti po konci pořadu při přehrávání jako ohraničené video."
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr "Catchup pouze u skončených pořadů"
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr "Povolit přehrávání catchup pouze u pořadů, které již skončily. Aktuálně vysílaný pořad nelze sledovat jako catchup, dokud neskončí."
+
+#: Catchup enum values
+msgctxt "#30760"
+msgid "Disabled"
+msgstr "Zakázáno"
+
+msgctxt "#30761"
+msgid "Default"
+msgstr "Výchozí"
+
+msgctxt "#30762"
+msgid "Append"
+msgstr "Připojit"
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr "Posun (SIPTV)"
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr "Místní cesta"
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
+msgstr "Vzdálená cesta (URL)"
+
+#: Reference playlist (advanced category)
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr "Referenční seznam stop"
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr "Použít referenční seznam stop"
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr "Načte referenční seznam stop M3U, který obohacuje kanály Jellyfin o skupiny kanálů, KodiProps (výběr InputStreamu, hlavičky), KofinProps (přepisy pro jednotlivé kanály) a metadata catchup. Kanály se přiřazují podle názvu (bez ohledu na velikost písmen)."
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr "Umístění referenčního seznamu stop"
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr "Vyberte, zda je referenční seznam stop uložen místně, nebo přístupný přes URL."
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr "Soubor referenčního seznamu stop"
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "Cesta k referenčnímu souboru M3U v místním systému souborů."
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr "URL referenčního seznamu stop"
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr "URL referenčního seznamu stop M3U."
+
+#: Force-transcode codec toggles
+msgctxt "#30781"
+msgid "Direct play video codecs"
+msgstr "Videokodeky pro přímé přehrávání"
+
+msgctxt "#30782"
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
+msgstr "Videokodeky, které lze přímo přehrát nebo remuxovat. Nevybrané kodeky budou překódovány do preferovaného videokodeku."
+
+msgctxt "#30783"
+msgid "Direct play audio codecs"
+msgstr "Zvukové kodeky pro přímé přehrávání"
+
+msgctxt "#30784"
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
+msgstr "Zvukové kodeky, které lze kopírovat beze změny. Nevybrané kodeky budou překódovány do preferovaného zvukového kodeku."
+
+msgctxt "#30796"
+msgid "MPEG-2"
+msgstr "MPEG-2"
+
+msgctxt "#30797"
+msgid "VP9"
+msgstr "VP9"
+
+msgctxt "#30798"
+msgid "VC-1"
+msgstr "VC-1"
+
+msgctxt "#30799"
+msgid "MP2"
+msgstr "MP2"
+
+msgctxt "#30800"
+msgid "EAC3"
+msgstr "EAC3"
+
+msgctxt "#30801"
+msgid "FLAC"
+msgstr "FLAC"
+
+msgctxt "#30805"
+msgid "DTS"
+msgstr "DTS"
+
+msgctxt "#30806"
+msgid "Force transcoding"
+msgstr "Vynutit překódování"
+
+msgctxt "#30807"
+msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgstr "Vynutí, aby server překódoval do preferovaného videokodeku místo remuxování. Datový tok je omezen na datový tok zdroje (nebo na maximální datový tok streamování, podle toho, který je nižší), aby se spustilo opětovné kódování."
+
+msgctxt "#30808"
+msgid "Force direct play"
+msgstr "Vynutit přímé přehrávání"
+
+msgctxt "#30809"
+msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgstr "Vynutí, aby server přehrával všechny streamy přímo, bez překódování nebo remuxování. Zařízení musí umět nativně dekódovat zdrojový formát. Neplatí pro probíhající nahrávky. Lze také nastavit pro jednotlivé kanály prostřednictvím vlastnosti M3U kofin-force-direct-play."
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr "H264 10-bit"
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr "HEVC Range Extensions"
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr "Maximální počet zvukových kanálů"
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
+msgstr "Maximální počet zvukových kanálů povolených při překódování. Streamy s více kanály budou smíchány dolů. Bez vlivu na přímé přehrávání."
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr "Stereo (2)"
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr "Prostorový 5.1 (6)"
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
+msgstr "Prostorový 7.1 (8)"
+
+#: Allowed HDR types (allowedHdrTypes)
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr "Povolené typy HDR"
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgstr "Formáty HDR, které lze předat na váš displej. Nevybrané formáty server převede na SDR pomocí tonálního mapování. SDR je povoleno vždy. Bez vlivu, když je zapnuto „Vynutit přímé přehrávání“."
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr "HDR10"
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr "HLG"
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr "Dolby Vision (záloha HDR10)"
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr "Dolby Vision (záloha HLG)"
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr "Dolby Vision (záloha SDR)"
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr "Dolby Vision Profile 7 (EL)"
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr "Dolby Vision + HDR10+"
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr "Dolby Vision Profile 7 + HDR10+"
+
+#: Maximum resolution (maxResolution)
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr "Maximální rozlišení"
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgstr "Omezuje video podle šířky; zdroje s vyšším rozlišením server zmenší. Bez vlivu, když je zapnuto „Vynutit přímé přehrávání“."
+
+msgctxt "#30824"
+msgid "480p"
+msgstr "480p"
+
+msgctxt "#30825"
+msgid "720p"
+msgstr "720p"
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr "1080p"
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr "1440p"
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr "2160p (4K)"
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr "Neomezeno"

@@ -2,15 +2,647 @@
 # Addon Name: Kofin PVR for Jellyfin
 # Addon id: pvr.kofin
 # Addon Provider: Kontell
+# Note: machine-translated (LLM), pending native review.
 msgid ""
 msgstr ""
 "Project-Id-Version: pvr.kofin\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: \n"
-"Language-Team: ja_jp\n"
+"PO-Revision-Date: 2026-06-26 00:00+0000\n"
+"Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
+"Language-Team: Japanese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ja_jp\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: ja_JP\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgctxt "Addon Summary"
+msgid "Kodi PVR addon for Jellyfin Live TV."
+msgstr "Jellyfin ライブTV 向けの Kodi PVR アドオンです。"
+
+msgctxt "Addon Description"
+msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Jellyfin ライブTV 向けのネイティブ Kodi PVR 統合。Jellyfin サーバーからライブTVチャンネル、EPG、録画、タイマーを提供します。"
+
+#: Transcoding category
+msgctxt "#30620"
+msgid "Transcoding"
+msgstr "トランスコード"
+
+msgctxt "#30622"
+msgid "Force remuxing"
+msgstr "リマックスを強制"
+
+msgctxt "#30623"
+msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgstr "Jellyfin サーバーに、すべてのライブTVストリームをダイレクト再生せずに HLS へリマックスさせます。Jellyfin のチューナー設定で有効になっている場合、ストリーム共有が可能になります。"
+
+msgctxt "#30624"
+msgid "Preferred video codec"
+msgstr "優先ビデオコーデック"
+
+msgctxt "#30625"
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1 or the source codec is turned off for direct play."
+msgstr "トランスコード時に要求するビデオコーデック。ソースコーデックも AV1 であるか、ソースコーデックがダイレクト再生で無効になっていない限り、Jellyfin はエンコードに AV1 を選択しません。"
+
+msgctxt "#30626"
+msgid "H264"
+msgstr "H264"
+
+msgctxt "#30627"
+msgid "H265/HEVC"
+msgstr "H265/HEVC"
+
+msgctxt "#30628"
+msgid "AV1"
+msgstr "AV1"
+
+msgctxt "#30629"
+msgid "Preferred audio codec"
+msgstr "優先オーディオコーデック"
+
+msgctxt "#30630"
+msgid "The audio codec to request when transcoding."
+msgstr "トランスコード時に要求するオーディオコーデック。"
+
+msgctxt "#30631"
+msgid "AAC"
+msgstr "AAC"
+
+msgctxt "#30632"
+msgid "AC3"
+msgstr "AC3"
+
+msgctxt "#30633"
+msgid "MP3"
+msgstr "MP3"
+
+msgctxt "#30634"
+msgid "Maximum streaming bitrate"
+msgstr "最大ストリーミングビットレート"
+
+msgctxt "#30635"
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
+msgstr "「無制限」以外の値を設定すると、ダイレクト再生が無効になります。ストリームが上限を下回る場合はリマックスされ、上回る場合はトランスコードされます。"
+
+#: Bitrate options
+msgctxt "#30636"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30637"
+msgid "2 Mbps"
+msgstr "2 Mbps"
+
+msgctxt "#30638"
+msgid "3 Mbps"
+msgstr "3 Mbps"
+
+msgctxt "#30639"
+msgid "5 Mbps"
+msgstr "5 Mbps"
+
+msgctxt "#30640"
+msgid "8 Mbps"
+msgstr "8 Mbps"
+
+msgctxt "#30641"
+msgid "10 Mbps"
+msgstr "10 Mbps"
+
+msgctxt "#30642"
+msgid "15 Mbps"
+msgstr "15 Mbps"
+
+msgctxt "#30643"
+msgid "20 Mbps"
+msgstr "20 Mbps"
+
+msgctxt "#30644"
+msgid "25 Mbps"
+msgstr "25 Mbps"
+
+msgctxt "#30645"
+msgid "30 Mbps"
+msgstr "30 Mbps"
+
+msgctxt "#30646"
+msgid "40 Mbps"
+msgstr "40 Mbps"
+
+msgctxt "#30647"
+msgid "60 Mbps"
+msgstr "60 Mbps"
+
+msgctxt "#30648"
+msgid "80 Mbps"
+msgstr "80 Mbps"
+
+msgctxt "#30649"
+msgid "100 Mbps"
+msgstr "100 Mbps"
+
+msgctxt "#30650"
+msgid "120 Mbps"
+msgstr "120 Mbps"
+
+msgctxt "#30651"
+msgid "Unlimited"
+msgstr "無制限"
+
+#: InputStream category
+msgctxt "#30660"
+msgid "InputStream"
+msgstr "InputStream"
+
+msgctxt "#30661"
+msgid "InputStream addon"
+msgstr "InputStream アドオン"
+
+msgctxt "#30662"
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgstr "再生に使用する InputStream アドオン。FFmpeg Direct は、デバイス上のローカルバッファーでタイムシフトに対応します。Adaptive は、サーバー側のバッファーでタイムシフトに対応します。FFmpeg（Kodi 内蔵）はタイムシフトに対応していません。"
+
+msgctxt "#30663"
+msgid "FFmpeg Direct"
+msgstr "FFmpeg Direct"
+
+msgctxt "#30664"
+msgid "Adaptive"
+msgstr "Adaptive"
+
+msgctxt "#30665"
+msgid "FFmpeg (Kodi internal)"
+msgstr "FFmpeg（Kodi 内蔵）"
+
+msgctxt "#30666"
+msgid "Enable timeshift"
+msgstr "タイムシフトを有効にする"
+
+msgctxt "#30667"
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr "再生開始時点からライブストリームをバッファーします。バッファーはクライアント上に作成されます。最大サイズは inputstream.ffmpegdirect の設定で調整します。"
+
+msgctxt "#30668"
+msgid "In-progress recording InputStream"
+msgstr "進行中の録画用 InputStream"
+
+msgctxt "#30669"
+msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
+msgstr "進行中の録画の再生に使用する InputStream。Adaptive は進行中の録画を早送りできます。FFmpeg は早送りできませんが、より安定している場合があります。"
+
+#: Advanced category
+msgctxt "#30670"
+msgid "Advanced"
+msgstr "詳細設定"
+
+msgctxt "#30672"
+msgid "Channel reload interval (hours)"
+msgstr "チャンネル再読み込み間隔（時間）"
+
+msgctxt "#30673"
+msgid "How often to reload channel data from Jellyfin."
+msgstr "Jellyfin からチャンネルデータを再読み込みする頻度。"
+
+msgctxt "#30674"
+msgid "Connection check timeout (seconds)"
+msgstr "接続確認のタイムアウト（秒）"
+
+msgctxt "#30675"
+msgid "How long to wait for a response when checking the Jellyfin server connection."
+msgstr "Jellyfin サーバーへの接続を確認する際に応答を待つ時間。"
+
+msgctxt "#30676"
+msgid "Connection check interval (seconds)"
+msgstr "接続確認の間隔（秒）"
+
+msgctxt "#30677"
+msgid "How often to check if the Jellyfin server is reachable."
+msgstr "Jellyfin サーバーに到達可能かどうかを確認する頻度。"
+
+#: Account category
+msgctxt "#30700"
+msgid "Account"
+msgstr "アカウント"
+
+msgctxt "#30701"
+msgid "Server address"
+msgstr "サーバーアドレス"
+
+msgctxt "#30702"
+msgid "The URL of your Jellyfin server."
+msgstr "Jellyfin サーバーの URL。"
+
+msgctxt "#30703"
+msgid "Login"
+msgstr "ログイン"
+
+msgctxt "#30704"
+msgid "Server name"
+msgstr "サーバー名"
+
+msgctxt "#30705"
+msgid "Logout"
+msgstr "ログアウト"
+
+msgctxt "#30706"
+msgid "Username/Password"
+msgstr "ユーザー名／パスワード"
+
+msgctxt "#30707"
+msgid "Quick Connect"
+msgstr "Quick Connect"
+
+msgctxt "#30708"
+msgid "Choose login method"
+msgstr "ログイン方法を選択"
+
+msgctxt "#30709"
+msgid "Enter username"
+msgstr "ユーザー名を入力"
+
+msgctxt "#30710"
+msgid "Enter password"
+msgstr "パスワードを入力"
+
+msgctxt "#30711"
+msgid "Login successful! Restart addon to connect."
+msgstr "ログインに成功しました！ 接続するにはアドオンを再起動してください。"
+
+msgctxt "#30712"
+msgid "Logged out successfully."
+msgstr "ログアウトしました。"
+
+msgctxt "#30713"
+msgid "Login failed. Check credentials."
+msgstr "ログインに失敗しました。認証情報を確認してください。"
+
+msgctxt "#30714"
+msgid "Enter a server address first."
+msgstr "先にサーバーアドレスを入力してください。"
+
+msgctxt "#30715"
+msgid "Opus"
+msgstr "Opus"
+
+msgctxt "#30716"
+msgid "Username"
+msgstr "ユーザー名"
+
+msgctxt "#30717"
+msgid "Test Connection"
+msgstr "接続テスト"
+
+msgctxt "#30720"
+msgid "Transcode H264 10-bit (Hi10P)"
+msgstr "H264 10ビット（Hi10P）をトランスコード"
+
+msgctxt "#30721"
+msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
+msgstr "H264 10ビットコンテンツのトランスコードを強制します。デバイスが Hi10P デコードに対応していない場合に有効にしてください。"
+
+msgctxt "#30722"
+msgid "Transcode HEVC range extensions"
+msgstr "HEVC レンジ拡張をトランスコード"
+
+msgctxt "#30723"
+msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
+msgstr "レンジ拡張プロファイル（4:2:2、4:4:4）の HEVC コンテンツのトランスコードを強制します。デバイスが Main と Main 10 のみに対応している場合に有効にしてください。"
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr "Kofin PVR 設定"
+
+msgctxt "#30725"
+msgid "FFmpeg Direct settings..."
+msgstr "FFmpeg Direct の設定..."
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr "アドオンを再起動"
+
+#: Catchup category
+msgctxt "#30730"
+msgid "Catchup"
+msgstr "キャッチアップ"
+
+msgctxt "#30731"
+msgid "Enable catchup (IPTV)"
+msgstr "キャッチアップを有効にする（IPTV）"
+
+msgctxt "#30732"
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "プロバイダーが対応している場合、キャッチアップ／アーカイブ TV を有効にします。ダイレクト再生でのみ動作するため、リマックスの強制をオフにし、ビットレートを無制限に設定する必要があります。Jellyfin のチャンネル名と一致し、Jellyfin が省略するキャッチアップタグを含む参照用 M3U ファイル（詳細設定セクションで構成）が必要です。"
+
+msgctxt "#30733"
+msgid "Reference M3U location"
+msgstr "参照用 M3U の場所"
+
+msgctxt "#30734"
+msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
+msgstr "参照用 M3U ファイルをローカルに保存するか、URL 経由でアクセスするかを選択します。"
+
+msgctxt "#30735"
+msgid "Reference M3U file"
+msgstr "参照用 M3U ファイル"
+
+msgctxt "#30736"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "ローカルファイルシステム上の参照用 M3U ファイルへのパス。"
+
+msgctxt "#30737"
+msgid "Reference M3U URL"
+msgstr "参照用 M3U の URL"
+
+msgctxt "#30738"
+msgid "URL of the reference M3U file."
+msgstr "参照用 M3U ファイルの URL。"
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr "クエリ形式文字列"
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr "キャッチアップ URL 用のプロバイダー依存の形式文字列。チャンネルが独自の catchup-source を指定しない場合に既定として使用されます。例: &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+
+msgctxt "#30741"
+msgid "Catchup window (days)"
+msgstr "キャッチアップ期間（日）"
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr "番組をさかのぼって視聴できる過去の日数。"
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr "すべてのチャンネルの既定キャッチアップモード"
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr "設定すると、すべてのチャンネルがこのモードでキャッチアップに対応していると見なされます。M3U に明示的なキャッチアップタグを持つチャンネルは、独自のモードを使用します。"
+
+msgctxt "#30745"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr "ライブTVモードで EPG から再生（タイムシフト）"
+
+msgctxt "#30746"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
+msgstr "有効にすると、過去の番組を選択した際にタイムシフトされたライブストリームとして再生します（キャッチアップ期間内で早送り／巻き戻しが可能）。無効にすると、範囲が限定された動画として再生されます。"
+
+msgctxt "#30747"
+msgid "Buffer before programme start (minutes)"
+msgstr "番組開始前のバッファー（分）"
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr "範囲が限定された動画として再生する際の、番組開始前の追加バッファー時間。"
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr "番組終了後のバッファー（分）"
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr "範囲が限定された動画として再生する際の、番組終了後の追加バッファー時間。"
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr "終了した番組のみキャッチアップ"
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr "すでに終了した番組に対してのみキャッチアップ再生を許可します。現在放送中の番組は、終了するまでキャッチアップとして視聴できません。"
+
+#: Catchup enum values
+msgctxt "#30760"
+msgid "Disabled"
+msgstr "無効"
+
+msgctxt "#30761"
+msgid "Default"
+msgstr "既定"
+
+msgctxt "#30762"
+msgid "Append"
+msgstr "追加"
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr "シフト（SIPTV）"
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr "ローカルパス"
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
+msgstr "リモートパス（URL）"
+
+#: Reference playlist (advanced category)
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr "参照用プレイリスト"
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr "参照用プレイリストを使用"
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr "Jellyfin チャンネルを、チャンネルグループ、KodiProps（InputStream の選択、ヘッダー）、KofinProps（チャンネルごとのオーバーライド）、キャッチアップメタデータで補完する参照用 M3U プレイリストを読み込みます。チャンネルは名前で照合されます（大文字・小文字を区別しません）。"
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr "参照用プレイリストの場所"
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr "参照用プレイリストをローカルに保存するか、URL 経由でアクセスするかを選択します。"
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr "参照用プレイリストファイル"
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "ローカルファイルシステム上の参照用 M3U ファイルへのパス。"
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr "参照用プレイリストの URL"
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr "参照用 M3U プレイリストの URL。"
+
+#: Force-transcode codec toggles
+msgctxt "#30781"
+msgid "Direct play video codecs"
+msgstr "ダイレクト再生のビデオコーデック"
+
+msgctxt "#30782"
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
+msgstr "ダイレクト再生またはリマックスが可能なビデオコーデック。選択しなかったコーデックは、優先ビデオコーデックにトランスコードされます。"
+
+msgctxt "#30783"
+msgid "Direct play audio codecs"
+msgstr "ダイレクト再生のオーディオコーデック"
+
+msgctxt "#30784"
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
+msgstr "そのままコピーできるオーディオコーデック。選択しなかったコーデックは、優先オーディオコーデックにトランスコードされます。"
+
+msgctxt "#30796"
+msgid "MPEG-2"
+msgstr "MPEG-2"
+
+msgctxt "#30797"
+msgid "VP9"
+msgstr "VP9"
+
+msgctxt "#30798"
+msgid "VC-1"
+msgstr "VC-1"
+
+msgctxt "#30799"
+msgid "MP2"
+msgstr "MP2"
+
+msgctxt "#30800"
+msgid "EAC3"
+msgstr "EAC3"
+
+msgctxt "#30801"
+msgid "FLAC"
+msgstr "FLAC"
+
+msgctxt "#30805"
+msgid "DTS"
+msgstr "DTS"
+
+msgctxt "#30806"
+msgid "Force transcoding"
+msgstr "トランスコードを強制"
+
+msgctxt "#30807"
+msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgstr "リマックスの代わりに、優先ビデオコーデックへのトランスコードをサーバーに強制します。再エンコードを発生させるため、ビットレートはソースのビットレート（または最大ストリーミングビットレートのいずれか低い方）に制限されます。"
+
+msgctxt "#30808"
+msgid "Force direct play"
+msgstr "ダイレクト再生を強制"
+
+msgctxt "#30809"
+msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgstr "トランスコードやリマックスを行わず、すべてのストリームをダイレクト再生するようサーバーに強制します。デバイスはソース形式をネイティブにデコードできる必要があります。進行中の録画には適用されません。M3U プロパティ kofin-force-direct-play でチャンネルごとに設定することもできます。"
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr "H264 10-bit"
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr "HEVC Range Extensions"
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr "最大オーディオチャンネル数"
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
+msgstr "トランスコード時に許可されるオーディオチャンネルの最大数。これより多いチャンネルを持つストリームはダウンミックスされます。ダイレクト再生には影響しません。"
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr "ステレオ（2）"
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr "サラウンド 5.1（6）"
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
+msgstr "サラウンド 7.1（8）"
+
+#: Allowed HDR types (allowedHdrTypes)
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr "許可する HDR の種類"
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgstr "ディスプレイへの引き渡しを許可する HDR 形式。選択しなかった形式は、サーバーによってトーンマッピングで SDR に変換されます。SDR は常に許可されます。「ダイレクト再生を強制」が有効な場合は影響しません。"
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr "HDR10"
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr "HLG"
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr "Dolby Vision（HDR10 フォールバック）"
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr "Dolby Vision（HLG フォールバック）"
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr "Dolby Vision（SDR フォールバック）"
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr "Dolby Vision Profile 7 (EL)"
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr "Dolby Vision + HDR10+"
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr "Dolby Vision Profile 7 + HDR10+"
+
+#: Maximum resolution (maxResolution)
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr "最大解像度"
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgstr "動画を幅で制限します。より高い解像度のソースはサーバーによってダウンスケールされます。「ダイレクト再生を強制」が有効な場合は影響しません。"
+
+msgctxt "#30824"
+msgid "480p"
+msgstr "480p"
+
+msgctxt "#30825"
+msgid "720p"
+msgstr "720p"
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr "1080p"
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr "1440p"
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr "2160p (4K)"
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr "無制限"

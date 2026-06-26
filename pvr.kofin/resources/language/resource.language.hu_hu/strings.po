@@ -2,15 +2,647 @@
 # Addon Name: Kofin PVR for Jellyfin
 # Addon id: pvr.kofin
 # Addon Provider: Kontell
+# Note: machine-translated (LLM), pending native review.
 msgid ""
 msgstr ""
 "Project-Id-Version: pvr.kofin\n"
 "Report-Msgid-Bugs-To: \n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: \n"
-"Language-Team: hu_hu\n"
+"PO-Revision-Date: 2026-06-26 00:00+0000\n"
+"Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
+"Language-Team: Hungarian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: hu_hu\n"
+"Language: hu_HU\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "Addon Summary"
+msgid "Kodi PVR addon for Jellyfin Live TV."
+msgstr "Kodi PVR-kiegészítő a Jellyfin élő TV-jéhez."
+
+msgctxt "Addon Description"
+msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Natív Kodi PVR-integráció a Jellyfin élő TV-jéhez. Élő TV-csatornákat, EPG-t, felvételeket és időzítőket biztosít egy Jellyfin-kiszolgálóról."
+
+#: Transcoding category
+msgctxt "#30620"
+msgid "Transcoding"
+msgstr "Átkódolás"
+
+msgctxt "#30622"
+msgid "Force remuxing"
+msgstr "Remuxolás kényszerítése"
+
+msgctxt "#30623"
+msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgstr "Arra kényszeríti a Jellyfin-kiszolgálót, hogy az összes élő TV-adatfolyamot HLS-be remuxolja a közvetlen lejátszás helyett. Lehetővé teszi az adatfolyamok megosztását, ha engedélyezve van a Jellyfin tunerbeállításaiban."
+
+msgctxt "#30624"
+msgid "Preferred video codec"
+msgstr "Előnyben részesített videokodek"
+
+msgctxt "#30625"
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1 or the source codec is turned off for direct play."
+msgstr "Az átkódoláskor kért videokodek. A Jellyfin nem választja az AV1-et kódoláshoz, hacsak a forráskodek is AV1, vagy a forráskodek le van tiltva a közvetlen lejátszáshoz."
+
+msgctxt "#30626"
+msgid "H264"
+msgstr "H264"
+
+msgctxt "#30627"
+msgid "H265/HEVC"
+msgstr "H265/HEVC"
+
+msgctxt "#30628"
+msgid "AV1"
+msgstr "AV1"
+
+msgctxt "#30629"
+msgid "Preferred audio codec"
+msgstr "Előnyben részesített hangkodek"
+
+msgctxt "#30630"
+msgid "The audio codec to request when transcoding."
+msgstr "Az átkódoláskor kért hangkodek."
+
+msgctxt "#30631"
+msgid "AAC"
+msgstr "AAC"
+
+msgctxt "#30632"
+msgid "AC3"
+msgstr "AC3"
+
+msgctxt "#30633"
+msgid "MP3"
+msgstr "MP3"
+
+msgctxt "#30634"
+msgid "Maximum streaming bitrate"
+msgstr "Maximális streamelési bitráta"
+
+msgctxt "#30635"
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
+msgstr "A korlátlanon kívül bármely érték letiltja a közvetlen lejátszást. Ha egy adatfolyam a korlát alatt van, remuxolásra kerül, ha felette, akkor átkódolásra."
+
+#: Bitrate options
+msgctxt "#30636"
+msgid "1 Mbps"
+msgstr "1 Mbps"
+
+msgctxt "#30637"
+msgid "2 Mbps"
+msgstr "2 Mbps"
+
+msgctxt "#30638"
+msgid "3 Mbps"
+msgstr "3 Mbps"
+
+msgctxt "#30639"
+msgid "5 Mbps"
+msgstr "5 Mbps"
+
+msgctxt "#30640"
+msgid "8 Mbps"
+msgstr "8 Mbps"
+
+msgctxt "#30641"
+msgid "10 Mbps"
+msgstr "10 Mbps"
+
+msgctxt "#30642"
+msgid "15 Mbps"
+msgstr "15 Mbps"
+
+msgctxt "#30643"
+msgid "20 Mbps"
+msgstr "20 Mbps"
+
+msgctxt "#30644"
+msgid "25 Mbps"
+msgstr "25 Mbps"
+
+msgctxt "#30645"
+msgid "30 Mbps"
+msgstr "30 Mbps"
+
+msgctxt "#30646"
+msgid "40 Mbps"
+msgstr "40 Mbps"
+
+msgctxt "#30647"
+msgid "60 Mbps"
+msgstr "60 Mbps"
+
+msgctxt "#30648"
+msgid "80 Mbps"
+msgstr "80 Mbps"
+
+msgctxt "#30649"
+msgid "100 Mbps"
+msgstr "100 Mbps"
+
+msgctxt "#30650"
+msgid "120 Mbps"
+msgstr "120 Mbps"
+
+msgctxt "#30651"
+msgid "Unlimited"
+msgstr "Korlátlan"
+
+#: InputStream category
+msgctxt "#30660"
+msgid "InputStream"
+msgstr "InputStream"
+
+msgctxt "#30661"
+msgid "InputStream addon"
+msgstr "InputStream-kiegészítő"
+
+msgctxt "#30662"
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgstr "A lejátszáshoz használt InputStream-kiegészítő. Az FFmpeg Direct támogatja az időeltolást helyi pufferrel az eszközön. Az Adaptive támogatja az időeltolást kiszolgálóoldali pufferrel. Az FFmpeg (Kodi belső) nem támogatja az időeltolást."
+
+msgctxt "#30663"
+msgid "FFmpeg Direct"
+msgstr "FFmpeg Direct"
+
+msgctxt "#30664"
+msgid "Adaptive"
+msgstr "Adaptive"
+
+msgctxt "#30665"
+msgid "FFmpeg (Kodi internal)"
+msgstr "FFmpeg (Kodi belső)"
+
+msgctxt "#30666"
+msgid "Enable timeshift"
+msgstr "Időeltolás engedélyezése"
+
+msgctxt "#30667"
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr "Puffereli az élő adatfolyamot attól a ponttól, ahol a lejátszás megkezdődött. A puffer a kliensen jön létre; a maximális méretet az inputstream.ffmpegdirect beállításaiban szabályozhatja."
+
+msgctxt "#30668"
+msgid "In-progress recording InputStream"
+msgstr "InputStream folyamatban lévő felvételhez"
+
+msgctxt "#30669"
+msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
+msgstr "A folyamatban lévő felvételek lejátszásához használt InputStream. Az Adaptive előre tud tekerni a folyamatban lévő felvételben. Az FFmpeg nem tud előre tekerni, de megbízhatóbb lehet."
+
+#: Advanced category
+msgctxt "#30670"
+msgid "Advanced"
+msgstr "Speciális"
+
+msgctxt "#30672"
+msgid "Channel reload interval (hours)"
+msgstr "Csatornák újratöltési időköze (óra)"
+
+msgctxt "#30673"
+msgid "How often to reload channel data from Jellyfin."
+msgstr "Milyen gyakran töltődnek be újra a csatornaadatok a Jellyfinből."
+
+msgctxt "#30674"
+msgid "Connection check timeout (seconds)"
+msgstr "Kapcsolatellenőrzés időkorlátja (másodperc)"
+
+msgctxt "#30675"
+msgid "How long to wait for a response when checking the Jellyfin server connection."
+msgstr "Meddig várjon válaszra a Jellyfin-kiszolgálóval való kapcsolat ellenőrzésekor."
+
+msgctxt "#30676"
+msgid "Connection check interval (seconds)"
+msgstr "Kapcsolatellenőrzés időköze (másodperc)"
+
+msgctxt "#30677"
+msgid "How often to check if the Jellyfin server is reachable."
+msgstr "Milyen gyakran ellenőrizze, hogy a Jellyfin-kiszolgáló elérhető-e."
+
+#: Account category
+msgctxt "#30700"
+msgid "Account"
+msgstr "Fiók"
+
+msgctxt "#30701"
+msgid "Server address"
+msgstr "Kiszolgáló címe"
+
+msgctxt "#30702"
+msgid "The URL of your Jellyfin server."
+msgstr "A Jellyfin-kiszolgáló URL-címe."
+
+msgctxt "#30703"
+msgid "Login"
+msgstr "Bejelentkezés"
+
+msgctxt "#30704"
+msgid "Server name"
+msgstr "Kiszolgáló neve"
+
+msgctxt "#30705"
+msgid "Logout"
+msgstr "Kijelentkezés"
+
+msgctxt "#30706"
+msgid "Username/Password"
+msgstr "Felhasználónév/jelszó"
+
+msgctxt "#30707"
+msgid "Quick Connect"
+msgstr "Quick Connect"
+
+msgctxt "#30708"
+msgid "Choose login method"
+msgstr "Válassza ki a bejelentkezési módot"
+
+msgctxt "#30709"
+msgid "Enter username"
+msgstr "Adja meg a felhasználónevet"
+
+msgctxt "#30710"
+msgid "Enter password"
+msgstr "Adja meg a jelszót"
+
+msgctxt "#30711"
+msgid "Login successful! Restart addon to connect."
+msgstr "Sikeres bejelentkezés! Indítsa újra a kiegészítőt a csatlakozáshoz."
+
+msgctxt "#30712"
+msgid "Logged out successfully."
+msgstr "Sikeres kijelentkezés."
+
+msgctxt "#30713"
+msgid "Login failed. Check credentials."
+msgstr "A bejelentkezés sikertelen. Ellenőrizze a hitelesítő adatokat."
+
+msgctxt "#30714"
+msgid "Enter a server address first."
+msgstr "Először adjon meg egy kiszolgálócímet."
+
+msgctxt "#30715"
+msgid "Opus"
+msgstr "Opus"
+
+msgctxt "#30716"
+msgid "Username"
+msgstr "Felhasználónév"
+
+msgctxt "#30717"
+msgid "Test Connection"
+msgstr "Kapcsolat tesztelése"
+
+msgctxt "#30720"
+msgid "Transcode H264 10-bit (Hi10P)"
+msgstr "H264 10 bites (Hi10P) átkódolása"
+
+msgctxt "#30721"
+msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
+msgstr "Kényszeríti a H264 10 bites tartalom átkódolását. Engedélyezze, ha az eszköze nem támogatja a Hi10P-dekódolást."
+
+msgctxt "#30722"
+msgid "Transcode HEVC range extensions"
+msgstr "HEVC range extensions átkódolása"
+
+msgctxt "#30723"
+msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
+msgstr "Kényszeríti a range extension-profilokkal (4:2:2, 4:4:4) rendelkező HEVC-tartalom átkódolását. Engedélyezze, ha az eszköze csak a Main és Main 10 profilokat támogatja."
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr "Kofin PVR beállításai"
+
+msgctxt "#30725"
+msgid "FFmpeg Direct settings..."
+msgstr "FFmpeg Direct beállításai..."
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr "Kiegészítő újraindítása"
+
+#: Catchup category
+msgctxt "#30730"
+msgid "Catchup"
+msgstr "Catchup"
+
+msgctxt "#30731"
+msgid "Enable catchup (IPTV)"
+msgstr "Catchup engedélyezése (IPTV)"
+
+msgctxt "#30732"
+msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Engedélyezi a catchup/archív TV-t, ha a szolgáltatója támogatja. Csak közvetlen lejátszással működik, ezért a kényszerített remuxolást ki kell kapcsolni, a bitrátát pedig korlátlanra kell állítani. Referencia-M3U-fájlt igényel (a Speciális szakaszban konfigurálva), amely megegyezik a Jellyfin-csatornái neveivel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket."
+
+msgctxt "#30733"
+msgid "Reference M3U location"
+msgstr "A referencia-M3U helye"
+
+msgctxt "#30734"
+msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
+msgstr "Válassza ki, hogy a referencia-M3U-fájl helyileg legyen tárolva, vagy URL-en keresztül legyen elérhető."
+
+msgctxt "#30735"
+msgid "Reference M3U file"
+msgstr "Referencia-M3U-fájl"
+
+msgctxt "#30736"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "A referencia-M3U-fájl elérési útja a helyi fájlrendszerben."
+
+msgctxt "#30737"
+msgid "Reference M3U URL"
+msgstr "Referencia-M3U URL-címe"
+
+msgctxt "#30738"
+msgid "URL of the reference M3U file."
+msgstr "A referencia-M3U-fájl URL-címe."
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr "Lekérdezési formátumkarakterlánc"
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr "Szolgáltatófüggő formátumkarakterlánc a catchup-URL-ekhez. Alapértelmezettként használatos, ha a csatornák nem adják meg saját catchup-source-ukat. Pl. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+
+msgctxt "#30741"
+msgid "Catchup window (days)"
+msgstr "Catchup-ablak (nap)"
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr "A múltbeli napok száma, amelyeken belül egy műsor visszanézhető."
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr "Alapértelmezett catchup-mód minden csatornához"
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr "Ha be van állítva, feltételezi, hogy minden csatorna támogatja a catchupot ebben a módban. Az M3U-ban kifejezett catchup-címkékkel rendelkező csatornák a saját módjukat használják."
+
+msgctxt "#30745"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr "Lejátszás az EPG-ből élő TV-módban (időeltolás)"
+
+msgctxt "#30746"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
+msgstr "Ha engedélyezve van, egy múltbeli műsor kiválasztása időeltolt élő adatfolyamként játssza le (előre/hátra lehet tekerni a catchup-ablakon belül). Ha le van tiltva, határolt videóként játszódik le."
+
+msgctxt "#30747"
+msgid "Buffer before programme start (minutes)"
+msgstr "Puffer a műsor kezdete előtt (perc)"
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr "Extra pufferidő a műsor kezdete előtt, határolt videóként való lejátszáskor."
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr "Puffer a műsor vége után (perc)"
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr "Extra pufferidő a műsor vége után, határolt videóként való lejátszáskor."
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr "Catchup csak befejezett műsorokhoz"
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr "A catchup-lejátszás csak már befejeződött műsorokhoz engedélyezett. A jelenleg sugárzott műsor nem nézhető catchupként, amíg be nem fejeződik."
+
+#: Catchup enum values
+msgctxt "#30760"
+msgid "Disabled"
+msgstr "Letiltva"
+
+msgctxt "#30761"
+msgid "Default"
+msgstr "Alapértelmezett"
+
+msgctxt "#30762"
+msgid "Append"
+msgstr "Hozzáfűzés"
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr "Eltolás (SIPTV)"
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr "Helyi útvonal"
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
+msgstr "Távoli útvonal (URL)"
+
+#: Reference playlist (advanced category)
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr "Referencia-lejátszási lista"
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr "Referencia-lejátszási lista használata"
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr "Betölt egy referencia-M3U-lejátszási listát, amely a Jellyfin-csatornákat csatornacsoportokkal, KodiProps-okkal (InputStream-választás, fejlécek), KofinProps-okkal (csatornánkénti felülbírálatok) és catchup-metaadatokkal egészíti ki. A csatornák név alapján vannak párosítva (a kis- és nagybetűk megkülönböztetése nélkül)."
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr "A referencia-lejátszási lista helye"
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr "Válassza ki, hogy a referencia-lejátszási lista helyileg legyen tárolva, vagy URL-en keresztül legyen elérhető."
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr "Referencia-lejátszási lista fájlja"
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr "A referencia-M3U-fájl elérési útja a helyi fájlrendszerben."
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr "A referencia-lejátszási lista URL-címe"
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr "A referencia-M3U-lejátszási lista URL-címe."
+
+#: Force-transcode codec toggles
+msgctxt "#30781"
+msgid "Direct play video codecs"
+msgstr "Közvetlen lejátszású videokodekek"
+
+msgctxt "#30782"
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
+msgstr "Videokodekek, amelyek közvetlenül lejátszhatók vagy remuxolhatók. A nem kiválasztott kodekek az előnyben részesített videokodekbe lesznek átkódolva."
+
+msgctxt "#30783"
+msgid "Direct play audio codecs"
+msgstr "Közvetlen lejátszású hangkodekek"
+
+msgctxt "#30784"
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
+msgstr "Hangkodekek, amelyek változatlanul átmásolhatók. A nem kiválasztott kodekek az előnyben részesített hangkodekbe lesznek átkódolva."
+
+msgctxt "#30796"
+msgid "MPEG-2"
+msgstr "MPEG-2"
+
+msgctxt "#30797"
+msgid "VP9"
+msgstr "VP9"
+
+msgctxt "#30798"
+msgid "VC-1"
+msgstr "VC-1"
+
+msgctxt "#30799"
+msgid "MP2"
+msgstr "MP2"
+
+msgctxt "#30800"
+msgid "EAC3"
+msgstr "EAC3"
+
+msgctxt "#30801"
+msgid "FLAC"
+msgstr "FLAC"
+
+msgctxt "#30805"
+msgid "DTS"
+msgstr "DTS"
+
+msgctxt "#30806"
+msgid "Force transcoding"
+msgstr "Átkódolás kényszerítése"
+
+msgctxt "#30807"
+msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgstr "Arra kényszeríti a kiszolgálót, hogy a remuxolás helyett az előnyben részesített videokodekbe kódoljon át. A bitráta a forrás bitrátájára (vagy a maximális streamelési bitrátára, amelyik alacsonyabb) van korlátozva az újrakódolás kiváltásához."
+
+msgctxt "#30808"
+msgid "Force direct play"
+msgstr "Közvetlen lejátszás kényszerítése"
+
+msgctxt "#30809"
+msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgstr "Arra kényszeríti a kiszolgálót, hogy minden adatfolyamot közvetlenül játsszon le, átkódolás vagy remuxolás nélkül. Az eszköznek natívan dekódolnia kell tudnia a forrásformátumot. Nem vonatkozik a folyamatban lévő felvételekre. Csatornánként is beállítható a kofin-force-direct-play M3U-tulajdonsággal."
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr "H264 10-bit"
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr "HEVC Range Extensions"
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr "Hangcsatornák maximális száma"
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
+msgstr "Az átkódoláskor engedélyezett hangcsatornák maximális száma. A több csatornát tartalmazó adatfolyamok lekeverésre kerülnek. Nincs hatása a közvetlen lejátszásra."
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr "Sztereó (2)"
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr "Térhatású 5.1 (6)"
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
+msgstr "Térhatású 7.1 (8)"
+
+#: Allowed HDR types (allowedHdrTypes)
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr "Engedélyezett HDR-típusok"
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgstr "A kijelzőjére továbbítható HDR-formátumok. A nem kiválasztott formátumokat a kiszolgáló tónusleképezéssel SDR-be alakítja. Az SDR mindig engedélyezett. Nincs hatása, ha a Közvetlen lejátszás kényszerítése be van kapcsolva."
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr "HDR10"
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr "HLG"
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr "HDR10+"
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr "Dolby Vision"
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr "Dolby Vision (HDR10 tartalék)"
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr "Dolby Vision (HLG tartalék)"
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr "Dolby Vision (SDR tartalék)"
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr "Dolby Vision Profile 7 (EL)"
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr "Dolby Vision + HDR10+"
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr "Dolby Vision Profile 7 + HDR10+"
+
+#: Maximum resolution (maxResolution)
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr "Maximális felbontás"
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgstr "Szélesség szerint korlátozza a videót; a magasabb felbontású forrásokat a kiszolgáló leskálázza. Nincs hatása, ha a Közvetlen lejátszás kényszerítése be van kapcsolva."
+
+msgctxt "#30824"
+msgid "480p"
+msgstr "480p"
+
+msgctxt "#30825"
+msgid "720p"
+msgstr "720p"
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr "1080p"
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr "1440p"
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr "2160p (4K)"
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr "Korlátlan"
