@@ -1,3 +1,7 @@
+v0.11.0
+- Add UI translations for 26 languages (machine-translated, pending native review): French, German, Spanish, Italian, Portuguese, Dutch, Polish, Russian, Swedish, Danish, Norwegian, Finnish, Greek, Hungarian, Czech, Slovak, Ukrainian, Catalan, Romanian, Japanese, Korean, and Simplified & Traditional Chinese
+- Add a translation toolchain (scripts/i18n) to regenerate the language files from the English source
+
 v0.10.1
 - Decouple catchup from the reference playlist setting
 - Tidy up settings descriptions
