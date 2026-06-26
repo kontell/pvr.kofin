@@ -5,13 +5,15 @@ set -euo pipefail
 #
 # Usage: ./scripts/build-local.sh [--debug]
 #
-# Requires: Kodi v21 source at /media/bluecon/docs/dev/ref/kodi-omega-full/
-# Output:   /media/bluecon/docs/IT/kofin/builds/pvr.kofin-<ver>-linux-x86_64-omega.zip
+# Requires: Kodi v21 source at /media/bluecon/ref/kodi-omega-full/
+#           with pvr.kofin registered in its addon definitions (cmake/addons/addons/pvr.kofin/pvr.kofin.txt)
+#           pointing at this checkout, e.g. "pvr.kofin file:///media/bluecon/dev/pvr.kofin".
+# Output:   /media/bluecon/dev/builds/pvr.kofin-<ver>-linux-x86_64-omega.zip
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ADDON_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
-KODI_SRC="/media/bluecon/docs/dev/ref/kodi-omega-full"
-BUILDS_DIR="/media/bluecon/docs/dev/builds"
+KODI_SRC="/media/bluecon/ref/kodi-omega-full"
+BUILDS_DIR="/media/bluecon/dev/builds"
 
 BUILD_TYPE="Release"
 [[ "${1:-}" == "--debug" ]] && BUILD_TYPE="Debug"

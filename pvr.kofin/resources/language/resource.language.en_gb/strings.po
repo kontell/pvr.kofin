@@ -448,7 +448,7 @@ msgid "Use reference playlist"
 msgstr ""
 
 msgctxt "#30774"
-msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel codec/bitrate overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
 msgstr ""
 
 msgctxt "#30775"
