@@ -85,6 +85,14 @@ private:
   PVR_ERROR LoadSeriesTimers();
   PVR_ERROR LoadRecordings();
 
+  // *Internal carry the parsing logic; their public/loader counterparts wrap
+  // them in an exception firewall so jsoncpp errors never cross the Kodi ABI
+  // or escape the detached timer-op threads.
+  PVR_ERROR AddTimerInternal(const kodi::addon::PVRTimer& timer);
+  PVR_ERROR LoadTimersInternal();
+  PVR_ERROR LoadSeriesTimersInternal();
+  PVR_ERROR LoadRecordingsInternal();
+
   // Same as HasRecordingForEpg but assumes m_mutex is already held.
   bool HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const;
 

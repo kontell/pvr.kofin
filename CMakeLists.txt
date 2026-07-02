@@ -76,6 +76,7 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/data/Provider.h
                   src/iptvsimple/data/StreamEntry.h
                   src/iptvsimple/utilities/FileUtils.h
+                  src/iptvsimple/utilities/JsonUtils.h
                   src/iptvsimple/utilities/Logger.h
                   src/iptvsimple/utilities/StreamUtils.h
                   src/iptvsimple/utilities/TimeUtils.h

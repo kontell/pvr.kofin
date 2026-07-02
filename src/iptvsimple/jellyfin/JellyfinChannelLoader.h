@@ -71,6 +71,15 @@ public:
   int GetChannelUid(const std::string& jellyfinId) const;
 
 private:
+  // *Internal carry the parsing logic; the public methods wrap them in an
+  // exception firewall so jsoncpp errors never cross the Kodi ABI.
+  bool LoadChannelsInternal(iptvsimple::Channels& channels, iptvsimple::ChannelGroups& channelGroups);
+  PVR_ERROR LoadEpgInternal(int channelUid, time_t start, time_t end,
+                            kodi::addon::PVREPGTagsResultSet& results);
+  std::string GetItemStreamUrlInternal(const std::string& itemId, const ChannelOverrides& overrides);
+  std::string GetRecordingStreamUrlInternal(const std::string& recordingId, bool inProgress,
+                                            const ChannelOverrides& overrides);
+
   static int GenerateUid(const std::string& str);
   static std::string FormatIso8601(time_t time);
   static time_t ParseIso8601(const std::string& dateStr);

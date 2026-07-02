@@ -7,6 +7,7 @@
 
 #include "JellyfinRecordingManager.h"
 
+#include "../utilities/JsonUtils.h"
 #include "../utilities/Logger.h"
 #include <kodi/General.h>
 #include "../utilities/TimeUtils.h"
@@ -133,6 +134,21 @@ PVR_ERROR JellyfinRecordingManager::GetTimers(kodi::addon::PVRTimersResultSet& r
 }
 
 PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
+{
+  // Exception firewall: AddTimer runs on a detached worker thread, where an
+  // escaped jsoncpp exception means std::terminate for the whole process.
+  try
+  {
+    return AddTimerInternal(timer);
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception creating timer: %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
+}
+
+PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer& timer)
 {
   if (timer.GetTimerType() == TIMER_ONCE_EPG)
   {
@@ -652,6 +668,20 @@ std::string JellyfinRecordingManager::GetRecordingIdForEpg(unsigned int broadcas
 
 PVR_ERROR JellyfinRecordingManager::LoadTimers()
 {
+  // Exception firewall — see AddTimer.
+  try
+  {
+    return LoadTimersInternal();
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing timer data: %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
+}
+
+PVR_ERROR JellyfinRecordingManager::LoadTimersInternal()
+{
   const std::string endpoint = "/LiveTv/Timers";
   Json::Value response = m_client->SendGet(endpoint);
 
@@ -723,9 +753,9 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
 
     // Padding/margins (Jellyfin uses seconds, Kodi uses minutes)
     if (item.isMember("PrePaddingSeconds"))
-      timer.SetMarginStart(item["PrePaddingSeconds"].asInt() / 60);
+      timer.SetMarginStart(SafeInt(item["PrePaddingSeconds"]) / 60);
     if (item.isMember("PostPaddingSeconds"))
-      timer.SetMarginEnd(item["PostPaddingSeconds"].asInt() / 60);
+      timer.SetMarginEnd(SafeInt(item["PostPaddingSeconds"]) / 60);
 
     // State
     const std::string status = item.get("Status", "New").asString();
@@ -770,6 +800,20 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
 }
 
 PVR_ERROR JellyfinRecordingManager::LoadSeriesTimers()
+{
+  // Exception firewall — see AddTimer.
+  try
+  {
+    return LoadSeriesTimersInternal();
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing series timer data: %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
+}
+
+PVR_ERROR JellyfinRecordingManager::LoadSeriesTimersInternal()
 {
   const std::string endpoint = "/LiveTv/SeriesTimers";
   Json::Value response = m_client->SendGet(endpoint);
@@ -838,9 +882,9 @@ PVR_ERROR JellyfinRecordingManager::LoadSeriesTimers()
 
     // Padding
     if (item.isMember("PrePaddingSeconds"))
-      timer.SetMarginStart(item["PrePaddingSeconds"].asInt() / 60);
+      timer.SetMarginStart(SafeInt(item["PrePaddingSeconds"]) / 60);
     if (item.isMember("PostPaddingSeconds"))
-      timer.SetMarginEnd(item["PostPaddingSeconds"].asInt() / 60);
+      timer.SetMarginEnd(SafeInt(item["PostPaddingSeconds"]) / 60);
 
     m_seriesTimers.emplace_back(timer);
   }
@@ -851,6 +895,20 @@ PVR_ERROR JellyfinRecordingManager::LoadSeriesTimers()
 }
 
 PVR_ERROR JellyfinRecordingManager::LoadRecordings()
+{
+  // Exception firewall — see AddTimer.
+  try
+  {
+    return LoadRecordingsInternal();
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing recording data: %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
+}
+
+PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
 {
   std::lock_guard<std::mutex> lock(m_mutex);
   m_recordings.clear();
@@ -985,7 +1043,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
     else if (item.isMember("RunTimeTicks"))
     {
       // RunTimeTicks is in 100-nanosecond intervals
-      recording.SetDuration(static_cast<int>(item["RunTimeTicks"].asInt64() / 10000000LL));
+      recording.SetDuration(static_cast<int>(SafeInt64(item["RunTimeTicks"]) / 10000000LL));
     }
 
     // Image
@@ -995,13 +1053,13 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
 
     // Season/Episode
     if (item.isMember("IndexNumber"))
-      recording.SetEpisodeNumber(item["IndexNumber"].asInt());
+      recording.SetEpisodeNumber(SafeInt(item["IndexNumber"]));
     if (item.isMember("ParentIndexNumber"))
-      recording.SetSeriesNumber(item["ParentIndexNumber"].asInt());
+      recording.SetSeriesNumber(SafeInt(item["ParentIndexNumber"]));
 
     // Year + full date for skin $INFO[VideoPlayer.Premiered]
     if (item.isMember("ProductionYear"))
-      recording.SetYear(item["ProductionYear"].asInt());
+      recording.SetYear(SafeInt(item["ProductionYear"]));
     {
       std::string iso;
       if (item.isMember("StartDate"))
@@ -1023,7 +1081,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
       recording.SetPlayCount(ud.get("Played", false).asBool() ? 1 : 0);
       if (ud.isMember("PlaybackPositionTicks"))
       {
-        int64_t ticks = ud["PlaybackPositionTicks"].asInt64();
+        const int64_t ticks = SafeInt64(ud["PlaybackPositionTicks"]);
         recording.SetLastPlayedPosition(static_cast<int>(ticks / 10000000LL));
       }
     }
