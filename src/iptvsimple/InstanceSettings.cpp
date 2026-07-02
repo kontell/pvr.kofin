@@ -7,6 +7,7 @@
 
 #include "InstanceSettings.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <random>
 
@@ -120,8 +121,11 @@ void InstanceSettings::ReadSettings()
 
   // Advanced
   m_jellyfinUpdateIntervalHours = kodi::addon::GetSettingInt("jellyfinUpdateIntervalHours", 24);
-  m_connectioncCheckTimeoutSecs = kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS);
-  m_connectioncCheckIntervalSecs = kodi::addon::GetSettingInt("connectioncheckinterval", 60);
+  // Clamp: both are free-form integer edits in the settings UI. Interval 0
+  // would ping /System/Ping every sleep step; timeout 0 means "no timeout"
+  // to curl and stalls the connection checker indefinitely.
+  m_connectioncCheckTimeoutSecs = std::max(1, kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS));
+  m_connectioncCheckIntervalSecs = std::max(5, kodi::addon::GetSettingInt("connectioncheckinterval", 60));
 }
 
 std::string InstanceSettings::GetJellyfinBaseUrl() const
