@@ -704,8 +704,13 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   if (inProgress)
     deviceProfile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
   // Recordings play via inputstream.adaptive which needs MinSegments >= 3.
-  if (!deviceProfile["TranscodingProfiles"].empty())
-    deviceProfile["TranscodingProfiles"][0]["MinSegments"] = "3";
+  // Set it on every profile: the server picks the transcoding profile by
+  // codec-copy compatibility with the source (order is only a tie-break), so
+  // bumping [0] alone missed e.g. an AV1-source recording on an
+  // h264-preferred profile order. MinSegments on the unselected profile is
+  // inert, so this costs nothing.
+  for (Json::Value& transcodingProfile : deviceProfile["TranscodingProfiles"])
+    transcodingProfile["MinSegments"] = "3";
   body["DeviceProfile"] = deviceProfile;
   m_activeMaxBitrateBps = effectiveOverrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
   body["AutoOpenLiveStream"] = true;
@@ -844,18 +849,27 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     newParams += p;
   }
 
-  const int audioBitrate = 384000;
-  int videoBitrate;
+  // Split the bitrate budget between audio and video, scaling the audio
+  // reservation for small budgets: audio = min(384k, budget/8). The old fixed
+  // 384 kbps reservation pushed VideoBitrate negative whenever the budget was
+  // below it — e.g. kofin-bitrate-limit=300, or force-transcode of a source
+  // reporting < 384 kbps — and the server rejects a negative bitrate. The
+  // audio share must scale off the same budget video is carved from
+  // (min(source, max) on the force-transcode path), so video always gets a
+  // positive >= 7/8 share. Budgets >= 3.072 Mbps behave exactly as before.
+  int effectiveTotalBps;
   if (forceTranscode)
   {
     const int sourceBps = m_activeSourceBitrateBps > 0
       ? m_activeSourceBitrateBps : 30000000;
-    videoBitrate = std::min(sourceBps, maxBitrateBps) - audioBitrate;
+    effectiveTotalBps = std::min(sourceBps, maxBitrateBps);
   }
   else
   {
-    videoBitrate = maxBitrateBps - audioBitrate;
+    effectiveTotalBps = maxBitrateBps;
   }
+  const int audioBitrate = std::min(384000, effectiveTotalBps / 8);
+  const int videoBitrate = effectiveTotalBps - audioBitrate;
   newParams += "&VideoBitrate=" + std::to_string(videoBitrate);
   newParams += "&AudioBitrate=" + std::to_string(audioBitrate);
 
@@ -874,20 +888,37 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
 void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
 {
-  // Jellyfin sometimes returns 127.0.0.1 or localhost in stream URLs
-  // when the tuner provider reports local addresses. Replace with the
-  // actual server hostname so Kodi can reach it.
-  const std::string host = m_settings->GetJellyfinHost();
-  for (const char* pattern : {"127.0.0.1", "localhost"})
-  {
-    size_t pos = 0;
-    const size_t len = strlen(pattern);
-    while ((pos = url.find(pattern, pos)) != std::string::npos)
-    {
-      url.replace(pos, len, host);
-      pos += host.size();
-    }
-  }
+  // Jellyfin sometimes returns 127.0.0.1 or localhost in stream URLs when the
+  // tuner provider reports local addresses. Replace with the actual server
+  // hostname so Kodi can reach it. Only the URL authority's host is rewritten
+  // (exact match): the old blind substring replace also mangled
+  // query-parameter values and hosts that merely contain the pattern, like
+  // "localhost.example.com".
+  const std::string serverHost = m_settings->GetJellyfinHost();
+  if (serverHost.empty())
+    return;
+
+  const size_t schemeEnd = url.find("://");
+  if (schemeEnd == std::string::npos)
+    return;
+
+  const size_t authorityStart = schemeEnd + 3;
+  size_t authorityEnd = url.find_first_of("/?#", authorityStart);
+  if (authorityEnd == std::string::npos)
+    authorityEnd = url.length();
+
+  // Host runs from after any userinfo to before any port.
+  size_t hostStart = authorityStart;
+  const size_t atPos = url.find('@', authorityStart);
+  if (atPos != std::string::npos && atPos < authorityEnd)
+    hostStart = atPos + 1;
+  size_t hostEnd = url.find(':', hostStart);
+  if (hostEnd == std::string::npos || hostEnd > authorityEnd)
+    hostEnd = authorityEnd;
+
+  const std::string host = url.substr(hostStart, hostEnd - hostStart);
+  if (host == "127.0.0.1" || host == "localhost")
+    url.replace(hostStart, hostEnd - hostStart, serverHost);
 }
 
 std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId,
