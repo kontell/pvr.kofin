@@ -12,6 +12,7 @@
 
 #include <cctype>
 #include <iomanip>
+#include <regex>
 #include <sstream>
 
 #include <kodi/Filesystem.h>
@@ -137,6 +138,15 @@ std::string WebUtils::RedactUrl(const std::string& url)
 
     redactedUrl = protocol + "://USERNAME:PASSWORD@" + fullPrefix;
   }
+
+  // Redact credential-bearing query parameters. The Jellyfin access token
+  // rides on stream URLs as "ApiKey=" and Quick Connect polls with "secret=".
+  // Kodi writes INFO-level logs by default, so any URL that reaches the log
+  // must have these values masked.
+  static const std::regex credentialParams(
+      R"(([?&](?:api_?key|token|secret|x-emby-token)=)[^&#]*)",
+      std::regex::icase);
+  redactedUrl = std::regex_replace(redactedUrl, credentialParams, "$1REDACTED");
 
   return redactedUrl;
 }

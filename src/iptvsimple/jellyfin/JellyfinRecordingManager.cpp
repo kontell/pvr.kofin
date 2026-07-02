@@ -576,7 +576,8 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  Logger::Log(LEVEL_INFO, "%s - Recording stream URL (id=%s, inProgress=%d): %s",
+  // DEBUG, not INFO: keep resolved stream URLs out of default kodi.log output.
+  Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL (id=%s, inProgress=%d): %s",
               __FUNCTION__, recordingId.c_str(), inProgress ? 1 : 0,
               WebUtils::RedactUrl(streamUrl).c_str());
 
