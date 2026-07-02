@@ -230,8 +230,8 @@ msgid "Server address"
 msgstr "Adresa serverului"
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
-msgstr "URL-ul serverului dvs. Jellyfin."
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr "Adresa serverului Jellyfin, de ex. 192.168.1.10:8096 sau https://jellyfin.example.com. Fără schemă se presupun http și portul 8096. HTTPS este recomandat pentru conexiuni prin internet. Subcăile de reverse proxy (de ex. /jellyfin) nu sunt acceptate — folosiți doar gazda și, opțional, portul."
 
 msgctxt "#30703"
 msgid "Login"
@@ -320,6 +320,10 @@ msgstr "Setări FFmpeg Direct..."
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr "Repornește suplimentul"
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr "Conexiunea la server folosește HTTP necriptat printr-o rețea care nu este privată. Se recomandă HTTPS."
 
 #: Catchup category
 msgctxt "#30730"

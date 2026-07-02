@@ -230,8 +230,8 @@ msgid "Server address"
 msgstr "Διεύθυνση διακομιστή"
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
-msgstr "Η διεύθυνση URL του διακομιστή σας Jellyfin."
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr "Διεύθυνση του διακομιστή Jellyfin, π.χ. 192.168.1.10:8096 ή https://jellyfin.example.com. Χωρίς σχήμα χρησιμοποιούνται http και θύρα 8096. Το HTTPS συνιστάται για σύνδεση μέσω διαδικτύου. Οι υποδιαδρομές αντίστροφου διαμεσολαβητή (π.χ. /jellyfin) δεν υποστηρίζονται — χρησιμοποιήστε μόνο κεντρικό υπολογιστή και προαιρετικά θύρα."
 
 msgctxt "#30703"
 msgid "Login"
@@ -320,6 +320,10 @@ msgstr "Ρυθμίσεις FFmpeg Direct..."
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr "Επανεκκίνηση προσθέτου"
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr "Η σύνδεση με τον διακομιστή χρησιμοποιεί μη κρυπτογραφημένο HTTP μέσω μη ιδιωτικού δικτύου. Συνιστάται HTTPS."
 
 #: Catchup category
 msgctxt "#30730"

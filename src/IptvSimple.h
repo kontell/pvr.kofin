@@ -143,6 +143,7 @@ private:
   std::mutex m_mutex;
   std::atomic_bool m_reloadChannelsGroupsAndEPG{false};
   std::atomic_bool m_needsRestart{false};
+  std::atomic_bool m_insecureWarningShown{false};
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
   // Runs a timer add/delete (network chain + model reload) on a worker thread

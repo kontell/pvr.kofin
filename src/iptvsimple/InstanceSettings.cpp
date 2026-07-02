@@ -8,7 +8,9 @@
 #include "InstanceSettings.h"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
+#include <cstdlib>
 #include <random>
 
 using namespace iptvsimple;
@@ -183,6 +185,40 @@ std::string InstanceSettings::GetJellyfinBaseUrl() const
   }
 
   return scheme + "://" + remainder;
+}
+
+bool InstanceSettings::IsInsecureRemoteConnection() const
+{
+  const std::string baseUrl = GetJellyfinBaseUrl();
+  if (baseUrl.rfind("http://", 0) != 0)
+    return false; // https (or no address configured)
+
+  std::string host = GetJellyfinHost();
+  if (host.empty())
+    return false;
+  std::transform(host.begin(), host.end(), host.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  // Loopback, mDNS, and undotted LAN hostnames are considered private.
+  if (host == "localhost" || host == "[::1]" || host.rfind("127.", 0) == 0)
+    return false;
+  if (host.size() > 6 && host.compare(host.size() - 6, 6, ".local") == 0)
+    return false;
+  if (host.find('.') == std::string::npos)
+    return false;
+
+  // RFC1918 and link-local IPv4 ranges.
+  if (host.rfind("10.", 0) == 0 || host.rfind("192.168.", 0) == 0 ||
+      host.rfind("169.254.", 0) == 0)
+    return false;
+  if (host.rfind("172.", 0) == 0)
+  {
+    const int secondOctet = std::atoi(host.c_str() + 4);
+    if (secondOctet >= 16 && secondOctet <= 31)
+      return false;
+  }
+
+  return true;
 }
 
 std::string InstanceSettings::GetJellyfinHost() const

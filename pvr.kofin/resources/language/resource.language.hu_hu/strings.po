@@ -230,8 +230,8 @@ msgid "Server address"
 msgstr "Kiszolgáló címe"
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
-msgstr "A Jellyfin-kiszolgáló URL-címe."
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr "A Jellyfin-kiszolgáló címe, pl. 192.168.1.10:8096 vagy https://jellyfin.example.com. Séma nélkül http és a 8096-os port az alapértelmezés. Interneten keresztüli kapcsolathoz HTTPS ajánlott. A fordított proxy alútvonalai (pl. /jellyfin) nem támogatottak — csak kiszolgálónevet és opcionális portot adjon meg."
 
 msgctxt "#30703"
 msgid "Login"
@@ -320,6 +320,10 @@ msgstr "FFmpeg Direct beállításai..."
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr "Kiegészítő újraindítása"
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr "A kiszolgálókapcsolat titkosítatlan HTTP-t használ nem privát hálózaton. HTTPS ajánlott."
 
 #: Catchup category
 msgctxt "#30730"

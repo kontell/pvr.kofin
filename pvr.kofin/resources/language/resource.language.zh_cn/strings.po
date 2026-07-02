@@ -230,8 +230,8 @@ msgid "Server address"
 msgstr "服务器地址"
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
-msgstr "您的 Jellyfin 服务器的 URL。"
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr "Jellyfin 服务器地址，例如 192.168.1.10:8096 或 https://jellyfin.example.com。未填写协议时默认使用 http 和 8096 端口。通过互联网连接时建议使用 HTTPS。不支持反向代理子路径（例如 /jellyfin）——请只填写主机和可选端口。"
 
 msgctxt "#30703"
 msgid "Login"
@@ -320,6 +320,10 @@ msgstr "FFmpeg Direct 设置..."
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr "重启插件"
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr "服务器连接正在非私有网络上使用未加密的 HTTP。建议使用 HTTPS。"
 
 #: Catchup category
 msgctxt "#30730"

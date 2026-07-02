@@ -230,8 +230,8 @@ msgid "Server address"
 msgstr "Palvelimen osoite"
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
-msgstr "Jellyfin-palvelimesi URL-osoite."
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr "Jellyfin-palvelimesi osoite, esim. 192.168.1.10:8096 tai https://jellyfin.example.com. Ilman skeemaa käytetään http:tä ja porttia 8096. HTTPS on suositeltava internetin yli yhdistettäessä. Käänteisen välityspalvelimen alipolkuja (esim. /jellyfin) ei tueta — anna vain isäntä ja valinnainen portti."
 
 msgctxt "#30703"
 msgid "Login"
@@ -320,6 +320,10 @@ msgstr "FFmpeg Direct -asetukset..."
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr "Käynnistä lisäosa uudelleen"
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr "Palvelinyhteys käyttää salaamatonta HTTP:tä ei-yksityisessä verkossa. HTTPS on suositeltava."
 
 #: Catchup category
 msgctxt "#30730"

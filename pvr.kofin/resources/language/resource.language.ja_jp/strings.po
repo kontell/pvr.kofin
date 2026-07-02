@@ -230,8 +230,8 @@ msgid "Server address"
 msgstr "サーバーアドレス"
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
-msgstr "Jellyfin サーバーの URL。"
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr "Jellyfin サーバーのアドレス（例: 192.168.1.10:8096 または https://jellyfin.example.com）。スキーム省略時は http とポート 8096 が使用されます。インターネット経由の接続には HTTPS を推奨します。リバースプロキシのサブパス（例: /jellyfin）には対応していません。ホストと任意のポートのみを指定してください。"
 
 msgctxt "#30703"
 msgid "Login"
@@ -320,6 +320,10 @@ msgstr "FFmpeg Direct の設定..."
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr "アドオンを再起動"
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr "サーバー接続はプライベートではないネットワーク上で暗号化されていない HTTP を使用しています。HTTPS を推奨します。"
 
 #: Catchup category
 msgctxt "#30730"

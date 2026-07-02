@@ -4,7 +4,7 @@ For every generated locale file:
   * file decodes as strict UTF-8
   * every msgctxt/msgid/msgstr quoted body is well-formed (balanced quotes,
     only valid \\\\ / \\" / \\n escapes, no unescaped interior double quote)
-  * header present, exactly 155 message entries
+  * header present, exactly 156 message entries
   * the #30740 catchup format-string example is preserved byte-for-byte
 """
 import re
@@ -54,8 +54,8 @@ def check_file(path):
                 errs.append(f"line {ln}: {e}")
         if line.startswith("msgctxt "):
             entries += 1
-    if entries != 155:
-        errs.append(f"expected 155 entries, found {entries}")
+    if entries != 156:
+        errs.append(f"expected 156 entries, found {entries}")
     if FORMAT_FRAGMENT not in text:
         errs.append("catchup format-string fragment missing/altered")
     return errs
