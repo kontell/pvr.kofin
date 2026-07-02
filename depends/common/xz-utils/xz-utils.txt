@@ -1,1 +1,0 @@
-xz-utils http://mirrors.kodi.tv/build-deps/sources/xz-5.4.3.tar.xz
