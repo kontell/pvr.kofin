@@ -48,13 +48,47 @@ def build_auth_header(token, device_id):
     return header
 
 
+def normalize_base_url(address):
+    """Mirror InstanceSettings::GetJellyfinBaseUrl: default scheme http,
+    default port 8096 (http) / 443 (https), strip any path. The raw setting
+    may be a bare host/IP — urllib needs a full URL."""
+    address = (address or '').strip()
+    if not address:
+        return ''
+    while address.endswith('/'):
+        address = address[:-1]
+    if address.startswith('https://'):
+        scheme, remainder = 'https', address[8:]
+    elif address.startswith('http://'):
+        scheme, remainder = 'http', address[7:]
+    else:
+        scheme, remainder = 'http', address
+    slash = remainder.find('/')
+    if slash != -1:
+        remainder = remainder[:slash]
+    if remainder.startswith('['):  # IPv6 bracket notation [::1]:port
+        bracket_end = remainder.find(']')
+        has_port = (bracket_end != -1 and bracket_end + 1 < len(remainder)
+                    and remainder[bracket_end + 1] == ':')
+    else:
+        has_port = ':' in remainder
+    if not has_port:
+        remainder += ':443' if scheme == 'https' else ':8096'
+    return f'{scheme}://{remainder}'
+
+
 def post_json(base_url, endpoint, body, token, device_id):
     """POST JSON to Jellyfin. Fire-and-forget — errors are logged, not raised."""
-    url = base_url.rstrip('/') + endpoint
+    base = normalize_base_url(base_url)
+    if not base:
+        return
+    url = base + endpoint
     data = json.dumps(body).encode('utf-8')
     headers = {
         'Content-Type': 'application/json',
-        'X-Emby-Authorization': build_auth_header(token, device_id),
+        # Non-deprecated header form, matching the C++ client — Jellyfin v12
+        # drops X-Emby-Authorization support.
+        'Authorization': build_auth_header(token, device_id),
     }
     req = urllib.request.Request(url, data=data, headers=headers, method='POST')
     try:
@@ -90,6 +124,15 @@ class PlaybackReporter(xbmc.Player):
             with open(session_path, 'r') as f:
                 session_data = json.load(f)
         except (OSError, json.JSONDecodeError):
+            return
+        # Ignore stale session files (e.g. left behind by a Kodi crash): with
+        # a second PVR addon installed, the PVR.IsPlaying* gate alone would
+        # misattribute foreign playback to this session. WrittenAt is set by
+        # the C++ addon when it resolves the stream URL, moments before
+        # playback starts; 0/absent means an older addon build — accept it.
+        written_at = session_data.get('WrittenAt', 0)
+        if written_at and time.time() - written_at > 300:
+            xbmc.log('pvr.kofin reporter: ignoring stale session.json', xbmc.LOGINFO)
             return
         item_id = session_data.get('ItemId', '')
         if not item_id:
