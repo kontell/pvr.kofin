@@ -67,8 +67,16 @@ bool JellyfinClient::AuthenticateByPassword(const std::string& username, const s
 {
   Logger::Log(LEVEL_INFO, "%s - Authenticating user '%s'", __FUNCTION__, username.c_str());
 
-  // Manually build JSON to ensure field order (some Jellyfin versions are sensitive)
-  std::string body = "{\"Username\":\"" + username + "\",\"Pw\":\"" + password + "\"}";
+  // Build the body with jsoncpp so quotes/backslashes in credentials are
+  // escaped properly (string concatenation broke logins for passwords
+  // containing '"' or '\'). Field order does not matter to the server.
+  Json::Value authBody;
+  authBody["Username"] = username;
+  authBody["Pw"] = password;
+
+  Json::StreamWriterBuilder writer;
+  writer["indentation"] = "";
+  const std::string body = Json::writeString(writer, authBody);
 
   Json::Value response = DoRequest(BuildUrl("/Users/AuthenticateByName"), body);
 
