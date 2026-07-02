@@ -58,7 +58,6 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
 {
   m_channels.Clear();
   m_channelGroups.Clear();
-  m_providers.Clear();
   connectionManager = new ConnectionManager(*this, m_settings);
   m_auth = std::make_shared<iptvsimple::jellyfin::JellyfinAuth>(m_settings);
 
@@ -80,7 +79,6 @@ IptvSimple::~IptvSimple()
   std::lock_guard<std::mutex> lock(m_mutex);
   m_channels.Clear();
   m_channelGroups.Clear();
-  m_providers.Clear();
 
   if (connectionManager)
     connectionManager->Stop();
@@ -109,7 +107,6 @@ void IptvSimple::ConnectionEstablished()
 
   m_channels.Init();
   m_channelGroups.Init();
-  m_providers.Init();
 
   // Create Jellyfin client
   m_jellyfinClient = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
@@ -179,7 +176,9 @@ PVR_ERROR IptvSimple::GetCapabilities(kodi::addon::PVRCapabilities& capabilities
   capabilities.SetSupportsTV(true);
   capabilities.SetSupportsRadio(false);
   capabilities.SetSupportsChannelGroups(true);
-  capabilities.SetSupportsProviders(true);
+  // No provider concept for a single-server Jellyfin backend — the fork never
+  // populated the provider list it inherited from pvr.iptvsimple.
+  capabilities.SetSupportsProviders(false);
   capabilities.SetSupportsTimers(true);
   capabilities.SetSupportsRecordings(true);
   capabilities.SetSupportsRecordingsRename(false);
@@ -277,33 +276,6 @@ void IptvSimple::Process()
       refreshTimer = 0;
     }
   }
-}
-
-/***************************************************************************
- * Providers
- **************************************************************************/
-
-PVR_ERROR IptvSimple::GetProvidersAmount(int& amount)
-{
-  amount = m_providers.GetNumProviders();
-
-  return PVR_ERROR_NO_ERROR;
-}
-
-PVR_ERROR IptvSimple::GetProviders(kodi::addon::PVRProvidersResultSet& results)
-{
-  std::vector<kodi::addon::PVRProvider> providers;
-  {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_providers.GetProviders(providers);
-  }
-
-  Logger::Log(LEVEL_DEBUG, "%s - providers available '%d'", __func__, providers.size());
-
-  for (const auto& provider : providers)
-    results.Add(provider);
-
-  return PVR_ERROR_NO_ERROR;
 }
 
 /***************************************************************************

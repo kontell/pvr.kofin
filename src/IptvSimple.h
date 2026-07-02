@@ -11,7 +11,6 @@
 #include "iptvsimple/Channels.h"
 #include "iptvsimple/ChannelGroups.h"
 #include "iptvsimple/ConnectionManager.h"
-#include "iptvsimple/Providers.h"
 #include "iptvsimple/IConnectionListener.h"
 #include "iptvsimple/data/Channel.h"
 #include "iptvsimple/jellyfin/JellyfinClient.h"
@@ -50,9 +49,6 @@ public:
   PVR_ERROR OnSystemWake() override;
   PVR_ERROR OnPowerSavingActivated() override { return PVR_ERROR_NO_ERROR; }
   PVR_ERROR OnPowerSavingDeactivated() override { return PVR_ERROR_NO_ERROR; }
-
-  PVR_ERROR GetProvidersAmount(int& amount) override;
-  PVR_ERROR GetProviders(kodi::addon::PVRProvidersResultSet& results) override;
 
   PVR_ERROR GetChannelsAmount(int& amount) override;
   PVR_ERROR GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results) override;
@@ -127,7 +123,6 @@ private:
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
 
   iptvsimple::data::Channel m_currentChannel{m_settings};
-  iptvsimple::Providers m_providers{m_settings};
   iptvsimple::Channels m_channels{m_settings};
   iptvsimple::ChannelGroups m_channelGroups{m_channels, m_settings};
   iptvsimple::ConnectionManager* connectionManager;
