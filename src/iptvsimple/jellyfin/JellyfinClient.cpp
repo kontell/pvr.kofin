@@ -281,6 +281,13 @@ Json::Value JellyfinClient::SendPost(const std::string& endpoint, const std::str
   return DoRequest(BuildUrl(endpoint), body);
 }
 
+bool JellyfinClient::SendPostExpectSuccess(const std::string& endpoint, const std::string& body)
+{
+  bool requestOk = false;
+  DoRequest(BuildUrl(endpoint), body, &requestOk);
+  return requestOk;
+}
+
 bool JellyfinClient::SendDelete(const std::string& endpoint)
 {
   std::string url = BuildUrl(endpoint);
@@ -311,9 +318,12 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   return true;
 }
 
-Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string& postData)
+Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string& postData,
+                                      bool* requestOk)
 {
   Json::Value result;
+  if (requestOk)
+    *requestOk = false;
 
   kodi::vfs::CFile file;
   if (!file.CURLCreate(url))
@@ -345,6 +355,11 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
     file.Close();
     return result;
   }
+
+  // Kodi's curl layer fails CURLOpen on HTTP >= 400, so the request reached
+  // the server and returned 2xx/3xx — success even if the body is empty (204).
+  if (requestOk)
+    *requestOk = true;
 
   // Read response
   std::string response;

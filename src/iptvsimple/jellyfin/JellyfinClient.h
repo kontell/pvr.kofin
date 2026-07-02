@@ -39,6 +39,10 @@ public:
   // HTTP methods
   Json::Value SendGet(const std::string& endpoint);
   Json::Value SendPost(const std::string& endpoint, const std::string& body);
+  // Like SendPost, but reports whether the request itself succeeded. Needed
+  // for endpoints that return 204 No Content: an empty response body and a
+  // transport/HTTP failure both yield a null Json::Value from SendPost.
+  bool SendPostExpectSuccess(const std::string& endpoint, const std::string& body);
   bool SendDelete(const std::string& endpoint);
 
   std::string BuildImageUrl(const std::string& itemId, const std::string& imageTag = "");
@@ -48,7 +52,10 @@ public:
 
 private:
   bool GetStorageInfoInternal(uint64_t& totalBytes, uint64_t& usedBytes);
-  Json::Value DoRequest(const std::string& url, const std::string& postData = "");
+  // requestOk (optional) reports transport/HTTP success: Kodi's curl layer
+  // fails CURLOpen on HTTP >= 400, so reaching a readable response means 2xx/3xx.
+  Json::Value DoRequest(const std::string& url, const std::string& postData = "",
+                        bool* requestOk = nullptr);
   std::string BuildUrl(const std::string& endpoint) const;
   std::string BuildAuthHeader() const;
   static std::string Base64Encode(const std::string& input);

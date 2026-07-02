@@ -212,7 +212,12 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
     Logger::Log(LEVEL_INFO, "%s - Creating timer: %s (program %s)",
                 __FUNCTION__, timer.GetTitle().c_str(), programId.c_str());
 
-    m_client->SendPost("/LiveTv/Timers", bodyStr);
+    if (!m_client->SendPostExpectSuccess("/LiveTv/Timers", bodyStr))
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Server rejected timer creation for program %s",
+                  __FUNCTION__, programId.c_str());
+      return PVR_ERROR_SERVER_ERROR;
+    }
 
     Reload();
     return PVR_ERROR_NO_ERROR;
@@ -294,7 +299,12 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
     Logger::Log(LEVEL_INFO, "%s - Creating series timer: %s (program %s)",
                 __FUNCTION__, timer.GetTitle().c_str(), programId.c_str());
 
-    m_client->SendPost("/LiveTv/SeriesTimers", bodyStr);
+    if (!m_client->SendPostExpectSuccess("/LiveTv/SeriesTimers", bodyStr))
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Server rejected series timer creation for program %s",
+                  __FUNCTION__, programId.c_str());
+      return PVR_ERROR_SERVER_ERROR;
+    }
 
     Reload();
     return PVR_ERROR_NO_ERROR;
@@ -368,7 +378,12 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
                 __FUNCTION__, defaults["Name"].asString().c_str(), channelJfId.c_str(),
                 defaults["StartDate"].asString().c_str(), defaults["EndDate"].asString().c_str());
 
-    m_client->SendPost("/LiveTv/Timers", bodyStr);
+    if (!m_client->SendPostExpectSuccess("/LiveTv/Timers", bodyStr))
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Server rejected manual timer creation on channel %s",
+                  __FUNCTION__, channelJfId.c_str());
+      return PVR_ERROR_SERVER_ERROR;
+    }
 
     Reload();
     return PVR_ERROR_NO_ERROR;
@@ -1121,7 +1136,8 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
     body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
     Json::StreamWriterBuilder writer;
     writer["indentation"] = "";
-    m_client->SendPost(endpoint, Json::writeString(writer, body));
+    if (!m_client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
+      return PVR_ERROR_SERVER_ERROR;
   }
   else
   {
@@ -1182,7 +1198,8 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
     }
   }
 
-  m_client->SendPost(endpoint, Json::writeString(writer, body));
+  if (!m_client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
+    return PVR_ERROR_SERVER_ERROR;
 
   return PVR_ERROR_NO_ERROR;
 }
