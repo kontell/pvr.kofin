@@ -738,7 +738,6 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
     && !source["TranscodingUrl"].asString().empty();
   m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
-  m_activeIsRecording = true;
 
   Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlayMethod: %s, TranscodingUrl: %s",
               __FUNCTION__, m_activeLiveStreamId.c_str(), m_activePlayMethod.c_str(),
@@ -943,7 +942,6 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
   const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
     && !source["TranscodingUrl"].asString().empty();
   m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
-  m_activeIsRecording = false;
 
   Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlaySessionId: %s, PlayMethod: %s, "
               "SupportsDirectPlay: %s, Bitrate: %d",
@@ -1008,7 +1006,6 @@ void JellyfinChannelLoader::CloseLiveStream()
   m_activeMediaSourceId.clear();
   m_activeItemId.clear();
   m_activePlayMethod.clear();
-  m_activeIsRecording = false;
 }
 
 

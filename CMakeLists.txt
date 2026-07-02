@@ -52,8 +52,6 @@ set(KOFIN_SOURCES src/addon.cpp
                   src/iptvsimple/utilities/Logger.cpp
                   src/iptvsimple/utilities/StreamUtils.cpp
                   src/iptvsimple/utilities/WebUtils.cpp
-                  src/iptvsimple/utilities/WebStreamExtractor.cpp
-                  src/iptvsimple/utilities/CurlUtils.cpp
                   )
 
 set(KOFIN_HEADERS src/addon.h
@@ -70,19 +68,15 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/jellyfin/JellyfinChannelLoader.h
                   src/iptvsimple/jellyfin/JellyfinRecordingManager.h
                   src/iptvsimple/jellyfin/JellyfinAuth.h
-                  src/iptvsimple/data/BaseEntry.h
                   src/iptvsimple/data/Channel.h
                   src/iptvsimple/data/ChannelGroup.h
                   src/iptvsimple/data/Provider.h
-                  src/iptvsimple/data/StreamEntry.h
                   src/iptvsimple/utilities/FileUtils.h
                   src/iptvsimple/utilities/Logger.h
                   src/iptvsimple/utilities/StreamUtils.h
                   src/iptvsimple/utilities/TimeUtils.h
                   src/iptvsimple/utilities/WebUtils.h
                   src/iptvsimple/utilities/XMLUtils.h
-                  src/iptvsimple/utilities/WebStreamExtractor.h
-                  src/iptvsimple/utilities/CurlUtils.h
                   )
 
 addon_version(pvr.kofin KOFIN)
