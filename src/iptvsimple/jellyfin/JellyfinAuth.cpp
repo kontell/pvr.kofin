@@ -176,6 +176,18 @@ bool JellyfinAuth::LoginWithQuickConnect()
 
 void JellyfinAuth::RunLogout()
 {
+  // Revoke the token server-side before clearing local state. Jellyfin
+  // tokens never expire on their own, so without this the credential would
+  // stay valid on the server (and the device would linger in its dashboard)
+  // indefinitely after "logging out".
+  if (!m_settings->GetJellyfinAccessToken().empty())
+  {
+    auto client = m_client;
+    if (!client)
+      client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
+    client->Logout();
+  }
+
   m_settings->SetJellyfinAccessToken("");
   m_settings->SetJellyfinUserId("");
   m_settings->SetJellyfinServerName("");

@@ -29,6 +29,7 @@ public:
   bool StartQuickConnect(std::string& code);
   bool CheckQuickConnect(std::string& userId, std::string& accessToken);
   bool ValidateToken();
+  void Logout();
   bool IsAuthenticated() const { return !m_accessToken.empty() && !m_userId.empty(); }
 
   // Server info
