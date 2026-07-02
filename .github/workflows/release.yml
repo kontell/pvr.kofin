@@ -11,8 +11,11 @@ on:
         type: boolean
         default: false
 
+# Least privilege by default: the build matrix (which also runs on every PR)
+# only reads the repo and uploads artifacts. Only the release job below needs
+# write access to create the draft release.
 permissions:
-  contents: write
+  contents: read
 
 env:
   app_id: pvr.kofin
@@ -133,6 +136,8 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # creates the draft GitHub release
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true')
