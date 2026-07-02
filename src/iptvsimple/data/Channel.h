@@ -48,7 +48,7 @@ namespace iptvsimple
         m_isCatchupTSStream(c.IsCatchupTSStream()), m_catchupSupportsTimeshifting(c.CatchupSupportsTimeshifting()),
         m_catchupSourceTerminates(c.CatchupSourceTerminates()), m_catchupGranularitySeconds(c.GetCatchupGranularitySeconds()),
         m_catchupCorrectionSecs(c.GetCatchupCorrectionSecs()), m_tvgId(c.GetTvgId()), m_tvgName(c.GetTvgName()),
-        m_providerUniqueId(c.GetProviderUniqueId()), m_properties(c.GetProperties()),
+        m_properties(c.GetProperties()),
         m_inputStreamName(c.GetInputStreamName()), m_settings(c.m_settings) {};
       ~Channel() = default;
 
@@ -114,9 +114,6 @@ namespace iptvsimple
       const std::string& GetTvgName() const { return m_tvgName; }
       void SetTvgName(const std::string& value) { m_tvgName = value; }
 
-      int GetProviderUniqueId() const { return m_providerUniqueId; }
-      void SetProviderUniqueId(unsigned int value) { m_providerUniqueId = value; }
-
       bool SupportsLiveStreamTimeshifting() const;
 
       const std::map<std::string, std::string>& GetProperties() const { return m_properties; }
@@ -163,7 +160,6 @@ namespace iptvsimple
       int m_catchupCorrectionSecs = 0;
       std::string m_tvgId = "";
       std::string m_tvgName = "";
-      int m_providerUniqueId = PVR_PROVIDER_INVALID_UID;
 
       std::map<std::string, std::string> m_properties;
       std::string m_inputStreamName;
