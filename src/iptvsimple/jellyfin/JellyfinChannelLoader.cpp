@@ -10,6 +10,7 @@
 #include "../M3UParser.h"
 #include "../utilities/Logger.h"
 #include "../utilities/TimeUtils.h"
+#include "../utilities/UidUtils.h"
 #include "../utilities/WebUtils.h"
 
 #include <kodi/Filesystem.h>
@@ -178,7 +179,10 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
     if (item.isMember("ImageTags") && item["ImageTags"].isMember("Primary"))
       channel.SetIconPath(m_client->BuildImageUrl(jellyfinId, item["ImageTags"]["Primary"].asString()));
 
-    // Stream URL placeholder - actual URL resolved via PlaybackInfo in GetChannelStreamProperties
+    // Stream URL placeholder - actual URL resolved via PlaybackInfo in
+    // GetChannelStreamProperties. NOTE: this string feeds the channel UID
+    // hash in Channels::AddChannel — keep in sync with
+    // utilities::GenerateChannelUid, which reconstructs the same UID.
     channel.SetStreamURL(m_client->GetBaseUrl() + "/LiveTv/Channels/" + jellyfinId);
 
     // Always-include the "Jellyfin" group; M3U groups are added per-match.
@@ -1041,13 +1045,7 @@ int JellyfinChannelLoader::GetChannelUid(const std::string& jellyfinId) const
 
 int JellyfinChannelLoader::GenerateUid(const std::string& str)
 {
-  // djb2 hash - same algorithm as Channels::GenerateChannelId
-  const char* s = str.c_str();
-  int hash = 0;
-  int c;
-  while ((c = *s++))
-    hash = ((hash << 5) + hash) + c;
-  return std::abs(hash);
+  return utilities::GenerateUid(str);
 }
 
 std::string JellyfinChannelLoader::FormatIso8601(time_t time)

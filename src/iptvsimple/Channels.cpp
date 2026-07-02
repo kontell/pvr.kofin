@@ -10,6 +10,7 @@
 #include "ChannelGroups.h"
 #include "utilities/FileUtils.h"
 #include "utilities/Logger.h"
+#include "utilities/UidUtils.h"
 
 #include <regex>
 
@@ -164,14 +165,5 @@ const Channel* Channels::FindChannel(const std::string& id, const std::string& d
 
 int Channels::GenerateChannelId(const char* channelName, const char* streamUrl)
 {
-  std::string concat(channelName);
-  concat.append(streamUrl);
-
-  const char* calcString = concat.c_str();
-  int iId = 0;
-  int c;
-  while ((c = *calcString++))
-    iId = ((iId << 5) + iId) + c; /* iId * 33 + c */
-
-  return abs(iId);
+  return utilities::GenerateUid(std::string(channelName) + streamUrl);
 }
