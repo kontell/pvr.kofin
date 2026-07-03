@@ -34,6 +34,12 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - Kodi PVR settings can be found in: Settings -> PVR & Live TV
 - Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
 
+### Server address
+
+- The server address may be a bare host or IP (e.g. `192.168.1.10`) - `http` and port `8096` are assumed when omitted. **Use `https://` when connecting over the internet**; the addon warns once per session if a plain-HTTP connection targets a non-private host.
+- Reverse-proxy **sub-paths are not supported** (e.g. `https://host/jellyfin`) - use a dedicated host and optional port only.
+- On login the addon stores a Jellyfin access token (not your password) in Kodi's addon settings. Like all Kodi addon settings it is stored **in plaintext** under `userdata/addon_data/pvr.kofin/` - be aware of this when sharing Kodi backups or your addon_data folder. Logging out revokes the token on the server.
+
 ## Catchup
 If supported by your provider catchup works with direct play only. Force remuxing must be disabled, InputStream must be set to FFmpeg Direct and bitrate must be set unlimited. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
 
