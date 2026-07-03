@@ -7,6 +7,7 @@
 
 #include "JellyfinClient.h"
 
+#include "../utilities/JsonUtils.h"
 #include "../utilities/Logger.h"
 #include "../utilities/WebUtils.h"
 
@@ -207,6 +208,21 @@ bool JellyfinClient::FetchServerInfo(std::string& serverName)
 
 bool JellyfinClient::GetStorageInfo(uint64_t& totalBytes, uint64_t& usedBytes)
 {
+  // Exception firewall: this runs inside Kodi's GetDriveSpace callback, and
+  // a jsoncpp type error must not cross the C ABI.
+  try
+  {
+    return GetStorageInfoInternal(totalBytes, usedBytes);
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing storage info: %s", __FUNCTION__, e.what());
+    return false;
+  }
+}
+
+bool JellyfinClient::GetStorageInfoInternal(uint64_t& totalBytes, uint64_t& usedBytes)
+{
   Json::Value response = SendGet("/System/Info/Storage");
   if (response.isNull() || !response.isMember("Libraries"))
     return false;
@@ -221,8 +237,10 @@ bool JellyfinClient::GetStorageInfo(uint64_t& totalBytes, uint64_t& usedBytes)
     if (!lib.isMember("Folders") || lib["Folders"].empty())
       break;
     const Json::Value& folder = lib["Folders"][0];
-    uint64_t free = folder.get("FreeSpace", 0).asUInt64();
-    uint64_t used = folder.get("UsedSpace", 0).asUInt64();
+    // SafeUInt64: the server reports these as signed longs and can send
+    // negative values when the drive query fails.
+    const uint64_t free = SafeUInt64(folder["FreeSpace"]);
+    const uint64_t used = SafeUInt64(folder["UsedSpace"]);
     totalBytes = free + used;
     usedBytes = used;
     return true;

@@ -17,6 +17,7 @@
 #include "utilities/TimeUtils.h"
 #include "utilities/WebUtils.h"
 
+#include <cstdlib>
 #include <iomanip>
 #include <regex>
 
@@ -55,7 +56,9 @@ void FormatUnits(const std::string& name, time_t tTime, std::string& urlFormatSt
     if (second.length() > 0)
       dividerStr = dividerStr.erase(dividerStr.find(second));
 
-    const time_t divider = stoi(dividerStr);
+    // strtoll, not stoi: an absurd specifier like {offset:99999999999999}
+    // must not throw std::out_of_range through the PVR ABI.
+    const time_t divider = static_cast<time_t>(std::strtoll(dividerStr.c_str(), nullptr, 10));
     if (divider != 0)
     {
       time_t units = tTime / divider;

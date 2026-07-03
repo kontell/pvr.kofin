@@ -47,6 +47,7 @@ public:
   const std::string& GetUserId() const { return m_userId; }
 
 private:
+  bool GetStorageInfoInternal(uint64_t& totalBytes, uint64_t& usedBytes);
   Json::Value DoRequest(const std::string& url, const std::string& postData = "");
   std::string BuildUrl(const std::string& endpoint) const;
   std::string BuildAuthHeader() const;

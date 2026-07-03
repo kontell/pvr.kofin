@@ -8,6 +8,7 @@
 #include "JellyfinChannelLoader.h"
 
 #include "../M3UParser.h"
+#include "../utilities/JsonUtils.h"
 #include "../utilities/Logger.h"
 #include "../utilities/TimeUtils.h"
 #include "../utilities/WebUtils.h"
@@ -85,6 +86,23 @@ JellyfinChannelLoader::JellyfinChannelLoader(
 
 
 bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& channelGroups)
+{
+  // Exception firewall: jsoncpp accessors throw Json::LogicError on
+  // unexpected types. This runs on a worker std::thread, where an escaped
+  // exception means std::terminate — treat it as a failed load instead.
+  try
+  {
+    return LoadChannelsInternal(channels, channelGroups);
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing channel data: %s", __FUNCTION__, e.what());
+    channels.ChannelsLoadFailed();
+    return false;
+  }
+}
+
+bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGroups& channelGroups)
 {
   Logger::Log(LEVEL_INFO, "%s - Loading channels from Jellyfin", __FUNCTION__);
 
@@ -255,6 +273,22 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
 PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t end,
                                           kodi::addon::PVREPGTagsResultSet& results)
 {
+  // Exception firewall: called directly from Kodi's GetEPGForChannel — a
+  // jsoncpp type error must not cross the C ABI.
+  try
+  {
+    return LoadEpgInternal(channelUid, start, end, results);
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing EPG data: %s", __FUNCTION__, e.what());
+    return PVR_ERROR_SERVER_ERROR;
+  }
+}
+
+PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, time_t end,
+                                                 kodi::addon::PVREPGTagsResultSet& results)
+{
   std::string jellyfinId;
   {
     std::lock_guard<std::mutex> lock(m_dataMutex);
@@ -325,13 +359,13 @@ PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t en
 
     // Season/Episode
     if (item.isMember("IndexNumber"))
-      tag.SetEpisodeNumber(item["IndexNumber"].asInt());
+      tag.SetEpisodeNumber(SafeInt(item["IndexNumber"]));
     if (item.isMember("ParentIndexNumber"))
-      tag.SetSeriesNumber(item["ParentIndexNumber"].asInt());
+      tag.SetSeriesNumber(SafeInt(item["ParentIndexNumber"]));
 
     // Year
     if (item.isMember("ProductionYear"))
-      tag.SetYear(item["ProductionYear"].asInt());
+      tag.SetYear(SafeInt(item["ProductionYear"]));
 
     // Genre
     if (item.isMember("Genres") && item["Genres"].isArray() && !item["Genres"].empty())
@@ -685,6 +719,22 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
     const std::string& recordingId, bool inProgress,
     const ChannelOverrides& overrides)
 {
+  // Exception firewall: reached from Kodi's GetRecordingStreamProperties.
+  try
+  {
+    return GetRecordingStreamUrlInternal(recordingId, inProgress, overrides);
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing PlaybackInfo: %s", __FUNCTION__, e.what());
+    return "";
+  }
+}
+
+std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
+    const std::string& recordingId, bool inProgress,
+    const ChannelOverrides& overrides)
+{
   Logger::Log(LEVEL_DEBUG, "%s - Getting recording stream URL for %s", __FUNCTION__, recordingId.c_str());
 
   // Close previous live stream if any
@@ -727,7 +777,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
 
   const Json::Value& source = response["MediaSources"][0];
 
-  m_activeSourceBitrateBps = source.get("Bitrate", 0).asInt();
+  m_activeSourceBitrateBps = SafeInt(source["Bitrate"]);
 
   // Track session state for reporting and cleanup
   m_activeLiveStreamId = source.get("LiveStreamId", "").asString();
@@ -899,6 +949,21 @@ std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId
 std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
                                                     const ChannelOverrides& overrides)
 {
+  // Exception firewall: reached from Kodi's GetChannelStreamProperties.
+  try
+  {
+    return GetItemStreamUrlInternal(itemId, overrides);
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception parsing PlaybackInfo: %s", __FUNCTION__, e.what());
+    return "";
+  }
+}
+
+std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& itemId,
+                                                            const ChannelOverrides& overrides)
+{
   Logger::Log(LEVEL_DEBUG, "%s - Getting stream URL for item %s", __FUNCTION__, itemId.c_str());
 
   // Close previous live stream if any
@@ -932,7 +997,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
 
   const Json::Value& source = response["MediaSources"][0];
 
-  m_activeSourceBitrateBps = source.get("Bitrate", 0).asInt();
+  m_activeSourceBitrateBps = SafeInt(source["Bitrate"]);
 
   // Track session state for reporting and cleanup
   m_activeLiveStreamId = source.get("LiveStreamId", "").asString();
@@ -950,7 +1015,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
               __FUNCTION__, m_activeLiveStreamId.c_str(), m_activePlaySessionId.c_str(),
               m_activePlayMethod.c_str(),
               source.get("SupportsDirectPlay", false).asBool() ? "true" : "false",
-              source.get("Bitrate", 0).asInt());
+              m_activeSourceBitrateBps);
 
   std::string streamUrl;
 
