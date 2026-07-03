@@ -48,8 +48,7 @@ namespace iptvsimple
     mutable std::mutex m_mutex;
     bool m_suspended;
     PVR_CONNECTION_STATE m_state;
-
-    bool m_onStartupOnly = true;
+    unsigned int m_retryAttempt = 0;
 
     std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
   };

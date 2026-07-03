@@ -123,16 +123,15 @@ void ConnectionManager::Reconnect()
 
 void ConnectionManager::Process()
 {
-  static bool log = false;
-  static unsigned int retryAttempt = 0;
   int fastReconnectIntervalMs = (m_settings->GetConnectioncCheckIntervalSecs() * 1000) / 2;
   int intervalMs = m_settings->GetConnectioncCheckIntervalSecs() * 1000;
 
-  bool firstRun = true;
-
   while (m_running)
   {
-    while (m_suspended)
+    // Also check m_running: without it a Stop() while suspended spins here
+    // forever (SteppedSleep returns immediately when not running) and the
+    // destructor's join never completes.
+    while (m_suspended && m_running)
     {
       Logger::Log(LogLevel::LEVEL_DEBUG, "%s - suspended, waiting for wakeup...", __func__);
 
@@ -152,16 +151,20 @@ void ConnectionManager::Process()
       continue;
     }
 
-    /* Connect */
-    if ((firstRun || !m_onStartupOnly) && !WebUtils::Check(url, tcpTimeout, isLocalPath))
+    /* Connect. Ping on every iteration: the old (firstRun || !m_onStartupOnly)
+     * gate with m_onStartupOnly hardcoded true stopped health-checking after
+     * the first success, so outages were never detected and the addon never
+     * reconnected/reloaded after a server restart. IptvSimple's
+     * ConnectionEstablished is written to be re-entered on reconnects. */
+    if (!WebUtils::Check(url, tcpTimeout, isLocalPath))
     {
       /* Unable to connect */
-      if (retryAttempt == 0)
+      if (m_retryAttempt == 0)
         Logger::Log(LogLevel::LEVEL_ERROR, "%s - unable to connect to: %s", __func__, url.c_str());
       SetState(PVR_CONNECTION_STATE_SERVER_UNREACHABLE);
 
       // Retry a few times with a short interval, after that with the default timeout
-      if (++retryAttempt <= FAST_RECONNECT_ATTEMPTS)
+      if (++m_retryAttempt <= FAST_RECONNECT_ATTEMPTS)
         SteppedSleep(fastReconnectIntervalMs);
       else
         SteppedSleep(intervalMs);
@@ -170,8 +173,7 @@ void ConnectionManager::Process()
     }
 
     SetState(PVR_CONNECTION_STATE_CONNECTED);
-    retryAttempt = 0;
-    firstRun = false;
+    m_retryAttempt = 0;
 
     SteppedSleep(intervalMs);
   }
