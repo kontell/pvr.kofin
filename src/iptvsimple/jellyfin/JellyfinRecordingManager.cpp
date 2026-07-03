@@ -911,6 +911,15 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
 
 PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
 {
+  // Fetch before locking: the HTTP call can stall up to the connection
+  // timeout, and Kodi's UI-path callbacks (GetTimers, GetRecordings,
+  // HasRecordingForEpg, ...) block on m_mutex — holding it across the network
+  // round-trip froze the UI whenever the server was slow. Same fetch-then-lock
+  // structure as LoadTimers/LoadSeriesTimers; parsing below is pure CPU.
+  const std::string endpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
+    + "&EnableImages=true&Fields=Overview,ChannelInfo,ProgramId,DateCreated";
+  Json::Value response = m_client->SendGet(endpoint);
+
   std::lock_guard<std::mutex> lock(m_mutex);
   m_recordings.clear();
   m_recordingUidToId.clear();
@@ -923,9 +932,6 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   // 1. All recordings from /LiveTv/Recordings (includes in-progress ones)
   //    The Status field on each item tells us if it's still recording.
   {
-    const std::string endpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
-      + "&EnableImages=true&Fields=Overview,ChannelInfo,ProgramId,DateCreated";
-    Json::Value response = m_client->SendGet(endpoint);
     if (!response.isNull() && response.isMember("Items"))
     {
       for (const auto& item : response["Items"])
