@@ -229,7 +229,7 @@ msgid "Server address"
 msgstr ""
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
 msgstr ""
 
 msgctxt "#30703"
@@ -318,6 +318,10 @@ msgstr ""
 
 msgctxt "#30726"
 msgid "Restart addon"
+msgstr ""
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
 msgstr ""
 
 #: Catchup category

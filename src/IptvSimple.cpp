@@ -121,6 +121,15 @@ void IptvSimple::ConnectionEstablished()
     return;
   }
 
+  // One-time warning when the connection is plain HTTP to a non-private
+  // host: the login POST and access token travel unencrypted. Once per
+  // session, not per reconnect.
+  if (!m_insecureWarningShown && m_settings->IsInsecureRemoteConnection())
+  {
+    m_insecureWarningShown = true;
+    kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR", kodi::addon::GetLocalizedString(30727));
+  }
+
   m_channels.Init();
   m_channelGroups.Init();
   m_providers.Init();

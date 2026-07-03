@@ -230,8 +230,8 @@ msgid "Server address"
 msgstr "서버 주소"
 
 msgctxt "#30702"
-msgid "The URL of your Jellyfin server."
-msgstr "Jellyfin 서버의 URL."
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr "Jellyfin 서버 주소입니다. 예: 192.168.1.10:8096 또는 https://jellyfin.example.com. 스킴을 생략하면 http와 8096 포트가 사용됩니다. 인터넷을 통한 연결에는 HTTPS를 권장합니다. 리버스 프록시 하위 경로(예: /jellyfin)는 지원되지 않으므로 호스트와 선택적 포트만 입력하세요."
 
 msgctxt "#30703"
 msgid "Login"
@@ -320,6 +320,10 @@ msgstr "FFmpeg Direct 설정..."
 msgctxt "#30726"
 msgid "Restart addon"
 msgstr "애드온 다시 시작"
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr "서버 연결이 사설망이 아닌 네트워크에서 암호화되지 않은 HTTP를 사용하고 있습니다. HTTPS를 권장합니다."
 
 #: Catchup category
 msgctxt "#30730"

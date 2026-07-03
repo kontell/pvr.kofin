@@ -41,6 +41,10 @@ namespace iptvsimple
     std::string GetJellyfinBaseUrl() const;
     std::string GetJellyfinHost() const;
     std::string GetConnectionCheckUrl() const { return GetJellyfinBaseUrl() + "/System/Ping"; }
+    // True when the resolved scheme is plain http and the host is not a
+    // loopback/RFC1918/link-local/mDNS/undotted-LAN name — i.e. credentials
+    // and the token would travel unencrypted over a non-private network.
+    bool IsInsecureRemoteConnection() const;
 
     void SetJellyfinServerAddress(const std::string& address)
     {
