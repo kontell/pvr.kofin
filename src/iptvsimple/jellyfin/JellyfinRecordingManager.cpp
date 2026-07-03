@@ -726,11 +726,19 @@ PVR_ERROR JellyfinRecordingManager::LoadTimersInternal()
       const std::string programId = item["ProgramId"].asString();
       timer.SetEPGUid(GenerateUid(programId));
       const std::string timerName = item.get("Name", "").asString();
-      // Save name→ProgramId and name→ChannelUid for cross-referencing in-progress recordings
-      if (!programId.empty())
+      // Save name→ProgramId and name→ChannelUid for cross-referencing in-progress
+      // recordings (their items come back with no ProgramId/ChannelId of their own).
+      // Only populate from InProgress timers: an in-progress recording maps to an
+      // InProgress timer, and back-to-back programmes can share an identical
+      // truncated title. A name-keyed map built from all timers would let a later
+      // "New" timer for the same-named next programme overwrite the in-progress
+      // entry, mis-linking the recording's EPG event to the wrong programme.
+      if (status == "InProgress" && !programId.empty())
+      {
         m_timerNameToProgramId[timerName] = programId;
-      if (timer.GetClientChannelUid() != 0)
-        m_timerNameToChannelUid[timerName] = timer.GetClientChannelUid();
+        if (timer.GetClientChannelUid() != 0)
+          m_timerNameToChannelUid[timerName] = timer.GetClientChannelUid();
+      }
     }
 
     m_timers.emplace_back(timer);
