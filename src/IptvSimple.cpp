@@ -253,9 +253,14 @@ void IptvSimple::Process()
     if (refreshTimer >= static_cast<unsigned int>(updateIntervalHours * 3600))
       m_reloadChannelsGroupsAndEPG = true;
 
+    // While logged out, skip all server polling: the requests would only get
+    // a 401 and spam the log. The timers keep advancing so a poll/reload fires
+    // promptly once the user logs back in.
+    const bool loggedIn = !m_settings->GetJellyfinAccessToken().empty();
+
     // Poll timers/recordings every 60s so Kodi learns about new/changed
     // recordings without a restart (EPG recording indicators, widgets, etc.)
-    if (m_running && timerRecordingPollTimer >= TIMER_RECORDING_POLL_SECS && m_recordingManager)
+    if (m_running && loggedIn && timerRecordingPollTimer >= TIMER_RECORDING_POLL_SECS && m_recordingManager)
     {
       timerRecordingPollTimer = 0;
       Logger::Log(LEVEL_DEBUG, "%s - Polling timers/recordings", __FUNCTION__);
@@ -265,7 +270,7 @@ void IptvSimple::Process()
     }
 
     std::lock_guard<std::mutex> lock(m_mutex);
-    if (m_running && m_reloadChannelsGroupsAndEPG)
+    if (m_running && loggedIn && m_reloadChannelsGroupsAndEPG)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
