@@ -13,24 +13,16 @@ endif()
 find_package(Kodi REQUIRED)
 find_package(JsonCpp REQUIRED)
 find_package(pugixml REQUIRED)
-find_package(ZLIB REQUIRED)
-find_package(lzma REQUIRED)
 
 include_directories(${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
                     ${JSONCPP_INCLUDE_DIRS}
-                    ${PUGIXML_INCLUDE_DIRS}
-                    ${ZLIB_INCLUDE_DIRS}
-                    ${LZMA_INCLUDE_DIRS})
+                    ${PUGIXML_INCLUDE_DIRS})
 
 set(DEPLIBS ${JSONCPP_LIBRARIES}
-            ${PUGIXML_LIBRARIES}
-            ${ZLIB_LIBRARIES}
-            ${LZMA_LIBRARIES})
+            ${PUGIXML_LIBRARIES})
 
 message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
 message(STATUS "PUGIXML_LIBRARIES: ${PUGIXML_LIBRARIES}")
-message(STATUS "ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
-message(STATUS "LZMA_LIBRARIES: ${LZMA_LIBRARIES}")
 
 set(KOFIN_SOURCES src/addon.cpp
                   src/IptvSimple.cpp
@@ -83,10 +75,6 @@ set(KOFIN_HEADERS src/addon.h
 
 addon_version(pvr.kofin KOFIN)
 add_definitions(-DKOFIN_VERSION=${KOFIN_VERSION})
-
-if(WIN32)
-  add_definitions(-DLZMA_API_STATIC)
-endif()
 
 # Detect PVR API version for v21/v22 compatibility
 if(KODI_INCLUDE_DIR)

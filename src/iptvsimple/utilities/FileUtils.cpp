@@ -9,9 +9,6 @@
 
 #include "Logger.h"
 
-#include <lzma.h>
-#include <zlib.h>
-
 using namespace iptvsimple;
 using namespace iptvsimple::utilities;
 
@@ -27,116 +24,6 @@ int FileUtils::GetFileContents(const std::string& url, std::string& content)
   }
 
   return content.length();
-}
-
-/*
- * This method uses zlib to decompress a gzipped file in memory.
- * Author: Andrew Lim Chong Liang
- * http://windrealm.org
- */
-
-bool FileUtils::GzipInflate(const std::string& compressedBytes, std::string& uncompressedBytes)
-{
-  if (compressedBytes.size() == 0)
-  {
-    uncompressedBytes = compressedBytes;
-    return true;
-  }
-
-  uncompressedBytes.clear();
-
-  unsigned uncompLength = compressedBytes.size();
-  const unsigned half_length = compressedBytes.size() / 2;
-
-  char* uncomp = static_cast<char*>(calloc(sizeof(char), uncompLength));
-
-  z_stream strm;
-  strm.next_in = (Bytef*)compressedBytes.c_str();
-  strm.avail_in = compressedBytes.size();
-  strm.total_out = 0;
-  strm.zalloc = Z_NULL;
-  strm.zfree = Z_NULL;
-
-  int status = inflateInit2(&strm, 16 + MAX_WBITS);
-  if (status != Z_OK)
-  {
-    free(uncomp);
-    return false;
-  }
-
-  bool done = false;
-  while (!done)
-  {
-    // If our output buffer is too small
-    if (strm.total_out >= uncompLength)
-    {
-      // Increase size of output buffer
-      uncomp = static_cast<char*>(realloc(uncomp, uncompLength + half_length));
-      if (!uncomp)
-        return false;
-      uncompLength += half_length;
-    }
-
-    strm.next_out = reinterpret_cast<Bytef*>(uncomp + strm.total_out);
-    strm.avail_out = uncompLength - strm.total_out;
-
-    // Inflate another chunk.
-    int err = inflate(&strm, Z_SYNC_FLUSH);
-    if (err == Z_STREAM_END)
-      done = true;
-    else if (err != Z_OK)
-      break;
-  }
-
-  status = inflateEnd(&strm);
-  if (status != Z_OK)
-  {
-    free(uncomp);
-    return false;
-  }
-
-  for (size_t i = 0; i < strm.total_out; ++i)
-    uncompressedBytes += uncomp[i];
-
-  free(uncomp);
-  return true;
-}
-
-bool FileUtils::XzDecompress(const std::string& compressedBytes, std::string& uncompressedBytes)
-{
-  if (compressedBytes.size() == 0)
-  {
-    uncompressedBytes = compressedBytes;
-    return true;
-  }
-
-  uncompressedBytes.clear();
-
-  lzma_stream strm = LZMA_STREAM_INIT;
-  lzma_ret ret = lzma_stream_decoder(&strm, UINT64_MAX, LZMA_TELL_UNSUPPORTED_CHECK | LZMA_CONCATENATED);
-
-  if (ret != LZMA_OK)
-    return false;
-
-  uint8_t* in_buf = (uint8_t*) compressedBytes.c_str();
-  uint8_t out_buf[LZMA_OUT_BUF_MAX];
-  size_t out_len;
-
-  strm.next_in = in_buf;
-  strm.avail_in = compressedBytes.size();
-  do
-  {
-    strm.next_out = out_buf;
-    strm.avail_out = LZMA_OUT_BUF_MAX;
-    ret = lzma_code(&strm, LZMA_FINISH);
-
-    out_len = LZMA_OUT_BUF_MAX - strm.avail_out;
-    uncompressedBytes.append((char*) out_buf, out_len);
-    out_buf[0] = 0;
-  } while (strm.avail_out == 0);
-  lzma_end (&strm);
-
-  return true;
 }
 
 bool FileUtils::FileExists(const std::string& file)
