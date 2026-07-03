@@ -80,6 +80,7 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/utilities/Logger.h
                   src/iptvsimple/utilities/StreamUtils.h
                   src/iptvsimple/utilities/TimeUtils.h
+                  src/iptvsimple/utilities/UidUtils.h
                   src/iptvsimple/utilities/WebUtils.h
                   src/iptvsimple/utilities/XMLUtils.h
                   src/iptvsimple/utilities/WebStreamExtractor.h

@@ -11,6 +11,7 @@
 #include "../utilities/Logger.h"
 #include <kodi/General.h>
 #include "../utilities/TimeUtils.h"
+#include "../utilities/UidUtils.h"
 #include "../utilities/WebUtils.h"
 
 #include <algorithm>
@@ -746,17 +747,13 @@ PVR_ERROR JellyfinRecordingManager::LoadTimersInternal()
     if (item.isMember("ChannelId"))
     {
       const std::string channelJfId = item["ChannelId"].asString();
-      // Look up Kodi channel UID from Jellyfin ID
+      // Reconstruct the Kodi channel UID the loader computes for this
+      // Jellyfin channel — shared recipe, see utilities::GenerateChannelUid.
       int channelUid = 0;
       if (m_channelLoader)
       {
-        // Reverse lookup: find Kodi UID for this Jellyfin channel ID
-        // The channelLoader stores jellyfinId -> uid mapping
-        // We need to iterate since we only have the reverse map in the loader
-        // For now, generate the same UID the loader would
-        channelUid = GenerateUid(
-          item.get("ChannelName", "").asString() +
-          m_client->GetBaseUrl() + "/LiveTv/Channels/" + channelJfId);
+        channelUid = GenerateChannelUid(item.get("ChannelName", "").asString(),
+                                        m_client->GetBaseUrl(), channelJfId);
       }
       timer.SetClientChannelUid(channelUid);
     }
@@ -862,9 +859,9 @@ PVR_ERROR JellyfinRecordingManager::LoadSeriesTimersInternal()
     if (item.isMember("ChannelId") && !item["ChannelId"].asString().empty())
     {
       const std::string channelJfId = item["ChannelId"].asString();
-      int channelUid = GenerateUid(
-        item.get("ChannelName", "").asString() +
-        m_client->GetBaseUrl() + "/LiveTv/Channels/" + channelJfId);
+      // Shared channel-UID recipe — see utilities::GenerateChannelUid.
+      const int channelUid = GenerateChannelUid(item.get("ChannelName", "").asString(),
+                                                m_client->GetBaseUrl(), channelJfId);
       timer.SetClientChannelUid(channelUid);
     }
     else
@@ -1291,12 +1288,7 @@ int64_t JellyfinRecordingManager::LengthRecordedStream()
 
 int JellyfinRecordingManager::GenerateUid(const std::string& str)
 {
-  const char* s = str.c_str();
-  int hash = 0;
-  int c;
-  while ((c = *s++))
-    hash = ((hash << 5) + hash) + c;
-  return std::abs(hash);
+  return utilities::GenerateUid(str);
 }
 
 time_t JellyfinRecordingManager::ParseIso8601(const std::string& dateStr)

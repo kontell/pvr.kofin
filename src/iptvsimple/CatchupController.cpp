@@ -112,7 +112,9 @@ void FormatUtc(const std::string& str, time_t tTime, std::string& urlFormatStrin
   auto pos = urlFormatString.find(str);
   if (pos != std::string::npos)
   {
-    std::string utcTimeAsString = StringUtils::Format("%lu", tTime);
+    // %lld + cast: time_t is 64-bit on Windows where long is 32-bit — %lu
+    // truncates the vararg there.
+    std::string utcTimeAsString = StringUtils::Format("%lld", static_cast<long long>(tTime));
     urlFormatString.replace(pos, str.size(), utcTimeAsString);
   }
 }
