@@ -12,17 +12,13 @@ endif()
 
 find_package(Kodi REQUIRED)
 find_package(JsonCpp REQUIRED)
-find_package(pugixml REQUIRED)
 
 include_directories(${KODI_INCLUDE_DIR}/.. # Hack way with "/..", need bigger Kodi cmake rework to match right include ways
-                    ${JSONCPP_INCLUDE_DIRS}
-                    ${PUGIXML_INCLUDE_DIRS})
+                    ${JSONCPP_INCLUDE_DIRS})
 
-set(DEPLIBS ${JSONCPP_LIBRARIES}
-            ${PUGIXML_LIBRARIES})
+set(DEPLIBS ${JSONCPP_LIBRARIES})
 
 message(STATUS "JSONCPP_LIBRARIES: ${JSONCPP_LIBRARIES}")
-message(STATUS "PUGIXML_LIBRARIES: ${PUGIXML_LIBRARIES}")
 
 set(KOFIN_SOURCES src/addon.cpp
                   src/IptvSimple.cpp
@@ -32,14 +28,12 @@ set(KOFIN_SOURCES src/addon.cpp
                   src/iptvsimple/ConnectionManager.cpp
                   src/iptvsimple/InstanceSettings.cpp
                   src/iptvsimple/M3UParser.cpp
-                  src/iptvsimple/Providers.cpp
                   src/iptvsimple/jellyfin/JellyfinClient.cpp
                   src/iptvsimple/jellyfin/JellyfinChannelLoader.cpp
                   src/iptvsimple/jellyfin/JellyfinRecordingManager.cpp
                   src/iptvsimple/jellyfin/JellyfinAuth.cpp
                   src/iptvsimple/data/Channel.cpp
                   src/iptvsimple/data/ChannelGroup.cpp
-                  src/iptvsimple/data/Provider.cpp
                   src/iptvsimple/utilities/FileUtils.cpp
                   src/iptvsimple/utilities/Logger.cpp
                   src/iptvsimple/utilities/StreamUtils.cpp
@@ -55,14 +49,12 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/IConnectionListener.h
                   src/iptvsimple/InstanceSettings.h
                   src/iptvsimple/M3UParser.h
-                  src/iptvsimple/Providers.h
                   src/iptvsimple/jellyfin/JellyfinClient.h
                   src/iptvsimple/jellyfin/JellyfinChannelLoader.h
                   src/iptvsimple/jellyfin/JellyfinRecordingManager.h
                   src/iptvsimple/jellyfin/JellyfinAuth.h
                   src/iptvsimple/data/Channel.h
                   src/iptvsimple/data/ChannelGroup.h
-                  src/iptvsimple/data/Provider.h
                   src/iptvsimple/utilities/FileUtils.h
                   src/iptvsimple/utilities/JsonUtils.h
                   src/iptvsimple/utilities/Logger.h
@@ -70,7 +62,6 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/utilities/TimeUtils.h
                   src/iptvsimple/utilities/UidUtils.h
                   src/iptvsimple/utilities/WebUtils.h
-                  src/iptvsimple/utilities/XMLUtils.h
                   )
 
 addon_version(pvr.kofin KOFIN)
