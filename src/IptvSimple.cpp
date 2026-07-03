@@ -210,8 +210,14 @@ PVR_ERROR IptvSimple::GetConnectionString(std::string& connection)
 
 PVR_ERROR IptvSimple::GetDriveSpace(uint64_t& total, uint64_t& used)
 {
-  if (!m_jellyfinClient)
-    return PVR_ERROR_SERVER_ERROR;
+  // Kodi's PVR GUI-info thread polls drive space on every tick that a backend
+  // info-label (PVR.BackendDiskspace etc.) is on screen. When the client is not
+  // yet constructed, or the user is logged out, we have no storage info to give.
+  // Return NOT_IMPLEMENTED (which Kodi swallows silently) rather than
+  // SERVER_ERROR (which Kodi logs as an error), and skip the doomed
+  // /System/Info/Storage request that would fail while logged out.
+  if (!m_jellyfinClient || m_settings->GetJellyfinAccessToken().empty())
+    return PVR_ERROR_NOT_IMPLEMENTED;
 
   uint64_t totalBytes = 0;
   uint64_t usedBytes = 0;
