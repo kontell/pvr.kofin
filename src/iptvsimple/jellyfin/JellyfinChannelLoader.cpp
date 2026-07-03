@@ -843,6 +843,8 @@ void JellyfinChannelLoader::WriteSessionFile()
   session["PlaySessionId"] = m_activePlaySessionId;
   session["LiveStreamId"] = m_activeLiveStreamId;
   session["PlayMethod"] = m_activePlayMethod;
+  // Consumed by service.py to ignore stale files (e.g. crash leftovers).
+  session["WrittenAt"] = static_cast<Json::Int64>(std::time(nullptr));
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
   const std::string data = Json::writeString(writer, session);
