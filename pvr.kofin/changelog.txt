@@ -1,3 +1,9 @@
+v0.12.0
+- Security hardening: access tokens are redacted from logs, login credentials are JSON-escaped, logging out now revokes the server session, and a warning is shown when connecting over plain HTTP
+- More robust reconnects: continuous connection health checks, with no crash or spurious logout when the server briefly drops
+- Reliability fixes: guarded JSON parsing, safer background timer/thread handling, and correct guide icons for back-to-back programmes that share the same title
+- Removed a large amount of dead code inherited from the pvr.iptvsimple fork (zlib/lzma, the unused Providers subsystem, and other leftovers)
+
 v0.11.0
 - Add UI translations for 26 languages (machine-translated, pending native review): French, German, Spanish, Italian, Portuguese, Dutch, Polish, Russian, Swedish, Danish, Norwegian, Finnish, Greek, Hungarian, Czech, Slovak, Ukrainian, Catalan, Romanian, Japanese, Korean, and Simplified & Traditional Chinese
 - Add a translation toolchain (scripts/i18n) to regenerate the language files from the English source
