@@ -217,8 +217,14 @@ PVR_ERROR IptvSimple::GetConnectionString(std::string& connection)
 
 PVR_ERROR IptvSimple::GetDriveSpace(uint64_t& total, uint64_t& used)
 {
-  if (!m_jellyfinClient)
-    return PVR_ERROR_SERVER_ERROR;
+  // Kodi's PVR GUI-info thread polls drive space on every tick that a backend
+  // info-label (PVR.BackendDiskspace etc.) is on screen. When the client is not
+  // yet constructed, or the user is logged out, we have no storage info to give.
+  // Return NOT_IMPLEMENTED (which Kodi swallows silently) rather than
+  // SERVER_ERROR (which Kodi logs as an error), and skip the doomed
+  // /System/Info/Storage request that would fail while logged out.
+  if (!m_jellyfinClient || m_settings->GetJellyfinAccessToken().empty())
+    return PVR_ERROR_NOT_IMPLEMENTED;
 
   uint64_t totalBytes = 0;
   uint64_t usedBytes = 0;
@@ -254,9 +260,14 @@ void IptvSimple::Process()
     if (refreshTimer >= static_cast<unsigned int>(updateIntervalHours * 3600))
       m_reloadChannelsGroupsAndEPG = true;
 
+    // While logged out, skip all server polling: the requests would only get
+    // a 401 and spam the log. The timers keep advancing so a poll/reload fires
+    // promptly once the user logs back in.
+    const bool loggedIn = !m_settings->GetJellyfinAccessToken().empty();
+
     // Poll timers/recordings every 60s so Kodi learns about new/changed
     // recordings without a restart (EPG recording indicators, widgets, etc.)
-    if (m_running && timerRecordingPollTimer >= TIMER_RECORDING_POLL_SECS && m_recordingManager)
+    if (m_running && loggedIn && timerRecordingPollTimer >= TIMER_RECORDING_POLL_SECS && m_recordingManager)
     {
       timerRecordingPollTimer = 0;
       Logger::Log(LEVEL_DEBUG, "%s - Polling timers/recordings", __FUNCTION__);
@@ -266,7 +277,7 @@ void IptvSimple::Process()
     }
 
     std::lock_guard<std::mutex> lock(m_mutex);
-    if (m_running && m_reloadChannelsGroupsAndEPG)
+    if (m_running && loggedIn && m_reloadChannelsGroupsAndEPG)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 

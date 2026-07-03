@@ -165,6 +165,19 @@ bool JellyfinClient::ValidateToken()
   return !response.isNull() && response.isMember("Id");
 }
 
+void JellyfinClient::Logout()
+{
+  if (m_accessToken.empty())
+    return;
+
+  // POST /Sessions/Logout revokes the access token used to authenticate the
+  // call — the server deletes it and drops the device session. Best-effort:
+  // success returns 204 with no body, and failures (server unreachable) are
+  // non-fatal because the caller clears local credentials regardless.
+  SendPost("/Sessions/Logout", "{}");
+  Logger::Log(LEVEL_INFO, "%s - Requested server-side token revocation", __FUNCTION__);
+}
+
 void JellyfinClient::SetAuthFromResponse(const Json::Value& response)
 {
   m_accessToken = response["AccessToken"].asString();
