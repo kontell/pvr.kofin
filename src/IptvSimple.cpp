@@ -480,7 +480,9 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       properties.emplace_back(key, kv.second);
     }
 
-    Logger::Log(LogLevel::LEVEL_INFO, "%s - Stream URL: %s", __FUNCTION__, WebUtils::RedactUrl(streamURL).c_str());
+    // DEBUG, not INFO: Kodi writes INFO to kodi.log by default and this line
+    // fires on every channel play — keep resolved stream URLs out of routine logs.
+    Logger::Log(LogLevel::LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__, WebUtils::RedactUrl(streamURL).c_str());
 
     return PVR_ERROR_NO_ERROR;
   }

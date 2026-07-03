@@ -8,6 +8,7 @@
 #include "JellyfinClient.h"
 
 #include "../utilities/Logger.h"
+#include "../utilities/WebUtils.h"
 
 #include <sstream>
 
@@ -248,7 +249,7 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   kodi::vfs::CFile file;
   if (!file.CURLCreate(url))
   {
-    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__, url.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
     return false;
   }
 
@@ -262,7 +263,7 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   unsigned int flags = ADDON_READ_NO_CACHE;
   if (!file.CURLOpen(flags))
   {
-    Logger::Log(LEVEL_ERROR, "%s - DELETE failed for: %s", __FUNCTION__, url.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - DELETE failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
     file.Close();
     return false;
   }
@@ -278,7 +279,7 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   kodi::vfs::CFile file;
   if (!file.CURLCreate(url))
   {
-    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__, url.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
     return result;
   }
 
@@ -301,7 +302,7 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   unsigned int flags = ADDON_READ_NO_CACHE;
   if (!file.CURLOpen(flags))
   {
-    Logger::Log(LEVEL_ERROR, "%s - CURLOpen failed for: %s", __FUNCTION__, url.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - CURLOpen failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
     file.Close();
     return result;
   }
@@ -324,7 +325,7 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   std::istringstream stream(response);
   if (!Json::parseFromStream(builder, stream, &result, &errors))
   {
-    Logger::Log(LEVEL_ERROR, "%s - JSON parse error: %s (url: %s)", __FUNCTION__, errors.c_str(), url.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - JSON parse error: %s (url: %s)", __FUNCTION__, errors.c_str(), WebUtils::RedactUrl(url).c_str());
     return Json::Value();
   }
 
