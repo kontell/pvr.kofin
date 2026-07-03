@@ -7,7 +7,6 @@
 
 #include "FileUtils.h"
 
-#include "../InstanceSettings.h"
 #include "Logger.h"
 
 #include <lzma.h>
@@ -15,36 +14,6 @@
 
 using namespace iptvsimple;
 using namespace iptvsimple::utilities;
-
-std::string FileUtils::PathCombine(const std::string& path, const std::string& fileName)
-{
-  std::string result = path;
-
-  if (!result.empty())
-  {
-    if (result.at(result.size() - 1) == '\\' ||
-        result.at(result.size() - 1) == '/')
-    {
-      result.append(fileName);
-    }
-    else
-    {
-      result.append("/");
-      result.append(fileName);
-    }
-  }
-  else
-  {
-    result.append(fileName);
-  }
-
-  return result;
-}
-
-std::string FileUtils::GetUserDataAddonFilePath(const std::string& userFilePath, const std::string& fileName)
-{
-  return PathCombine(userFilePath, fileName);
-}
 
 int FileUtils::GetFileContents(const std::string& url, std::string& content)
 {
@@ -170,56 +139,9 @@ bool FileUtils::XzDecompress(const std::string& compressedBytes, std::string& un
   return true;
 }
 
-int FileUtils::GetCachedFileContents(std::shared_ptr<iptvsimple::InstanceSettings>& settings,
-                                     const std::string& cachedName, const std::string& filePath,
-                                     std::string& contents, const bool useCache /* false */)
-{
-  bool needReload = false;
-  const std::string cachedPath = FileUtils::GetUserDataAddonFilePath(settings->GetUserPath(), cachedName);
-
-  // check cached file is exists
-  if (useCache && kodi::vfs::FileExists(cachedPath, false))
-  {
-    kodi::vfs::FileStatus statCached;
-    kodi::vfs::FileStatus statOrig;
-
-    kodi::vfs::StatFile(cachedPath, statCached);
-    kodi::vfs::StatFile(filePath, statOrig);
-
-    needReload = statCached.GetModificationTime() < statOrig.GetModificationTime() || statOrig.GetModificationTime() == 0;
-  }
-  else
-  {
-    needReload = true;
-  }
-
-  if (needReload)
-  {
-    FileUtils::GetFileContents(filePath, contents);
-
-    // write to cache
-    if (useCache && contents.length() > 0)
-    {
-      kodi::vfs::CFile file;
-      if (file.OpenFileForWrite(cachedPath, true))
-      {
-        file.Write(contents.c_str(), contents.length());
-      }
-    }
-    return contents.length();
-  }
-
-  return FileUtils::GetFileContents(cachedPath, contents);
-}
-
 bool FileUtils::FileExists(const std::string& file)
 {
   return kodi::vfs::FileExists(file, false);
-}
-
-bool FileUtils::DeleteFile(const std::string& file)
-{
-  return kodi::vfs::DeleteFile(file);
 }
 
 bool FileUtils::CopyFile(const std::string& sourceFile, const std::string& targetFile)
@@ -281,11 +203,6 @@ bool FileUtils::CopyDirectory(const std::string& sourceDir, const std::string& t
     copySuccessful = false;
   }
   return copySuccessful;
-}
-
-std::string FileUtils::GetSystemAddonPath()
-{
-  return kodi::addon::GetAddonPath();
 }
 
 std::string FileUtils::GetResourceDataPath()

@@ -34,8 +34,6 @@ namespace iptvsimple
 
   namespace data
   {
-    static const std::string CHANNEL_LOGO_EXTENSION = ".png";
-
     class Channel
     {
     public:
@@ -134,10 +132,7 @@ namespace iptvsimple
       void UpdateTo(Channel& left) const;
       void UpdateTo(kodi::addon::PVRChannel& left) const;
       void Reset();
-      void SetIconPathFromTvgLogo(const std::string& tvgLogo, std::string& channelName);
       void ConfigureCatchupMode();
-
-      bool ChannelTypeAllowsGroupsOnly() const;
 
     private:
       void RemoveProperty(const std::string& propName);

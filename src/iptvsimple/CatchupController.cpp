@@ -290,7 +290,7 @@ void CatchupController::ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::P
 
   if (m_controlsLiveStream)
   {
-    UpdateProgrammeFrom(epgTag, channel.GetTvgShift());
+    UpdateProgrammeFrom(epgTag);
     m_catchupStartTime = epgTag.GetStartTime();
     m_catchupEndTime = epgTag.GetEndTime();
 
@@ -307,7 +307,7 @@ void CatchupController::ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::P
   }
   else
   {
-    UpdateProgrammeFrom(epgTag, channel.GetTvgShift());
+    UpdateProgrammeFrom(epgTag);
     m_catchupStartTime = epgTag.GetStartTime();
     m_catchupEndTime = epgTag.GetEndTime();
     m_timeshiftBufferStartTime = 0;
@@ -327,7 +327,7 @@ void CatchupController::ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGT
 
   if (m_controlsLiveStream)
   {
-    UpdateProgrammeFrom(epgTag, channel.GetTvgShift());
+    UpdateProgrammeFrom(epgTag);
     m_catchupStartTime = epgTag.GetStartTime();
     m_catchupEndTime = epgTag.GetEndTime();
 
@@ -343,7 +343,7 @@ void CatchupController::ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGT
   }
   else
   {
-    UpdateProgrammeFrom(epgTag, channel.GetTvgShift());
+    UpdateProgrammeFrom(epgTag);
     m_catchupStartTime = epgTag.GetStartTime();
     m_catchupEndTime = epgTag.GetEndTime();
     m_timeshiftBufferStartTime = 0;
@@ -421,20 +421,14 @@ std::string CatchupController::ProcessStreamUrl(const Channel& channel) const
   return processedUrl;
 }
 
-void CatchupController::UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag, int tvgShift)
+void CatchupController::UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag)
 {
   m_programmeStartTime = epgTag.GetStartTime();
   m_programmeEndTime = epgTag.GetEndTime();
-  m_programmeTitle = epgTag.GetTitle();
-  m_programmeUniqueChannelId = epgTag.GetUniqueChannelId();
-  m_programmeChannelTvgShift = tvgShift;
 }
 
 void CatchupController::ClearProgramme()
 {
   m_programmeStartTime = 0;
   m_programmeEndTime = 0;
-  m_programmeTitle.clear();
-  m_programmeUniqueChannelId = 0;
-  m_programmeChannelTvgShift = 0;
 }

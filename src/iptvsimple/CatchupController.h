@@ -46,7 +46,7 @@ public:
 private:
   void SetCatchupInputStreamProperties(bool playbackAsLive, const data::Channel& channel, std::map<std::string, std::string>& catchupProperties);
 
-  void UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag, int tvgShift);
+  void UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag);
   void ClearProgramme();
 
   int GetTimezoneShift(const data::Channel& channel) const;
@@ -63,9 +63,6 @@ private:
   // Current programme details
   time_t m_programmeStartTime = 0;
   time_t m_programmeEndTime = 0;
-  std::string m_programmeTitle;
-  unsigned int m_programmeUniqueChannelId = 0;
-  int m_programmeChannelTvgShift = 0;
   std::string m_programmeCatchupId;
 
   bool m_controlsLiveStream = false;

@@ -18,22 +18,16 @@ namespace iptvsimple
     static const std::string HTTPS_PREFIX = "https://";
     static const std::string NFS_PREFIX = "nfs://";
     static const std::string SPECIAL_PREFIX = "special://";
-    static const std::string UDP_MULTICAST_PREFIX = "udp://@";
-    static const std::string RTP_MULTICAST_PREFIX = "rtp://@";
 
     class WebUtils
     {
     public:
       static const std::string UrlEncode(const std::string& value);
-      static const std::string UrlDecode(const std::string& value);
-      static bool IsEncoded(const std::string& value);
-      static std::string ReadFileContentsStartOnly(const std::string& url, int* httpCode);
       static bool IsHttpUrl(const std::string& url);
       static bool IsNfsUrl(const std::string& url);
       static bool IsSpecialUrl(const std::string& url);
       static std::string RedactUrl(const std::string& url);
       static bool Check(const std::string& url, int connectionTimeoutSecs, bool isLocalPath = false);
-      static std::map<std::string, std::string> ConvertStringToHeaders(const std::string& input);
     };
   } // namespace utilities
 } // namespace iptvsimple

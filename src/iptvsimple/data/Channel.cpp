@@ -8,15 +8,12 @@
 #include "Channel.h"
 
 #include "../InstanceSettings.h"
-#include "../utilities/FileUtils.h"
 #include "../utilities/Logger.h"
 #include "../utilities/StreamUtils.h"
 #include "../utilities/WebUtils.h"
 
 #include <regex>
 
-#include <kodi/General.h>
-#include <kodi/Filesystem.h>
 #include <kodi/tools/StringUtils.h>
 
 using namespace kodi::tools;
@@ -116,51 +113,6 @@ void Channel::Reset()
   m_inputStreamName.clear();
 }
 
-namespace
-{
-
-bool IsSpecialOrResourceProtocol(const std::string& path)
-{
-  return StringUtils::StartsWith(path, "special://") || StringUtils::StartsWith(path, "resource://");
-}
-
-}
-
-void Channel::SetIconPathFromTvgLogo(const std::string& tvgLogo, std::string& channelName)
-{
-  m_iconPath = tvgLogo;
-
-  if (m_iconPath.empty())
-    m_iconPath = m_channelName;
-
-  kodi::UnknownToUTF8(m_iconPath, m_iconPath);
-
-  // For Jellyfin, logos are URLs provided by the server; just ensure valid URL encoding
-  if (m_iconPath.find("://") != std::string::npos && !IsSpecialOrResourceProtocol(m_iconPath))
-  {
-    size_t pos = m_iconPath.find_last_of("/");
-    if (pos != std::string::npos)
-    {
-      const std::string urlPath = m_iconPath.substr(0, pos + 1);
-      std::string urlFile = m_iconPath.substr(pos + 1);
-
-      std::string urlArguments;
-      size_t argumentsPos = urlFile.find("?");
-      if (argumentsPos != std::string::npos && argumentsPos > 0)
-      {
-        urlArguments = urlFile.substr(argumentsPos);
-        urlFile = urlFile.substr(0, argumentsPos);
-      }
-
-      if (!utilities::WebUtils::IsEncoded(urlFile))
-      {
-        urlFile = utilities::WebUtils::UrlEncode(urlFile);
-        m_iconPath = urlPath + urlFile + urlArguments;
-      }
-    }
-  }
-}
-
 void Channel::SetStreamURL(const std::string& url)
 {
   m_streamURL = url;
@@ -201,12 +153,6 @@ void Channel::TryToAddPropertyAsHeader(const std::string& propertyName, const st
 
     RemoveProperty(propertyName);
   }
-}
-
-bool Channel::ChannelTypeAllowsGroupsOnly() const
-{
-  // Jellyfin provides groups directly; no filtering needed
-  return false;
 }
 
 void Channel::SetCatchupDays(int catchupDays)

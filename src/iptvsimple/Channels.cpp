@@ -8,15 +8,9 @@
 #include "Channels.h"
 
 #include "ChannelGroups.h"
-#include "utilities/FileUtils.h"
 #include "utilities/Logger.h"
 #include "utilities/UidUtils.h"
 
-#include <regex>
-
-#include <kodi/tools/StringUtils.h>
-
-using namespace kodi::tools;
 using namespace iptvsimple;
 using namespace iptvsimple::data;
 using namespace iptvsimple::utilities;
@@ -94,10 +88,6 @@ bool Channels::GetChannel(int uniqueId, Channel& myChannel) const
 
 bool Channels::AddChannel(Channel& channel, std::vector<int>& groupIdList, ChannelGroups& channelGroups, bool channelHadGroups)
 {
-  // If we have no groups set for this channel check it that's ok before adding it.
-  if (channel.ChannelTypeAllowsGroupsOnly() && groupIdList.empty())
-    return false;
-
   m_currentChannelNumber = channel.GetChannelNumber();
   channel.SetUniqueId(GenerateChannelId(channel.GetChannelName().c_str(), channel.GetStreamURL().c_str()));
 
@@ -129,34 +119,6 @@ Channel* Channels::GetChannel(int uniqueId)
   for (auto& myChannel : m_channels)
   {
     if (myChannel.GetUniqueId() == uniqueId)
-      return &myChannel;
-  }
-
-  return nullptr;
-}
-
-const Channel* Channels::FindChannel(const std::string& id, const std::string& displayName) const
-{
-  for (const auto& myChannel : m_channels)
-  {
-    if (StringUtils::EqualsNoCase(myChannel.GetTvgId(), id))
-      return &myChannel;
-  }
-
-  if (displayName.empty())
-    return nullptr;
-
-  const std::string convertedDisplayName = std::regex_replace(displayName, std::regex(" "), "_");
-  for (const auto& myChannel : m_channels)
-  {
-    if (StringUtils::EqualsNoCase(myChannel.GetTvgName(), convertedDisplayName) ||
-        StringUtils::EqualsNoCase(myChannel.GetTvgName(), displayName))
-      return &myChannel;
-  }
-
-  for (const auto& myChannel : m_channels)
-  {
-    if (StringUtils::EqualsNoCase(myChannel.GetChannelName(), displayName))
       return &myChannel;
   }
 
