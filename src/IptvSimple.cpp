@@ -73,6 +73,20 @@ IptvSimple::~IptvSimple()
   if (m_thread.joinable())
     m_thread.join();
 
+  // Join in-flight timer ops before members are destroyed — the workers
+  // capture `this` and call into m_recordingManager. m_running is already
+  // false, so the AddTimer materialise-retry loop exits at its next check;
+  // worst case is one in-flight network call plus a 2 s retry sleep.
+  {
+    std::lock_guard<std::mutex> lock(m_timerOpsMutex);
+    for (auto& timerOp : m_timerOps)
+    {
+      if (timerOp.thread.joinable())
+        timerOp.thread.join();
+    }
+    m_timerOps.clear();
+  }
+
   // Close any active live stream before teardown
   if (m_channelLoader)
     m_channelLoader->CloseLiveStream();
@@ -747,7 +761,26 @@ PVR_ERROR IptvSimple::GetTimers(kodi::addon::PVRTimersResultSet& results)
 
 void IptvSimple::RunTimerOpAsync(std::function<void()> op)
 {
-  std::thread(std::move(op)).detach();
+  std::lock_guard<std::mutex> lock(m_timerOpsMutex);
+
+  // Reap workers that have finished so the list stays small over a long
+  // session (timer ops are rare, user-driven actions).
+  m_timerOps.erase(
+      std::remove_if(m_timerOps.begin(), m_timerOps.end(),
+                     [](TimerOp& timerOp) {
+                       if (!timerOp.done->load())
+                         return false;
+                       timerOp.thread.join();
+                       return true;
+                     }),
+      m_timerOps.end());
+
+  auto done = std::make_shared<std::atomic<bool>>(false);
+  std::thread worker([op = std::move(op), done]() {
+    op();
+    done->store(true);
+  });
+  m_timerOps.push_back({std::move(worker), done});
 }
 
 PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)

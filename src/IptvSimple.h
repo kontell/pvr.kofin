@@ -21,8 +21,10 @@
 
 #include <atomic>
 #include <functional>
+#include <memory>
 #include <mutex>
 #include <thread>
+#include <vector>
 
 #include <kodi/addon-instance/PVR.h>
 
@@ -143,9 +145,18 @@ private:
   std::atomic_bool m_needsRestart{false};
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
-  // Runs a timer add/delete (network chain + model reload) on a detached
-  // worker so Kodi's main thread isn't blocked, then lets the op trigger UI
-  // updates once the reload has completed. Caveat: the worker captures `this`
-  // and, like the pre-existing detached operations, is not joined on teardown.
+  // Runs a timer add/delete (network chain + model reload) on a worker thread
+  // so Kodi's main thread isn't blocked, then lets the op trigger UI updates
+  // once the reload has completed. Workers capture `this`, so they are tracked
+  // (not detached) and joined in the destructor before members are torn down;
+  // finished workers are reaped opportunistically on the next call.
   void RunTimerOpAsync(std::function<void()> op);
+
+  struct TimerOp
+  {
+    std::thread thread;
+    std::shared_ptr<std::atomic<bool>> done;
+  };
+  std::mutex m_timerOpsMutex;
+  std::vector<TimerOp> m_timerOps;
 };
