@@ -11,7 +11,9 @@
 #include "../utilities/Logger.h"
 #include "../utilities/WebUtils.h"
 
+#include <chrono>
 #include <sstream>
+#include <thread>
 
 #include <kodi/Filesystem.h>
 
@@ -46,7 +48,16 @@ bool JellyfinClient::Authenticate()
 {
   // Token-only validation — no username/password fallback.
   // Login is handled interactively via the Account settings UI.
-  if (!m_accessToken.empty() && !m_userId.empty())
+  if (m_accessToken.empty() || m_userId.empty())
+    return false;
+
+  // Retry validation briefly before giving up. Authenticate() runs on reconnect
+  // the moment /System/Ping recovers, but a just-restarted server often isn't
+  // serving the authenticated API yet, so the first probe fails on a healthy
+  // token. Retrying lets it validate once the server catches up.
+  constexpr int VALIDATE_ATTEMPTS = 4;
+  constexpr int VALIDATE_RETRY_SECS = 2;
+  for (int attempt = 0; attempt < VALIDATE_ATTEMPTS; ++attempt)
   {
     if (ValidateToken())
     {
@@ -54,14 +65,22 @@ bool JellyfinClient::Authenticate()
                   __FUNCTION__, m_userId.c_str());
       return true;
     }
-    Logger::Log(LEVEL_WARNING, "%s - Stored token invalid, clearing credentials", __FUNCTION__);
-    m_accessToken.clear();
-    m_userId.clear();
-    m_settings->SetJellyfinAccessToken("");
-    m_settings->SetJellyfinUserId("");
-    m_settings->SetIsLoggedIn(false);
+    if (attempt + 1 < VALIDATE_ATTEMPTS)
+      std::this_thread::sleep_for(std::chrono::seconds(VALIDATE_RETRY_SECS));
   }
 
+  // Do NOT wipe the stored credentials here. Kodi's curl layer reports an
+  // unreachable server and an HTTP 401 identically (CURLOpen fails, with no
+  // status code exposed), so a transient network/startup blip is
+  // indistinguishable from a genuinely expired token. Wiping on the former
+  // spuriously logged the user out — and persisted it to the next session — on
+  // every flaky reconnect. Keep the token: the connection manager keeps
+  // health-checking and re-enters this path, and a truly expired token simply
+  // yields no data until the user logs in again from the Account settings.
+  Logger::Log(LEVEL_WARNING,
+              "%s - Could not validate stored token after %d attempts (server not "
+              "ready or token expired); keeping credentials for retry",
+              __FUNCTION__, VALIDATE_ATTEMPTS);
   return false;
 }
 
