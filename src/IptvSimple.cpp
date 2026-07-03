@@ -148,8 +148,15 @@ void IptvSimple::ConnectionEstablished()
 
   kodi::Log(ADDON_LOG_INFO, "%s Starting separate client update thread...", __FUNCTION__);
 
+  // ConnectionEstablished fires again on every reconnect (ConnectionManager
+  // re-enters CONNECTED after an outage). Stop and join the previous update
+  // thread first — assigning to a joinable std::thread calls std::terminate.
+  m_running = false;
+  if (m_thread.joinable())
+    m_thread.join();
+
   m_running = true;
-  m_thread = std::thread([&] { Process(); });
+  m_thread = std::thread([this] { Process(); });
 }
 
 bool IptvSimple::Initialise()
