@@ -43,6 +43,16 @@ namespace iptvsimple
     std::vector<data::Channel>& GetChannelsListMutable() { return m_channels; }
     void Clear();
 
+    // Adopt the data of a freshly loaded instance (built off-lock) without
+    // changing this object's identity — ChannelGroups and the recording
+    // manager hold references/pointers to the member instance. Call with the
+    // model mutex held.
+    void MoveFrom(Channels&& other)
+    {
+      m_channels = std::move(other.m_channels);
+      m_channelsLoadFailed = other.m_channelsLoadFailed;
+    }
+
     int GetCurrentChannelNumber() const { return m_currentChannelNumber; }
     void ChannelsLoadFailed() { m_channelsLoadFailed = true; };
 

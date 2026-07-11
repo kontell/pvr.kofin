@@ -499,14 +499,17 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   const std::string recordingId = recording.GetRecordingId();
-  const bool inProgress = m_inProgressRecordingIds.count(recordingId) > 0;
 
-  iptvsimple::jellyfin::ChannelOverrides overrides;
-  if (inProgress && m_channels)
+  // m_inProgressRecordingIds and m_recordings are cleared/rebuilt under
+  // m_mutex by the 60 s Reload() poll — read both under the same lock
+  // (the count() was previously unlocked: UB during a concurrent rebuild).
+  bool inProgress = false;
+  int channelUid = 0;
   {
-    int channelUid = 0;
+    std::lock_guard<std::mutex> lock(m_mutex);
+    inProgress = m_inProgressRecordingIds.count(recordingId) > 0;
+    if (inProgress)
     {
-      std::lock_guard<std::mutex> lock(m_mutex);
       for (const auto& rec : m_recordings)
       {
         if (rec.GetRecordingId() == recordingId)
@@ -516,6 +519,11 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
         }
       }
     }
+  }
+
+  iptvsimple::jellyfin::ChannelOverrides overrides;
+  if (inProgress && m_channels)
+  {
     if (channelUid > 0)
     {
       iptvsimple::data::Channel channel(m_settings);
@@ -1078,6 +1086,7 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
     // Record the intent — defer to SetRecordingLastPlayedPosition(0) to
     // distinguish "mark as watched" (PlayCount then Position=0) from
     // "playback start" (PlayCount only, no Position=0)
+    std::lock_guard<std::mutex> lock(m_mutex);
     m_recentPlayCountCalls[recordingId] = {count, std::chrono::steady_clock::now()};
     Logger::Log(LEVEL_DEBUG, "%s - Recorded PlayCount(%d) for %s",
                 __FUNCTION__, count, recordingId.c_str());
@@ -1112,15 +1121,23 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
     // Position=0 — check for a recent SetRecordingPlayCount to determine intent
     body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
 
-    auto it = m_recentPlayCountCalls.find(recordingId);
-    bool hadRecentPlayCount = (it != m_recentPlayCountCalls.end() &&
-      std::chrono::steady_clock::now() - it->second.second < std::chrono::seconds(2));
+    bool hadRecentPlayCount = false;
+    bool markPlayed = false;
+    {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      auto it = m_recentPlayCountCalls.find(recordingId);
+      if (it != m_recentPlayCountCalls.end() &&
+          std::chrono::steady_clock::now() - it->second.second < std::chrono::seconds(2))
+      {
+        hadRecentPlayCount = true;
+        markPlayed = (it->second.first > 0);
+        m_recentPlayCountCalls.erase(it);
+      }
+    }
 
     if (hadRecentPlayCount)
     {
-      bool markPlayed = (it->second.first > 0);
       body["Played"] = markPlayed;
-      m_recentPlayCountCalls.erase(it);
       Logger::Log(LEVEL_INFO, "%s - Marking %s for %s",
                   __FUNCTION__, markPlayed ? "watched" : "unwatched", recordingId.c_str());
     }

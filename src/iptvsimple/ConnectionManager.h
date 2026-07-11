@@ -46,7 +46,9 @@ namespace iptvsimple
     std::atomic<bool> m_running = {false};
     std::thread m_thread;
     mutable std::mutex m_mutex;
-    bool m_suspended;
+    // atomic: written from OnSleep/OnWake (Kodi thread, under m_mutex) but
+    // read lock-free by the Process() suspend loop.
+    std::atomic<bool> m_suspended;
     PVR_CONNECTION_STATE m_state;
     unsigned int m_retryAttempt = 0;
 

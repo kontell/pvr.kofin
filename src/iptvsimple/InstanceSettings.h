@@ -37,7 +37,12 @@ namespace iptvsimple
     const std::string GetUserPath() const { return kodi::addon::GetUserPath(); }
 
     // Server
-    const std::string& GetJellyfinServerAddress() const { return m_jellyfinServerAddress; }
+    // By value, not reference: ReadSettings() and the auth flows reassign
+    // these strings on other threads while getters run concurrently — a
+    // returned reference can dangle across the reassignment. Applies to the
+    // address, device id and access token, which are read from the client,
+    // connection-manager and Process threads.
+    std::string GetJellyfinServerAddress() const { return m_jellyfinServerAddress; }
     std::string GetJellyfinBaseUrl() const;
     std::string GetJellyfinHost() const;
     std::string GetConnectionCheckUrl() const { return GetJellyfinBaseUrl() + "/System/Ping"; }
@@ -75,10 +80,10 @@ namespace iptvsimple
     }
 
     // Device identity (unique per Kodi instance, generated on first run)
-    const std::string& GetDeviceId() const { return m_deviceId; }
+    std::string GetDeviceId() const { return m_deviceId; } // by value — see GetJellyfinServerAddress
 
     // Authentication
-    const std::string& GetJellyfinAccessToken() const { return m_jellyfinAccessToken; }
+    std::string GetJellyfinAccessToken() const { return m_jellyfinAccessToken; } // by value — see GetJellyfinServerAddress
     const std::string& GetJellyfinUserId() const { return m_jellyfinUserId; }
 
     void SetJellyfinAccessToken(const std::string& token)
