@@ -16,6 +16,7 @@ import os
 import time
 import urllib.request
 import urllib.error
+import urllib.parse
 
 import xbmc
 import xbmcaddon
@@ -109,39 +110,61 @@ class PlaybackReporter(xbmc.Player):
 
     def onAVStarted(self):
         """Stream is up — read session data written by C++ addon and report start."""
-        # Player callbacks fire for ALL playback. Skip if this isn't PVR —
+        addon = xbmcaddon.Addon(ADDON_ID)
+
+        # Player callbacks fire for ALL playback. Only treat this as a kofin
+        # stream if PVR playback is active and a fresh session.json exists —
         # getPlayingFile() returns the resolved stream URL (not a pvr:// URL)
         # so we gate on the PVR playback condition instead.
-        if not (xbmc.getCondVisibility('PVR.IsPlayingTV') or
+        session_data = None
+        if (xbmc.getCondVisibility('PVR.IsPlayingTV') or
                 xbmc.getCondVisibility('PVR.IsPlayingRecording')):
-            return
+            session_path = os.path.join(
+                xbmcvfs.translatePath(addon.getAddonInfo('profile')),
+                'session.json')
+            try:
+                with open(session_path, 'r') as f:
+                    session_data = json.load(f)
+            except (OSError, json.JSONDecodeError):
+                session_data = None
+        if session_data:
+            # Ignore stale session files (e.g. left behind by a Kodi crash):
+            # with a second PVR addon installed, the PVR.IsPlaying* gate alone
+            # would misattribute foreign playback to this session. WrittenAt is
+            # set by the C++ addon when it resolves the stream URL, moments
+            # before playback starts; 0/absent means an older addon build —
+            # accept it.
+            written_at = session_data.get('WrittenAt', 0)
+            if written_at and time.time() - written_at > 300:
+                xbmc.log('pvr.kofin reporter: ignoring stale session.json',
+                         xbmc.LOGINFO)
+                session_data = None
+            elif not session_data.get('ItemId', ''):
+                session_data = None
 
-        addon = xbmcaddon.Addon(ADDON_ID)
-        session_path = os.path.join(
-            xbmcvfs.translatePath(addon.getAddonInfo('profile')),
-            'session.json')
-        try:
-            with open(session_path, 'r') as f:
-                session_data = json.load(f)
-        except (OSError, json.JSONDecodeError):
-            return
-        # Ignore stale session files (e.g. left behind by a Kodi crash): with
-        # a second PVR addon installed, the PVR.IsPlaying* gate alone would
-        # misattribute foreign playback to this session. WrittenAt is set by
-        # the C++ addon when it resolves the stream URL, moments before
-        # playback starts; 0/absent means an older addon build — accept it.
-        written_at = session_data.get('WrittenAt', 0)
-        if written_at and time.time() - written_at > 300:
-            xbmc.log('pvr.kofin reporter: ignoring stale session.json', xbmc.LOGINFO)
-            return
-        item_id = session_data.get('ItemId', '')
-        if not item_id:
+        # A new playback can replace ours without any stop event (seamless
+        # channel zap) — finalize the outgoing session first, or its live
+        # stream is never closed on the server. Same PlaySessionId means a
+        # duplicate start event for the current stream: keep it. (Residual
+        # gap: a stream whose playback never reaches onAVStarted can still
+        # leak — its LiveStreamId only ever lived in session.json, which the
+        # C++ addon has since overwritten.)
+        if self.session:
+            new_psid = session_data.get('PlaySessionId', '') if session_data else None
+            if new_psid != self.session['PlaySessionId']:
+                xbmc.log('pvr.kofin reporter: playback replaced without stop event',
+                         xbmc.LOGINFO)
+                self._finalize(self.session, self.is_recording,
+                               self.last_position_ticks)
+                self.session = None
+
+        if not session_data:
             return
 
         self.is_recording = xbmc.getCondVisibility('PVR.IsPlayingRecording')
         self.last_position_ticks = 0
         self.session = {
-            'ItemId': item_id,
+            'ItemId': session_data.get('ItemId', ''),
             'MediaSourceId': session_data.get('MediaSourceId', ''),
             'PlaySessionId': session_data.get('PlaySessionId', ''),
             'LiveStreamId': session_data.get('LiveStreamId', ''),
@@ -191,20 +214,29 @@ class PlaybackReporter(xbmc.Player):
         final_position_ticks = self.last_position_ticks
         self.session = None
 
-        # Clear persisted session so the next non-kofin playback (e.g. a music
-        # track from another addon) isn't misreported as a resumed kofin session.
+        # Clear the persisted session so the next non-kofin playback (e.g. a
+        # music track from another addon) isn't misreported as a resumed kofin
+        # session — but only while the file still belongs to the session that
+        # just ended: on a zap the C++ addon has already written the NEXT
+        # channel's session.json by the time this stop event runs, and deleting
+        # that would leave the new stream untracked (and never closed).
         addon = xbmcaddon.Addon(ADDON_ID)
         session_path = os.path.join(
             xbmcvfs.translatePath(addon.getAddonInfo('profile')),
             'session.json')
         try:
-            os.remove(session_path)
-        except OSError:
+            with open(session_path, 'r') as f:
+                on_disk = json.load(f)
+            if on_disk.get('PlaySessionId', '') == session['PlaySessionId']:
+                os.remove(session_path)
+        except (OSError, json.JSONDecodeError):
             pass
 
         xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGINFO)
+        self._finalize(session, is_recording, final_position_ticks)
 
-        # Report playback stopped
+    def _finalize(self, session, is_recording, position_ticks):
+        """Report Stopped and close the live stream for a finished session."""
         stopped_body = {
             'ItemId': session['ItemId'],
             'MediaSourceId': session['MediaSourceId'],
@@ -214,15 +246,20 @@ class PlaybackReporter(xbmc.Player):
             # Without an explicit position the server's stop handler infers
             # one — and infers wrong when seeks have shifted the playhead
             # off the wall-clock elapsed value seen in /Progress events.
-            stopped_body['PositionTicks'] = final_position_ticks
+            stopped_body['PositionTicks'] = position_ticks
         self._send_with(session, '/Sessions/Playing/Stopped', stopped_body)
 
-        # Close the live stream if one was opened
+        # Close the live stream if one was opened. liveStreamId MUST ride as
+        # a query parameter: Jellyfin's LiveStreams/Close binds it from the
+        # query string only and answers a JSON/form body with HTTP 400 — the
+        # stream then stays open and the tuner's consumer count never drops.
         live_stream_id = session.get('LiveStreamId', '')
         if live_stream_id:
-            self._send_with(session, '/LiveStreams/Close', {
-                'LiveStreamId': live_stream_id,
-            })
+            self._send_with(
+                session,
+                '/LiveStreams/Close?liveStreamId='
+                + urllib.parse.quote(live_stream_id, safe=''),
+                {})
 
     def report_progress(self):
         """Called from main loop. Sends progress if session is active."""

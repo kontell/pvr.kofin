@@ -108,7 +108,7 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
   Logger::Log(LEVEL_INFO, "%s - Loading channels from Jellyfin", __FUNCTION__);
 
   const std::string endpoint = "/LiveTv/Channels?UserId=" + m_client->GetUserId()
-    + "&EnableImages=true&SortBy=SortName&Limit=1000";
+    + "&EnableImages=true&SortBy=SortName&Limit=10000";
 
   Json::Value response = m_client->SendGet(endpoint);
 
@@ -120,6 +120,11 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
   }
 
   const Json::Value& items = response["Items"];
+
+  const int totalRecordCount = response.get("TotalRecordCount", 0).asInt();
+  if (totalRecordCount > static_cast<int>(items.size()))
+    Logger::Log(LEVEL_WARNING, "%s - Channel list truncated by the request limit: server has %d channels, fetched %d",
+                __FUNCTION__, totalRecordCount, static_cast<int>(items.size()));
 
   if (items.empty())
   {

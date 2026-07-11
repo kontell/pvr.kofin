@@ -41,7 +41,7 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - On login the addon stores a Jellyfin access token (not your password) in Kodi's addon settings. Like all Kodi addon settings it is stored **in plaintext** under `userdata/addon_data/pvr.kofin/` - be aware of this when sharing Kodi backups or your addon_data folder. Logging out revokes the token on the server.
 
 ## Catchup
-If supported by your provider catchup works with direct play only. Force remuxing must be disabled, InputStream must be set to FFmpeg Direct and bitrate must be set unlimited. To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
+If supported by your IPTV provider catchup works by using inputstream.ffmpegdirect to play directly from the provider (transcoding settings are irrelevant for catchup playback). To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
 
 ## Reference Playlist
 

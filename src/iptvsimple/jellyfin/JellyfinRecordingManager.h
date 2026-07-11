@@ -108,6 +108,17 @@ private:
   // Jellyfin IDs of recordings that are currently in progress
   std::set<std::string> m_inProgressRecordingIds;
 
+  // Previous poll's in-progress recordings with their scheduled end times,
+  // diffed on each reload to detect recordings that stopped prematurely.
+  // Keyed by Jellyfin recording ID; EndDate is only exposed while a recording
+  // is in progress, so it has to be captured here.
+  struct InProgressInfo
+  {
+    std::string name;
+    time_t scheduledEnd;
+  };
+  std::map<std::string, InProgressInfo> m_inProgressSnapshot;
+
   // Timer name -> ProgramId and ChannelUid mappings (for EPG-linking in-progress recordings)
   std::map<std::string, std::string> m_timerNameToProgramId;
   std::map<std::string, int> m_timerNameToChannelUid;
