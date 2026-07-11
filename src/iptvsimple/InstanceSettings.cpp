@@ -125,6 +125,10 @@ void InstanceSettings::ReadSettings()
 
   // Advanced
   m_jellyfinUpdateIntervalHours = kodi::addon::GetSettingInt("jellyfinUpdateIntervalHours", 24);
+  // Clamp: free-form integer edit. Below 15 s the poll's three requests
+  // (timers, series timers, recordings) hammer the server for no UI benefit;
+  // above an hour Kodi's recording state is uselessly stale.
+  m_timerRecordingPollSecs = std::clamp(kodi::addon::GetSettingInt("timerRecordingPollInterval", 60), 15, 3600);
   // Clamp: both are free-form integer edits in the settings UI. Interval 0
   // would ping /System/Ping every sleep step; timeout 0 means "no timeout"
   // to curl and stalls the connection checker indefinitely.

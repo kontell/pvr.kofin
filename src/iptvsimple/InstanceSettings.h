@@ -153,6 +153,7 @@ namespace iptvsimple
 
     // Advanced
     int GetJellyfinUpdateIntervalHours() const { return m_jellyfinUpdateIntervalHours; }
+    int GetTimerRecordingPollSecs() const { return m_timerRecordingPollSecs; }
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
     int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
 
@@ -228,6 +229,7 @@ namespace iptvsimple
 
     // Advanced
     int m_jellyfinUpdateIntervalHours = 24;
+    int m_timerRecordingPollSecs = 60;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
     int m_connectioncCheckIntervalSecs = 60;
   };
