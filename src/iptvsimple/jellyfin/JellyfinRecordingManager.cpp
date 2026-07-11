@@ -1166,15 +1166,21 @@ bool JellyfinRecordingManager::OpenRecordedStream(const kodi::addon::PVRRecordin
   if (!m_client)
     return false;
 
+  // Token in the Authorization header, not the URL: unlike the inputstream
+  // URLs (where a query param is unavoidable), this request is made by the
+  // addon itself, so the token can stay out of server/proxy access logs.
   const std::string streamUrl = m_client->GetBaseUrl()
-    + "/Videos/" + recordingId + "/stream?static=true&ApiKey="
-    + m_client->GetAccessToken();
+    + "/Videos/" + recordingId + "/stream?static=true";
 
   Logger::Log(LEVEL_INFO, "%s - Opening recording stream for %s", __FUNCTION__, recordingId.c_str());
 
-  if (!m_recordingStream.OpenFile(streamUrl, ADDON_READ_NO_CACHE))
+  if (!m_recordingStream.CURLCreate(streamUrl) ||
+      !m_recordingStream.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Authorization",
+                                       m_client->BuildAuthHeader()) ||
+      !m_recordingStream.CURLOpen(ADDON_READ_NO_CACHE))
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
+    m_recordingStream.Close();
     return false;
   }
 

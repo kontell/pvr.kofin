@@ -204,6 +204,19 @@ bool InstanceSettings::IsInsecureRemoteConnection() const
     return false;
   if (host.size() > 6 && host.compare(host.size() - 6, 6, ".local") == 0)
     return false;
+
+  // IPv6 literals contain no dots, so classify them before the undotted-LAN
+  // rule (which would silently treat every IPv6 host — including a public
+  // one — as private): ULA fc00::/7 and link-local fe80::/10 are private,
+  // any other IPv6 literal is remote and deserves the warning.
+  if (!host.empty() && host[0] == '[')
+  {
+    const bool privateV6 = host.rfind("[fc", 0) == 0 || host.rfind("[fd", 0) == 0 ||
+                           host.rfind("[fe8", 0) == 0 || host.rfind("[fe9", 0) == 0 ||
+                           host.rfind("[fea", 0) == 0 || host.rfind("[feb", 0) == 0;
+    return !privateV6;
+  }
+
   if (host.find('.') == std::string::npos)
     return false;
 
