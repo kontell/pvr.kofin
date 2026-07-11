@@ -34,6 +34,16 @@ namespace iptvsimple
     const std::vector<data::ChannelGroup>& GetChannelGroupsList() const { return m_channelGroups; }
     bool Init();
     void Clear();
+
+    // Adopt the data of a freshly loaded instance — see Channels::MoveFrom.
+    // (Assignment is deleted by the m_channels reference member.)
+    void MoveFrom(ChannelGroups&& other)
+    {
+      m_channelGroups = std::move(other.m_channelGroups);
+      m_channelGroupsLoadFailed = other.m_channelGroupsLoadFailed;
+      m_groupBackendOrderPosition = other.m_groupBackendOrderPosition;
+    }
+
     bool CheckChannelGroupAllowed(iptvsimple::data::ChannelGroup& newChannelGroup);
     void ChannelGroupsLoadFailed() { m_channelGroupsLoadFailed = true; };
     void RemoveEmptyGroups();

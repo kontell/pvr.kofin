@@ -67,6 +67,14 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
 
 IptvSimple::~IptvSimple()
 {
+  // Stop the connection manager FIRST — Stop() joins its thread, so after
+  // this no ConnectionEstablished/ConnectionLost can be in flight. Stopping
+  // it later leaves a window where a reconnect mutates the models below
+  // mid-teardown and re-creates m_thread after it was joined (UAF +
+  // std::terminate on the joinable thread member).
+  if (connectionManager)
+    connectionManager->Stop();
+
   Logger::Log(LEVEL_DEBUG, "%s Stopping update thread...", __FUNCTION__);
   m_running = false;
   if (m_thread.joinable())
@@ -94,8 +102,6 @@ IptvSimple::~IptvSimple()
   m_channels.Clear();
   m_channelGroups.Clear();
 
-  if (connectionManager)
-    connectionManager->Stop();
   delete connectionManager;
 }
 
@@ -128,9 +134,6 @@ void IptvSimple::ConnectionEstablished()
     kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR", kodi::addon::GetLocalizedString(30727));
   }
 
-  m_channels.Init();
-  m_channelGroups.Init();
-
   // Create Jellyfin client
   m_jellyfinClient = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
   m_auth->SetClient(m_jellyfinClient);
@@ -156,7 +159,24 @@ void IptvSimple::ConnectionEstablished()
     m_channelLoader = std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(m_jellyfinClient, m_settings);
   else
     m_channelLoader->SetClient(m_jellyfinClient);
-  m_channelLoader->LoadChannels(m_channels, m_channelGroups);
+  // Build the new channel/group model into local snapshots off-lock, then
+  // swap the data in under m_mutex. This runs on the connection-manager
+  // thread on every (re)connect and LoadChannels is seconds of network I/O
+  // (channels fetch + optional remote reference playlist): loading straight
+  // into the members raced Kodi's locked readers (GetChannels & co.), while
+  // holding m_mutex across the load would freeze the UI for the duration.
+  // A failed load swaps in the load-failed state, exactly like before.
+  {
+    Channels channels(m_settings);
+    ChannelGroups channelGroups(channels, m_settings);
+    channels.Init();
+    channelGroups.Init();
+    m_channelLoader->LoadChannels(channels, channelGroups);
+
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_channels.MoveFrom(std::move(channels));
+    m_channelGroups.MoveFrom(std::move(channelGroups));
+  }
 
   if (!m_recordingManager)
     m_recordingManager = std::make_shared<iptvsimple::jellyfin::JellyfinRecordingManager>(
@@ -298,19 +318,27 @@ void IptvSimple::Process()
       TriggerRecordingUpdate();
     }
 
-    std::lock_guard<std::mutex> lock(m_mutex);
     if (m_running && loggedIn && m_reloadChannelsGroupsAndEPG)
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
       m_settings->ReadSettings();
 
-      // Reload channels from Jellyfin
+      // Reload channels from Jellyfin — build off-lock, swap under m_mutex
+      // (same pattern as ConnectionEstablished): holding m_mutex across the
+      // network round-trip blocked GetChannels/GetChannelStreamProperties,
+      // freezing zapping and the channels window for the duration.
       if (m_channelLoader)
       {
-        m_channels.Init();
-        m_channelGroups.Init();
-        m_channelLoader->LoadChannels(m_channels, m_channelGroups);
+        Channels channels(m_settings);
+        ChannelGroups channelGroups(channels, m_settings);
+        channels.Init();
+        channelGroups.Init();
+        m_channelLoader->LoadChannels(channels, channelGroups);
+
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_channels.MoveFrom(std::move(channels));
+        m_channelGroups.MoveFrom(std::move(channelGroups));
       }
 
       m_reloadChannelsGroupsAndEPG = false;
