@@ -32,7 +32,7 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - Enter server details and logon
 - Reenter settings and restart add-on
 - Kodi PVR settings can be found in: Settings -> PVR & Live TV
-- Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
+- Once connected, Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
 
 ### Server address
 
