@@ -25,6 +25,9 @@ public:
 
   // Authentication
   bool Authenticate();
+  // Public for callers that stream via their own CFile (recorded-stream byte
+  // path) so the token can travel as a header instead of a URL query param.
+  std::string BuildAuthHeader() const;
   bool AuthenticateByPassword(const std::string& username, const std::string& password);
   bool StartQuickConnect(std::string& code);
   bool CheckQuickConnect(std::string& userId, std::string& accessToken);
@@ -51,13 +54,13 @@ public:
   const std::string& GetUserId() const { return m_userId; }
 
 private:
+  bool AuthenticateInternal();
   bool GetStorageInfoInternal(uint64_t& totalBytes, uint64_t& usedBytes);
   // requestOk (optional) reports transport/HTTP success: Kodi's curl layer
   // fails CURLOpen on HTTP >= 400, so reaching a readable response means 2xx/3xx.
   Json::Value DoRequest(const std::string& url, const std::string& postData = "",
                         bool* requestOk = nullptr);
   std::string BuildUrl(const std::string& endpoint) const;
-  std::string BuildAuthHeader() const;
   static std::string Base64Encode(const std::string& input);
 
   void SetAuthFromResponse(const Json::Value& response);

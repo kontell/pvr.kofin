@@ -33,6 +33,23 @@ JellyfinAuth::JellyfinAuth(std::shared_ptr<iptvsimple::InstanceSettings> setting
 
 void JellyfinAuth::TestConnection()
 {
+  // Exception firewall: reached from Kodi's SetSetting callback. The flow
+  // parses server-controlled JSON, and "user typed a wrong address that
+  // points at something hostile" is exactly this flow's threat model — a
+  // jsoncpp type error must not unwind across the C ABI.
+  try
+  {
+    TestConnectionInternal();
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception during connection test: %s", __FUNCTION__, e.what());
+    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Connection failed.");
+  }
+}
+
+void JellyfinAuth::TestConnectionInternal()
+{
   m_settings->ReadSettings();
 
   if (m_settings->GetJellyfinServerAddress().empty())
@@ -56,6 +73,22 @@ void JellyfinAuth::TestConnection()
 }
 
 void JellyfinAuth::RunLogin()
+{
+  // Exception firewall — see TestConnection. Covers the password and Quick
+  // Connect flows, whose response parsing (SetAuthFromResponse,
+  // StartQuickConnect, CheckQuickConnect) converts server-controlled values.
+  try
+  {
+    RunLoginInternal();
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception during login: %s", __FUNCTION__, e.what());
+    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", kodi::addon::GetLocalizedString(30713));
+  }
+}
+
+void JellyfinAuth::RunLoginInternal()
 {
   m_settings->ReadSettings();
 
@@ -182,10 +215,19 @@ void JellyfinAuth::RunLogout()
   // indefinitely after "logging out".
   if (!m_settings->GetJellyfinAccessToken().empty())
   {
-    auto client = m_client;
-    if (!client)
-      client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
-    client->Logout();
+    // Firewall only the server call: whatever the revocation attempt does,
+    // the local credential clearing below must always run.
+    try
+    {
+      auto client = m_client;
+      if (!client)
+        client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
+      client->Logout();
+    }
+    catch (const std::exception& e)
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Exception during server-side logout: %s", __FUNCTION__, e.what());
+    }
   }
 
   m_settings->SetJellyfinAccessToken("");
@@ -199,6 +241,20 @@ void JellyfinAuth::RunLogout()
 }
 
 void JellyfinAuth::FetchAndStoreServerName()
+{
+  // Exception firewall — also called directly from the connection-manager
+  // thread, where an escaped exception means std::terminate.
+  try
+  {
+    FetchAndStoreServerNameInternal();
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception fetching server info: %s", __FUNCTION__, e.what());
+  }
+}
+
+void JellyfinAuth::FetchAndStoreServerNameInternal()
 {
   auto client = m_client;
   if (!client)

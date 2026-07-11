@@ -11,6 +11,7 @@
 #include "../utilities/Logger.h"
 #include "../utilities/WebUtils.h"
 
+#include <algorithm>
 #include <chrono>
 #include <sstream>
 #include <thread>
@@ -20,6 +21,20 @@
 using namespace iptvsimple;
 using namespace iptvsimple::jellyfin;
 using namespace iptvsimple::utilities;
+
+namespace
+{
+// Header values here are quoted tokens: strip CR/LF (header injection) and
+// double quotes (grammar break). DeviceId and token are self-/server-issued,
+// so this is belt-and-braces — mirrors service.py's device-name sanitizing.
+std::string SanitizeHeaderValue(std::string value)
+{
+  value.erase(std::remove_if(value.begin(), value.end(),
+                             [](char c) { return c == '\r' || c == '\n' || c == '"'; }),
+              value.end());
+  return value;
+}
+} // unnamed namespace
 
 JellyfinClient::JellyfinClient(std::shared_ptr<iptvsimple::InstanceSettings> settings)
   : m_settings(settings)
@@ -37,14 +52,31 @@ std::string JellyfinClient::BuildAuthHeader() const
 {
   std::ostringstream header;
   header << "MediaBrowser Client=\"Kofin PVR\", Device=\"Kodi\""
-         << ", DeviceId=\"" << m_settings->GetDeviceId() << "\""
+         << ", DeviceId=\"" << SanitizeHeaderValue(m_settings->GetDeviceId()) << "\""
          << ", Version=\"" << STR(KOFIN_VERSION) << "\"";
   if (!m_accessToken.empty())
-    header << ", Token=\"" << m_accessToken << "\"";
+    header << ", Token=\"" << SanitizeHeaderValue(m_accessToken) << "\"";
   return header.str();
 }
 
 bool JellyfinClient::Authenticate()
+{
+  // Exception firewall: runs on the connection-manager thread (and from the
+  // settings Test Connection flow) — an escaped jsoncpp type error would
+  // std::terminate or cross the C ABI. ValidateToken parses only presence
+  // today, but this pins the entry point against future drift.
+  try
+  {
+    return AuthenticateInternal();
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception validating token: %s", __FUNCTION__, e.what());
+    return false;
+  }
+}
+
+bool JellyfinClient::AuthenticateInternal()
 {
   // Token-only validation — no username/password fallback.
   // Login is handled interactively via the Account settings UI.
@@ -380,12 +412,26 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   if (requestOk)
     *requestOk = true;
 
-  // Read response
+  // Read response, capped so a hostile/misbehaving server can't balloon the
+  // process — the largest legitimate payloads (full EPG windows) stay well
+  // under this.
+  static constexpr size_t MAX_RESPONSE_BYTES = 32 * 1024 * 1024;
   std::string response;
   char buffer[4096];
   ssize_t bytesRead;
   while ((bytesRead = file.Read(buffer, sizeof(buffer))) > 0)
+  {
     response.append(buffer, static_cast<size_t>(bytesRead));
+    if (response.size() > MAX_RESPONSE_BYTES)
+    {
+      Logger::Log(LEVEL_ERROR, "%s - Response exceeds %zu MB, aborting: %s", __FUNCTION__,
+                  MAX_RESPONSE_BYTES / (1024 * 1024), WebUtils::RedactUrl(url).c_str());
+      file.Close();
+      if (requestOk)
+        *requestOk = false;
+      return Json::Value();
+    }
+  }
 
   file.Close();
 

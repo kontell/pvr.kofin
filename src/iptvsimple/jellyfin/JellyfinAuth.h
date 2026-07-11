@@ -36,6 +36,14 @@ public:
   void FetchAndStoreServerName();
 
 private:
+  // *Internal carry the logic; the public entry points wrap them in exception
+  // firewalls. These flows parse server-controlled JSON and are reached from
+  // Kodi's SetSetting callback and the connection-manager thread, where an
+  // escaped jsoncpp type error crosses the C ABI or std::terminates.
+  void TestConnectionInternal();
+  void RunLoginInternal();
+  void FetchAndStoreServerNameInternal();
+
   bool LoginWithPassword();
   bool LoginWithQuickConnect();
 

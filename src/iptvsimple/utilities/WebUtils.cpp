@@ -31,8 +31,10 @@ const std::string WebUtils::UrlEncode(const std::string& value)
 
   for (auto c : value)
   {
-    // Keep alphanumeric and other accepted characters intact
-    if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+    // Keep alphanumeric and other accepted characters intact.
+    // unsigned char cast: std::isalnum on a negative plain char is UB
+    // (MSVC debug asserts) — latent while all callers pass ASCII.
+    if (std::isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' || c == '.' || c == '~')
     {
       escaped << c;
       continue;
