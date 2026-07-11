@@ -1,3 +1,9 @@
+v0.13.0
+- New Advanced setting: configurable timer/recording poll interval (default 60s, range 15–3600)
+- Fixed a tuner/stream leak when switching channels, and pinned catchup to direct play so it plays reliably
+- Added a notification when an in-progress recording stops before its scheduled end
+- Hardened authentication and connection handling, with further thread-safety, teardown, and correctness fixes plus more dead-code cleanup
+
 v0.12.0
 - Security hardening: access tokens are redacted from logs, login credentials are JSON-escaped, logging out now revokes the server session, and a warning is shown when connecting over plain HTTP
 - More robust reconnects: continuous connection health checks, with no crash or spurious logout when the server briefly drops
