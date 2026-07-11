@@ -35,6 +35,10 @@ using namespace iptvsimple::utilities;
 
 namespace
 {
+// Cap for m_epgUidToJellyfinProgramId — generous for legitimate use (hundreds
+// of channels × a full EPG window) while bounding the otherwise-permanent growth.
+constexpr size_t EPG_UID_MAP_MAX_ENTRIES = 250000;
+
 bool ParseBoolProp(const std::string& value)
 {
   std::string v = value;
@@ -330,6 +334,11 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
 
   const Json::Value& items = response["Items"];
 
+  const int totalProgramCount = response.get("TotalRecordCount", 0).asInt();
+  if (totalProgramCount > static_cast<int>(items.size()))
+    Logger::Log(LEVEL_WARNING, "%s - EPG window truncated by the request limit for channel %d: server has %d programmes, fetched %d",
+                __FUNCTION__, channelUid, totalProgramCount, static_cast<int>(items.size()));
+
   for (const auto& item : items)
   {
     kodi::addon::PVREPGTag tag;
@@ -338,6 +347,16 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
     const unsigned int broadcastUid = static_cast<unsigned int>(GenerateUid(jellyfinProgramId));
     {
       std::lock_guard<std::mutex> lock(m_dataMutex);
+      // Bound the map: it only ever gained entries (~100 bytes/programme,
+      // a slow permanent leak on an always-on box). A wholesale clear at the
+      // cap is safe — AddTimer falls back to a channel+time server query when
+      // an EPG UID is missing from the map.
+      if (m_epgUidToJellyfinProgramId.size() >= EPG_UID_MAP_MAX_ENTRIES)
+      {
+        Logger::Log(LEVEL_INFO, "%s - EPG UID map reached %zu entries, clearing",
+                    __FUNCTION__, m_epgUidToJellyfinProgramId.size());
+        m_epgUidToJellyfinProgramId.clear();
+      }
       m_epgUidToJellyfinProgramId[broadcastUid] = jellyfinProgramId;
     }
 

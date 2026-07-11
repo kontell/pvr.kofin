@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Prova la connexió"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "Transcodifica H264 de 10 bits (Hi10P)"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Força la transcodificació del contingut H264 de 10 bits. Activeu-ho si el vostre dispositiu no admet la descodificació Hi10P."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "Transcodifica les extensions de gamma HEVC"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Força la transcodificació del contingut HEVC amb perfils d'extensions de gamma (4:2:2, 4:4:4). Activeu-ho si el vostre dispositiu només admet Main i Main 10."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Configuració del Kofin PVR"
@@ -337,30 +321,6 @@ msgstr "Activa el catchup (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Activa la TV de catchup/arxiu si el vostre proveïdor l'admet. Només funciona amb la reproducció directa, per la qual cosa el remux forçat ha d'estar desactivat i la taxa de bits establerta com a il·limitada. Requereix un fitxer M3U de referència (configurat a la secció Avançat) que coincideixi amb els noms dels vostres canals del Jellyfin i contingui les etiquetes de catchup que el Jellyfin omet."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "Ubicació del M3U de referència"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Trieu si el fitxer M3U de referència s'emmagatzema localment o s'hi accedeix mitjançant un URL."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Fitxer M3U de referència"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "Camí al fitxer M3U de referència al sistema de fitxers local."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "URL del M3U de referència"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "URL del fitxer M3U de referència."
 
 msgctxt "#30739"
 msgid "Query format string"

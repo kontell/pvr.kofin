@@ -38,9 +38,7 @@ namespace iptvsimple
     bool GetChannel(int uniqueId, iptvsimple::data::Channel& myChannel) const;
 
     bool AddChannel(iptvsimple::data::Channel& channel, std::vector<int>& groupIdList, iptvsimple::ChannelGroups& channelGroups, bool channelHadGroups);
-    iptvsimple::data::Channel* GetChannel(int uniqueId);
     const std::vector<data::Channel>& GetChannelsList() const { return m_channels; }
-    std::vector<data::Channel>& GetChannelsListMutable() { return m_channels; }
     void Clear();
 
     // Adopt the data of a freshly loaded instance (built off-lock) without
@@ -53,13 +51,11 @@ namespace iptvsimple
       m_channelsLoadFailed = other.m_channelsLoadFailed;
     }
 
-    int GetCurrentChannelNumber() const { return m_currentChannelNumber; }
     void ChannelsLoadFailed() { m_channelsLoadFailed = true; };
 
   private:
     int GenerateChannelId(const char* channelName, const char* streamUrl);
 
-    int m_currentChannelNumber;
     bool m_channelsLoadFailed = false;
 
     std::vector<iptvsimple::data::Channel> m_channels;

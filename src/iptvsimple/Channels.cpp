@@ -29,7 +29,6 @@ void Channels::Clear()
 {
   m_channels.clear();
   m_channelsLoadFailed = false;
-  m_currentChannelNumber = 1;
 }
 
 int Channels::GetChannelsAmount() const
@@ -88,7 +87,6 @@ bool Channels::GetChannel(int uniqueId, Channel& myChannel) const
 
 bool Channels::AddChannel(Channel& channel, std::vector<int>& groupIdList, ChannelGroups& channelGroups, bool channelHadGroups)
 {
-  m_currentChannelNumber = channel.GetChannelNumber();
   channel.SetUniqueId(GenerateChannelId(channel.GetChannelName().c_str(), channel.GetStreamURL().c_str()));
 
   bool belongsToGroup = false;
@@ -109,20 +107,7 @@ bool Channels::AddChannel(Channel& channel, std::vector<int>& groupIdList, Chann
 
   m_channels.emplace_back(channel);
 
-  m_currentChannelNumber++;
-
   return true;
-}
-
-Channel* Channels::GetChannel(int uniqueId)
-{
-  for (auto& myChannel : m_channels)
-  {
-    if (myChannel.GetUniqueId() == uniqueId)
-      return &myChannel;
-  }
-
-  return nullptr;
 }
 
 int Channels::GenerateChannelId(const char* channelName, const char* streamUrl)

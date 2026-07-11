@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "연결 테스트"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "H264 10비트(Hi10P) 트랜스코딩"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "H264 10비트 콘텐츠의 트랜스코딩을 강제합니다. 기기가 Hi10P 디코딩을 지원하지 않는 경우 활성화하세요."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "HEVC 범위 확장 트랜스코딩"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "범위 확장 프로파일(4:2:2, 4:4:4)이 있는 HEVC 콘텐츠의 트랜스코딩을 강제합니다. 기기가 Main 및 Main 10만 지원하는 경우 활성화하세요."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Kofin PVR 설정"
@@ -337,30 +321,6 @@ msgstr "다시보기 활성화(IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "제공업체가 지원하는 경우 다시보기/아카이브 TV를 활성화합니다. 직접 재생에서만 작동하므로 리먹스 강제를 꺼야 하고 비트레이트를 무제한으로 설정해야 합니다. Jellyfin 채널 이름과 일치하고 Jellyfin이 생략하는 다시보기 태그를 포함하는 참조 M3U 파일(고급 섹션에서 구성)이 필요합니다."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "참조 M3U 위치"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "참조 M3U 파일을 로컬에 저장할지 URL을 통해 액세스할지 선택합니다."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "참조 M3U 파일"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "로컬 파일 시스템의 참조 M3U 파일 경로."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "참조 M3U URL"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "참조 M3U 파일의 URL."
 
 msgctxt "#30739"
 msgid "Query format string"

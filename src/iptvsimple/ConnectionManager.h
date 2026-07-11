@@ -32,7 +32,6 @@ namespace iptvsimple
     void Start();
     void Stop();
     void Disconnect();
-    void Reconnect();
 
     void OnSleep();
     void OnWake();

@@ -117,8 +117,10 @@ void InstanceSettings::ReadSettings()
   m_catchupDays = kodi::addon::GetSettingInt("catchupDays", 5);
   m_allChannelsCatchupMode = kodi::addon::GetSettingInt("allChannelsCatchupMode", 0);
   m_catchupPlayEpgAsLive = kodi::addon::GetSettingBoolean("catchupPlayEpgAsLive", false);
-  m_catchupWatchEpgBeginBufferMins = kodi::addon::GetSettingInt("catchupWatchEpgBeginBufferMins", 5);
-  m_catchupWatchEpgEndBufferMins = kodi::addon::GetSettingInt("catchupWatchEpgEndBufferMins", 15);
+  // Clamp: free-form integer edits with no constraints in settings.xml —
+  // negative buffers shift the catchup window in odd ways.
+  m_catchupWatchEpgBeginBufferMins = std::max(0, kodi::addon::GetSettingInt("catchupWatchEpgBeginBufferMins", 5));
+  m_catchupWatchEpgEndBufferMins = std::max(0, kodi::addon::GetSettingInt("catchupWatchEpgEndBufferMins", 15));
   m_catchupOnlyOnFinishedProgrammes = kodi::addon::GetSettingBoolean("catchupOnlyOnFinishedProgrammes", false);
 
   // Advanced

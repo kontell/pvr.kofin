@@ -100,10 +100,9 @@ private:
   static time_t ParseIso8601(const std::string& dateStr);
   static std::string FormatIso8601(time_t time);
 
-  // Jellyfin ID <-> Kodi client index mappings for timers/recordings
+  // Jellyfin ID <-> Kodi client index mappings for timers
   std::map<int, std::string> m_timerUidToId;
   std::map<int, std::string> m_seriesTimerUidToId;
-  std::map<int, std::string> m_recordingUidToId;
 
   // Jellyfin IDs of recordings that are currently in progress
   std::set<std::string> m_inProgressRecordingIds;

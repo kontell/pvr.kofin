@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Kapcsolat tesztelése"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "H264 10 bites (Hi10P) átkódolása"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Kényszeríti a H264 10 bites tartalom átkódolását. Engedélyezze, ha az eszköze nem támogatja a Hi10P-dekódolást."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "HEVC range extensions átkódolása"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Kényszeríti a range extension-profilokkal (4:2:2, 4:4:4) rendelkező HEVC-tartalom átkódolását. Engedélyezze, ha az eszköze csak a Main és Main 10 profilokat támogatja."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Kofin PVR beállításai"
@@ -337,30 +321,6 @@ msgstr "Catchup engedélyezése (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Engedélyezi a catchup/archív TV-t, ha a szolgáltatója támogatja. Csak közvetlen lejátszással működik, ezért a kényszerített remuxolást ki kell kapcsolni, a bitrátát pedig korlátlanra kell állítani. Referencia-M3U-fájlt igényel (a Speciális szakaszban konfigurálva), amely megegyezik a Jellyfin-csatornái neveivel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "A referencia-M3U helye"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Válassza ki, hogy a referencia-M3U-fájl helyileg legyen tárolva, vagy URL-en keresztül legyen elérhető."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Referencia-M3U-fájl"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "A referencia-M3U-fájl elérési útja a helyi fájlrendszerben."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "Referencia-M3U URL-címe"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "A referencia-M3U-fájl URL-címe."
 
 msgctxt "#30739"
 msgid "Query format string"

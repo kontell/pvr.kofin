@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Перевірити з'єднання"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "Перекодувати H264 10-біт (Hi10P)"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Примусово перекодувати вміст H264 10-біт. Увімкніть, якщо ваш пристрій не підтримує декодування Hi10P."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "Перекодувати розширення діапазону HEVC"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Примусово перекодувати вміст HEVC із профілями розширень діапазону (4:2:2, 4:4:4). Увімкніть, якщо ваш пристрій підтримує лише Main і Main 10."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Налаштування Kofin PVR"
@@ -337,30 +321,6 @@ msgstr "Увімкнути catchup (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Вмикає телеархів/catchup, якщо його підтримує ваш постачальник. Працює лише з прямим відтворенням, тому примусовий ремукс має бути вимкнено, а бітрейт встановлено на «без обмежень». Потребує еталонного файлу M3U (налаштовується в розділі «Додатково»), який відповідає назвам ваших каналів Jellyfin і містить теги catchup, що їх пропускає Jellyfin."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "Розташування еталонного M3U"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Виберіть, чи зберігається еталонний файл M3U локально, чи доступний за URL-адресою."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Еталонний файл M3U"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "Шлях до еталонного файлу M3U у локальній файловій системі."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "URL-адреса еталонного M3U"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "URL-адреса еталонного файлу M3U."
 
 msgctxt "#30739"
 msgid "Query format string"

@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Testează conexiunea"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "Transcodează H264 pe 10 biți (Hi10P)"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Forțează transcodarea conținutului H264 pe 10 biți. Activați dacă dispozitivul dvs. nu acceptă decodarea Hi10P."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "Transcodează extensiile de gamă HEVC"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Forțează transcodarea conținutului HEVC cu profiluri de extensii de gamă (4:2:2, 4:4:4). Activați dacă dispozitivul dvs. acceptă doar Main și Main 10."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Setări Kofin PVR"
@@ -337,30 +321,6 @@ msgstr "Activează catchup (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Activează televiziunea catchup/arhivă dacă este acceptată de furnizorul dvs. Funcționează doar cu redarea directă, așa că remultiplexarea forțată trebuie dezactivată, iar rata de biți setată la nelimitat. Necesită un fișier M3U de referință (configurat în secțiunea Avansat) care să corespundă numelor canalelor dvs. Jellyfin și să conțină etichetele de catchup omise de Jellyfin."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "Locația M3U-ului de referință"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Alegeți dacă fișierul M3U de referință este stocat local sau accesat printr-un URL."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Fișier M3U de referință"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "Calea către fișierul M3U de referință din sistemul de fișiere local."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "URL-ul M3U-ului de referință"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "URL-ul fișierului M3U de referință."
 
 msgctxt "#30739"
 msgid "Query format string"

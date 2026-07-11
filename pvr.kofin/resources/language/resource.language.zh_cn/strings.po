@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "测试连接"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "转码 H264 10 位（Hi10P）"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "强制转码 H264 10 位内容。如果您的设备不支持 Hi10P 解码，请启用此项。"
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "转码 HEVC 范围扩展"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "强制转码具有范围扩展配置文件（4:2:2、4:4:4）的 HEVC 内容。如果您的设备仅支持 Main 和 Main 10，请启用此项。"
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Kofin PVR 设置"
@@ -337,30 +321,6 @@ msgstr "启用回看（IPTV）"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "如果您的提供商支持，则启用回看/存档电视。仅在直接播放下有效，因此必须关闭强制重新封装并将比特率设置为无限制。需要一个参考 M3U 文件（在“高级”部分中配置），该文件与您的 Jellyfin 频道名称匹配，并包含 Jellyfin 省略的回看标签。"
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "参考 M3U 位置"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "选择参考 M3U 文件是存储在本地还是通过 URL 访问。"
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "参考 M3U 文件"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "本地文件系统中参考 M3U 文件的路径。"
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "参考 M3U URL"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "参考 M3U 文件的 URL。"
 
 msgctxt "#30739"
 msgid "Query format string"
