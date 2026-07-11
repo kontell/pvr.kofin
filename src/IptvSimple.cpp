@@ -280,8 +280,6 @@ PVR_ERROR IptvSimple::GetDriveSpace(uint64_t& total, uint64_t& used)
 
 void IptvSimple::Process()
 {
-  static const int TIMER_RECORDING_POLL_SECS = 60;
-
   unsigned int refreshTimer = 0;
   unsigned int timerRecordingPollTimer = 0;
   time_t lastRefreshTimeSeconds = std::time(nullptr);
@@ -307,9 +305,12 @@ void IptvSimple::Process()
     // promptly once the user logs back in.
     const bool loggedIn = !m_settings->GetJellyfinAccessToken().empty();
 
-    // Poll timers/recordings every 60s so Kodi learns about new/changed
-    // recordings without a restart (EPG recording indicators, widgets, etc.)
-    if (m_running && loggedIn && timerRecordingPollTimer >= TIMER_RECORDING_POLL_SECS && m_recordingManager)
+    // Poll timers/recordings so Kodi learns about new/changed recordings
+    // without a restart (EPG recording indicators, widgets, etc.). The
+    // cadence is a setting (Advanced, clamped in ReadSettings), re-read
+    // every pass so a change applies without an addon restart.
+    if (m_running && loggedIn && m_recordingManager &&
+        timerRecordingPollTimer >= static_cast<unsigned int>(m_settings->GetTimerRecordingPollSecs()))
     {
       timerRecordingPollTimer = 0;
       Logger::Log(LEVEL_DEBUG, "%s - Polling timers/recordings", __FUNCTION__);

@@ -539,6 +539,11 @@
           <default>24</default>
           <control type="edit" format="integer" />
         </setting>
+        <setting id="timerRecordingPollInterval" type="integer" label="30831" help="30832">
+          <level>0</level>
+          <default>60</default>
+          <control type="edit" format="integer" />
+        </setting>
         <setting id="connectionchecktimeout" type="integer" label="30674" help="30675">
           <level>0</level>
           <default>10</default>

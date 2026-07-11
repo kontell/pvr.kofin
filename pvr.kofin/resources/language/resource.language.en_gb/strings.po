@@ -654,3 +654,11 @@ msgstr ""
 msgctxt "#30830"
 msgid "Recording stopped early"
 msgstr ""
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr ""
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr ""
