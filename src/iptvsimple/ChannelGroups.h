@@ -44,7 +44,6 @@ namespace iptvsimple
       m_groupBackendOrderPosition = other.m_groupBackendOrderPosition;
     }
 
-    bool CheckChannelGroupAllowed(iptvsimple::data::ChannelGroup& newChannelGroup);
     void ChannelGroupsLoadFailed() { m_channelGroupsLoadFailed = true; };
     void RemoveEmptyGroups();
 

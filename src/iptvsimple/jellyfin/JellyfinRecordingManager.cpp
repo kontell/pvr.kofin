@@ -443,7 +443,14 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
   // The caller runs this off Kodi's main thread; the server-side operation
   // (stopping a recording) can take several seconds. Reload afterwards so the
   // model reflects the deletion before the caller triggers Kodi UI updates.
-  m_client->SendDelete(endpoint);
+  if (!m_client->SendDelete(endpoint))
+  {
+    // Surface the failure: returning NO_ERROR here made a rejected delete
+    // silently "succeed" and the timer reappear on the next poll.
+    Logger::Log(LEVEL_ERROR, "%s - Failed to delete %stimer %s", __FUNCTION__,
+                isSeries ? "series " : "", jellyfinId.c_str());
+    return PVR_ERROR_SERVER_ERROR;
+  }
   Reload();
 
   return PVR_ERROR_NO_ERROR;
@@ -902,7 +909,6 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   m_inProgressSnapshot.clear();
 
   m_recordings.clear();
-  m_recordingUidToId.clear();
   m_inProgressRecordingIds.clear();
 
   // Collect Jellyfin items from multiple sources, de-duplicated by ID
@@ -942,9 +948,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   for (const auto& item : allItems)
   {
     const std::string jellyfinId = item["Id"].asString();
-    const int uid = GenerateUid(jellyfinId);
     const bool inProgress = m_inProgressRecordingIds.count(jellyfinId) > 0;
-    m_recordingUidToId[uid] = jellyfinId;
 
     kodi::addon::PVRRecording recording;
     recording.SetRecordingId(jellyfinId);

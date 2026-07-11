@@ -51,8 +51,6 @@ void Channel::UpdateTo(Channel& left) const
   left.m_radio            = m_radio;
   left.m_channelNumber    = m_channelNumber;
   left.m_subChannelNumber = m_subChannelNumber;
-  left.m_encryptionSystem = m_encryptionSystem;
-  left.m_tvgShift         = m_tvgShift;
   left.m_channelName      = m_channelName;
   left.m_iconPath         = m_iconPath;
   left.m_streamURL        = m_streamURL;
@@ -66,7 +64,6 @@ void Channel::UpdateTo(Channel& left) const
   left.m_catchupGranularitySeconds = m_catchupGranularitySeconds;
   left.m_catchupCorrectionSecs = m_catchupCorrectionSecs;
   left.m_tvgId            = m_tvgId;
-  left.m_tvgName          = m_tvgName;
   left.m_properties       = m_properties;
   left.m_inputStreamName = m_inputStreamName;
 }
@@ -78,7 +75,6 @@ void Channel::UpdateTo(kodi::addon::PVRChannel& left) const
   left.SetChannelNumber(m_channelNumber);
   left.SetSubChannelNumber(m_subChannelNumber);
   left.SetChannelName(m_channelName);
-  left.SetEncryptionSystem(m_encryptionSystem);
   left.SetIconPath(m_iconPath);
   left.SetIsHidden(false);
   left.SetHasArchive(IsCatchupSupported());
@@ -90,8 +86,6 @@ void Channel::Reset()
   m_radio = false;
   m_channelNumber = 0;
   m_subChannelNumber = 0;
-  m_encryptionSystem = 0;
-  m_tvgShift = 0;
   m_channelName.clear();
   m_iconPath.clear();
   m_streamURL.clear();
@@ -105,7 +99,6 @@ void Channel::Reset()
   m_isCatchupTSStream = false;
   m_catchupCorrectionSecs = 0;
   m_tvgId.clear();
-  m_tvgName.clear();
   m_properties.clear();
   m_inputStreamName.clear();
 }
@@ -163,11 +156,6 @@ void Channel::SetCatchupDays(int catchupDays)
 bool Channel::IsCatchupSupported() const
 {
   return m_hasCatchup && m_catchupMode != CatchupMode::DISABLED && m_catchupDays > 0;
-}
-
-bool Channel::SupportsLiveStreamTimeshifting() const
-{
-  return m_catchupSupportsTimeshifting;
 }
 
 namespace

@@ -4,13 +4,15 @@ For every generated locale file:
   * file decodes as strict UTF-8
   * every msgctxt/msgid/msgstr quoted body is well-formed (balanced quotes,
     only valid \\\\ / \\" / \\n escapes, no unescaped interior double quote)
-  * header present, exactly 156 message entries
+  * header present, entry count matches the en_gb source
   * the #30740 catchup format-string example is preserved byte-for-byte
 """
 import re
 import sys
-from po_lib import LANG_DIR
+from po_lib import LANG_DIR, EN, parse_entries
 from gen import LANG_META
+
+EXPECTED_ENTRIES = len(parse_entries(EN))
 
 FORMAT_FRAGMENT = "&cutv={Y}-{m}-{d}T{H}:{M}:{S}"
 ESC_OK = set('"\\nt')           # escapes our generator can emit / gettext allows
@@ -54,8 +56,8 @@ def check_file(path):
                 errs.append(f"line {ln}: {e}")
         if line.startswith("msgctxt "):
             entries += 1
-    if entries != 156:
-        errs.append(f"expected 156 entries, found {entries}")
+    if entries != EXPECTED_ENTRIES:
+        errs.append(f"expected {EXPECTED_ENTRIES} entries, found {entries}")
     if FORMAT_FRAGMENT not in text:
         errs.append("catchup format-string fragment missing/altered")
     return errs

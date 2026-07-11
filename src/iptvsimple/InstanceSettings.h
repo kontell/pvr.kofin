@@ -148,8 +148,8 @@ namespace iptvsimple
     bool CatchupPlayEpgAsLive() const { return m_catchupPlayEpgAsLive; }
     int GetCatchupWatchEpgBeginBufferSecs() const { return m_catchupWatchEpgBeginBufferMins * 60; }
     int GetCatchupWatchEpgEndBufferSecs() const { return m_catchupWatchEpgEndBufferMins * 60; }
+
     bool CatchupOnlyOnFinishedProgrammes() const { return m_catchupOnlyOnFinishedProgrammes; }
-    float GetCatchupCorrection() const { return m_catchupCorrection; }
 
     // Advanced
     int GetJellyfinUpdateIntervalHours() const { return m_jellyfinUpdateIntervalHours; }
@@ -225,7 +225,6 @@ namespace iptvsimple
     int m_catchupWatchEpgBeginBufferMins = 5;
     int m_catchupWatchEpgEndBufferMins = 15;
     bool m_catchupOnlyOnFinishedProgrammes = false;
-    float m_catchupCorrection = 0.0f;
 
     // Advanced
     int m_jellyfinUpdateIntervalHours = 24;

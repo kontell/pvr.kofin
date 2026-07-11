@@ -292,22 +292,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr ""
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr ""
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr ""
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr ""
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr ""
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr ""
@@ -335,30 +319,6 @@ msgstr ""
 
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Catchup always plays through inputstream.ffmpegdirect with direct play, regardless of the transcoding, bitrate and inputstream settings — those still apply when watching the channel live. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr ""
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr ""
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr ""
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr ""
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr ""
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr ""
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
 msgstr ""
 
 msgctxt "#30739"

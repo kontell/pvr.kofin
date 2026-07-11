@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Test forbindelse"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "Transkod H264 10-bit (Hi10P)"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Tvinger transkodning af H264-10-bit-indhold. Aktivér, hvis din enhed ikke understøtter Hi10P-afkodning."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "Transkod HEVC range extensions"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Tvinger transkodning af HEVC-indhold med range extension-profiler (4:2:2, 4:4:4). Aktivér, hvis din enhed kun understøtter Main og Main 10."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Kofin PVR-indstillinger"
@@ -337,30 +321,6 @@ msgstr "Aktivér catchup (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Aktiverer catchup-/arkiv-tv, hvis din udbyder understøtter det. Virker kun med direkte afspilning, så tvungen remuxning skal være deaktiveret, og bithastigheden skal være indstillet til ubegrænset. Kræver en reference-M3U-fil (konfigureret i afsnittet Avanceret), der matcher dine Jellyfin-kanalnavne og indeholder catchup-tags, som udelades af Jellyfin."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "Placering af reference-M3U"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Vælg, om reference-M3U-filen gemmes lokalt eller tilgås via en URL."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Reference-M3U-fil"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "Sti til reference-M3U-filen i det lokale filsystem."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "Reference-M3U-URL"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "URL til reference-M3U-filen."
 
 msgctxt "#30739"
 msgid "Query format string"

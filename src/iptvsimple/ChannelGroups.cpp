@@ -98,20 +98,10 @@ PVR_ERROR ChannelGroups::GetChannelGroupMembers(const kodi::addon::PVRChannelGro
 
 int ChannelGroups::AddChannelGroup(iptvsimple::data::ChannelGroup& channelGroup)
 {
+  // (The upstream TV/radio same-name disambiguation branch was removed here:
+  // kofin never creates radio groups, and it referenced strings 30450/30451
+  // that no strings.po defines.)
   const ChannelGroup* existingChannelGroup = FindChannelGroup(channelGroup.GetGroupName());
-
-  if (existingChannelGroup && channelGroup.IsRadio() != existingChannelGroup->IsRadio())
-  {
-    // Ok, we have the same channel group name for both TV and Radio which is not allowed
-    // so let's add ' (Radio)' or ' (TV)' depending on which group was added first.
-
-    if (existingChannelGroup->IsRadio())
-      channelGroup.SetGroupName(channelGroup.GetGroupName() + " (" + kodi::addon::GetLocalizedString(30450) + ")"); // ' (TV)';
-    else
-      channelGroup.SetGroupName(channelGroup.GetGroupName() + " (" + kodi::addon::GetLocalizedString(30451) + ")"); // ' (Radio)';
-
-    existingChannelGroup = FindChannelGroup(channelGroup.GetGroupName());
-  }
 
   if (!existingChannelGroup)
   {
@@ -150,12 +140,6 @@ ChannelGroup* ChannelGroups::FindChannelGroup(const std::string& name)
   }
 
   return nullptr;
-}
-
-bool ChannelGroups::CheckChannelGroupAllowed(iptvsimple::data::ChannelGroup& newChannelGroup)
-{
-  // Jellyfin provides channel groups directly; allow all groups
-  return true;
 }
 
 void ChannelGroups::RemoveEmptyGroups()

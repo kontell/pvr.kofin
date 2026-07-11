@@ -42,12 +42,12 @@ namespace iptvsimple
       Channel(std::shared_ptr<iptvsimple::InstanceSettings> settings) : m_settings(settings) {};
       Channel(const Channel &c) : m_radio(c.IsRadio()), m_uniqueId(c.GetUniqueId()),
         m_channelNumber(c.GetChannelNumber()), m_subChannelNumber(c.GetSubChannelNumber()),
-        m_encryptionSystem(c.GetEncryptionSystem()), m_tvgShift(c.GetTvgShift()), m_channelName(c.GetChannelName()),
+        m_channelName(c.GetChannelName()),
         m_iconPath(c.GetIconPath()), m_streamURL(c.GetStreamURL()), m_hasCatchup(c.HasCatchup()),
         m_catchupMode(c.GetCatchupMode()), m_catchupDays(c.GetCatchupDays()), m_catchupSource(c.GetCatchupSource()),
         m_isCatchupTSStream(c.IsCatchupTSStream()), m_catchupSupportsTimeshifting(c.CatchupSupportsTimeshifting()),
         m_catchupSourceTerminates(c.CatchupSourceTerminates()), m_catchupGranularitySeconds(c.GetCatchupGranularitySeconds()),
-        m_catchupCorrectionSecs(c.GetCatchupCorrectionSecs()), m_tvgId(c.GetTvgId()), m_tvgName(c.GetTvgName()),
+        m_catchupCorrectionSecs(c.GetCatchupCorrectionSecs()), m_tvgId(c.GetTvgId()),
         m_properties(c.GetProperties()),
         m_inputStreamName(c.GetInputStreamName()), m_settings(c.m_settings) {};
       ~Channel() = default;
@@ -63,12 +63,6 @@ namespace iptvsimple
 
       int GetSubChannelNumber() const { return m_subChannelNumber; }
       void SetSubChannelNumber(int value) { m_subChannelNumber = value; }
-
-      int GetEncryptionSystem() const { return m_encryptionSystem; }
-      void SetEncryptionSystem(int value) { m_encryptionSystem = value; }
-
-      int GetTvgShift() const { return m_tvgShift; }
-      void SetTvgShift(int value) { m_tvgShift = value; }
 
       const std::string& GetChannelName() const { return m_channelName; }
       void SetChannelName(const std::string& value) { m_channelName = value; }
@@ -111,11 +105,6 @@ namespace iptvsimple
       const std::string& GetTvgId() const { return m_tvgId; }
       void SetTvgId(const std::string& value) { m_tvgId = value; }
 
-      const std::string& GetTvgName() const { return m_tvgName; }
-      void SetTvgName(const std::string& value) { m_tvgName = value; }
-
-      bool SupportsLiveStreamTimeshifting() const;
-
       const std::map<std::string, std::string>& GetProperties() const { return m_properties; }
       void SetProperties(std::map<std::string, std::string>& value) { m_properties = value; }
       void AddProperty(const std::string& prop, const std::string& value) { m_properties.insert({prop, value}); }
@@ -144,8 +133,6 @@ namespace iptvsimple
       int m_uniqueId = 0;
       int m_channelNumber = 0;
       int m_subChannelNumber = 0;
-      int m_encryptionSystem = 0;
-      int m_tvgShift = 0;
       std::string m_channelName = "";
       std::string m_iconPath = "";
       std::string m_streamURL = "";
@@ -159,7 +146,6 @@ namespace iptvsimple
       int m_catchupGranularitySeconds = 1;
       int m_catchupCorrectionSecs = 0;
       std::string m_tvgId = "";
-      std::string m_tvgName = "";
 
       std::map<std::string, std::string> m_properties;
       std::string m_inputStreamName;

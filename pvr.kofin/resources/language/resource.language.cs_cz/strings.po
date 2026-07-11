@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Otestovat připojení"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "Překódovat H264 10bitový (Hi10P)"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Vynutí překódování obsahu H264 10bitový. Povolte, pokud vaše zařízení nepodporuje dekódování Hi10P."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "Překódovat rozšíření rozsahu HEVC"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Vynutí překódování obsahu HEVC s profily rozšíření rozsahu (4:2:2, 4:4:4). Povolte, pokud vaše zařízení podporuje pouze Main a Main 10."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Nastavení Kofin PVR"
@@ -337,30 +321,6 @@ msgstr "Povolit catchup (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Povolí catchup/archivní televizi, pokud ji váš poskytovatel podporuje. Funguje pouze s přímým přehráváním, takže vynucený remux musí být vypnutý a datový tok nastaven na „neomezeno“. Vyžaduje referenční soubor M3U (nakonfigurovaný v sekci Pokročilé), který odpovídá názvům vašich kanálů Jellyfin a obsahuje značky catchup, které Jellyfin vynechává."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "Umístění referenčního M3U"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Vyberte, zda je referenční soubor M3U uložen místně, nebo přístupný přes URL."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Referenční soubor M3U"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "Cesta k referenčnímu souboru M3U v místním systému souborů."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "URL referenčního M3U"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "URL referenčního souboru M3U."
 
 msgctxt "#30739"
 msgid "Query format string"

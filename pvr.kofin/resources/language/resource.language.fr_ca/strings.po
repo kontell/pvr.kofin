@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Tester la connexion"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "Transcoder le H264 10 bits (Hi10P)"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Force le transcodage du contenu H264 10 bits. Activez cette option si votre appareil ne prend pas en charge le décodage Hi10P."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "Transcoder les extensions de plage HEVC"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Force le transcodage du contenu HEVC avec profils d'extensions de plage (4:2:2, 4:4:4). Activez cette option si votre appareil ne prend en charge que Main et Main 10."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Paramètres Kofin PVR"
@@ -337,30 +321,6 @@ msgstr "Activer le rattrapage (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Active la TV de rattrapage/archive si votre fournisseur la prend en charge. Ne fonctionne qu'avec la lecture directe : le remuxage forcé doit donc être désactivé et le débit réglé sur illimité. Nécessite un fichier M3U de référence (configuré dans la section Avancé) qui correspond aux noms de vos chaînes Jellyfin et contient les balises de rattrapage omises par Jellyfin."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "Emplacement du M3U de référence"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Choisissez si le fichier M3U de référence est stocké localement ou accessible via une URL."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Fichier M3U de référence"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "Chemin vers le fichier M3U de référence sur le système de fichiers local."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "URL du M3U de référence"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "URL du fichier M3U de référence."
 
 msgctxt "#30739"
 msgid "Query format string"

@@ -293,22 +293,6 @@ msgctxt "#30717"
 msgid "Test Connection"
 msgstr "Δοκιμή σύνδεσης"
 
-msgctxt "#30720"
-msgid "Transcode H264 10-bit (Hi10P)"
-msgstr "Επανακωδικοποίηση H264 10-bit (Hi10P)"
-
-msgctxt "#30721"
-msgid "Force transcoding of H264 10-bit content. Enable if your device doesn't support Hi10P decoding."
-msgstr "Εξαναγκάζει την επανακωδικοποίηση περιεχομένου H264 10-bit. Ενεργοποιήστε το εάν η συσκευή σας δεν υποστηρίζει αποκωδικοποίηση Hi10P."
-
-msgctxt "#30722"
-msgid "Transcode HEVC range extensions"
-msgstr "Επανακωδικοποίηση επεκτάσεων εύρους HEVC"
-
-msgctxt "#30723"
-msgid "Force transcoding of HEVC content with range extension profiles (4:2:2, 4:4:4). Enable if your device only supports Main and Main 10."
-msgstr "Εξαναγκάζει την επανακωδικοποίηση περιεχομένου HEVC με προφίλ επεκτάσεων εύρους (4:2:2, 4:4:4). Ενεργοποιήστε το εάν η συσκευή σας υποστηρίζει μόνο Main και Main 10."
-
 msgctxt "#30724"
 msgid "Kofin PVR Settings"
 msgstr "Ρυθμίσεις Kofin PVR"
@@ -337,30 +321,6 @@ msgstr "Ενεργοποίηση catchup (IPTV)"
 msgctxt "#30732"
 msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr "Ενεργοποιεί την τηλεόραση catchup/αρχείου εάν υποστηρίζεται από τον πάροχό σας. Λειτουργεί μόνο με άμεση αναπαραγωγή, επομένως ο εξαναγκασμός remux πρέπει να είναι απενεργοποιημένος και ο ρυθμός μετάδοσης να έχει οριστεί σε απεριόριστο. Απαιτεί ένα αρχείο αναφοράς M3U (διαμορφωμένο στην ενότητα Για προχωρημένους) που αντιστοιχεί στα ονόματα των καναλιών σας Jellyfin και περιέχει ετικέτες catchup που παραλείπονται από το Jellyfin."
-
-msgctxt "#30733"
-msgid "Reference M3U location"
-msgstr "Τοποθεσία του M3U αναφοράς"
-
-msgctxt "#30734"
-msgid "Choose whether the reference M3U file is stored locally or accessed via a URL."
-msgstr "Επιλέξτε αν το αρχείο αναφοράς M3U αποθηκεύεται τοπικά ή προσπελάζεται μέσω διεύθυνσης URL."
-
-msgctxt "#30735"
-msgid "Reference M3U file"
-msgstr "Αρχείο αναφοράς M3U"
-
-msgctxt "#30736"
-msgid "Path to the reference M3U file on the local filesystem."
-msgstr "Διαδρομή προς το αρχείο αναφοράς M3U στο τοπικό σύστημα αρχείων."
-
-msgctxt "#30737"
-msgid "Reference M3U URL"
-msgstr "Διεύθυνση URL του M3U αναφοράς"
-
-msgctxt "#30738"
-msgid "URL of the reference M3U file."
-msgstr "Διεύθυνση URL του αρχείου αναφοράς M3U."
 
 msgctxt "#30739"
 msgid "Query format string"

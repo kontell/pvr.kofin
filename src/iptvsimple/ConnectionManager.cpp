@@ -91,8 +91,6 @@ void ConnectionManager::SetState(PVR_CONNECTION_STATE state)
 
   if (prevState != newState)
   {
-    static std::string serverString;
-
     if (newState == PVR_CONNECTION_STATE_SERVER_UNREACHABLE)
     {
       m_connectionListener.ConnectionLost();
@@ -112,13 +110,6 @@ void ConnectionManager::Disconnect()
   std::lock_guard<std::mutex> lock(m_mutex);
 
   m_connectionListener.ConnectionLost();
-}
-
-void ConnectionManager::Reconnect()
-{
-  // Setting this state will cause Iptvsimple to receive a connetionLost event
-  // The connection manager will then connect again causeing a reload of all state
-  SetState(PVR_CONNECTION_STATE_SERVER_UNREACHABLE);
 }
 
 void ConnectionManager::Process()
