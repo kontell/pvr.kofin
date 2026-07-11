@@ -639,18 +639,17 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (!GetChannel(tag.GetUniqueChannelId(), channel) || !channel.IsCatchupSupported())
     return PVR_ERROR_FAILED;
 
-  // Resolve the direct play URL for this channel (with KofinProps overrides).
-  // Same global-inputstream fallback as the live channel path.
+  // Catchup only works via inputstream.ffmpegdirect over the raw tuner URL
+  // (the catchup-source template shifts that URL into the past), so pin the
+  // whole pipeline to direct play + ffmpegdirect regardless of the global or
+  // per-channel transcode/bitrate/inputstream settings. Those settings keep
+  // applying to live-channel playback (GetChannelStreamProperties).
   auto epgOverrides = iptvsimple::jellyfin::ChannelOverrides::FromChannel(channel);
-  if (!epgOverrides.inputstream)
-  {
-    switch (m_settings->GetInputStream())
-    {
-      case 0: epgOverrides.inputstream = "inputstream.ffmpegdirect"; break;
-      case 1: epgOverrides.inputstream = "inputstream.adaptive"; break;
-      case 2: epgOverrides.inputstream = "inputstream.ffmpeg"; break;
-    }
-  }
+  epgOverrides.forceDirectPlay = true;
+  epgOverrides.forceRemux = false;
+  epgOverrides.forceTranscode = false;
+  epgOverrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
+  epgOverrides.inputstream = "inputstream.ffmpegdirect";
   std::string streamURL;
   if (m_channelLoader)
   {

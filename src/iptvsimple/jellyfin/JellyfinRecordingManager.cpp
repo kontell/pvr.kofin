@@ -23,6 +23,14 @@ using namespace iptvsimple;
 using namespace iptvsimple::jellyfin;
 using namespace iptvsimple::utilities;
 
+namespace
+{
+// A recording that leaves the in-progress state more than this many seconds
+// before its scheduled end is reported as stopped prematurely. The margin
+// absorbs the 60s poll cadence and end-time jitter around a natural finish.
+constexpr time_t PREMATURE_STOP_MARGIN_SECS = 120;
+} // unnamed namespace
+
 JellyfinRecordingManager::JellyfinRecordingManager(
     std::shared_ptr<JellyfinClient> client,
     std::shared_ptr<JellyfinChannelLoader> channelLoader,
@@ -870,6 +878,21 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   Json::Value response = m_client->SendGet(endpoint);
 
   std::lock_guard<std::mutex> lock(m_mutex);
+
+  if (response.isNull() || !response.isMember("Items"))
+  {
+    // Keep the previous model and the premature-stop snapshot: a transient
+    // fetch failure must not blank the recordings list, nor make every active
+    // recording look "stopped early" on the next successful poll.
+    Logger::Log(LEVEL_WARNING, "%s - Failed to load recordings, keeping previous data", __FUNCTION__);
+    return PVR_ERROR_SERVER_ERROR;
+  }
+
+  // Previous poll's in-progress set; diffed after the rebuild below to detect
+  // recordings that stopped before their scheduled end.
+  const std::map<std::string, InProgressInfo> previousInProgress = std::move(m_inProgressSnapshot);
+  m_inProgressSnapshot.clear();
+
   m_recordings.clear();
   m_recordingUidToId.clear();
   m_inProgressRecordingIds.clear();
@@ -995,6 +1018,11 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
       time_t start = ParseIso8601(item["StartDate"].asString());
       time_t end = ParseIso8601(item["EndDate"].asString());
       recording.SetDuration(static_cast<int>(end - start));
+      // EndDate of an in-progress recording is the *scheduled* end; once the
+      // recording completes the field goes null (only RunTimeTicks remains),
+      // so it has to be remembered now for the premature-stop check.
+      if (inProgress)
+        m_inProgressSnapshot[jellyfinId] = {item.get("Name", "").asString(), end};
     }
     else if (item.isMember("RunTimeTicks"))
     {
@@ -1047,6 +1075,26 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
       recording.SetDirectory(item["SeriesName"].asString());
 
     m_recordings.emplace_back(recording);
+  }
+
+  // A recording that was in progress last poll and no longer is — whether it
+  // flipped to completed or vanished — while its scheduled end is still
+  // comfortably in the future was stopped early (tuner drop, server-side
+  // cancel, disk full, ...). Snapshot entries live for exactly one poll, so
+  // each premature stop is reported once. Toasts render over fullscreen
+  // playback, so this also covers "stopped while being watched".
+  const time_t now = std::time(nullptr);
+  for (const auto& entry : previousInProgress)
+  {
+    if (m_inProgressRecordingIds.count(entry.first) == 0 &&
+        entry.second.scheduledEnd - now > PREMATURE_STOP_MARGIN_SECS)
+    {
+      Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
+                  __FUNCTION__, entry.second.name.c_str(),
+                  static_cast<long>((entry.second.scheduledEnd - now) / 60));
+      kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR",
+                              kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
+    }
   }
 
   Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings (%d in-progress)", __FUNCTION__,

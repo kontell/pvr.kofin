@@ -334,7 +334,7 @@ msgid "Enable catchup (IPTV)"
 msgstr ""
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgid "Enable catchup/archive TV if supported by your provider. Catchup always plays through inputstream.ffmpegdirect with direct play, regardless of the transcoding, bitrate and inputstream settings — those still apply when watching the channel live. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr ""
 
 msgctxt "#30733"
@@ -648,4 +648,9 @@ msgstr ""
 
 msgctxt "#30829"
 msgid "Unlimited"
+msgstr ""
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
 msgstr ""
