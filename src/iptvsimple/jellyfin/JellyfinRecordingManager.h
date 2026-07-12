@@ -11,6 +11,7 @@
 #include "JellyfinClient.h"
 #include "JellyfinChannelLoader.h"
 
+#include <cstdint>
 #include <memory>
 #include <mutex>
 #include <set>
@@ -33,6 +34,17 @@ enum TimerTypeId
   TIMER_ONCE_CREATED_BY_SERIES = 2,  // Child of series timer (read-only)
   TIMER_SERIES = 3,                  // Series recording rule
   TIMER_ONCE_MANUAL = 4              // Manual recording (channel + time, no EPG)
+};
+
+// What a Reload() actually changed, as a bit mask. The poll loop only refreshes
+// the halves of Kodi's UI that moved: an unconditional refresh re-renders the
+// Live TV widgets (visible flicker) on every poll, even when the server had
+// nothing new to report, which is the common case.
+enum ReloadChange
+{
+  RELOAD_CHANGE_NONE = 0,
+  RELOAD_CHANGE_TIMERS = 1 << 0, // timers and/or series timers
+  RELOAD_CHANGE_RECORDINGS = 1 << 1
 };
 
 class ATTR_DLL_LOCAL JellyfinRecordingManager
@@ -77,8 +89,10 @@ public:
   bool HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const;
   std::string GetRecordingIdForEpg(unsigned int broadcastUid, int channelUid) const;
 
-  // Reload cached data from Jellyfin
-  void Reload();
+  // Reload cached data from Jellyfin. Returns a ReloadChange mask describing
+  // which parts of the model differ from the previous reload; callers acting on
+  // a user action (add/delete timer, ...) ignore it and refresh unconditionally.
+  int Reload();
 
 private:
   PVR_ERROR LoadTimers();
@@ -95,6 +109,14 @@ private:
 
   // Same as HasRecordingForEpg but assumes m_mutex is already held.
   bool HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const;
+
+  // Hash the fields Kodi renders, so Reload() can tell a real change from a
+  // poll that returned the same data. Must cover every field set by
+  // Load{Timers,SeriesTimers,Recordings}Internal — a field hashed here but not
+  // set there is harmless, one set there but missed here makes that change
+  // invisible to the UI until something else moves.
+  static uint64_t FingerprintTimer(const kodi::addon::PVRTimer& timer);
+  static uint64_t FingerprintRecording(const kodi::addon::PVRRecording& recording);
 
   static int GenerateUid(const std::string& str);
   static time_t ParseIso8601(const std::string& dateStr);
@@ -126,6 +148,13 @@ private:
   std::vector<kodi::addon::PVRTimer> m_timers;
   std::vector<kodi::addon::PVRTimer> m_seriesTimers;
   std::vector<kodi::addon::PVRRecording> m_recordings;
+
+  // Fingerprints of the model as of the previous Reload(), for the change
+  // detection above. Timers and series timers share one — both feed Kodi's
+  // timer views, so they refresh together either way.
+  uint64_t m_timersFingerprint{0};
+  uint64_t m_recordingsFingerprint{0};
+  bool m_fingerprintsValid{false};
 
   mutable std::mutex m_mutex;
 
