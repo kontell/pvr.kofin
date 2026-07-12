@@ -377,12 +377,31 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
 {
   if (GetChannel(channel, m_currentChannel))
   {
+    // Play-EPG-as-live catchup: GetEPGTagStreamProperties stored the timeshifted
+    // programme state and returned EPGPLAYBACKASLIVE=true, so Kodi is opening the
+    // channel to consume it here. Catchup can only shift into the past over the
+    // raw tuner URL via ffmpegdirect, so pin the whole pipeline to direct play +
+    // ffmpegdirect (matching GetEPGTagStreamProperties) regardless of the global
+    // transcode/bitrate/inputstream settings — otherwise the URL resolves to a
+    // live-only Jellyfin transcode stream that can't seek back to the programme.
+    const bool pendingTimeshiftedCatchup = m_catchupController &&
+        m_catchupController->IsPendingTimeshiftedEpgPlayback() &&
+        m_currentChannel.IsCatchupSupported();
+
     // Resolve live stream URL from Jellyfin via PlaybackInfo (with KofinProps overrides).
     // If the channel didn't pin an inputstream via M3U, fall back to the global
     // setting so BuildDeviceProfile / PostProcessTranscodingUrl pick the right
     // container + URL endpoint for the actual inputstream Kodi will use.
     auto overrides = iptvsimple::jellyfin::ChannelOverrides::FromChannel(m_currentChannel);
-    if (!overrides.inputstream)
+    if (pendingTimeshiftedCatchup)
+    {
+      overrides.forceDirectPlay = true;
+      overrides.forceRemux = false;
+      overrides.forceTranscode = false;
+      overrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
+      overrides.inputstream = "inputstream.ffmpegdirect";
+    }
+    else if (!overrides.inputstream)
     {
       switch (m_settings->GetInputStream())
       {
@@ -434,12 +453,19 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // CatchupController is persistent — if GetEPGTagStreamProperties was called
     // first, it stored the programme times and ProcessChannelForPlayback will
     // use them (same pattern as pvr.iptvsimple).
-    const bool useFfmpegDirect = !channelInputstream.empty()
+    bool useFfmpegDirect = !channelInputstream.empty()
       ? channelInputstream == "inputstream.ffmpegdirect"
       : inputStream == 0;
-    const bool useAdaptive = !channelInputstream.empty()
+    bool useAdaptive = !channelInputstream.empty()
       ? channelInputstream == "inputstream.adaptive"
       : inputStream == 1;
+    if (pendingTimeshiftedCatchup)
+    {
+      // Catchup replays only through ffmpegdirect — override any M3U/global
+      // inputstream choice so the catchup branch below is taken.
+      useFfmpegDirect = true;
+      useAdaptive = false;
+    }
 
     if (isDirectPlay && useFfmpegDirect && m_currentChannel.IsCatchupSupported())
     {

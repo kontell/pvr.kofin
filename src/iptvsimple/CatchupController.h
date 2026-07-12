@@ -35,6 +35,14 @@ public:
   std::string ProcessStreamUrl(const data::Channel& channel) const;
 
   bool ControlsLiveStream() const { return m_controlsLiveStream; }
+
+  // True between a timeshifted (play-EPG-as-live) EPG-tag call and the channel
+  // playback that consumes it. GetChannelStreamProperties reads this to pin the
+  // catchup pipeline to direct play + ffmpegdirect regardless of the global
+  // transcode/bitrate/inputstream settings — the state is only consumed once
+  // ProcessChannelForPlayback runs.
+  bool IsPendingTimeshiftedEpgPlayback() const { return m_fromTimeshiftedEpgTagCall; }
+
   void ResetCatchupState()
   {
     // Don't reset if we just processed a timeshifted EPG tag — the state
