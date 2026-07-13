@@ -309,14 +309,28 @@ void IptvSimple::Process()
     // without a restart (EPG recording indicators, widgets, etc.). The
     // cadence is a setting (Advanced, clamped in ReadSettings), re-read
     // every pass so a change applies without an addon restart.
+    //
+    // Refresh only what the poll actually changed: a Trigger*Update makes Kodi
+    // re-read the model and re-render the Live TV widgets, so firing both every
+    // pass flickered the UI on a fixed cadence even when the server had nothing
+    // new. Reload() diffs the rebuilt model against the previous one and most
+    // polls now come back RELOAD_CHANGE_NONE.
     if (m_running && loggedIn && m_recordingManager &&
         timerRecordingPollTimer >= static_cast<unsigned int>(m_settings->GetTimerRecordingPollSecs()))
     {
       timerRecordingPollTimer = 0;
       Logger::Log(LEVEL_DEBUG, "%s - Polling timers/recordings", __FUNCTION__);
-      m_recordingManager->Reload();
-      TriggerTimerUpdate();
-      TriggerRecordingUpdate();
+
+      const int changed = m_recordingManager->Reload();
+      if (changed & jellyfin::RELOAD_CHANGE_TIMERS)
+        TriggerTimerUpdate();
+      if (changed & jellyfin::RELOAD_CHANGE_RECORDINGS)
+        TriggerRecordingUpdate();
+
+      if (changed != jellyfin::RELOAD_CHANGE_NONE)
+        Logger::Log(LEVEL_DEBUG, "%s - Poll changed timers=%s recordings=%s", __FUNCTION__,
+                    (changed & jellyfin::RELOAD_CHANGE_TIMERS) ? "yes" : "no",
+                    (changed & jellyfin::RELOAD_CHANGE_RECORDINGS) ? "yes" : "no");
     }
 
     if (m_running && loggedIn && m_reloadChannelsGroupsAndEPG)

@@ -29,6 +29,23 @@ namespace
 // before its scheduled end is reported as stopped prematurely. The margin
 // absorbs the 60s poll cadence and end-time jitter around a natural finish.
 constexpr time_t PREMATURE_STOP_MARGIN_SECS = 120;
+
+// FNV-1a, for the model fingerprints.
+uint64_t HashString(const std::string& str)
+{
+  uint64_t hash = 14695981039346656037ULL;
+  for (const unsigned char c : str)
+  {
+    hash ^= c;
+    hash *= 1099511628211ULL;
+  }
+  return hash;
+}
+
+void HashCombine(uint64_t& hash, uint64_t value)
+{
+  hash ^= value + 0x9e3779b97f4a7c15ULL + (hash << 6) + (hash >> 2);
+}
 } // unnamed namespace
 
 JellyfinRecordingManager::JellyfinRecordingManager(
@@ -583,7 +600,7 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
  * Data Loading
  **************************************************************************/
 
-void JellyfinRecordingManager::Reload()
+int JellyfinRecordingManager::Reload()
 {
   LoadTimers();
   LoadSeriesTimers();
@@ -606,6 +623,86 @@ void JellyfinRecordingManager::Reload()
       timer.SetState(PVR_TIMER_STATE_SCHEDULED);
     }
   }
+
+  // Fingerprint the rebuilt model. Per-item hashes are summed, not chained, so
+  // a reordered server response doesn't read as a change; the item count is
+  // folded in afterwards so an add plus a remove can't cancel out. Runs after
+  // the state fixup above, which is itself part of what Kodi renders.
+  uint64_t timersFingerprint = 0;
+  for (const auto& timer : m_timers)
+    timersFingerprint += FingerprintTimer(timer);
+  for (const auto& timer : m_seriesTimers)
+    timersFingerprint += FingerprintTimer(timer);
+  HashCombine(timersFingerprint, m_timers.size());
+  HashCombine(timersFingerprint, m_seriesTimers.size());
+
+  uint64_t recordingsFingerprint = 0;
+  for (const auto& recording : m_recordings)
+    recordingsFingerprint += FingerprintRecording(recording);
+  HashCombine(recordingsFingerprint, m_recordings.size());
+
+  // First reload after a (re)connect reports everything as changed: Kodi's view
+  // of the model is unknown at that point, so it has to be refreshed once.
+  int changed = RELOAD_CHANGE_NONE;
+  if (!m_fingerprintsValid || timersFingerprint != m_timersFingerprint)
+    changed |= RELOAD_CHANGE_TIMERS;
+  if (!m_fingerprintsValid || recordingsFingerprint != m_recordingsFingerprint)
+    changed |= RELOAD_CHANGE_RECORDINGS;
+
+  m_timersFingerprint = timersFingerprint;
+  m_recordingsFingerprint = recordingsFingerprint;
+  m_fingerprintsValid = true;
+
+  return changed;
+}
+
+uint64_t JellyfinRecordingManager::FingerprintTimer(const kodi::addon::PVRTimer& timer)
+{
+  uint64_t hash = 0;
+  HashCombine(hash, timer.GetClientIndex());
+  HashCombine(hash, timer.GetParentClientIndex());
+  HashCombine(hash, timer.GetTimerType());
+  HashCombine(hash, static_cast<uint64_t>(timer.GetState()));
+  HashCombine(hash, HashString(timer.GetTitle()));
+  HashCombine(hash, HashString(timer.GetSummary()));
+  HashCombine(hash, static_cast<uint64_t>(timer.GetClientChannelUid()));
+  HashCombine(hash, static_cast<uint64_t>(timer.GetStartTime()));
+  HashCombine(hash, static_cast<uint64_t>(timer.GetEndTime()));
+  HashCombine(hash, timer.GetMarginStart());
+  HashCombine(hash, timer.GetMarginEnd());
+  HashCombine(hash, timer.GetEPGUid());
+  HashCombine(hash, timer.GetWeekdays());
+  HashCombine(hash, timer.GetPreventDuplicateEpisodes());
+  return hash;
+}
+
+uint64_t JellyfinRecordingManager::FingerprintRecording(const kodi::addon::PVRRecording& recording)
+{
+  // Note what is *not* here: an in-progress recording's duration comes from its
+  // scheduled EndDate (see LoadRecordingsInternal), not from a server-side
+  // counter that ticks up every poll, so a recording in progress holds a stable
+  // fingerprint for its whole run rather than refreshing the UI every interval.
+  uint64_t hash = 0;
+  HashCombine(hash, HashString(recording.GetRecordingId()));
+  HashCombine(hash, HashString(recording.GetTitle()));
+  HashCombine(hash, HashString(recording.GetEpisodeName()));
+  HashCombine(hash, HashString(recording.GetPlot()));
+  HashCombine(hash, HashString(recording.GetChannelName()));
+  HashCombine(hash, HashString(recording.GetIconPath()));
+  HashCombine(hash, HashString(recording.GetDirectory()));
+  HashCombine(hash, HashString(recording.GetFirstAired()));
+  HashCombine(hash, HashString(recording.GetGenreDescription()));
+  HashCombine(hash, recording.GetFlags());
+  HashCombine(hash, recording.GetEPGEventId());
+  HashCombine(hash, static_cast<uint64_t>(recording.GetChannelUid()));
+  HashCombine(hash, static_cast<uint64_t>(recording.GetRecordingTime()));
+  HashCombine(hash, static_cast<uint64_t>(recording.GetDuration()));
+  HashCombine(hash, static_cast<uint64_t>(recording.GetSeriesNumber()));
+  HashCombine(hash, static_cast<uint64_t>(recording.GetEpisodeNumber()));
+  HashCombine(hash, static_cast<uint64_t>(recording.GetYear()));
+  HashCombine(hash, static_cast<uint64_t>(recording.GetPlayCount()));
+  HashCombine(hash, static_cast<uint64_t>(recording.GetLastPlayedPosition()));
+  return hash;
 }
 
 bool JellyfinRecordingManager::HasRecordingForEpg(unsigned int broadcastUid, int channelUid) const
@@ -655,16 +752,21 @@ PVR_ERROR JellyfinRecordingManager::LoadTimersInternal()
   Json::Value response = m_client->SendGet(endpoint);
 
   std::lock_guard<std::mutex> lock(m_mutex);
+
+  // Keep the previous model on a failed fetch, as LoadRecordings does: a server
+  // with no timers still answers with an empty Items array, so a missing Items
+  // means the request failed, and blanking the list on a transient blip made
+  // every timer vanish from the UI until the next poll.
+  if (response.isNull() || !response.isMember("Items"))
+  {
+    Logger::Log(LEVEL_WARNING, "%s - Failed to load timers, keeping previous data", __FUNCTION__);
+    return PVR_ERROR_SERVER_ERROR;
+  }
+
   m_timers.clear();
   m_timerUidToId.clear();
   m_timerNameToProgramId.clear();
   m_timerNameToChannelUid.clear();
-
-  if (response.isNull() || !response.isMember("Items"))
-  {
-    Logger::Log(LEVEL_WARNING, "%s - No timer data from Jellyfin", __FUNCTION__);
-    return PVR_ERROR_NO_ERROR;
-  }
 
   const Json::Value& items = response["Items"];
 
@@ -792,14 +894,17 @@ PVR_ERROR JellyfinRecordingManager::LoadSeriesTimersInternal()
   Json::Value response = m_client->SendGet(endpoint);
 
   std::lock_guard<std::mutex> lock(m_mutex);
-  m_seriesTimers.clear();
-  m_seriesTimerUidToId.clear();
 
+  // Keep the previous model on a failed fetch — see LoadTimersInternal.
   if (response.isNull() || !response.isMember("Items"))
   {
-    Logger::Log(LEVEL_WARNING, "%s - No series timer data from Jellyfin", __FUNCTION__);
-    return PVR_ERROR_NO_ERROR;
+    Logger::Log(LEVEL_WARNING, "%s - Failed to load series timers, keeping previous data",
+                __FUNCTION__);
+    return PVR_ERROR_SERVER_ERROR;
   }
+
+  m_seriesTimers.clear();
+  m_seriesTimerUidToId.clear();
 
   const Json::Value& items = response["Items"];
 
