@@ -49,7 +49,7 @@
   "#30727": "Połączenie z serwerem używa nieszyfrowanego HTTP w sieci niebędącej siecią prywatną. Zalecany jest HTTPS.",
   "#30730": "Catchup",
   "#30731": "Włącz catchup (IPTV)",
-  "#30732": "Włącza telewizję catchup/archiwum, jeśli obsługuje ją Twój dostawca. Działa tylko z odtwarzaniem bezpośrednim, więc wymuszanie remuksowania musi być wyłączone, a przepływność ustawiona na „bez ograniczeń”. Wymaga referencyjnego pliku M3U (skonfigurowanego w sekcji Zaawansowane), który odpowiada nazwom Twoich kanałów Jellyfin i zawiera znaczniki catchup pomijane przez Jellyfin.",
+  "#30732": "Włącza catchup/archiwum, jeśli obsługuje je Twój dostawca. Odtwarzanie catchupu zawsze odbywa się przez inputstream.ffmpegdirect w trybie odtwarzania bezpośredniego. Wymaga referencyjnego pliku M3U (zobacz sekcję Zaawansowane), który pasuje do nazw Twoich kanałów Jellyfin i zawiera znaczniki catchup pomijane przez Jellyfin.",
   "#30739": "Ciąg formatujący zapytania",
   "#30740": "Zależny od dostawcy ciąg formatujący dla adresów URL catchup. Używany domyślnie, gdy kanały nie określają własnego catchup-source. Np. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Okno catchup (dni)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (rezerwa SDR)",
   "#30822": "Maksymalna rozdzielczość",
   "#30823": "Ogranicza wideo według szerokości; źródła o wyższej rozdzielczości są skalowane w dół przez serwer. Brak wpływu, gdy włączone jest „Wymuś odtwarzanie bezpośrednie”.",
-  "#30829": "Bez ograniczeń"
+  "#30829": "Bez ograniczeń",
+  "#30830": "Nagrywanie zakończone przedwcześnie",
+  "#30831": "Interwał odpytywania timerów/nagrań",
+  "#30832": "Liczba sekund między odpytaniami serwera Jellyfin o zmiany timerów i nagrań (nagrania zaplanowane lub zakończone w innym miejscu, wskaźniki nagrywania w EPG, widżety). Ograniczone do zakresu od 15 do 3600."
 }

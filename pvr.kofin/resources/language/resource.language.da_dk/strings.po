@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Aktivér catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Aktiverer catchup-/arkiv-tv, hvis din udbyder understøtter det. Virker kun med direkte afspilning, så tvungen remuxning skal være deaktiveret, og bithastigheden skal være indstillet til ubegrænset. Kræver en reference-M3U-fil (konfigureret i afsnittet Avanceret), der matcher dine Jellyfin-kanalnavne og indeholder catchup-tags, som udelades af Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Aktiverer catchup/arkiv, hvis din udbyder understøtter det. Catchup-afspilning sker altid via inputstream.ffmpegdirect med direkte afspilning. Kræver en reference-M3U-fil (se afsnittet Avanceret), der matcher dine Jellyfin-kanalnavne og indeholder catchup-tags, som Jellyfin udelader."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Ubegrænset"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Optagelsen stoppede for tidligt"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Pollinginterval for timere/optagelser"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Sekunder mellem forespørgsler til Jellyfin-serveren om ændringer i timere og optagelser (optagelser planlagt eller afsluttet et andet sted, optageindikatorer i EPG'en, widgets). Begrænset til mellem 15 og 3600."

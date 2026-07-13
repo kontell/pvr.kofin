@@ -49,7 +49,7 @@
   "#30727": "Die Serververbindung nutzt unverschlüsseltes HTTP über ein nicht privates Netzwerk. HTTPS wird empfohlen.",
   "#30730": "Catchup",
   "#30731": "Catchup aktivieren (IPTV)",
-  "#30732": "Aktiviert Catchup-/Archiv-TV, sofern dein Anbieter dies unterstützt. Funktioniert nur mit Direktwiedergabe, daher muss „Remuxing erzwingen“ deaktiviert und die Bitrate auf „Unbegrenzt“ gesetzt sein. Erfordert eine Referenz-M3U-Datei (im Bereich „Erweitert“ konfiguriert), die mit deinen Jellyfin-Kanalnamen übereinstimmt und Catchup-Tags enthält, die von Jellyfin weggelassen werden.",
+  "#30732": "Aktiviert Catchup/Archiv, sofern dein Anbieter dies unterstützt. Die Catchup-Wiedergabe erfolgt immer über inputstream.ffmpegdirect mit Direktwiedergabe. Erfordert eine Referenz-M3U-Datei (siehe Bereich „Erweitert“), die mit deinen Jellyfin-Kanalnamen übereinstimmt und Catchup-Tags enthält, die von Jellyfin weggelassen werden.",
   "#30739": "Abfrage-Formatstring",
   "#30740": "Ein anbieterabhängiger Formatstring für Catchup-URLs. Wird als Standard verwendet, wenn Kanäle keine eigene catchup-source angeben. Z. B. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catchup-Zeitfenster (Tage)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (SDR-Fallback)",
   "#30822": "Maximale Auflösung",
   "#30823": "Begrenzt das Video anhand der Breite; höher aufgelöste Quellen werden vom Server herunterskaliert. Keine Auswirkung, wenn „Direktwiedergabe erzwingen“ aktiviert ist.",
-  "#30829": "Unbegrenzt"
+  "#30829": "Unbegrenzt",
+  "#30830": "Aufnahme vorzeitig beendet",
+  "#30831": "Abfrageintervall für Timer/Aufnahmen",
+  "#30832": "Sekunden zwischen Abfragen des Jellyfin-Servers nach Änderungen an Timern und Aufnahmen (anderswo geplante oder beendete Aufnahmen, Aufnahmeindikatoren im EPG, Widgets). Begrenzt auf 15 bis 3600."
 }

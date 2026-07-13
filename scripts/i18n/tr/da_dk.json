@@ -49,7 +49,7 @@
   "#30727": "Serverforbindelsen bruger ukrypteret HTTP over et ikke-privat netværk. HTTPS anbefales.",
   "#30730": "Catchup",
   "#30731": "Aktivér catchup (IPTV)",
-  "#30732": "Aktiverer catchup-/arkiv-tv, hvis din udbyder understøtter det. Virker kun med direkte afspilning, så tvungen remuxning skal være deaktiveret, og bithastigheden skal være indstillet til ubegrænset. Kræver en reference-M3U-fil (konfigureret i afsnittet Avanceret), der matcher dine Jellyfin-kanalnavne og indeholder catchup-tags, som udelades af Jellyfin.",
+  "#30732": "Aktiverer catchup/arkiv, hvis din udbyder understøtter det. Catchup-afspilning sker altid via inputstream.ffmpegdirect med direkte afspilning. Kræver en reference-M3U-fil (se afsnittet Avanceret), der matcher dine Jellyfin-kanalnavne og indeholder catchup-tags, som Jellyfin udelader.",
   "#30739": "Formatstreng til forespørgsel",
   "#30740": "En udbyderafhængig formatstreng til catchup-URL'er. Bruges som standard, når kanaler ikke angiver deres egen catchup-source. F.eks. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catchup-vindue (dage)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (SDR-reserve)",
   "#30822": "Maksimal opløsning",
   "#30823": "Begrænser videoen efter bredde; kilder med højere opløsning nedskaleres af serveren. Ingen effekt, når Tving direkte afspilning er slået til.",
-  "#30829": "Ubegrænset"
+  "#30829": "Ubegrænset",
+  "#30830": "Optagelsen stoppede for tidligt",
+  "#30831": "Pollinginterval for timere/optagelser",
+  "#30832": "Sekunder mellem forespørgsler til Jellyfin-serveren om ændringer i timere og optagelser (optagelser planlagt eller afsluttet et andet sted, optageindikatorer i EPG'en, widgets). Begrænset til mellem 15 og 3600."
 }

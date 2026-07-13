@@ -49,7 +49,7 @@
   "#30727": "La connexion au serveur utilise HTTP non chiffré sur un réseau non privé. HTTPS est recommandé.",
   "#30730": "TV de rattrapage",
   "#30731": "Activer le rattrapage (IPTV)",
-  "#30732": "Active la TV de rattrapage/archive si votre fournisseur la prend en charge. Ne fonctionne qu'avec la lecture directe : le remuxage forcé doit donc être désactivé et le débit réglé sur illimité. Nécessite un fichier M3U de référence (configuré dans la section Avancé) qui correspond aux noms de vos chaînes Jellyfin et contient les balises de rattrapage omises par Jellyfin.",
+  "#30732": "Active le rattrapage/l'archive si votre fournisseur le prend en charge. La lecture en rattrapage passe toujours par inputstream.ffmpegdirect en lecture directe. Nécessite un fichier M3U de référence (voir la section Avancé) qui correspond aux noms de vos chaînes Jellyfin et qui contient les balises de rattrapage, omises par Jellyfin.",
   "#30739": "Chaîne de format de requête",
   "#30740": "Une chaîne de format dépendant du fournisseur pour les URL de rattrapage. Utilisée par défaut lorsque les chaînes ne spécifient pas leur propre catchup-source. Ex. : &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Fenêtre de rattrapage (jours)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (repli SDR)",
   "#30822": "Résolution maximale",
   "#30823": "Limite la vidéo par sa largeur ; les sources de résolution supérieure sont réduites par le serveur. Sans effet lorsque « Forcer la lecture directe » est activé.",
-  "#30829": "Illimité"
+  "#30829": "Illimité",
+  "#30830": "Enregistrement interrompu prématurément",
+  "#30831": "Intervalle d'interrogation des programmations/enregistrements",
+  "#30832": "Secondes entre deux interrogations du serveur Jellyfin pour détecter les changements de programmations et d'enregistrements (enregistrements planifiés ou terminés ailleurs, indicateurs d'enregistrement dans le guide, widgets). Limité entre 15 et 3600."
 }

@@ -49,7 +49,7 @@
   "#30727": "Připojení k serveru používá nešifrované HTTP přes neprivátní síť. Doporučuje se HTTPS.",
   "#30730": "Catchup",
   "#30731": "Povolit catchup (IPTV)",
-  "#30732": "Povolí catchup/archivní televizi, pokud ji váš poskytovatel podporuje. Funguje pouze s přímým přehráváním, takže vynucený remux musí být vypnutý a datový tok nastaven na „neomezeno“. Vyžaduje referenční soubor M3U (nakonfigurovaný v sekci Pokročilé), který odpovídá názvům vašich kanálů Jellyfin a obsahuje značky catchup, které Jellyfin vynechává.",
+  "#30732": "Povolí catchup/archiv, pokud jej váš poskytovatel podporuje. Přehrávání catchupu vždy probíhá přes inputstream.ffmpegdirect s přímým přehráváním. Vyžaduje referenční soubor M3U (viz sekce Pokročilé), který odpovídá názvům vašich kanálů Jellyfin a obsahuje značky catchup, jež Jellyfin vynechává.",
   "#30739": "Formátovací řetězec dotazu",
   "#30740": "Formátovací řetězec závislý na poskytovateli pro URL adresy catchup. Použije se jako výchozí, když kanály neuvádějí vlastní catchup-source. Např. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Okno catchup (dny)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (záloha SDR)",
   "#30822": "Maximální rozlišení",
   "#30823": "Omezuje video podle šířky; zdroje s vyšším rozlišením server zmenší. Bez vlivu, když je zapnuto „Vynutit přímé přehrávání“.",
-  "#30829": "Neomezeno"
+  "#30829": "Neomezeno",
+  "#30830": "Nahrávání skončilo předčasně",
+  "#30831": "Interval dotazování na časovače/nahrávky",
+  "#30832": "Počet sekund mezi dotazy na server Jellyfin na změny časovačů a nahrávek (nahrávky naplánované nebo dokončené jinde, indikátory nahrávání v EPG, widgety). Omezeno na 15 až 3600."
 }

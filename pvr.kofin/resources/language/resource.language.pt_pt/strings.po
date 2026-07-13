@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Ativar catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Ativa a TV catchup/arquivo se for suportada pelo seu fornecedor. Só funciona com reprodução direta, por isso o remux forçado tem de estar desativado e a taxa de bits definida como ilimitada. Requer um ficheiro M3U de referência (configurado na secção Avançado) que corresponda aos nomes dos seus canais Jellyfin e contenha as etiquetas de catchup omitidas pelo Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Ativa o catchup/arquivo se o seu fornecedor o suportar. A reprodução do catchup é sempre feita através do inputstream.ffmpegdirect com reprodução direta. Requer um ficheiro M3U de referência (consulte a secção Avançado) que corresponda aos nomes dos seus canais Jellyfin e contenha as etiquetas de catchup omitidas pelo Jellyfin."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Ilimitado"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Gravação interrompida antes do previsto"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Intervalo de consulta de temporizadores/gravações"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Segundos entre consultas ao servidor Jellyfin para detetar alterações em temporizadores e gravações (gravações agendadas ou concluídas noutro local, indicadores de gravação no EPG, widgets). Limitado entre 15 e 3600."

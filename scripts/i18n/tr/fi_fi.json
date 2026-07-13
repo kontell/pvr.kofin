@@ -49,7 +49,7 @@
   "#30727": "Palvelinyhteys käyttää salaamatonta HTTP:tä ei-yksityisessä verkossa. HTTPS on suositeltava.",
   "#30730": "Catchup",
   "#30731": "Ota catchup käyttöön (IPTV)",
-  "#30732": "Ottaa catchup-/arkisto-TV:n käyttöön, jos palveluntarjoajasi tukee sitä. Toimii vain suoran toiston kanssa, joten pakotettu remuxaus on poistettava käytöstä ja bittinopeus asetettava rajoittamattomaksi. Vaatii referenssi-M3U-tiedoston (määritetään Lisäasetukset-osiossa), joka vastaa Jellyfin-kanaviesi nimiä ja sisältää catchup-tunnisteet, jotka Jellyfin jättää pois.",
+  "#30732": "Ottaa catchupin/arkiston käyttöön, jos palveluntarjoajasi tukee sitä. Catchup-toisto tapahtuu aina inputstream.ffmpegdirectin kautta suoralla toistolla. Vaatii M3U-viitetiedoston (katso Lisäasetukset-osio), joka vastaa Jellyfin-kanaviesi nimiä ja sisältää catchup-tunnisteet, jotka Jellyfin jättää pois.",
   "#30739": "Kyselyn muotomerkkijono",
   "#30740": "Palveluntarjoajakohtainen muotomerkkijono catchup-URL-osoitteille. Käytetään oletuksena, kun kanavat eivät määritä omaa catchup-source-arvoaan. Esim. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catchup-ikkuna (päivät)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (SDR-varatila)",
   "#30822": "Enimmäistarkkuus",
   "#30823": "Rajoittaa videon leveyden mukaan; palvelin skaalaa korkeamman tarkkuuden lähteet alaspäin. Ei vaikutusta, kun Pakota suora toisto on käytössä.",
-  "#30829": "Rajoittamaton"
+  "#30829": "Rajoittamaton",
+  "#30830": "Tallennus päättyi ennenaikaisesti",
+  "#30831": "Ajastimien/tallenteiden kyselyväli",
+  "#30832": "Sekuntien määrä Jellyfin-palvelimen kyselyiden välillä, kun haetaan ajastimien ja tallenteiden muutoksia (muualla ajastetut tai päättyneet tallenteet, EPG:n tallennusmerkinnät, widgetit). Rajattu välille 15–3600."
 }

@@ -49,7 +49,7 @@
   "#30727": "La connexió amb el servidor fa servir HTTP sense xifrar en una xarxa no privada. Es recomana HTTPS.",
   "#30730": "Catchup",
   "#30731": "Activa el catchup (IPTV)",
-  "#30732": "Activa la TV de catchup/arxiu si el vostre proveïdor l'admet. Només funciona amb la reproducció directa, per la qual cosa el remux forçat ha d'estar desactivat i la taxa de bits establerta com a il·limitada. Requereix un fitxer M3U de referència (configurat a la secció Avançat) que coincideixi amb els noms dels vostres canals del Jellyfin i contingui les etiquetes de catchup que el Jellyfin omet.",
+  "#30732": "Activa el catchup/arxiu si el vostre proveïdor l'admet. La reproducció de catchup sempre es fa amb inputstream.ffmpegdirect i reproducció directa. Requereix un fitxer M3U de referència (vegeu la secció Avançat) que coincideixi amb els noms dels vostres canals de Jellyfin i que contingui etiquetes de catchup, que Jellyfin omet.",
   "#30739": "Cadena de format de la consulta",
   "#30740": "Una cadena de format que depèn del proveïdor per als URL de catchup. S'utilitza per defecte quan els canals no especifiquen el seu propi catchup-source. Ex.: &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Finestra de catchup (dies)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (alternativa SDR)",
   "#30822": "Resolució màxima",
   "#30823": "Limita el vídeo per amplada; el servidor redueix l'escala de les fonts de resolució superior. No té cap efecte quan «Força la reproducció directa» està activat.",
-  "#30829": "Il·limitat"
+  "#30829": "Il·limitat",
+  "#30830": "L'enregistrament s'ha aturat abans d'hora",
+  "#30831": "Interval de consulta de temporitzadors/enregistraments",
+  "#30832": "Segons entre consultes al servidor Jellyfin per detectar canvis en temporitzadors i enregistraments (enregistraments programats o finalitzats en un altre lloc, indicadors d'enregistrament a l'EPG, ginys). Limitat entre 15 i 3600."
 }

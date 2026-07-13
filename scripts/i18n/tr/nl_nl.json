@@ -49,7 +49,7 @@
   "#30727": "De serververbinding gebruikt onversleuteld HTTP via een niet-privénetwerk. HTTPS wordt aanbevolen.",
   "#30730": "Catch-up",
   "#30731": "Catch-up inschakelen (IPTV)",
-  "#30732": "Schakelt catch-up-/archief-tv in als je provider dit ondersteunt. Werkt alleen met direct afspelen, dus remuxen forceren moet uitgeschakeld zijn en de bitrate op onbeperkt staan. Vereist een referentie-M3U-bestand (geconfigureerd in het gedeelte Geavanceerd) dat overeenkomt met je Jellyfin-kanaalnamen en catch-up-tags bevat die door Jellyfin worden weggelaten.",
+  "#30732": "Schakelt catch-up/archief in als je provider dit ondersteunt. Catch-up-weergave verloopt altijd via inputstream.ffmpegdirect met direct afspelen. Vereist een referentie-M3U-bestand (zie de sectie Geavanceerd) dat overeenkomt met je Jellyfin-kanaalnamen en catch-up-tags bevat die Jellyfin weglaat.",
   "#30739": "Opmaakreeks voor query",
   "#30740": "Een providerafhankelijke opmaakreeks voor catch-up-URL's. Wordt als standaard gebruikt wanneer kanalen geen eigen catchup-source opgeven. Bijv. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catch-up-venster (dagen)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (SDR-fallback)",
   "#30822": "Maximale resolutie",
   "#30823": "Begrenst de video op breedte; bronnen met een hogere resolutie worden door de server verkleind. Geen effect wanneer 'Direct afspelen forceren' is ingeschakeld.",
-  "#30829": "Onbeperkt"
+  "#30829": "Onbeperkt",
+  "#30830": "Opname vroegtijdig gestopt",
+  "#30831": "Pollinginterval voor timers/opnamen",
+  "#30832": "Aantal seconden tussen opvragingen bij de Jellyfin-server naar wijzigingen in timers en opnamen (elders geplande of voltooide opnamen, opname-indicatoren in de EPG, widgets). Beperkt tot 15 tot 3600."
 }

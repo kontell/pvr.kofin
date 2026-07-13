@@ -49,7 +49,7 @@
   "#30727": "A kiszolgálókapcsolat titkosítatlan HTTP-t használ nem privát hálózaton. HTTPS ajánlott.",
   "#30730": "Catchup",
   "#30731": "Catchup engedélyezése (IPTV)",
-  "#30732": "Engedélyezi a catchup/archív TV-t, ha a szolgáltatója támogatja. Csak közvetlen lejátszással működik, ezért a kényszerített remuxolást ki kell kapcsolni, a bitrátát pedig korlátlanra kell állítani. Referencia-M3U-fájlt igényel (a Speciális szakaszban konfigurálva), amely megegyezik a Jellyfin-csatornái neveivel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket.",
+  "#30732": "Engedélyezi a catchupot/archívumot, ha a szolgáltatója támogatja. A catchup lejátszása mindig az inputstream.ffmpegdirect használatával, közvetlen lejátszással történik. Szükséges hozzá egy referencia M3U-fájl (lásd a Speciális szakaszt), amely megegyezik a Jellyfin-csatornanevekkel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket.",
   "#30739": "Lekérdezési formátumkarakterlánc",
   "#30740": "Szolgáltatófüggő formátumkarakterlánc a catchup-URL-ekhez. Alapértelmezettként használatos, ha a csatornák nem adják meg saját catchup-source-ukat. Pl. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catchup-ablak (nap)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (SDR tartalék)",
   "#30822": "Maximális felbontás",
   "#30823": "Szélesség szerint korlátozza a videót; a magasabb felbontású forrásokat a kiszolgáló leskálázza. Nincs hatása, ha a Közvetlen lejátszás kényszerítése be van kapcsolva.",
-  "#30829": "Korlátlan"
+  "#30829": "Korlátlan",
+  "#30830": "A felvétel korán leállt",
+  "#30831": "Időzítők/felvételek lekérdezési időköze",
+  "#30832": "A Jellyfin-kiszolgáló lekérdezései közötti másodpercek száma az időzítők és felvételek változásainak észleléséhez (máshol ütemezett vagy befejezett felvételek, EPG-felvételjelzők, widgetek). 15 és 3600 közé korlátozva."
 }

@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "啟用回看（IPTV）"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "若您的供應商支援，則啟用回看/封存電視。僅在直接播放下有效，因此必須關閉強制重新封裝並將位元率設定為無限制。需要一個參考 M3U 檔案（在「進階」區段中設定），該檔案與您的 Jellyfin 頻道名稱相符，並包含 Jellyfin 省略的回看標籤。"
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "若您的供應商支援，則啟用回看／封存。回看播放一律透過 inputstream.ffmpegdirect 以直接播放方式進行。需要一個參考 M3U 檔案（請參閱「進階」區段），該檔案須與您的 Jellyfin 頻道名稱相符，並包含 Jellyfin 未提供的回看標籤。"
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "無限制"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "錄製提前停止"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "計時器／錄製輪詢間隔"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "輪詢 Jellyfin 伺服器以取得計時器與錄製變更（在其他位置排定或完成的錄製、EPG 錄製指示器、小工具）的間隔秒數。限制在 15 至 3600 之間。"

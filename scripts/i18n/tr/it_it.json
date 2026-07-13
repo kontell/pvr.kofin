@@ -49,7 +49,7 @@
   "#30727": "La connessione al server usa HTTP non cifrato su una rete non privata. È consigliato HTTPS.",
   "#30730": "Catchup",
   "#30731": "Abilita il catchup (IPTV)",
-  "#30732": "Abilita la TV catchup/archivio se supportata dal tuo provider. Funziona solo con la riproduzione diretta, quindi il remux forzato deve essere disattivato e il bitrate impostato su illimitato. Richiede un file M3U di riferimento (configurato nella sezione Avanzate) che corrisponda ai nomi dei tuoi canali Jellyfin e contenga i tag di catchup omessi da Jellyfin.",
+  "#30732": "Abilita il catchup/archivio se supportato dal tuo provider. La riproduzione del catchup avviene sempre tramite inputstream.ffmpegdirect con riproduzione diretta. Richiede un file M3U di riferimento (vedi la sezione Avanzate) che corrisponda ai nomi dei tuoi canali Jellyfin e contenga i tag catchup, omessi da Jellyfin.",
   "#30739": "Stringa di formato della query",
   "#30740": "Una stringa di formato dipendente dal provider per gli URL di catchup. Usata come predefinita quando i canali non specificano un proprio catchup-source. Es.: &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Finestra di catchup (giorni)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (fallback SDR)",
   "#30822": "Risoluzione massima",
   "#30823": "Limita il video in base alla larghezza; le sorgenti a risoluzione più elevata vengono ridimensionate dal server. Nessun effetto quando «Forza la riproduzione diretta» è attivo.",
-  "#30829": "Illimitato"
+  "#30829": "Illimitato",
+  "#30830": "Registrazione interrotta in anticipo",
+  "#30831": "Intervallo di interrogazione timer/registrazioni",
+  "#30832": "Secondi tra le interrogazioni al server Jellyfin per rilevare modifiche a timer e registrazioni (registrazioni programmate o completate altrove, indicatori di registrazione nell'EPG, widget). Limitato tra 15 e 3600."
 }

@@ -49,7 +49,7 @@
   "#30727": "Conexiunea la server folosește HTTP necriptat printr-o rețea care nu este privată. Se recomandă HTTPS.",
   "#30730": "Catchup",
   "#30731": "Activează catchup (IPTV)",
-  "#30732": "Activează televiziunea catchup/arhivă dacă este acceptată de furnizorul dvs. Funcționează doar cu redarea directă, așa că remultiplexarea forțată trebuie dezactivată, iar rata de biți setată la nelimitat. Necesită un fișier M3U de referință (configurat în secțiunea Avansat) care să corespundă numelor canalelor dvs. Jellyfin și să conțină etichetele de catchup omise de Jellyfin.",
+  "#30732": "Activează catchup/arhiva dacă furnizorul tău o acceptă. Redarea catchup se face întotdeauna prin inputstream.ffmpegdirect, cu redare directă. Necesită un fișier M3U de referință (vezi secțiunea Avansat) care corespunde numelor canalelor tale Jellyfin și conține etichete catchup, omise de Jellyfin.",
   "#30739": "Șir de format pentru interogare",
   "#30740": "Un șir de format dependent de furnizor pentru URL-urile de catchup. Utilizat implicit când canalele nu își specifică propriul catchup-source. Ex.: &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Fereastră de catchup (zile)",
@@ -99,5 +99,8 @@
   "#30818": "Dolby Vision (rezervă SDR)",
   "#30822": "Rezoluție maximă",
   "#30823": "Limitează videoclipul după lățime; sursele cu rezoluție mai mare sunt reduse de server. Niciun efect când «Forțează redarea directă» este activat.",
-  "#30829": "Nelimitat"
+  "#30829": "Nelimitat",
+  "#30830": "Înregistrarea s-a oprit prematur",
+  "#30831": "Interval de interogare pentru cronometre/înregistrări",
+  "#30832": "Secunde între interogările serverului Jellyfin pentru modificări ale cronometrelor și înregistrărilor (înregistrări programate sau finalizate în altă parte, indicatori de înregistrare în EPG, widgeturi). Limitat între 15 și 3600."
 }

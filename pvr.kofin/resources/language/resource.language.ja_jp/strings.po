@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "キャッチアップを有効にする（IPTV）"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "プロバイダーが対応している場合、キャッチアップ／アーカイブ TV を有効にします。ダイレクト再生でのみ動作するため、リマックスの強制をオフにし、ビットレートを無制限に設定する必要があります。Jellyfin のチャンネル名と一致し、Jellyfin が省略するキャッチアップタグを含む参照用 M3U ファイル（詳細設定セクションで構成）が必要です。"
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "プロバイダーが対応している場合にキャッチアップ／アーカイブを有効にします。キャッチアップの再生は常に inputstream.ffmpegdirect とダイレクト再生で行われます。Jellyfin のチャンネル名と一致し、Jellyfin が出力しないキャッチアップタグを含む参照用 M3U ファイル（詳細設定セクションを参照）が必要です。"
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "無制限"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "録画が予定より早く停止しました"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "タイマー／録画のポーリング間隔"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "タイマーと録画の変更（他の場所で予約または終了した録画、EPG の録画インジケーター、ウィジェット）を確認するために Jellyfin サーバーへ問い合わせる間隔（秒）。15〜3600 の範囲に制限されます。"

@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Activează catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Activează televiziunea catchup/arhivă dacă este acceptată de furnizorul dvs. Funcționează doar cu redarea directă, așa că remultiplexarea forțată trebuie dezactivată, iar rata de biți setată la nelimitat. Necesită un fișier M3U de referință (configurat în secțiunea Avansat) care să corespundă numelor canalelor dvs. Jellyfin și să conțină etichetele de catchup omise de Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Activează catchup/arhiva dacă furnizorul tău o acceptă. Redarea catchup se face întotdeauna prin inputstream.ffmpegdirect, cu redare directă. Necesită un fișier M3U de referință (vezi secțiunea Avansat) care corespunde numelor canalelor tale Jellyfin și conține etichete catchup, omise de Jellyfin."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Nelimitat"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Înregistrarea s-a oprit prematur"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Interval de interogare pentru cronometre/înregistrări"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Secunde între interogările serverului Jellyfin pentru modificări ale cronometrelor și înregistrărilor (înregistrări programate sau finalizate în altă parte, indicatori de înregistrare în EPG, widgeturi). Limitat între 15 și 3600."

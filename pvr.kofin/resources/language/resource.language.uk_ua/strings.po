@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Увімкнути catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Вмикає телеархів/catchup, якщо його підтримує ваш постачальник. Працює лише з прямим відтворенням, тому примусовий ремукс має бути вимкнено, а бітрейт встановлено на «без обмежень». Потребує еталонного файлу M3U (налаштовується в розділі «Додатково»), який відповідає назвам ваших каналів Jellyfin і містить теги catchup, що їх пропускає Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Вмикає телеархів/catchup, якщо його підтримує ваш постачальник. Відтворення catchup завжди виконується через inputstream.ffmpegdirect у режимі прямого відтворення. Потрібен еталонний файл M3U (див. розділ «Додатково»), який відповідає назвам ваших каналів Jellyfin і містить теги catchup, що їх Jellyfin пропускає."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Без обмежень"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Запис зупинено передчасно"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Інтервал опитування таймерів/записів"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Інтервал у секундах між опитуваннями сервера Jellyfin щодо змін таймерів і записів (записи, заплановані або завершені деінде, індикатори запису в EPG, віджети). Обмежено значеннями від 15 до 3600."

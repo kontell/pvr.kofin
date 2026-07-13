@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Catchup engedélyezése (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Engedélyezi a catchup/archív TV-t, ha a szolgáltatója támogatja. Csak közvetlen lejátszással működik, ezért a kényszerített remuxolást ki kell kapcsolni, a bitrátát pedig korlátlanra kell állítani. Referencia-M3U-fájlt igényel (a Speciális szakaszban konfigurálva), amely megegyezik a Jellyfin-csatornái neveivel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Engedélyezi a catchupot/archívumot, ha a szolgáltatója támogatja. A catchup lejátszása mindig az inputstream.ffmpegdirect használatával, közvetlen lejátszással történik. Szükséges hozzá egy referencia M3U-fájl (lásd a Speciális szakaszt), amely megegyezik a Jellyfin-csatornanevekkel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Korlátlan"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "A felvétel korán leállt"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Időzítők/felvételek lekérdezési időköze"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "A Jellyfin-kiszolgáló lekérdezései közötti másodpercek száma az időzítők és felvételek változásainak észleléséhez (máshol ütemezett vagy befejezett felvételek, EPG-felvételjelzők, widgetek). 15 és 3600 közé korlátozva."

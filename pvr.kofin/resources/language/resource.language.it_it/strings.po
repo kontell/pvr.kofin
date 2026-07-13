@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Abilita il catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Abilita la TV catchup/archivio se supportata dal tuo provider. Funziona solo con la riproduzione diretta, quindi il remux forzato deve essere disattivato e il bitrate impostato su illimitato. Richiede un file M3U di riferimento (configurato nella sezione Avanzate) che corrisponda ai nomi dei tuoi canali Jellyfin e contenga i tag di catchup omessi da Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Abilita il catchup/archivio se supportato dal tuo provider. La riproduzione del catchup avviene sempre tramite inputstream.ffmpegdirect con riproduzione diretta. Richiede un file M3U di riferimento (vedi la sezione Avanzate) che corrisponda ai nomi dei tuoi canali Jellyfin e contenga i tag catchup, omessi da Jellyfin."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Illimitato"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Registrazione interrotta in anticipo"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Intervallo di interrogazione timer/registrazioni"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Secondi tra le interrogazioni al server Jellyfin per rilevare modifiche a timer e registrazioni (registrazioni programmate o completate altrove, indicatori di registrazione nell'EPG, widget). Limitato tra 15 e 3600."

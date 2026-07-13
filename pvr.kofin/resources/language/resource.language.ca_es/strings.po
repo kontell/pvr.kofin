@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Activa el catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Activa la TV de catchup/arxiu si el vostre proveïdor l'admet. Només funciona amb la reproducció directa, per la qual cosa el remux forçat ha d'estar desactivat i la taxa de bits establerta com a il·limitada. Requereix un fitxer M3U de referència (configurat a la secció Avançat) que coincideixi amb els noms dels vostres canals del Jellyfin i contingui les etiquetes de catchup que el Jellyfin omet."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Activa el catchup/arxiu si el vostre proveïdor l'admet. La reproducció de catchup sempre es fa amb inputstream.ffmpegdirect i reproducció directa. Requereix un fitxer M3U de referència (vegeu la secció Avançat) que coincideixi amb els noms dels vostres canals de Jellyfin i que contingui etiquetes de catchup, que Jellyfin omet."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Il·limitat"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "L'enregistrament s'ha aturat abans d'hora"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Interval de consulta de temporitzadors/enregistraments"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Segons entre consultes al servidor Jellyfin per detectar canvis en temporitzadors i enregistraments (enregistraments programats o finalitzats en un altre lloc, indicadors d'enregistrament a l'EPG, ginys). Limitat entre 15 i 3600."

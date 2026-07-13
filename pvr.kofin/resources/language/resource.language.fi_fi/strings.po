@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Ota catchup käyttöön (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Ottaa catchup-/arkisto-TV:n käyttöön, jos palveluntarjoajasi tukee sitä. Toimii vain suoran toiston kanssa, joten pakotettu remuxaus on poistettava käytöstä ja bittinopeus asetettava rajoittamattomaksi. Vaatii referenssi-M3U-tiedoston (määritetään Lisäasetukset-osiossa), joka vastaa Jellyfin-kanaviesi nimiä ja sisältää catchup-tunnisteet, jotka Jellyfin jättää pois."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Ottaa catchupin/arkiston käyttöön, jos palveluntarjoajasi tukee sitä. Catchup-toisto tapahtuu aina inputstream.ffmpegdirectin kautta suoralla toistolla. Vaatii M3U-viitetiedoston (katso Lisäasetukset-osio), joka vastaa Jellyfin-kanaviesi nimiä ja sisältää catchup-tunnisteet, jotka Jellyfin jättää pois."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Rajoittamaton"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Tallennus päättyi ennenaikaisesti"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Ajastimien/tallenteiden kyselyväli"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Sekuntien määrä Jellyfin-palvelimen kyselyiden välillä, kun haetaan ajastimien ja tallenteiden muutoksia (muualla ajastetut tai päättyneet tallenteet, EPG:n tallennusmerkinnät, widgetit). Rajattu välille 15–3600."

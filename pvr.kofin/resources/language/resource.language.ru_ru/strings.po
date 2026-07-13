@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Включить catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Включает телеархив/catchup, если он поддерживается вашим провайдером. Работает только с прямым воспроизведением, поэтому принудительный ремукс должен быть отключён, а битрейт установлен на «без ограничений». Требует эталонный файл M3U (настраивается в разделе «Дополнительно»), который соответствует именам ваших каналов Jellyfin и содержит теги catchup, опускаемые Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Включает телеархив/catchup, если он поддерживается вашим провайдером. Воспроизведение catchup всегда выполняется через inputstream.ffmpegdirect в режиме прямого воспроизведения. Требуется эталонный файл M3U (см. раздел «Дополнительно»), который соответствует названиям ваших каналов Jellyfin и содержит теги catchup, опускаемые Jellyfin."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Без ограничений"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Запись остановлена раньше времени"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Интервал опроса таймеров/записей"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Интервал в секундах между опросами сервера Jellyfin на предмет изменений таймеров и записей (записи, запланированные или завершённые в другом месте, индикаторы записи в EPG, виджеты). Ограничивается значениями от 15 до 3600."

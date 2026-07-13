@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Ενεργοποίηση catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Ενεργοποιεί την τηλεόραση catchup/αρχείου εάν υποστηρίζεται από τον πάροχό σας. Λειτουργεί μόνο με άμεση αναπαραγωγή, επομένως ο εξαναγκασμός remux πρέπει να είναι απενεργοποιημένος και ο ρυθμός μετάδοσης να έχει οριστεί σε απεριόριστο. Απαιτεί ένα αρχείο αναφοράς M3U (διαμορφωμένο στην ενότητα Για προχωρημένους) που αντιστοιχεί στα ονόματα των καναλιών σας Jellyfin και περιέχει ετικέτες catchup που παραλείπονται από το Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Ενεργοποιεί το catchup/αρχείο, εάν υποστηρίζεται από τον πάροχό σας. Η αναπαραγωγή catchup γίνεται πάντα μέσω του inputstream.ffmpegdirect με απευθείας αναπαραγωγή. Απαιτεί ένα αρχείο αναφοράς M3U (δείτε την ενότητα «Για προχωρημένους») που ταιριάζει με τα ονόματα των καναλιών σας στο Jellyfin και περιέχει ετικέτες catchup, τις οποίες το Jellyfin παραλείπει."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Απεριόριστο"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Η εγγραφή σταμάτησε πρόωρα"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Διάστημα ελέγχου χρονοδιακοπτών/εγγραφών"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Δευτερόλεπτα μεταξύ των ελέγχων του διακομιστή Jellyfin για αλλαγές σε χρονοδιακόπτες και εγγραφές (εγγραφές που προγραμματίστηκαν ή ολοκληρώθηκαν αλλού, ενδείξεις εγγραφής στον EPG, γραφικά στοιχεία). Περιορίζεται μεταξύ 15 και 3600."

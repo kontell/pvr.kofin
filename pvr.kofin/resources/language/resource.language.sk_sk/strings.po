@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Povoliť catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/archive TV if supported by your provider. Only works with direct play, so force remuxing must be turned off and bitrate set unlimited. Requires a reference M3U file (configured in the Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Povolí catchup/archívnu televíziu, ak ju váš poskytovateľ podporuje. Funguje iba s priamym prehrávaním, takže vynútený remux musí byť vypnutý a dátový tok nastavený na „neobmedzené“. Vyžaduje referenčný súbor M3U (nakonfigurovaný v sekcii Pokročilé), ktorý zodpovedá názvom vašich kanálov Jellyfin a obsahuje značky catchup, ktoré Jellyfin vynecháva."
+msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Povolí catchup/archív, ak ho váš poskytovateľ podporuje. Prehrávanie catchupu vždy prebieha cez inputstream.ffmpegdirect s priamym prehrávaním. Vyžaduje referenčný súbor M3U (pozri sekciu Pokročilé), ktorý zodpovedá názvom vašich kanálov Jellyfin a obsahuje značky catchup, ktoré Jellyfin vynecháva."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -610,3 +610,16 @@ msgstr "2160p (4K)"
 msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Neobmedzené"
+
+#: Notification when an in-progress recording stops before its scheduled end
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr "Nahrávanie sa skončilo predčasne"
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr "Interval dopytovania časovačov/nahrávok"
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr "Počet sekúnd medzi dopytmi na server Jellyfin na zmeny časovačov a nahrávok (nahrávky naplánované alebo dokončené inde, indikátory nahrávania v EPG, widgety). Obmedzené na 15 až 3600."
