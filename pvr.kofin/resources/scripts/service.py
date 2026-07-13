@@ -27,6 +27,33 @@ ADDON_ID = 'pvr.kofin'
 REPORT_INTERVAL = 10  # seconds between progress reports
 
 
+def get_addon():
+    """Kodi unregisters the addon for a moment while it is installed over the
+    running copy, and xbmcaddon.Addon() raises RuntimeError('Unknown addon id')
+    for the whole of that window. Uncaught, it kills the reporter for the rest
+    of the Kodi session, so callers degrade instead of dying."""
+    try:
+        return xbmcaddon.Addon(ADDON_ID)
+    except RuntimeError:
+        return None
+
+
+def get_setting(key):
+    """Read live — the token and server address change when the user logs in
+    while the reporter is already running."""
+    addon = get_addon()
+    return addon.getSetting(key) if addon else ''
+
+
+# Neither of these changes while the script runs, so read them once at startup
+# rather than exposing the playback paths to the reinstall window above.
+_addon = get_addon()
+ADDON_VERSION = _addon.getAddonInfo('version') if _addon else ''
+_profile = _addon.getAddonInfo('profile') if _addon else ''
+SESSION_PATH = (os.path.join(xbmcvfs.translatePath(_profile), 'session.json')
+                if _profile else '')
+
+
 def get_device_name():
     name = xbmc.getInfoLabel('System.FriendlyName') or ''
     name = name.strip()
@@ -37,12 +64,11 @@ def get_device_name():
 
 
 def build_auth_header(token, device_id):
-    version = xbmcaddon.Addon(ADDON_ID).getAddonInfo('version')
     device = get_device_name().replace('"', '')
     header = (
         f'MediaBrowser Client="Kofin PVR", Device="{device}"'
         f', DeviceId="{device_id}"'
-        f', Version="{version}"'
+        f', Version="{ADDON_VERSION}"'
     )
     if token:
         header += f', Token="{token}"'
@@ -110,8 +136,6 @@ class PlaybackReporter(xbmc.Player):
 
     def onAVStarted(self):
         """Stream is up — read session data written by C++ addon and report start."""
-        addon = xbmcaddon.Addon(ADDON_ID)
-
         # Player callbacks fire for ALL playback. Only treat this as a kofin
         # stream if PVR playback is active and a fresh session.json exists —
         # getPlayingFile() returns the resolved stream URL (not a pvr:// URL)
@@ -119,11 +143,8 @@ class PlaybackReporter(xbmc.Player):
         session_data = None
         if (xbmc.getCondVisibility('PVR.IsPlayingTV') or
                 xbmc.getCondVisibility('PVR.IsPlayingRecording')):
-            session_path = os.path.join(
-                xbmcvfs.translatePath(addon.getAddonInfo('profile')),
-                'session.json')
             try:
-                with open(session_path, 'r') as f:
+                with open(SESSION_PATH, 'r') as f:
                     session_data = json.load(f)
             except (OSError, json.JSONDecodeError):
                 session_data = None
@@ -169,9 +190,9 @@ class PlaybackReporter(xbmc.Player):
             'PlaySessionId': session_data.get('PlaySessionId', ''),
             'LiveStreamId': session_data.get('LiveStreamId', ''),
             'PlayMethod': session_data.get('PlayMethod', ''),
-            'BaseUrl': addon.getSetting('jellyfinServerAddress'),
-            'Token': addon.getSetting('jellyfinAccessToken'),
-            'DeviceId': addon.getSetting('deviceId'),
+            'BaseUrl': get_setting('jellyfinServerAddress'),
+            'Token': get_setting('jellyfinAccessToken'),
+            'DeviceId': get_setting('deviceId'),
         }
         self.paused = False
         self.start_time = time.time()
@@ -220,15 +241,11 @@ class PlaybackReporter(xbmc.Player):
         # just ended: on a zap the C++ addon has already written the NEXT
         # channel's session.json by the time this stop event runs, and deleting
         # that would leave the new stream untracked (and never closed).
-        addon = xbmcaddon.Addon(ADDON_ID)
-        session_path = os.path.join(
-            xbmcvfs.translatePath(addon.getAddonInfo('profile')),
-            'session.json')
         try:
-            with open(session_path, 'r') as f:
+            with open(SESSION_PATH, 'r') as f:
                 on_disk = json.load(f)
             if on_disk.get('PlaySessionId', '') == session['PlaySessionId']:
-                os.remove(session_path)
+                os.remove(SESSION_PATH)
         except (OSError, json.JSONDecodeError):
             pass
 
