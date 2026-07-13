@@ -110,6 +110,11 @@ private:
   // Same as HasRecordingForEpg but assumes m_mutex is already held.
   bool HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const;
 
+  // Note that the recording identified by this key stopped because the user
+  // asked it to, so the premature-stop check must stay quiet about it. Takes
+  // m_mutex; call outside a locked scope.
+  void MarkUserStopped(const std::string& key);
+
   // Hash the fields Kodi renders, so Reload() can tell a real change from a
   // poll that returned the same data. Must cover every field set by
   // Load{Timers,SeriesTimers,Recordings}Internal — a field hashed here but not
@@ -139,6 +144,14 @@ private:
     time_t scheduledEnd;
   };
   std::map<std::string, InProgressInfo> m_inProgressSnapshot;
+
+  // Recordings the user stopped on purpose (deleted the timer or the in-progress
+  // recording), mapped to the time of the request; entries older than the grace
+  // window are pruned on each reload. Deleting a recording identifies it by
+  // Jellyfin ID, deleting a timer only by name, so both kinds of key share the
+  // map — a recording matching either one is excluded from the premature-stop
+  // check above.
+  std::map<std::string, time_t> m_userStoppedKeys;
 
   // Timer name -> ProgramId and ChannelUid mappings (for EPG-linking in-progress recordings)
   std::map<std::string, std::string> m_timerNameToProgramId;

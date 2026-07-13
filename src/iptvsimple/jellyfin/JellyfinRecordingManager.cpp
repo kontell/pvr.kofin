@@ -30,6 +30,12 @@ namespace
 // absorbs the 60s poll cadence and end-time jitter around a natural finish.
 constexpr time_t PREMATURE_STOP_MARGIN_SECS = 120;
 
+// How long a user-initiated stop suppresses the premature-stop report for that
+// recording. It has to outlive the Reload() the delete itself triggers, because
+// Jellyfin can still report the recording as InProgress for a poll or two after
+// the timer is gone — the drop only shows up on a later poll.
+constexpr time_t USER_STOP_GRACE_SECS = 300;
+
 // FNV-1a, for the model fingerprints.
 uint64_t HashString(const std::string& str)
 {
@@ -449,6 +455,12 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
     }
   }
 
+  // Deleting a timer that is currently recording stops that recording — that is
+  // exactly what "Stop recording" in Kodi does, so it must not come back as a
+  // premature-stop warning. The timer only carries the name, which is also the
+  // recording's name (both are the programme's Jellyfin item name).
+  MarkUserStopped(timer.GetTitle());
+
   // Network call outside lock
   const std::string endpoint = isSeries
     ? "/LiveTv/SeriesTimers/" + jellyfinId
@@ -471,6 +483,15 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
   Reload();
 
   return PVR_ERROR_NO_ERROR;
+}
+
+void JellyfinRecordingManager::MarkUserStopped(const std::string& key)
+{
+  if (key.empty())
+    return;
+
+  std::lock_guard<std::mutex> lock(m_mutex);
+  m_userStoppedKeys[key] = std::time(nullptr);
 }
 
 PVR_ERROR JellyfinRecordingManager::UpdateTimer(const kodi::addon::PVRTimer& timer)
@@ -514,6 +535,9 @@ PVR_ERROR JellyfinRecordingManager::DeleteRecording(const kodi::addon::PVRRecord
   const std::string recordingId = recording.GetRecordingId();
 
   Logger::Log(LEVEL_INFO, "%s - Deleting recording %s", __FUNCTION__, recordingId.c_str());
+
+  // Deleting an in-progress recording ends it; same reasoning as DeleteTimer.
+  MarkUserStopped(recordingId);
 
   // Try /Items/{id} first (more reliable), fall back to /LiveTv/Recordings/{id}
   if (!m_client->SendDelete("/Items/" + recordingId))
@@ -1201,17 +1225,36 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   // each premature stop is reported once. Toasts render over fullscreen
   // playback, so this also covers "stopped while being watched".
   const time_t now = std::time(nullptr);
+
+  for (auto it = m_userStoppedKeys.begin(); it != m_userStoppedKeys.end();)
+  {
+    if (now - it->second > USER_STOP_GRACE_SECS)
+      it = m_userStoppedKeys.erase(it);
+    else
+      ++it;
+  }
+
   for (const auto& entry : previousInProgress)
   {
-    if (m_inProgressRecordingIds.count(entry.first) == 0 &&
-        entry.second.scheduledEnd - now > PREMATURE_STOP_MARGIN_SECS)
+    if (m_inProgressRecordingIds.count(entry.first) != 0 ||
+        entry.second.scheduledEnd - now <= PREMATURE_STOP_MARGIN_SECS)
+      continue;
+
+    // The user asked for this stop (deleted the timer or the recording), so it
+    // isn't a failure. DeleteRecording knows the recording ID, DeleteTimer only
+    // the name — either key marks the stop.
+    if (m_userStoppedKeys.count(entry.first) != 0 || m_userStoppedKeys.count(entry.second.name) != 0)
     {
-      Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
-                  __FUNCTION__, entry.second.name.c_str(),
-                  static_cast<long>((entry.second.scheduledEnd - now) / 60));
-      kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR",
-                              kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
+      Logger::Log(LEVEL_INFO, "%s - Recording '%s' stopped early on user request, not warning",
+                  __FUNCTION__, entry.second.name.c_str());
+      continue;
     }
+
+    Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
+                __FUNCTION__, entry.second.name.c_str(),
+                static_cast<long>((entry.second.scheduledEnd - now) / 60));
+    kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR",
+                            kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
   }
 
   Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings (%d in-progress)", __FUNCTION__,
