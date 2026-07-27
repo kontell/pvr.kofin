@@ -10,6 +10,8 @@ Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replac
 
 **Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9.x or later with Live TV configured.
 
+For playback of movies, shows & music see the [Kofin](https://github.com/kontell/plugin.video.kofin) add-on.
+
 ## Features
 
 - Play Jellyfin Live TV channels from Kodi EPG
