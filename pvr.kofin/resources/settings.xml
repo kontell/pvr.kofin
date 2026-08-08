@@ -305,7 +305,7 @@
         </setting>
         <setting id="maxAudioChannels" type="integer" label="30791" help="30792">
           <level>0</level>
-          <default>6</default>
+          <default>8</default>
           <constraints>
             <options>
               <option label="30793">2</option>

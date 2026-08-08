@@ -73,7 +73,7 @@ void InstanceSettings::ReadSettings()
   // (TransferSettings default case) and are captured in OnSettingChanged.
   m_preferredVideoCodec = kodi::addon::GetSettingInt("preferredVideoCodec", 0);
   m_preferredAudioCodec = kodi::addon::GetSettingInt("preferredAudioCodec", 0);
-  m_maxAudioChannels = kodi::addon::GetSettingInt("maxAudioChannels", 6);
+  m_maxAudioChannels = kodi::addon::GetSettingInt("maxAudioChannels", 8);
   m_maxStreamingBitrate = kodi::addon::GetSettingInt("maxStreamingBitrate", 15);
   m_maxResolution = kodi::addon::GetSettingInt("maxResolution", 5);
 
