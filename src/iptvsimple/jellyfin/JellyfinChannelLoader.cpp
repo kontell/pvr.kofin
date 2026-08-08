@@ -891,6 +891,7 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   //   construct codec extradata before opening segments.
   // - Recalculate audio/video bitrates when the user set an explicit limit;
   //   when unlimited, preserve the server's original values.
+  // - State outright that a forced transcode may not stream-copy the video.
 
   auto qPos = transcodingUrl.find('?');
   if (qPos == std::string::npos)
@@ -913,44 +914,63 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
   const int maxBitrateBps = m_activeMaxBitrateBps > 0
     ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
-  // Strip the server's VideoBitrate/AudioBitrate — we always recalculate.
-  params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
-    return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
+  // Strip the params we are about to restate. The bitrates are only restated
+  // when there is a budget to split; with no limit there is nothing to divide
+  // and the server's own figures stand.
+  params.erase(std::remove_if(params.begin(), params.end(), [&](const std::string& p) {
+    if (p.find("allowVideoStreamCopy=") == 0)
+      return true;
+    return !bitrateUnlimited &&
+           (p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0);
   }), params.end());
 
   // Rebuild query string
   std::string newParams;
-  for (const auto& p : params)
-  {
+  auto appendParam = [&newParams](const std::string& param) {
     if (!newParams.empty())
       newParams += "&";
-    newParams += p;
+    newParams += param;
+  };
+  for (const auto& p : params)
+    appendParam(p);
+
+  if (!bitrateUnlimited)
+  {
+    // Split the bitrate budget between audio and video, scaling the audio
+    // reservation for small budgets: audio = min(384k, budget/10). The old
+    // fixed 384 kbps reservation pushed VideoBitrate negative whenever the
+    // budget was below it — e.g. kofin-bitrate-limit=300 — and the server
+    // rejects a negative bitrate. Video always gets a positive >= 9/10 share;
+    // budgets >= 3.84 Mbps get the flat 384 kbps. The tenth matches
+    // plugin.video.kofin (core/deviceprofile.py, audio_bitrate_bps).
+    //
+    // The budget is the ceiling the user asked for, and nothing caps it
+    // against the source: sizing a forced transcode down to just under the
+    // source bitrate was only ever a way to provoke a re-encode, which
+    // allowVideoStreamCopy below now states outright.
+    const int audioBitrate = std::min(384000, maxBitrateBps / 10);
+    const int videoBitrate = maxBitrateBps - audioBitrate;
+    appendParam("VideoBitrate=" + std::to_string(videoBitrate));
+    appendParam("AudioBitrate=" + std::to_string(audioBitrate));
   }
 
-  // Split the bitrate budget between audio and video, scaling the audio
-  // reservation for small budgets: audio = min(384k, budget/8). The old fixed
-  // 384 kbps reservation pushed VideoBitrate negative whenever the budget was
-  // below it — e.g. kofin-bitrate-limit=300, or force-transcode of a source
-  // reporting < 384 kbps — and the server rejects a negative bitrate. The
-  // audio share must scale off the same budget video is carved from
-  // (min(source, max) on the force-transcode path), so video always gets a
-  // positive >= 7/8 share. Budgets >= 3.072 Mbps behave exactly as before.
-  int effectiveTotalBps;
   if (forceTranscode)
   {
-    const int sourceBps = m_activeSourceBitrateBps > 0
-      ? m_activeSourceBitrateBps : 30000000;
-    effectiveTotalBps = std::min(sourceBps, maxBitrateBps);
+    // No bitrate can force a re-encode on its own: Jellyfin permits the copy
+    // whenever the requested VideoBitrate is at or above the source's, so any
+    // budget worth asking for also permits a copy. plugin.video.kofin measured
+    // this on a ~2.0 Mbps HEVC source (plugin/play.py, deny_video_stream_copy):
+    // the server answered "-codec:v:0 copy" and re-encoded the audio instead,
+    // so which stream got re-encoded turned on the source's audio share rather
+    // than on anything the user asked for.
+    //
+    // Video only. enableAutoStreamCopy=false would deny the audio copy too,
+    // and forcing a video transcode is no reason to re-encode audio that
+    // already fits.
+    appendParam("allowVideoStreamCopy=false");
   }
-  else
-  {
-    effectiveTotalBps = maxBitrateBps;
-  }
-  const int audioBitrate = std::min(384000, effectiveTotalBps / 8);
-  const int videoBitrate = effectiveTotalBps - audioBitrate;
-  newParams += "&VideoBitrate=" + std::to_string(videoBitrate);
-  newParams += "&AudioBitrate=" + std::to_string(audioBitrate);
 
   // Replace "stream"/"master" with "live" in URL path for live TV — unless
   // the caller asked us to keep the master endpoint (adaptive needs it).
