@@ -436,10 +436,10 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   profile["MusicStreamingTranscodingBitrate"] = 1280000;
   profile["TimelineOffsetSeconds"] = 5;
 
-  // Build audio codec list: preferred codec first, then the rest from the
-  // allowed list. Codecs not in the list will be transcoded.
+  // Audio codecs the device can decode, preferred codec first. This answers
+  // "what may reach the device untouched", so it belongs on DirectPlayProfiles.
   const std::string& allowedAudio = m_settings->GetDirectPlayAudioCodecs();
-  std::string audioCodecs = preferredAudio;
+  std::string directPlayAudioCodecs = preferredAudio;
   std::string::size_type aStart = 0;
   while (aStart < allowedAudio.length())
   {
@@ -448,9 +448,33 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       aEnd = allowedAudio.length();
     std::string codec = allowedAudio.substr(aStart, aEnd - aStart);
     if (codec != preferredAudio)
-      audioCodecs += "," + codec;
+      directPlayAudioCodecs += "," + codec;
     aStart = aEnd + 1;
   }
+
+  // TranscodingProfiles ask a different question: what may the server *produce*.
+  // Answering it with the direct-play list is what made a forced transcode
+  // fail. Jellyfin treats a source codec appearing here as a passthrough
+  // candidate and, having found one, discards the rest of the list
+  // (StreamBuilder.cs: `audioCodecs = [audioStream.Codec]`). An E-AC3 source
+  // therefore pinned the output to eac3 with no fallback left, and once a
+  // bitrate cap put the requested AudioBitrate below the source's the copy was
+  // refused — leaving the server to *encode* eac3, which Jellyfin 10.11 cannot
+  // do for a live TV source: it answers HTTP 400 out of
+  // DynamicHlsController.GetAudioArguments and no ffmpeg is ever started.
+  //
+  // So name the encode target instead, and only that. The video side has
+  // always drawn this distinction (see tsVideoCodecs below); audio never did.
+  //
+  // Jellyfin filters this list against what HLS allows for the segment
+  // container and does not restore a fallback if that empties it, so the
+  // choice has to be valid for the container it is attached to:
+  //   ts   -> aac, ac3, eac3, mp3
+  //   mp4  -> the above plus alac, flac, opus, dts, truehd
+  // Every preferred codec the settings offer is valid in mp4; only opus is not
+  // valid in ts, so ts falls back to aac.
+  const std::string fmp4AudioCodec = preferredAudio;
+  const std::string tsAudioCodec = (preferredAudio == "opus") ? "aac" : preferredAudio;
 
   // Allowed video codecs from settings. Virtual entries h264_10bit and
   // hevc_rext are mapped to their real codec names; they control CodecProfile
@@ -536,7 +560,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   Json::Value fmp4Profile;
   fmp4Profile["Container"] = "mp4";
   fmp4Profile["Type"] = "Video";
-  fmp4Profile["AudioCodec"] = audioCodecs;
+  fmp4Profile["AudioCodec"] = fmp4AudioCodec;
   fmp4Profile["VideoCodec"] = "av1";
   fmp4Profile["Context"] = "Streaming";
   fmp4Profile["Protocol"] = "hls";
@@ -547,7 +571,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   Json::Value tsProfile;
   tsProfile["Container"] = "ts";
   tsProfile["Type"] = "Video";
-  tsProfile["AudioCodec"] = audioCodecs;
+  tsProfile["AudioCodec"] = tsAudioCodec;
   tsProfile["VideoCodec"] = tsVideoCodecs;
   tsProfile["Context"] = "Streaming";
   tsProfile["Protocol"] = "hls";
@@ -600,7 +624,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     Json::Value v;
     v["Type"] = "Video";
     v["VideoCodec"] = directPlayVideoCodecs;
-    v["AudioCodec"] = audioCodecs;
+    v["AudioCodec"] = directPlayAudioCodecs;
     directPlayProfiles.append(v);
     Json::Value a;
     a["Type"] = "Audio";
