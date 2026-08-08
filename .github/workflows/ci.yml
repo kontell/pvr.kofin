@@ -9,8 +9,16 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [Piers]
   pull_request:
+
+# Supersede a PR's in-flight run when it is pushed to again. With the full
+# platform matrix a single PR is a dozen jobs, and on inputstream.tempo each is
+# ten minutes of FFmpeg — paying twice for a superseded commit is pure waste.
+# Never applied to branch pushes: those are what release tags are cut from.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -36,8 +44,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { cc: gcc, cxx: g++, channel: Omega, kodi: 21 }
-          - { cc: clang, cxx: clang++, channel: Omega, kodi: 21 }
           - { cc: gcc, cxx: g++, channel: Piers, kodi: 22 }
           - { cc: clang, cxx: clang++, channel: Piers, kodi: 22 }
     steps:
@@ -99,7 +105,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { channel: Omega, kodi: 21 }
           - { channel: Piers, kodi: 22 }
     steps:
       - name: Checkout addon
@@ -143,44 +148,42 @@ jobs:
             "${WS}/xbmc/cmake/addons"
           cmake --build "${app_id}/build" --config Release --target "${app_id}"
 
-  package:
-    # One installable zip per PR, built exactly as a release is — same container,
-    # same static-C++ link, same ABI assertion. Binary PRs previously produced no
-    # artifact at all, so there was nothing to sideload to test a change.
-    name: package (linux x86_64, ${{ matrix.channel }})
+  # Every artifact a release produces, built the same way. Previously this was
+  # one linux-x86_64 zip, which left armv7, aarch64 and Android — the NDK path
+  # especially — entirely unbuilt until release time. The cross-builds are
+  # 45-110s each on pvr.kofin, so the coverage is close to free there.
+  #
+  # The matrices below are copied from release.yml and checked against it, so a
+  # platform added to one cannot silently be missing from the other.
+  package-linux:
+    name: package (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
     runs-on: ubuntu-24.04
     container:
-      # The ABI floor lives here, not in the runner label, for two reasons.
-      #
-      # Runner labels get retired: ubuntu-22.04 begins deprecation 2026-09-17 and
-      # is unsupported from 2027-04-17, so pinning the floor to a label buys months
-      # and then breaks on someone else's schedule. A digest-pinned image does not.
-      #
-      # And the floor is a property of the build host, not of this code. Measured:
-      # a C++ .so using only std::vector/std::string/make_shared, built with the
-      # static flags below on glibc 2.42, still requires __isoc23_strtoul@GLIBC_2.38
-      # — a C23 symbol the *headers* substitute in, plus arc4random@2.36 and
-      # _dl_find_object@2.35 from the static unwinder. None of that is reachable
-      # from the source. Building on 22.04 (glibc 2.35) removes the 2.38 symbol
-      # outright and leaves real headroom under the CoreELEC 21.x floor.
+      # The ABI floor is pinned here rather than by the runner label: labels get
+      # retired (ubuntu-22.04 deprecates from 2026-09-17, unsupported 2027-04-17)
+      # and the floor is a property of the build host's headers, not of this code.
+      # ci.yml's package job carries the full reasoning and the measurements.
       image: ubuntu:22.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { channel: Omega, kodi: 21 }
-          - { channel: Piers, kodi: 22 }
+          - { os: linux, arch: x86_64, channel: Piers, kodi: 22 }
+          - { os: linux, arch: armv7, channel: Piers, kodi: 22, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
+          - { os: linux, arch: aarch64, channel: Piers, kodi: 22, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
+          - { os: android, arch: armv7, channel: Piers, kodi: 22 }
+          - { os: android, arch: aarch64, channel: Piers, kodi: 22 }
     steps:
       - name: Install toolchain
-        # Before checkout, so actions/checkout finds git and clones properly
-        # instead of falling back to the REST tarball.
+        # Ahead of checkout so actions/checkout finds git and clones, rather than
+        # silently falling back to the REST tarball.
         run: |
           set -eux
           apt-get update -qq
           DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            build-essential cmake git zip unzip ca-certificates \
+            build-essential cmake git zip unzip wget ca-certificates \
             autopoint autoconf automake libtool m4 pkg-config python3 \
-            binutils file
+            binutils file ${{ matrix.cross_pkgs }}
           gcc --version | head -1
           ldd --version | head -1
 
@@ -204,13 +207,27 @@ jobs:
           sparse-checkout-cone-mode: false
           fetch-depth: 1
 
+      - name: Setup Android NDK
+        if: matrix.os == 'android'
+        id: setup-ndk
+        run: |
+          set -eux
+          NDK_VERSION=r25c
+          NDK_DIR="$HOME/android-ndk-${NDK_VERSION}"
+          if [ ! -d "$NDK_DIR" ]; then
+            wget -q "https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux.zip" -O /tmp/ndk.zip
+            unzip -q /tmp/ndk.zip -d "$HOME"
+            rm /tmp/ndk.zip
+          fi
+          echo "ndk-path=$NDK_DIR" >> $GITHUB_OUTPUT
+
       - name: Build
         env:
-          # Statically link the C++ runtime so the .so depends only on glibc and
-          # not on a GLIBCXX_3.4.x the target may not have. The Kodi addon
-          # superbuild forwards CMAKE_C/CXX_FLAGS but not linker flags, so this
-          # goes in via LDFLAGS, which the inner addon's configure reads.
-          LDFLAGS: "-static-libstdc++ -static-libgcc"
+          # Static C++ runtime on Linux so the .so depends only on glibc, not on
+          # a GLIBCXX_3.4.x the target lacks. The superbuild forwards
+          # CMAKE_C/CXX_FLAGS but not linker flags, hence LDFLAGS. Empty on
+          # Android: the NDK supplies its own STL and these are GCC/Linux flags.
+          LDFLAGS: ${{ matrix.os == 'linux' && '-static-libstdc++ -static-libgcc' || '' }}
         # Relative to the job's working directory, NOT ${{ github.workspace }}.
         # In a container job that expression yields the *host* path
         # (/home/runner/work/...), while the workspace is bind-mounted at
@@ -219,44 +236,100 @@ jobs:
         # paths are correct and unambiguous.
         run: |
           ./${app_id}/scripts/build.sh \
-            --os linux --arch x86_64 --kodi ${{ matrix.kodi }} \
+            --os ${{ matrix.os }} \
+            --arch ${{ matrix.arch }} \
+            --kodi ${{ matrix.kodi }} \
             --kodi-src ./xbmc \
+            ${{ matrix.os == 'android' && format('--ndk {0}', steps.setup-ndk.outputs.ndk-path) || '' }} \
             --output ./artifacts \
             --jobs $(getconf _NPROCESSORS_ONLN)
 
       - name: Assert the ABI floor
-        run: ./${app_id}/scripts/check-abi.sh ./artifacts
-
-      - name: Name zip for this run
-        id: name
-        shell: bash
+        # Skips Android itself (bionic has no versioned glibc symbols).
         run: |
-          set -euo pipefail
-          shopt -s nullglob
-          zips=(artifacts/*.zip)
-          if [[ ${#zips[@]} -ne 1 ]]; then
-            echo "expected exactly one zip, got: ${zips[*]:-none}" >&2
-            exit 1
-          fi
-          src="${zips[0]}"
-          base="$(basename "$src" .zip)"
-          sha7="$(echo "${{ github.sha }}" | cut -c1-7)"
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            dest="$(dirname "$src")/${base}-pr${{ github.event.pull_request.number }}-${sha7}.zip"
-          else
-            dest="$(dirname "$src")/${base}-main-${sha7}.zip"
-          fi
-          mv "$src" "$dest"
-          echo "zip=$dest" >> "$GITHUB_OUTPUT"
-          ls -la "$(dirname "$dest")"
+          ./${app_id}/scripts/check-abi.sh ./artifacts "${{ env.max_glibc }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.app_id }}-${{ matrix.channel }}-pr-zip
-          path: ${{ steps.name.outputs.zip }}
+          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}-pr
           retention-days: 14
-          # Not the default (warn). A job that builds nothing and uploads nothing
-          # otherwise reports success — which is how inputstream.tempo shipped
-          # v0.3.11 with 10 assets from 12 green jobs, missing both Windows zips.
+          path: artifacts/*.zip
+          # Not the default (warn): a job that produces no zip would otherwise
+          # report success and the asset would be silently missing from the
+          # release. That is exactly how inputstream.tempo v0.3.11 shipped 10
+          # assets from 12 green jobs.
           if-no-files-found: error
+
+  package-windows:
+    name: package (windows x86_64, ${{ matrix.channel }})
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { channel: Piers, kodi: 22 }
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Build and package
+        shell: bash
+        run: |
+          set -euo pipefail
+          WS="$(pwd -W)"
+          mkdir -p xbmc/cmake/addons/addons/${app_id}
+          echo "${app_id} ${WS}/${app_id}" > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
+
+          cmake \
+            -B "${app_id}/build" \
+            -G "Visual Studio 17 2022" -A x64 -T host=x64 \
+            -DADDONS_TO_BUILD="${app_id}" \
+            -DADDON_SRC_PREFIX="${WS}" \
+            -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${WS}/install" \
+            -DPACKAGE_ZIP=1 \
+            "${WS}/xbmc/cmake/addons"
+          cmake --build "${app_id}/build" --config Release --target "${app_id}"
+
+          VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
+          ZIP_NAME="${app_id}-${VERSION}-windows-x86_64-kodi${{ matrix.kodi }}.zip"
+          mkdir -p artifacts
+          # Fail loudly if the install step produced nothing, rather than letting
+          # 7z make an empty archive that upload-artifact then can't find.
+          if [[ ! -d "install/${app_id}" ]]; then
+            echo "::error::install/${app_id} does not exist — the install step" \
+                 "produced no addon tree, so there is nothing to package." >&2
+            ls -la install 2>/dev/null || true
+            exit 1
+          fi
+          # Git Bash on windows-2022 has no `zip`; 7z is preinstalled.
+          (cd install && 7z a -tzip "${WS}/artifacts/${ZIP_NAME}" "${app_id}/")
+          ls -la artifacts/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.app_id }}-windows-x86_64-kodi${{ matrix.kodi }}-pr
+          retention-days: 14
+          path: artifacts/*.zip
+          if-no-files-found: error
+
