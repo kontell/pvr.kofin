@@ -46,15 +46,10 @@ jobs:
       matrix:
         include:
           - { os: linux, arch: x86_64, channel: Omega, kodi: 21 }
-          - { os: linux, arch: x86_64, channel: Piers, kodi: 22 }
           - { os: linux, arch: armv7, channel: Omega, kodi: 21, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
-          - { os: linux, arch: armv7, channel: Piers, kodi: 22, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
           - { os: linux, arch: aarch64, channel: Omega, kodi: 21, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
-          - { os: linux, arch: aarch64, channel: Piers, kodi: 22, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
           - { os: android, arch: armv7, channel: Omega, kodi: 21 }
-          - { os: android, arch: armv7, channel: Piers, kodi: 22 }
           - { os: android, arch: aarch64, channel: Omega, kodi: 21 }
-          - { os: android, arch: aarch64, channel: Piers, kodi: 22 }
     steps:
       - name: Install toolchain
         # Ahead of checkout so actions/checkout finds git and clones, rather than
@@ -151,7 +146,6 @@ jobs:
       matrix:
         include:
           - { channel: Omega, kodi: 21 }
-          - { channel: Piers, kodi: 22 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -248,6 +242,25 @@ jobs:
             exit 1
           fi
 
+      - name: Assert the tag belongs to this channel
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This branch builds Omega only, so a v21.* tag is the only kind that
+          # can legitimately be cut here. Without this, a tag pushed on the wrong
+          # branch produces a complete, plausible release of the wrong Kodi version
+          # — and because the channel is derived from the version major, it would be
+          # filed into the wrong directory in the repository too.
+          tag="${GITHUB_REF_NAME#v}"
+          major="${tag%%.*}"
+          echo "tag=$GITHUB_REF_NAME major=$major expected=21 (Omega)"
+          if [[ "$major" != "21" ]]; then
+            echo "::error::$GITHUB_REF_NAME is not a Omega tag (expected v21.y.z)." \
+                 "Cut Omega releases on this branch and the other channel's on its own." >&2
+            exit 1
+          fi
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -261,14 +274,14 @@ jobs:
           find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
           find artifacts -mindepth 1 -type d -empty -delete
           ls -la artifacts/
-          # 6 platforms x 2 Kodi versions. A short count means a build produced no
+          # 6 platforms, one Kodi version. A short count means a build produced no
           # zip; with if-no-files-found: error upstream that should already have
           # failed, so this is the backstop that keeps a partial release from being
           # drafted at all.
           count="$(find artifacts -name '*.zip' | wc -l)"
           echo "zips: $count"
-          if [[ "$count" -ne 12 ]]; then
-            echo "::error::expected 12 zips (6 platforms x Kodi 21/22), found $count." \
+          if [[ "$count" -ne 6 ]]; then
+            echo "::error::expected 6 zips (6 platforms, one Kodi version), found $count." \
                  "Publishing a partial set strands platforms on an older build." >&2
             exit 1
           fi

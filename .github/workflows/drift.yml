@@ -58,7 +58,7 @@ jobs:
           le() { [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" == "$1" ]]; }
 
           status=0
-          for pair in "Omega:${kodi_omega_ref}:Omega" "Piers:${kodi_piers_ref}:master"; do
+          for pair in "Omega:${kodi_omega_ref}:Omega"; do
             channel="${pair%%:*}"; rest="${pair#*:}"
             pinned="${rest%%:*}"; tip="${rest#*:}"
             echo "== $channel: pinned $pinned, upstream $tip"
@@ -90,7 +90,6 @@ jobs:
       matrix:
         include:
           - { tip: Omega, kodi: 21 }
-          - { tip: master, kodi: 22 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5

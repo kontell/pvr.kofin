@@ -9,7 +9,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [Omega]
   pull_request:
 
 permissions:
@@ -38,8 +38,6 @@ jobs:
         include:
           - { cc: gcc, cxx: g++, channel: Omega, kodi: 21 }
           - { cc: clang, cxx: clang++, channel: Omega, kodi: 21 }
-          - { cc: gcc, cxx: g++, channel: Piers, kodi: 22 }
-          - { cc: clang, cxx: clang++, channel: Piers, kodi: 22 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -100,7 +98,6 @@ jobs:
       matrix:
         include:
           - { channel: Omega, kodi: 21 }
-          - { channel: Piers, kodi: 22 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -169,7 +166,6 @@ jobs:
       matrix:
         include:
           - { channel: Omega, kodi: 21 }
-          - { channel: Piers, kodi: 22 }
     steps:
       - name: Install toolchain
         # Before checkout, so actions/checkout finds git and clones properly
