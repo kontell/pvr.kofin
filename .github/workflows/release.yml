@@ -352,3 +352,9 @@ jobs:
           body: ${{ steps.version.outputs.changes }}
           draft: true
           files: artifacts/*.zip
+          # Explicit, though the action defaults to github.token anyway. A
+          # v21.3.11 release 403'd here while a bare `gh api` POST from the
+          # same job, same branch, same tag, succeeded — so the default
+          # resolution was the one thing not ruled out. Naming the secret
+          # removes it from the list.
+          token: ${{ secrets.GITHUB_TOKEN }}
