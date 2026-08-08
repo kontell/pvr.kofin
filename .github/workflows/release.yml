@@ -340,6 +340,14 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
+          # Pin the commit the release is anchored to. Left unset, the action
+          # defaults it to the repository's default branch — so the Omega draft
+          # recorded target_commitish: Piers. That is inert while the git tag
+          # already exists, but if the tag is ever deleted with the draft left
+          # behind, publishing it makes GitHub *create* the tag at that target:
+          # v21.13.0 would come to rest on the Kodi 22 branch. The tag-major
+          # guard cannot catch it, because that runs on tag push, not on publish.
+          target_commitish: ${{ github.sha }}
           name: ${{ env.app_id }} ${{ steps.version.outputs.version }}
           body: ${{ steps.version.outputs.changes }}
           draft: true
