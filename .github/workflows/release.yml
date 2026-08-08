@@ -129,7 +129,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}
+          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}
           path: artifacts/*.zip
           # Not the default (warn): a job that produces no zip would otherwise
           # report success and the asset would be silently missing from the
@@ -188,7 +188,7 @@ jobs:
           cmake --build "${app_id}/build" --config Release --target "${app_id}"
 
           VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
-          ZIP_NAME="${app_id}-${VERSION}-windows-x86_64-kodi${{ matrix.kodi }}.zip"
+          ZIP_NAME="${app_id}-${VERSION}-windows-x86_64.zip"
           mkdir -p artifacts
           # Fail loudly if the install step produced nothing, rather than letting
           # 7z make an empty archive that upload-artifact then can't find.
@@ -205,7 +205,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.app_id }}-windows-x86_64-kodi${{ matrix.kodi }}
+          name: ${{ env.app_id }}-windows-x86_64
           path: artifacts/*.zip
           if-no-files-found: error
 
