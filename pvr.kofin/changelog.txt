@@ -1,3 +1,7 @@
+v22.13.0
+- Renumbered to Kodi's add-on versioning: the first number is now the Kodi version a build is for, so 22.x.y is Kodi 22 (Piers) and 21.x.y is Kodi 21 (Omega). The add-on itself is unchanged from v0.13.0 — only the numbering and the build system moved
+- Kodi 21 and Kodi 22 now build from separate branches and are released separately, so a fix can ship to one without waiting for the other
+
 v0.13.0
 - New Advanced setting: configurable timer/recording poll interval (default 60s, range 15–3600)
 - Fixed a tuner/stream leak when switching channels, and pinned catchup to direct play so it plays reliably
