@@ -27,7 +27,8 @@ namespace iptvsimple
       static bool IsNfsUrl(const std::string& url);
       static bool IsSpecialUrl(const std::string& url);
       static std::string RedactUrl(const std::string& url);
-      static bool Check(const std::string& url, int connectionTimeoutSecs, bool isLocalPath = false);
+      static bool Check(const std::string& url, int connectionTimeoutSecs,
+                        bool isLocalPath = false, bool verifyPeer = true);
     };
   } // namespace utilities
 } // namespace iptvsimple

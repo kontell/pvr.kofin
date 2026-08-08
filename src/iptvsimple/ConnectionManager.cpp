@@ -147,7 +147,7 @@ void ConnectionManager::Process()
      * the first success, so outages were never detected and the addon never
      * reconnected/reloaded after a server restart. IptvSimple's
      * ConnectionEstablished is written to be re-entered on reconnects. */
-    if (!WebUtils::Check(url, tcpTimeout, isLocalPath))
+    if (!WebUtils::Check(url, tcpTimeout, isLocalPath, m_settings->GetSslVerify()))
     {
       /* Unable to connect */
       if (m_retryAttempt == 0)

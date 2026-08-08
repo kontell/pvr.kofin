@@ -111,5 +111,7 @@
   "#30838": "Kunne ikke starte Quick Connect",
   "#30839": "Tidsavbrudd for Quick Connect",
   "#30840": "Jellyfin støtter ikke redigering av timere",
-  "#30841": "Opptaket er ferdig"
+  "#30841": "Opptaket er ferdig",
+  "#30842": "Verifiser SSL-sertifikat",
+  "#30843": "Slå av bare for servere med selvsignerte sertifikater. Gjelder tilleggets egne forespørsler (innlogging, guide, timere, opptak); videoavspilling håndteres av Kodi og inputstream-tilleggene og påvirkes ikke."
 }

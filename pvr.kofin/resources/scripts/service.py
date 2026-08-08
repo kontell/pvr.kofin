@@ -13,6 +13,7 @@ script. HTTP uses urllib directly, independent of Kodi's HTTP stack.
 """
 import json
 import os
+import ssl
 import time
 import urllib.request
 import urllib.error
@@ -104,6 +105,21 @@ def normalize_base_url(address):
     return f'{scheme}://{remainder}'
 
 
+def ssl_context():
+    """An unverified SSL context when the user turned sslVerify off, else None.
+
+    Read live rather than cached: the setting can change while the reporter is
+    running, same as the token and server address. None means "urlopen's
+    default", which is a fully verifying context.
+    """
+    if get_setting('sslVerify') != 'false':
+        return None
+    context = ssl.create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+    return context
+
+
 def post_json(base_url, endpoint, body, token, device_id):
     """POST JSON to Jellyfin. Fire-and-forget — errors are logged, not raised."""
     base = normalize_base_url(base_url)
@@ -119,7 +135,7 @@ def post_json(base_url, endpoint, body, token, device_id):
     }
     req = urllib.request.Request(url, data=data, headers=headers, method='POST')
     try:
-        with urllib.request.urlopen(req, timeout=5) as resp:
+        with urllib.request.urlopen(req, timeout=5, context=ssl_context()) as resp:
             resp.read()
     except (urllib.error.URLError, OSError) as e:
         xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGWARNING)

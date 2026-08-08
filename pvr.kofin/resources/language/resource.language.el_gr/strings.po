@@ -668,3 +668,11 @@ msgstr "Το Jellyfin δεν υποστηρίζει την επεξεργασί�
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Η εγγραφή ολοκληρώθηκε"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Επαλήθευση πιστοποιητικού SSL"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Απενεργοποιήστε το μόνο για διακομιστές με αυτο-υπογεγραμμένα πιστοποιητικά. Ισχύει για τα αιτήματα του ίδιου του πρόσθετου (σύνδεση, οδηγός, χρονοδιακόπτες, εγγραφές). Η αναπαραγωγή βίντεο γίνεται από το Kodi και τα πρόσθετα inputstream και δεν επηρεάζεται."

@@ -111,5 +111,7 @@
   "#30838": "Quick Connect nu a putut fi pornit",
   "#30839": "Quick Connect a expirat",
   "#30840": "Jellyfin nu acceptă editarea cronometrelor",
-  "#30841": "Înregistrare finalizată"
+  "#30841": "Înregistrare finalizată",
+  "#30842": "Verifică certificatul SSL",
+  "#30843": "Dezactivați doar pentru servere cu certificate autosemnate. Se aplică cererilor proprii ale suplimentului (autentificare, ghid, cronometre, înregistrări); redarea video este gestionată de Kodi și de suplimentele inputstream și nu este afectată."
 }

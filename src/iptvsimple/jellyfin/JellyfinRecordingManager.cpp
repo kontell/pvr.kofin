@@ -1382,8 +1382,16 @@ bool JellyfinRecordingManager::OpenRecordedStream(const kodi::addon::PVRRecordin
 
   if (!m_recordingStream.CURLCreate(streamUrl) ||
       !m_recordingStream.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Authorization",
-                                       m_client->BuildAuthHeader()) ||
-      !m_recordingStream.CURLOpen(ADDON_READ_NO_CACHE))
+                                       m_client->BuildAuthHeader()))
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
+    m_recordingStream.Close();
+    return false;
+  }
+
+  m_client->ApplyTlsOptions(m_recordingStream);
+
+  if (!m_recordingStream.CURLOpen(ADDON_READ_NO_CACHE))
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
     m_recordingStream.Close();

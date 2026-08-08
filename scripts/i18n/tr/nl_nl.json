@@ -111,5 +111,7 @@
   "#30838": "Kan Quick Connect niet starten",
   "#30839": "Time-out van Quick Connect",
   "#30840": "Jellyfin ondersteunt het bewerken van timers niet",
-  "#30841": "Opname voltooid"
+  "#30841": "Opname voltooid",
+  "#30842": "SSL-certificaat verifiëren",
+  "#30843": "Schakel dit alleen uit voor servers met een zelfondertekend certificaat. Geldt voor de eigen aanvragen van de add-on (aanmelden, gids, timers, opnamen); videoweergave wordt door Kodi en de inputstream-add-ons afgehandeld en verandert niet."
 }

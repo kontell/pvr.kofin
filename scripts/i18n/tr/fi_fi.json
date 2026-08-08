@@ -111,5 +111,7 @@
   "#30838": "Quick Connectin käynnistäminen epäonnistui",
   "#30839": "Quick Connect aikakatkaistiin",
   "#30840": "Jellyfin ei tue ajastimien muokkaamista",
-  "#30841": "Tallennus valmis"
+  "#30841": "Tallennus valmis",
+  "#30842": "Vahvista SSL-varmenne",
+  "#30843": "Poista käytöstä vain palvelimille, joilla on itse allekirjoitettu varmenne. Koskee lisäosan omia pyyntöjä (kirjautuminen, opas, ajastimet, tallenteet); videon toistosta vastaavat Kodi ja inputstream-lisäosat, eikä tämä vaikuta siihen."
 }

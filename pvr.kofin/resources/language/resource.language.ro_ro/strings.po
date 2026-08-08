@@ -668,3 +668,11 @@ msgstr "Jellyfin nu acceptă editarea cronometrelor"
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Înregistrare finalizată"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Verifică certificatul SSL"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Dezactivați doar pentru servere cu certificate autosemnate. Se aplică cererilor proprii ale suplimentului (autentificare, ghid, cronometre, înregistrări); redarea video este gestionată de Kodi și de suplimentele inputstream și nu este afectată."

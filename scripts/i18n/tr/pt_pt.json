@@ -111,5 +111,7 @@
   "#30838": "Não foi possível iniciar o Quick Connect",
   "#30839": "O Quick Connect expirou",
   "#30840": "O Jellyfin não permite editar temporizadores",
-  "#30841": "Gravação concluída"
+  "#30841": "Gravação concluída",
+  "#30842": "Verificar certificado SSL",
+  "#30843": "Desative apenas para servidores com certificados autoassinados. Aplica-se aos pedidos do próprio add-on (início de sessão, guia, temporizadores, gravações); a reprodução de vídeo é feita pelo Kodi e pelos add-ons inputstream e não é afetada."
 }

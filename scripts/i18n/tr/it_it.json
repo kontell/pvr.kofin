@@ -111,5 +111,7 @@
   "#30838": "Impossibile avviare Quick Connect",
   "#30839": "Timeout di Quick Connect",
   "#30840": "Jellyfin non supporta la modifica dei timer",
-  "#30841": "Registrazione completata"
+  "#30841": "Registrazione completata",
+  "#30842": "Verifica il certificato SSL",
+  "#30843": "Disattivalo solo per server con certificati autofirmati. Si applica alle richieste dell'add-on stesso (accesso, guida, timer, registrazioni); la riproduzione video è gestita da Kodi e dagli add-on inputstream e non è interessata."
 }
