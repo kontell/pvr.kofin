@@ -110,5 +110,6 @@
   "#30837": "Połączenie powiodło się",
   "#30838": "Nie udało się uruchomić Quick Connect",
   "#30839": "Upłynął limit czasu Quick Connect",
-  "#30840": "Jellyfin nie obsługuje edycji timerów"
+  "#30840": "Jellyfin nie obsługuje edycji timerów",
+  "#30841": "Nagrywanie zakończone"
 }

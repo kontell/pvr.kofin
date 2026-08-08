@@ -663,3 +663,8 @@ msgstr "Quick Connect 시간이 초과되었습니다"
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "Jellyfin은 타이머 편집을 지원하지 않습니다"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "녹화가 완료되었습니다"

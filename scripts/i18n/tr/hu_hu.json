@@ -110,5 +110,6 @@
   "#30837": "A kapcsolódás sikeres",
   "#30838": "A Quick Connect indítása nem sikerült",
   "#30839": "A Quick Connect túllépte az időkorlátot",
-  "#30840": "A Jellyfin nem támogatja az időzítők szerkesztését"
+  "#30840": "A Jellyfin nem támogatja az időzítők szerkesztését",
+  "#30841": "A felvétel befejeződött"
 }

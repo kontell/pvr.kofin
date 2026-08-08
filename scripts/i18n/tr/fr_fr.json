@@ -110,5 +110,6 @@
   "#30837": "Connexion réussie",
   "#30838": "Impossible de démarrer Quick Connect",
   "#30839": "Délai d'attente de Quick Connect dépassé",
-  "#30840": "Jellyfin ne permet pas de modifier les programmations"
+  "#30840": "Jellyfin ne permet pas de modifier les programmations",
+  "#30841": "Enregistrement terminé"
 }

@@ -663,3 +663,8 @@ msgstr "A Quick Connect túllépte az időkorlátot"
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "A Jellyfin nem támogatja az időzítők szerkesztését"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "A felvétel befejeződött"

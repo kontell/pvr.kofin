@@ -663,3 +663,8 @@ msgstr "Se agotó el tiempo de espera de Quick Connect"
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "Jellyfin no admite editar temporizadores"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Grabación finalizada"

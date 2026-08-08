@@ -110,5 +110,6 @@
   "#30837": "Connessione riuscita",
   "#30838": "Impossibile avviare Quick Connect",
   "#30839": "Timeout di Quick Connect",
-  "#30840": "Jellyfin non supporta la modifica dei timer"
+  "#30840": "Jellyfin non supporta la modifica dei timer",
+  "#30841": "Registrazione completata"
 }

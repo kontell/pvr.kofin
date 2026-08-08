@@ -879,6 +879,44 @@ void JellyfinChannelLoader::WriteSessionFile()
   }
 }
 
+std::string JellyfinChannelLoader::GetPlayingItemId() const
+{
+  const std::string path = m_settings->GetUserPath() + "session.json";
+
+  kodi::vfs::CFile file;
+  if (!file.OpenFile(path, ADDON_READ_NO_CACHE))
+    return {};
+
+  // The file is a handful of short fields; the cap is only there so a
+  // corrupted or foreign file cannot be read without bound.
+  static constexpr size_t MAX_SESSION_BYTES = 64 * 1024;
+  std::string data;
+  char buffer[1024];
+  ssize_t bytesRead;
+  while ((bytesRead = file.Read(buffer, sizeof(buffer))) > 0)
+  {
+    data.append(buffer, static_cast<size_t>(bytesRead));
+    if (data.size() > MAX_SESSION_BYTES)
+    {
+      file.Close();
+      return {};
+    }
+  }
+  file.Close();
+
+  if (data.empty())
+    return {};
+
+  Json::Value session;
+  Json::CharReaderBuilder builder;
+  std::string errors;
+  std::istringstream stream(data);
+  if (!Json::parseFromStream(builder, stream, &session, &errors))
+    return {};
+
+  return session.get("ItemId", "").asString();
+}
+
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     const std::string& transcodingUrl, bool keepMaster, bool forceTranscode)
 {
