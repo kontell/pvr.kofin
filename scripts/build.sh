@@ -83,6 +83,12 @@ mkdir -p "$BUILD_DIR" "$INSTALL_DIR" "$TOOLCHAIN_DIR"
 # Output directory
 [[ -z "$OUTPUT_DIR" ]] && OUTPUT_DIR="$ADDON_DIR"
 mkdir -p "$OUTPUT_DIR"
+# Absolutise it. Packaging below cds into $INSTALL_DIR before running zip, so a
+# relative --output would be resolved against the wrong directory there and zip
+# would fail with "Could not create output file". KODI_SRC gets the same treatment
+# above; this one was missed, and only never bit because every caller happened to
+# pass an absolute path.
+OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd)"
 
 # Register addon in Kodi source tree
 ADDON_DEF_DIR="$KODI_SRC/cmake/addons/addons/$ADDON_ID"

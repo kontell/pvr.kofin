@@ -1,184 +1,303 @@
+# Tag release: build every platform for both Kodi versions, then draft a GitHub
+# release with the zips attached.
+#
+# `pull_request` is deliberately absent. This workflow used to run on every PR to
+# main, so a PR cost a full 12-way cross-compile and its checks were labelled
+# "Linux aarch64 / Kodi 21" under a workflow called "Release". PR coverage is
+# ci.yml's job.
 name: Release
+
 on:
   push:
-    tags: ['v*']
-  pull_request:
-    branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Skip release creation — run the build matrix only'
+        description: "Skip release creation — run the build matrix only"
         type: boolean
         default: false
 
-# Least privilege by default: the build matrix (which also runs on every PR)
-# only reads the repo and uploads artifacts. Only the release job below needs
-# write access to create the draft release.
+# Least privilege by default: the build matrix only reads and uploads. Only the
+# release job needs write.
 permissions:
   contents: read
 
 env:
   app_id: pvr.kofin
+  # See ci.yml for why these are pinned rather than tracking Omega/master.
+  kodi_omega_ref: "21.3-Omega"
+  kodi_piers_ref: "22.0b1-Piers"
+  # The oldest target that has to be able to load the result (CoreELEC 21.x).
+  max_glibc: "2.38"
 
 jobs:
-  build:
-    runs-on: ${{ matrix.runner }}
+  # ---------------------------------------------------------------- Linux/Android
+  build-linux:
+    name: package (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
+    runs-on: ubuntu-24.04
+    container:
+      # The ABI floor is pinned here rather than by the runner label: labels get
+      # retired (ubuntu-22.04 deprecates from 2026-09-17, unsupported 2027-04-17)
+      # and the floor is a property of the build host's headers, not of this code.
+      # ci.yml's package job carries the full reasoning and the measurements.
+      image: ubuntu:22.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Linux x86_64
-          - { name: "Linux x86_64 / Kodi 21", os: linux, arch: x86_64, kodi: 21, kodi_branch: Omega, runner: ubuntu-latest }
-          - { name: "Linux x86_64 / Kodi 22", os: linux, arch: x86_64, kodi: 22, kodi_branch: master, runner: ubuntu-latest }
-          # Linux armv7
-          - { name: "Linux armv7 / Kodi 21", os: linux, arch: armv7, kodi: 21, kodi_branch: Omega, runner: ubuntu-latest, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
-          - { name: "Linux armv7 / Kodi 22", os: linux, arch: armv7, kodi: 22, kodi_branch: master, runner: ubuntu-latest, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
-          # Linux aarch64
-          - { name: "Linux aarch64 / Kodi 21", os: linux, arch: aarch64, kodi: 21, kodi_branch: Omega, runner: ubuntu-latest, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
-          - { name: "Linux aarch64 / Kodi 22", os: linux, arch: aarch64, kodi: 22, kodi_branch: master, runner: ubuntu-latest, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
-          # Android armv7
-          - { name: "Android armv7 / Kodi 21", os: android, arch: armv7, kodi: 21, kodi_branch: Omega, runner: ubuntu-latest }
-          - { name: "Android armv7 / Kodi 22", os: android, arch: armv7, kodi: 22, kodi_branch: master, runner: ubuntu-latest }
-          # Android aarch64
-          - { name: "Android aarch64 / Kodi 21", os: android, arch: aarch64, kodi: 21, kodi_branch: Omega, runner: ubuntu-latest }
-          - { name: "Android aarch64 / Kodi 22", os: android, arch: aarch64, kodi: 22, kodi_branch: master, runner: ubuntu-latest }
-          # Windows x86_64
-          - { name: "Windows x86_64 / Kodi 21", os: windows, arch: x86_64, kodi: 21, kodi_branch: Omega, runner: windows-2022 }
-          - { name: "Windows x86_64 / Kodi 22", os: windows, arch: x86_64, kodi: 22, kodi_branch: master, runner: windows-2022 }
-    name: ${{ matrix.name }}
+          - { os: linux, arch: x86_64, channel: Omega, kodi: 21 }
+          - { os: linux, arch: x86_64, channel: Piers, kodi: 22 }
+          - { os: linux, arch: armv7, channel: Omega, kodi: 21, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
+          - { os: linux, arch: armv7, channel: Piers, kodi: 22, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
+          - { os: linux, arch: aarch64, channel: Omega, kodi: 21, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
+          - { os: linux, arch: aarch64, channel: Piers, kodi: 22, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
+          - { os: android, arch: armv7, channel: Omega, kodi: 21 }
+          - { os: android, arch: armv7, channel: Piers, kodi: 22 }
+          - { os: android, arch: aarch64, channel: Omega, kodi: 21 }
+          - { os: android, arch: aarch64, channel: Piers, kodi: 22 }
     steps:
-    - name: Checkout addon
-      uses: actions/checkout@v5
-      with:
-        path: ${{ env.app_id }}
+      - name: Install toolchain
+        # Ahead of checkout so actions/checkout finds git and clones, rather than
+        # silently falling back to the REST tarball.
+        run: |
+          set -eux
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential cmake git zip unzip wget ca-certificates \
+            autopoint autoconf automake libtool m4 pkg-config python3 \
+            binutils file ${{ matrix.cross_pkgs }}
+          gcc --version | head -1
+          ldd --version | head -1
 
-    - name: Checkout Kodi
-      uses: actions/checkout@v5
-      with:
-        repository: xbmc/xbmc
-        ref: ${{ matrix.kodi_branch }}
-        path: xbmc
-        sparse-checkout: |
-          version.txt
-          xbmc/interfaces/json-rpc/schema/version.txt
-          cmake/
-          xbmc/addons/AddonBindings.cmake
-          xbmc/addons/kodi-dev-kit/include/kodi/
-        sparse-checkout-cone-mode: false
-        fetch-depth: 1
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
 
-    - name: Install dependencies (Linux/Android)
-      if: matrix.os != 'windows'
-      run: |
-        sudo apt-get update -qq
-        sudo apt-get install -y autopoint ${{ matrix.cross_pkgs }}
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
 
-    - name: Setup Android NDK
-      if: matrix.os == 'android'
-      id: setup-ndk
-      run: |
-        NDK_VERSION=r25c
-        NDK_DIR="$HOME/android-ndk-${NDK_VERSION}"
-        if [ ! -d "$NDK_DIR" ]; then
-          wget -q "https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux.zip" -O /tmp/ndk.zip
-          unzip -q /tmp/ndk.zip -d "$HOME"
-          rm /tmp/ndk.zip
-        fi
-        echo "ndk-path=$NDK_DIR" >> $GITHUB_OUTPUT
+      - name: Setup Android NDK
+        if: matrix.os == 'android'
+        id: setup-ndk
+        run: |
+          set -eux
+          NDK_VERSION=r25c
+          NDK_DIR="$HOME/android-ndk-${NDK_VERSION}"
+          if [ ! -d "$NDK_DIR" ]; then
+            wget -q "https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux.zip" -O /tmp/ndk.zip
+            unzip -q /tmp/ndk.zip -d "$HOME"
+            rm /tmp/ndk.zip
+          fi
+          echo "ndk-path=$NDK_DIR" >> $GITHUB_OUTPUT
 
-    - name: Build (Linux/Android)
-      if: matrix.os != 'windows'
-      run: |
-        ${{ github.workspace }}/${app_id}/scripts/build.sh \
-          --os ${{ matrix.os }} \
-          --arch ${{ matrix.arch }} \
-          --kodi ${{ matrix.kodi }} \
-          --kodi-src ${{ github.workspace }}/xbmc \
-          ${{ matrix.os == 'android' && format('--ndk {0}', steps.setup-ndk.outputs.ndk-path) || '' }} \
-          --output ${{ github.workspace }}/artifacts \
-          --jobs $(getconf _NPROCESSORS_ONLN)
+      - name: Build
+        env:
+          # Static C++ runtime on Linux so the .so depends only on glibc, not on
+          # a GLIBCXX_3.4.x the target lacks. The superbuild forwards
+          # CMAKE_C/CXX_FLAGS but not linker flags, hence LDFLAGS. Empty on
+          # Android: the NDK supplies its own STL and these are GCC/Linux flags.
+          LDFLAGS: ${{ matrix.os == 'linux' && '-static-libstdc++ -static-libgcc' || '' }}
+        # Relative to the job's working directory, NOT ${{ github.workspace }}.
+        # In a container job that expression yields the *host* path
+        # (/home/runner/work/...), while the workspace is bind-mounted at
+        # /__w/... — so the absolute form resolves to nothing and the step dies
+        # with exit 127. The container's workdir *is* the workspace, so relative
+        # paths are correct and unambiguous.
+        run: |
+          ./${app_id}/scripts/build.sh \
+            --os ${{ matrix.os }} \
+            --arch ${{ matrix.arch }} \
+            --kodi ${{ matrix.kodi }} \
+            --kodi-src ./xbmc \
+            ${{ matrix.os == 'android' && format('--ndk {0}', steps.setup-ndk.outputs.ndk-path) || '' }} \
+            --output ./artifacts \
+            --jobs $(getconf _NPROCESSORS_ONLN)
 
-    - name: Build (Windows)
-      if: matrix.os == 'windows'
-      shell: bash
-      run: |
-        WS="$(pwd -W)"
-        # Register addon
-        mkdir -p xbmc/cmake/addons/addons/${app_id}
-        echo "${app_id} ${WS}/${app_id}" > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
+      - name: Assert the ABI floor
+        # Skips Android itself (bionic has no versioned glibc symbols).
+        run: |
+          ./${app_id}/scripts/check-abi.sh ./artifacts "${{ env.max_glibc }}"
 
-        cmake \
-          -B "${app_id}/build" \
-          -G "Visual Studio 17 2022" -A x64 -T host=x64 \
-          -DADDONS_TO_BUILD="${app_id}" \
-          -DADDON_SRC_PREFIX="${WS}" \
-          -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_INSTALL_PREFIX="${WS}/install" \
-          -DPACKAGE_ZIP=1 \
-          "${WS}/xbmc/cmake/addons"
-        cmake --build "${app_id}/build" --config Release --target "${app_id}"
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}
+          path: artifacts/*.zip
+          # Not the default (warn): a job that produces no zip would otherwise
+          # report success and the asset would be silently missing from the
+          # release. That is exactly how inputstream.tempo v0.3.11 shipped 10
+          # assets from 12 green jobs.
+          if-no-files-found: error
 
-        # Package: zip up the installed addon directory matching build.sh's naming.
-        # Git Bash on windows-2022 doesn't ship `zip`; 7z is pre-installed.
-        VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
-        ZIP_NAME="${app_id}-${VERSION}-windows-${{ matrix.arch }}-kodi${{ matrix.kodi }}.zip"
-        mkdir -p artifacts
-        cd install
-        7z a -tzip "${WS}/artifacts/${ZIP_NAME}" "${app_id}/"
+  # ---------------------------------------------------------------------- Windows
+  build-windows:
+    name: package (windows x86_64, ${{ matrix.channel }})
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { channel: Omega, kodi: 21 }
+          - { channel: Piers, kodi: 22 }
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}
-        path: ${{ github.workspace }}/artifacts/*.zip
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
 
+      - name: Build and package
+        shell: bash
+        run: |
+          set -euo pipefail
+          WS="$(pwd -W)"
+          mkdir -p xbmc/cmake/addons/addons/${app_id}
+          echo "${app_id} ${WS}/${app_id}" > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
+
+          cmake \
+            -B "${app_id}/build" \
+            -G "Visual Studio 17 2022" -A x64 -T host=x64 \
+            -DADDONS_TO_BUILD="${app_id}" \
+            -DADDON_SRC_PREFIX="${WS}" \
+            -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${WS}/install" \
+            -DPACKAGE_ZIP=1 \
+            "${WS}/xbmc/cmake/addons"
+          cmake --build "${app_id}/build" --config Release --target "${app_id}"
+
+          VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
+          ZIP_NAME="${app_id}-${VERSION}-windows-x86_64-kodi${{ matrix.kodi }}.zip"
+          mkdir -p artifacts
+          # Fail loudly if the install step produced nothing, rather than letting
+          # 7z make an empty archive that upload-artifact then can't find.
+          if [[ ! -d "install/${app_id}" ]]; then
+            echo "::error::install/${app_id} does not exist — the install step" \
+                 "produced no addon tree, so there is nothing to package." >&2
+            ls -la install 2>/dev/null || true
+            exit 1
+          fi
+          # Git Bash on windows-2022 has no `zip`; 7z is preinstalled.
+          (cd install && 7z a -tzip "${WS}/artifacts/${ZIP_NAME}" "${app_id}/")
+          ls -la artifacts/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.app_id }}-windows-x86_64-kodi${{ matrix.kodi }}
+          path: artifacts/*.zip
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------- Release
   release:
-    needs: build
-    runs-on: ubuntu-latest
+    name: release
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-24.04
     permissions:
       contents: write # creates the draft GitHub release
     if: |
       startsWith(github.ref, 'refs/tags/v') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true')
     steps:
-    - name: Checkout addon (for version)
-      uses: actions/checkout@v5
+      - name: Checkout addon
+        uses: actions/checkout@v5
 
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-        merge-multiple: true
+      - name: Assert tag matches addon.xml.in version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The guard the Python add-ons have always had and this one never did.
+          # notes/release-workflow-summary.md documents the cost: a tag on a
+          # pre-bump commit yields a release tagged v0.9.1, titled "pvr.kofin
+          # 0.9.0", containing 0.9.0 zips — every name derived from the tagged
+          # tree, none of them cross-checked against the tag.
+          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
+          tag="${GITHUB_REF_NAME#v}"
+          echo "addon.xml.in version=$version  tag=$tag"
+          if [[ "$tag" != "$version" ]]; then
+            echo "::error::tag v$tag does not match addon.xml.in version $version." \
+                 "Retag on a commit whose tree carries the bump." >&2
+            exit 1
+          fi
 
-    - name: Flatten artifacts
-      run: |
-        find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
-        find artifacts -mindepth 1 -type d -empty -delete
-        ls -la artifacts/
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
 
-    - name: Get version and changelog
-      id: version
-      run: |
-        version=$(grep '^ *version=' pvr.kofin/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
-        echo "version=$version" >> $GITHUB_OUTPUT
-        if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-          echo "tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
-        else
-          echo "tag=v$version" >> $GITHUB_OUTPUT
-        fi
-        # Extract latest changelog entry (first paragraph)
-        changes=$(awk -v RS= 'NR==1' pvr.kofin/changelog.txt)
-        EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-        echo "changes<<$EOF" >> $GITHUB_OUTPUT
-        echo "$changes" >> $GITHUB_OUTPUT
-        echo "$EOF" >> $GITHUB_OUTPUT
+      - name: Flatten and inventory artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
+          find artifacts -mindepth 1 -type d -empty -delete
+          ls -la artifacts/
+          # 6 platforms x 2 Kodi versions. A short count means a build produced no
+          # zip; with if-no-files-found: error upstream that should already have
+          # failed, so this is the backstop that keeps a partial release from being
+          # drafted at all.
+          count="$(find artifacts -name '*.zip' | wc -l)"
+          echo "zips: $count"
+          if [[ "$count" -ne 12 ]]; then
+            echo "::error::expected 12 zips (6 platforms x Kodi 21/22), found $count." \
+                 "Publishing a partial set strands platforms on an older build." >&2
+            exit 1
+          fi
 
-    - name: Create release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: ${{ steps.version.outputs.tag }}
-        name: ${{ env.app_id }} ${{ steps.version.outputs.version }}
-        body: ${{ steps.version.outputs.changes }}
-        draft: true
-        files: artifacts/*.zip
+      - name: Get version and changelog
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          fi
+          changes="$(awk -v RS= 'NR==1' ${app_id}/changelog.txt)"
+          EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
+          {
+            echo "changes<<$EOF"
+            echo "$changes"
+            echo "$EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ env.app_id }} ${{ steps.version.outputs.version }}
+          body: ${{ steps.version.outputs.changes }}
+          draft: true
+          files: artifacts/*.zip

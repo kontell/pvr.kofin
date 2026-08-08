@@ -1,0 +1,132 @@
+# Watch upstream Kodi for the day our pinned ABI stops being installable.
+#
+# ci.yml and release.yml build against pinned Kodi refs, because @ADDON_DEPENDS@
+# in addon.xml.in is filled from those headers and an unpinned ref lets the
+# declared kodi.binary.instance.pvr version move with no commit here. Pinning
+# without watching, though, is just a slower way to be surprised.
+#
+# The thing being watched is narrower than "does it still build", and it is
+# specific to Kodi 22:
+#
+#   Omega          PVR 8.3.0, MIN 8.2.0   -> a one-minor cushion
+#   22.0b1-Piers   PVR 9.2.0, MIN 9.2.0   -> no cushion at all
+#
+# Kodi accepts an addon only within [MIN, current]. On Kodi 22 those are equal, so
+# the moment master bumps PVR to 9.3.0/MIN 9.3.0, supporting Beta 1 and supporting
+# master tip become mutually exclusive: a 9.2.0 binary is refused by the newer
+# Kodi and a 9.3.0 binary is refused by Beta 1. No single build satisfies both, and
+# no CI arrangement invents one.
+#
+# So this asserts the one question worth asking — is master's MIN still something
+# our pinned build satisfies — and builds against tip as a secondary signal. When
+# it fails it is a decision, not a breakage: either drop Beta 1 and re-pin
+# forward, or hold Beta 1 and accept that newer Kodi 22 builds are unsupported
+# until you do. Learning it from a Monday cron beats learning it from a user whose
+# Kodi updated.
+name: Upstream drift
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # Mondays, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  app_id: pvr.kofin
+  kodi_omega_ref: "21.3-Omega"
+  kodi_piers_ref: "22.0b1-Piers"
+
+jobs:
+  abi-window:
+    name: ABI window still open
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Compare pinned refs against upstream tips
+        shell: bash
+        run: |
+          set -euo pipefail
+          raw="https://raw.githubusercontent.com/xbmc/xbmc"
+          versions_h="xbmc/addons/kodi-dev-kit/include/kodi/versions.h"
+
+          read_def() { # ref, macro
+            curl -fsSL "$raw/$1/$versions_h" \
+              | sed -n "s/^#define $2[[:space:]]*\"\([0-9.]*\)\".*/\1/p" | head -1
+          }
+          # 9.2.0 <= 9.3.0 ?
+          le() { [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" == "$1" ]]; }
+
+          status=0
+          for pair in "Omega:${kodi_omega_ref}:Omega" "Piers:${kodi_piers_ref}:master"; do
+            channel="${pair%%:*}"; rest="${pair#*:}"
+            pinned="${rest%%:*}"; tip="${rest#*:}"
+            echo "== $channel: pinned $pinned, upstream $tip"
+            for api in PVR INPUTSTREAM; do
+              ours="$(read_def "$pinned" "ADDON_INSTANCE_VERSION_${api}")"
+              tip_min="$(read_def "$tip" "ADDON_INSTANCE_VERSION_${api}_MIN")"
+              tip_cur="$(read_def "$tip" "ADDON_INSTANCE_VERSION_${api}")"
+              [[ -z "$ours" || -z "$tip_min" ]] && { echo "   $api: could not read"; continue; }
+              echo "   $api: we declare $ours; $tip accepts [$tip_min, $tip_cur]"
+              if ! le "$tip_min" "$ours"; then
+                echo "::warning::$channel $api: upstream $tip now requires >= $tip_min," \
+                     "and we build $ours against $pinned. Those no longer overlap —" \
+                     "a build for the pin will be refused by current $tip and vice versa." \
+                     "Decide: re-pin forward and drop the older target, or hold the pin."
+                status=1
+              fi
+            done
+          done
+          exit $status
+
+  build-against-tip:
+    # Secondary signal: does the source still compile against upstream tip at all?
+    # A failure here is informational — nothing ships from this workflow.
+    name: compile against ${{ matrix.tip }} (unpinned)
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { tip: Omega, kodi: 21 }
+          - { tip: master, kodi: 22 }
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi at tip
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.tip }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y autopoint
+
+      - name: Configure and build
+        run: |
+          mkdir -p xbmc/cmake/addons/addons/${app_id}
+          echo "${app_id} ${{ github.workspace }}/${app_id}" \
+            > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
+          cmake \
+            -B ${app_id}/build \
+            -DADDONS_TO_BUILD=${app_id} \
+            -DADDON_SRC_PREFIX=${{ github.workspace }} \
+            -DADDONS_DEFINITION_DIR=${{ github.workspace }}/xbmc/cmake/addons/addons \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/output \
+            -DPACKAGE_ZIP=1 \
+            ${{ github.workspace }}/xbmc/cmake/addons
+          make -C ${app_id}/build -j$(getconf _NPROCESSORS_ONLN)
