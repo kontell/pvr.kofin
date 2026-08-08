@@ -110,27 +110,32 @@ jobs:
           # CMAKE_C/CXX_FLAGS but not linker flags, hence LDFLAGS. Empty on
           # Android: the NDK supplies its own STL and these are GCC/Linux flags.
           LDFLAGS: ${{ matrix.os == 'linux' && '-static-libstdc++ -static-libgcc' || '' }}
+        # Relative to the job's working directory, NOT ${{ github.workspace }}.
+        # In a container job that expression yields the *host* path
+        # (/home/runner/work/...), while the workspace is bind-mounted at
+        # /__w/... — so the absolute form resolves to nothing and the step dies
+        # with exit 127. The container's workdir *is* the workspace, so relative
+        # paths are correct and unambiguous.
         run: |
-          ${{ github.workspace }}/${app_id}/scripts/build.sh \
+          ./${app_id}/scripts/build.sh \
             --os ${{ matrix.os }} \
             --arch ${{ matrix.arch }} \
             --kodi ${{ matrix.kodi }} \
-            --kodi-src ${{ github.workspace }}/xbmc \
+            --kodi-src ./xbmc \
             ${{ matrix.os == 'android' && format('--ndk {0}', steps.setup-ndk.outputs.ndk-path) || '' }} \
-            --output ${{ github.workspace }}/artifacts \
+            --output ./artifacts \
             --jobs $(getconf _NPROCESSORS_ONLN)
 
       - name: Assert the ABI floor
         # Skips Android itself (bionic has no versioned glibc symbols).
         run: |
-          ${{ github.workspace }}/${app_id}/scripts/check-abi.sh \
-            ${{ github.workspace }}/artifacts "${{ env.max_glibc }}"
+          ./${app_id}/scripts/check-abi.sh ./artifacts "${{ env.max_glibc }}"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}
-          path: ${{ github.workspace }}/artifacts/*.zip
+          path: artifacts/*.zip
           # Not the default (warn): a job that produces no zip would otherwise
           # report success and the asset would be silently missing from the
           # release. That is exactly how inputstream.tempo v0.3.11 shipped 10
@@ -207,7 +212,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.app_id }}-windows-x86_64-kodi${{ matrix.kodi }}
-          path: ${{ github.workspace }}/artifacts/*.zip
+          path: artifacts/*.zip
           if-no-files-found: error
 
   # ---------------------------------------------------------------------- Release

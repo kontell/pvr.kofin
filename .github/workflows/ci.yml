@@ -211,15 +211,21 @@ jobs:
           # superbuild forwards CMAKE_C/CXX_FLAGS but not linker flags, so this
           # goes in via LDFLAGS, which the inner addon's configure reads.
           LDFLAGS: "-static-libstdc++ -static-libgcc"
+        # Relative to the job's working directory, NOT ${{ github.workspace }}.
+        # In a container job that expression yields the *host* path
+        # (/home/runner/work/...), while the workspace is bind-mounted at
+        # /__w/... — so the absolute form resolves to nothing and the step dies
+        # with exit 127. The container's workdir *is* the workspace, so relative
+        # paths are correct and unambiguous.
         run: |
-          ${{ github.workspace }}/${app_id}/scripts/build.sh \
+          ./${app_id}/scripts/build.sh \
             --os linux --arch x86_64 --kodi ${{ matrix.kodi }} \
-            --kodi-src ${{ github.workspace }}/xbmc \
-            --output ${{ github.workspace }}/artifacts \
+            --kodi-src ./xbmc \
+            --output ./artifacts \
             --jobs $(getconf _NPROCESSORS_ONLN)
 
       - name: Assert the ABI floor
-        run: ${{ github.workspace }}/${app_id}/scripts/check-abi.sh ${{ github.workspace }}/artifacts
+        run: ./${app_id}/scripts/check-abi.sh ./artifacts
 
       - name: Name zip for this run
         id: name
@@ -227,7 +233,7 @@ jobs:
         run: |
           set -euo pipefail
           shopt -s nullglob
-          zips=(${{ github.workspace }}/artifacts/*.zip)
+          zips=(artifacts/*.zip)
           if [[ ${#zips[@]} -ne 1 ]]; then
             echo "expected exactly one zip, got: ${zips[*]:-none}" >&2
             exit 1
