@@ -623,3 +623,43 @@ msgstr "Intervallo di interrogazione timer/registrazioni"
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "Secondi tra le interrogazioni al server Jellyfin per rilevare modifiche a timer e registrazioni (registrazioni programmate o completate altrove, indicatori di registrazione nell'EPG, widget). Limitato tra 15 e 3600."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "Sessione scaduta. Accedi di nuovo."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "Impossibile aggiungere il timer"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "Impossibile eliminare il timer"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "Connessione non riuscita"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "Connessione riuscita"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "Impossibile avviare Quick Connect"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "Timeout di Quick Connect"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "Jellyfin non supporta la modifica dei timer"

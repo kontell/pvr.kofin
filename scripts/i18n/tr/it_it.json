@@ -102,5 +102,13 @@
   "#30829": "Illimitato",
   "#30830": "Registrazione interrotta in anticipo",
   "#30831": "Intervallo di interrogazione timer/registrazioni",
-  "#30832": "Secondi tra le interrogazioni al server Jellyfin per rilevare modifiche a timer e registrazioni (registrazioni programmate o completate altrove, indicatori di registrazione nell'EPG, widget). Limitato tra 15 e 3600."
+  "#30832": "Secondi tra le interrogazioni al server Jellyfin per rilevare modifiche a timer e registrazioni (registrazioni programmate o completate altrove, indicatori di registrazione nell'EPG, widget). Limitato tra 15 e 3600.",
+  "#30833": "Sessione scaduta. Accedi di nuovo.",
+  "#30834": "Impossibile aggiungere il timer",
+  "#30835": "Impossibile eliminare il timer",
+  "#30836": "Connessione non riuscita",
+  "#30837": "Connessione riuscita",
+  "#30838": "Impossibile avviare Quick Connect",
+  "#30839": "Timeout di Quick Connect",
+  "#30840": "Jellyfin non supporta la modifica dei timer"
 }

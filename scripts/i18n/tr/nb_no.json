@@ -102,5 +102,13 @@
   "#30829": "Ubegrenset",
   "#30830": "Opptaket stoppet for tidlig",
   "#30831": "Intervall for spørring av timere/opptak",
-  "#30832": "Sekunder mellom spørringer til Jellyfin-serveren om endringer i timere og opptak (opptak planlagt eller fullført et annet sted, opptaksindikatorer i EPG-en, moduler). Begrenset til mellom 15 og 3600."
+  "#30832": "Sekunder mellom spørringer til Jellyfin-serveren om endringer i timere og opptak (opptak planlagt eller fullført et annet sted, opptaksindikatorer i EPG-en, moduler). Begrenset til mellom 15 og 3600.",
+  "#30833": "Økten er utløpt. Logg inn på nytt.",
+  "#30834": "Kunne ikke legge til timeren",
+  "#30835": "Kunne ikke slette timeren",
+  "#30836": "Tilkoblingen mislyktes",
+  "#30837": "Tilkoblingen lyktes",
+  "#30838": "Kunne ikke starte Quick Connect",
+  "#30839": "Tidsavbrudd for Quick Connect",
+  "#30840": "Jellyfin støtter ikke redigering av timere"
 }

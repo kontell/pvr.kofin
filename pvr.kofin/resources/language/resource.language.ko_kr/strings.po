@@ -623,3 +623,43 @@ msgstr "타이머/녹화 폴링 간격"
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "타이머와 녹화 변경 사항(다른 곳에서 예약되거나 완료된 녹화, EPG 녹화 표시, 위젯)을 확인하기 위해 Jellyfin 서버를 폴링하는 간격(초)입니다. 15~3600 사이로 제한됩니다."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "세션이 만료되었습니다. 다시 로그인하세요."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "타이머를 추가할 수 없습니다"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "타이머를 삭제할 수 없습니다"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "연결 실패"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "연결 성공"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "Quick Connect를 시작할 수 없습니다"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "Quick Connect 시간이 초과되었습니다"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "Jellyfin은 타이머 편집을 지원하지 않습니다"

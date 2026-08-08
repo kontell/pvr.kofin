@@ -102,5 +102,13 @@
   "#30829": "Unbegrenzt",
   "#30830": "Aufnahme vorzeitig beendet",
   "#30831": "Abfrageintervall für Timer/Aufnahmen",
-  "#30832": "Sekunden zwischen Abfragen des Jellyfin-Servers nach Änderungen an Timern und Aufnahmen (anderswo geplante oder beendete Aufnahmen, Aufnahmeindikatoren im EPG, Widgets). Begrenzt auf 15 bis 3600."
+  "#30832": "Sekunden zwischen Abfragen des Jellyfin-Servers nach Änderungen an Timern und Aufnahmen (anderswo geplante oder beendete Aufnahmen, Aufnahmeindikatoren im EPG, Widgets). Begrenzt auf 15 bis 3600.",
+  "#30833": "Sitzung abgelaufen. Melde dich bitte erneut an.",
+  "#30834": "Timer konnte nicht hinzugefügt werden",
+  "#30835": "Timer konnte nicht gelöscht werden",
+  "#30836": "Verbindung fehlgeschlagen",
+  "#30837": "Verbindung erfolgreich",
+  "#30838": "Quick Connect konnte nicht gestartet werden",
+  "#30839": "Zeitüberschreitung bei Quick Connect",
+  "#30840": "Jellyfin unterstützt das Bearbeiten von Timern nicht"
 }

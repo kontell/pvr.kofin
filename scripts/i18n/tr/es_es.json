@@ -102,5 +102,13 @@
   "#30829": "Ilimitado",
   "#30830": "La grabación se detuvo antes de tiempo",
   "#30831": "Intervalo de sondeo de temporizadores/grabaciones",
-  "#30832": "Segundos entre consultas al servidor Jellyfin en busca de cambios en temporizadores y grabaciones (grabaciones programadas o finalizadas en otro lugar, indicadores de grabación en la EPG, widgets). Limitado entre 15 y 3600."
+  "#30832": "Segundos entre consultas al servidor Jellyfin en busca de cambios en temporizadores y grabaciones (grabaciones programadas o finalizadas en otro lugar, indicadores de grabación en la EPG, widgets). Limitado entre 15 y 3600.",
+  "#30833": "La sesión ha caducado. Vuelve a iniciar sesión.",
+  "#30834": "No se ha podido añadir el temporizador",
+  "#30835": "No se ha podido eliminar el temporizador",
+  "#30836": "Error de conexión",
+  "#30837": "Conexión correcta",
+  "#30838": "No se ha podido iniciar Quick Connect",
+  "#30839": "Se agotó el tiempo de espera de Quick Connect",
+  "#30840": "Jellyfin no admite editar temporizadores"
 }

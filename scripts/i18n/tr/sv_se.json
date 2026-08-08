@@ -102,5 +102,13 @@
   "#30829": "Obegränsat",
   "#30830": "Inspelningen stoppades i förtid",
   "#30831": "Pollningsintervall för timers/inspelningar",
-  "#30832": "Antal sekunder mellan förfrågningar till Jellyfin-servern om ändringar av timers och inspelningar (inspelningar som schemalagts eller avslutats någon annanstans, inspelningsindikatorer i EPG:n, widgetar). Begränsat till mellan 15 och 3600."
+  "#30832": "Antal sekunder mellan förfrågningar till Jellyfin-servern om ändringar av timers och inspelningar (inspelningar som schemalagts eller avslutats någon annanstans, inspelningsindikatorer i EPG:n, widgetar). Begränsat till mellan 15 och 3600.",
+  "#30833": "Sessionen har upphört. Logga in igen.",
+  "#30834": "Det gick inte att lägga till timern",
+  "#30835": "Det gick inte att ta bort timern",
+  "#30836": "Anslutningen misslyckades",
+  "#30837": "Anslutningen lyckades",
+  "#30838": "Det gick inte att starta Quick Connect",
+  "#30839": "Tidsgränsen för Quick Connect överskreds",
+  "#30840": "Jellyfin har inte stöd för att redigera timers"
 }

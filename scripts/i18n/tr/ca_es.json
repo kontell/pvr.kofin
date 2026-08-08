@@ -102,5 +102,13 @@
   "#30829": "Il·limitat",
   "#30830": "L'enregistrament s'ha aturat abans d'hora",
   "#30831": "Interval de consulta de temporitzadors/enregistraments",
-  "#30832": "Segons entre consultes al servidor Jellyfin per detectar canvis en temporitzadors i enregistraments (enregistraments programats o finalitzats en un altre lloc, indicadors d'enregistrament a l'EPG, ginys). Limitat entre 15 i 3600."
+  "#30832": "Segons entre consultes al servidor Jellyfin per detectar canvis en temporitzadors i enregistraments (enregistraments programats o finalitzats en un altre lloc, indicadors d'enregistrament a l'EPG, ginys). Limitat entre 15 i 3600.",
+  "#30833": "La sessió ha caducat. Torneu a iniciar la sessió.",
+  "#30834": "No s'ha pogut afegir el temporitzador",
+  "#30835": "No s'ha pogut suprimir el temporitzador",
+  "#30836": "Ha fallat la connexió",
+  "#30837": "Connexió correcta",
+  "#30838": "No s'ha pogut iniciar Quick Connect",
+  "#30839": "Quick Connect ha esgotat el temps d'espera",
+  "#30840": "Jellyfin no permet editar temporitzadors"
 }
