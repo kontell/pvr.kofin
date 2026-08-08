@@ -111,5 +111,7 @@
   "#30838": "Quick Connect sa nepodarilo spustiť",
   "#30839": "Vypršal časový limit Quick Connect",
   "#30840": "Jellyfin nepodporuje úpravu časovačov",
-  "#30841": "Nahrávanie dokončené"
+  "#30841": "Nahrávanie dokončené",
+  "#30842": "Overovať certifikát SSL",
+  "#30843": "Vypnite len pre servery s vlastnoručne podpísanými certifikátmi. Platí pre vlastné požiadavky doplnku (prihlásenie, program, časovače, nahrávky); prehrávanie videa zabezpečuje Kodi a doplnky inputstream a nie je tým ovplyvnené."
 }

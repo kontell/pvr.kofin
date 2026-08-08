@@ -111,5 +111,7 @@
   "#30838": "Quick Connect konnte nicht gestartet werden",
   "#30839": "Zeitüberschreitung bei Quick Connect",
   "#30840": "Jellyfin unterstützt das Bearbeiten von Timern nicht",
-  "#30841": "Aufnahme beendet"
+  "#30841": "Aufnahme beendet",
+  "#30842": "SSL-Zertifikat überprüfen",
+  "#30843": "Deaktiviere dies nur für Server mit selbstsignierten Zertifikaten. Gilt für die eigenen Anfragen des Add-ons (Anmeldung, EPG, Timer, Aufnahmen); die Videowiedergabe übernehmen Kodi und die Inputstream-Add-ons und ist nicht betroffen."
 }

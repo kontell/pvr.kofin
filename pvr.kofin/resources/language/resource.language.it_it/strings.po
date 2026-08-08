@@ -668,3 +668,11 @@ msgstr "Jellyfin non supporta la modifica dei timer"
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Registrazione completata"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Verifica il certificato SSL"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Disattivalo solo per server con certificati autofirmati. Si applica alle richieste dell'add-on stesso (accesso, guida, timer, registrazioni); la riproduzione video è gestita da Kodi e dagli add-on inputstream e non è interessata."

@@ -10,6 +10,7 @@
 #include "../InstanceSettings.h"
 
 #include <json/json.h>
+#include <kodi/Filesystem.h>
 #include <memory>
 #include <string>
 
@@ -28,6 +29,9 @@ public:
   // Public for callers that stream via their own CFile (recorded-stream byte
   // path) so the token can travel as a header instead of a URL query param.
   std::string BuildAuthHeader() const;
+  // Apply the sslVerify setting to a handle opened outside this class, for the
+  // same reason. Call after CURLCreate and before CURLOpen.
+  void ApplyTlsOptions(kodi::vfs::CFile& file) const;
   bool AuthenticateByPassword(const std::string& username, const std::string& password);
   bool StartQuickConnect(std::string& code);
   bool CheckQuickConnect(std::string& userId, std::string& accessToken);

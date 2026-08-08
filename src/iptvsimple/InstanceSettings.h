@@ -156,6 +156,9 @@ namespace iptvsimple
     int GetTimerRecordingPollSecs() const { return m_timerRecordingPollSecs; }
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
     int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
+    // Applies to the addon's own HTTP only. Stream URLs are handed to
+    // inputstream.ffmpegdirect/adaptive, which make their own connections.
+    bool GetSslVerify() const { return m_sslVerify; }
 
     // Codec name helpers for device profile
     std::string GetPreferredVideoCodecName() const
@@ -232,5 +235,6 @@ namespace iptvsimple
     int m_timerRecordingPollSecs = 60;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
     int m_connectioncCheckIntervalSecs = 60;
+    bool m_sslVerify = true;
   };
 } //namespace iptvsimple

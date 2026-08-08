@@ -111,5 +111,7 @@
   "#30838": "No s'ha pogut iniciar Quick Connect",
   "#30839": "Quick Connect ha esgotat el temps d'espera",
   "#30840": "Jellyfin no permet editar temporitzadors",
-  "#30841": "Enregistrament finalitzat"
+  "#30841": "Enregistrament finalitzat",
+  "#30842": "Verifica el certificat SSL",
+  "#30843": "Desactiveu-ho només per a servidors amb certificats autofirmats. S'aplica a les peticions del mateix complement (inici de sessió, guia, temporitzadors, enregistraments); la reproducció de vídeo la gestionen Kodi i els complements inputstream i no es veu afectada."
 }

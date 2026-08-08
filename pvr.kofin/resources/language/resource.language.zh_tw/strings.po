@@ -668,3 +668,11 @@ msgstr "Jellyfin 不支援編輯計時器"
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr "錄製已完成"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "驗證 SSL 憑證"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "僅在伺服器使用自我簽署憑證時關閉。適用於外掛自身的請求（登入、節目表、計時器、錄製）；影片播放由 Kodi 與 inputstream 外掛處理，不受影響。"

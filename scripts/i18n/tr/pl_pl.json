@@ -111,5 +111,7 @@
   "#30838": "Nie udało się uruchomić Quick Connect",
   "#30839": "Upłynął limit czasu Quick Connect",
   "#30840": "Jellyfin nie obsługuje edycji timerów",
-  "#30841": "Nagrywanie zakończone"
+  "#30841": "Nagrywanie zakończone",
+  "#30842": "Weryfikuj certyfikat SSL",
+  "#30843": "Wyłącz tylko dla serwerów z certyfikatem podpisanym samodzielnie. Dotyczy własnych żądań dodatku (logowanie, program, timery, nagrania); odtwarzanie wideo obsługują Kodi i dodatki inputstream i nie podlega tej opcji."
 }

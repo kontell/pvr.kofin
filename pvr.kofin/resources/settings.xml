@@ -554,6 +554,11 @@
           <default>60</default>
           <control type="edit" format="integer" />
         </setting>
+        <setting id="sslVerify" type="boolean" label="30842" help="30843">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle" />
+        </setting>
       </group>
       <group id="2" label="30772">
         <setting id="referencePlaylistEnabled" type="boolean" label="30773" help="30774">

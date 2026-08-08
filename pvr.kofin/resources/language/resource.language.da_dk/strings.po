@@ -668,3 +668,11 @@ msgstr "Jellyfin understøtter ikke redigering af timere"
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Optagelsen er afsluttet"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Verificér SSL-certifikat"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Slå kun fra for servere med selvsignerede certifikater. Gælder tilføjelsens egne forespørgsler (login, guide, timere, optagelser); videoafspilning håndteres af Kodi og inputstream-tilføjelserne og påvirkes ikke."

@@ -667,3 +667,11 @@ msgstr ""
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr ""
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr ""
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr ""
