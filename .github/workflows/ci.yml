@@ -1,0 +1,256 @@
+# Every-PR gate: does it compile for both Kodi versions, and does it package.
+# release.yml handles tags and is the only place a release is built.
+#
+# Named CI, and its jobs named for what they do, because the old arrangement had
+# release.yml running the full 12-way cross-compile matrix on every pull request:
+# a PR's checks were called "Linux aarch64 / Kodi 21" under a workflow called
+# "Release", and the cost of a PR was a release build.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  app_id: pvr.kofin
+  # Pinned Kodi sources. addon.xml.in's @ADDON_DEPENDS@ is filled from these
+  # headers, so an unpinned ref lets the kodi.binary.instance.pvr version written
+  # into the shipped addon.xml move with no commit here — and a zip can then stop
+  # installing on a Kodi the user already has. drift.yml watches upstream tip
+  # separately so this staying still is a decision, not neglect.
+  kodi_omega_ref: "21.3-Omega"
+  kodi_piers_ref: "22.0b1-Piers"
+
+jobs:
+  compile:
+    # Fast feedback on the plain pinned runner: this job answers "does it build",
+    # for which the ABI floor is irrelevant. The floor is exercised once per PR by
+    # the package job below, which uses the same container as a release.
+    name: compile (${{ matrix.cc }}, ${{ matrix.channel }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { cc: gcc, cxx: g++, channel: Omega, kodi: 21 }
+          - { cc: clang, cxx: clang++, channel: Omega, kodi: 21 }
+          - { cc: gcc, cxx: g++, channel: Piers, kodi: 22 }
+          - { cc: clang, cxx: clang++, channel: Piers, kodi: 22 }
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: sudo apt-get update -qq && sudo apt-get install -y autopoint
+
+      - name: Register addon
+        shell: bash
+        run: |
+          mkdir -p xbmc/cmake/addons/addons/${app_id}
+          echo "${app_id} ${{ github.workspace }}/${app_id}" \
+            > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
+
+      - name: Configure
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake \
+            -B ${app_id}/build \
+            -DADDONS_TO_BUILD=${app_id} \
+            -DADDON_SRC_PREFIX=${{ github.workspace }} \
+            -DADDONS_DEFINITION_DIR=${{ github.workspace }}/xbmc/cmake/addons/addons \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/output \
+            -DPACKAGE_ZIP=1 \
+            ${{ github.workspace }}/xbmc/cmake/addons
+
+      - name: Build
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: make -C ${app_id}/build -j$(getconf _NPROCESSORS_ONLN)
+
+  compile-windows:
+    name: compile (msvc, ${{ matrix.channel }})
+    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { channel: Omega, kodi: 21 }
+          - { channel: Piers, kodi: 22 }
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Configure and build
+        shell: bash
+        run: |
+          set -euo pipefail
+          # pwd -W gives a forward-slash Windows path, so CMake args survive
+          # bash's backslash-escape processing.
+          WS="$(pwd -W)"
+          mkdir -p xbmc/cmake/addons/addons/${app_id}
+          echo "${app_id} ${WS}/${app_id}" > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
+          cmake \
+            -B "${app_id}/build" \
+            -G "Visual Studio 17 2022" -A x64 -T host=x64 \
+            -DADDONS_TO_BUILD="${app_id}" \
+            -DADDON_SRC_PREFIX="${WS}" \
+            -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="${WS}/output" \
+            -DPACKAGE_ZIP=1 \
+            "${WS}/xbmc/cmake/addons"
+          cmake --build "${app_id}/build" --config Release --target "${app_id}"
+
+  package:
+    # One installable zip per PR, built exactly as a release is — same container,
+    # same static-C++ link, same ABI assertion. Binary PRs previously produced no
+    # artifact at all, so there was nothing to sideload to test a change.
+    name: package (linux x86_64, ${{ matrix.channel }})
+    runs-on: ubuntu-24.04
+    container:
+      # The ABI floor lives here, not in the runner label, for two reasons.
+      #
+      # Runner labels get retired: ubuntu-22.04 begins deprecation 2026-09-17 and
+      # is unsupported from 2027-04-17, so pinning the floor to a label buys months
+      # and then breaks on someone else's schedule. A digest-pinned image does not.
+      #
+      # And the floor is a property of the build host, not of this code. Measured:
+      # a C++ .so using only std::vector/std::string/make_shared, built with the
+      # static flags below on glibc 2.42, still requires __isoc23_strtoul@GLIBC_2.38
+      # — a C23 symbol the *headers* substitute in, plus arc4random@2.36 and
+      # _dl_find_object@2.35 from the static unwinder. None of that is reachable
+      # from the source. Building on 22.04 (glibc 2.35) removes the 2.38 symbol
+      # outright and leaves real headroom under the CoreELEC 21.x floor.
+      image: ubuntu:22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { channel: Omega, kodi: 21 }
+          - { channel: Piers, kodi: 22 }
+    steps:
+      - name: Install toolchain
+        # Before checkout, so actions/checkout finds git and clones properly
+        # instead of falling back to the REST tarball.
+        run: |
+          set -eux
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential cmake git zip unzip ca-certificates \
+            autopoint autoconf automake libtool m4 pkg-config python3 \
+            binutils file
+          gcc --version | head -1
+          ldd --version | head -1
+
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Build
+        env:
+          # Statically link the C++ runtime so the .so depends only on glibc and
+          # not on a GLIBCXX_3.4.x the target may not have. The Kodi addon
+          # superbuild forwards CMAKE_C/CXX_FLAGS but not linker flags, so this
+          # goes in via LDFLAGS, which the inner addon's configure reads.
+          LDFLAGS: "-static-libstdc++ -static-libgcc"
+        run: |
+          ${{ github.workspace }}/${app_id}/scripts/build.sh \
+            --os linux --arch x86_64 --kodi ${{ matrix.kodi }} \
+            --kodi-src ${{ github.workspace }}/xbmc \
+            --output ${{ github.workspace }}/artifacts \
+            --jobs $(getconf _NPROCESSORS_ONLN)
+
+      - name: Assert the ABI floor
+        run: ${{ github.workspace }}/${app_id}/scripts/check-abi.sh ${{ github.workspace }}/artifacts
+
+      - name: Name zip for this run
+        id: name
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          zips=(${{ github.workspace }}/artifacts/*.zip)
+          if [[ ${#zips[@]} -ne 1 ]]; then
+            echo "expected exactly one zip, got: ${zips[*]:-none}" >&2
+            exit 1
+          fi
+          src="${zips[0]}"
+          base="$(basename "$src" .zip)"
+          sha7="$(echo "${{ github.sha }}" | cut -c1-7)"
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            dest="$(dirname "$src")/${base}-pr${{ github.event.pull_request.number }}-${sha7}.zip"
+          else
+            dest="$(dirname "$src")/${base}-main-${sha7}.zip"
+          fi
+          mv "$src" "$dest"
+          echo "zip=$dest" >> "$GITHUB_OUTPUT"
+          ls -la "$(dirname "$dest")"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.app_id }}-${{ matrix.channel }}-pr-zip
+          path: ${{ steps.name.outputs.zip }}
+          retention-days: 14
+          # Not the default (warn). A job that builds nothing and uploads nothing
+          # otherwise reports success — which is how inputstream.tempo shipped
+          # v0.3.11 with 10 assets from 12 green jobs, missing both Windows zips.
+          if-no-files-found: error
