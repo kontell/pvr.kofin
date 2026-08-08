@@ -1267,29 +1267,26 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
 {
   const std::string recordingId = recording.GetRecordingId();
 
-  if (count == 0)
+  // The played flag has its own endpoint, so say it outright instead of
+  // deferring to whatever position write Kodi happens to send next.
+  const std::string endpoint = "/UserPlayedItems/" + recordingId
+    + "?userId=" + m_client->GetUserId();
+
+  if (count > 0)
   {
-    // Mark as unwatched — send immediately (Kodi may not call Position(0) after this)
-    Logger::Log(LEVEL_INFO, "%s - Marking unwatched: %s", __FUNCTION__, recordingId.c_str());
-    const std::string endpoint = "/Users/" + m_client->GetUserId()
-      + "/Items/" + recordingId + "/UserData";
-    Json::Value body;
-    body["Played"] = false;
-    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
-    Json::StreamWriterBuilder writer;
-    writer["indentation"] = "";
-    if (!m_client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
+    Logger::Log(LEVEL_INFO, "%s - Marking watched: %s", __FUNCTION__, recordingId.c_str());
+    // The route binds userId and itemId from the query and route and declares
+    // no body, so this object is ignored — but it cannot be empty: a request
+    // through Kodi's VFS is only a POST because it carries postdata, and an
+    // empty body would issue a GET.
+    if (!m_client->SendPostExpectSuccess(endpoint, "{}"))
       return PVR_ERROR_SERVER_ERROR;
   }
   else
   {
-    // Record the intent — defer to SetRecordingLastPlayedPosition(0) to
-    // distinguish "mark as watched" (PlayCount then Position=0) from
-    // "playback start" (PlayCount only, no Position=0)
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_recentPlayCountCalls[recordingId] = {count, std::chrono::steady_clock::now()};
-    Logger::Log(LEVEL_DEBUG, "%s - Recorded PlayCount(%d) for %s",
-                __FUNCTION__, count, recordingId.c_str());
+    Logger::Log(LEVEL_INFO, "%s - Marking unwatched: %s", __FUNCTION__, recordingId.c_str());
+    if (!m_client->SendDelete(endpoint))
+      return PVR_ERROR_SERVER_ERROR;
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -1302,52 +1299,23 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
   if (lastplayedposition < 0)
     lastplayedposition = 0;
 
-  const std::string endpoint = "/Users/" + m_client->GetUserId()
-    + "/Items/" + recordingId + "/UserData";
+  // A partial UpdateUserItemDataDto. UserDataManager::SaveUserData assigns
+  // only the fields that are present, so this moves the resume point without
+  // touching the played flag, the play count or the favourite state. A zero
+  // position is how "reset resume position" is expressed — Jellyfin has no
+  // separate endpoint for clearing one.
+  const std::string endpoint = "/UserItems/" + recordingId + "/UserData"
+    + "?userId=" + m_client->GetUserId();
 
   Json::Value body;
+  body["PlaybackPositionTicks"] =
+    static_cast<Json::Int64>(static_cast<int64_t>(lastplayedposition) * 10000000LL);
+
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
 
-  if (lastplayedposition > 0)
-  {
-    // Normal position save
-    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(static_cast<int64_t>(lastplayedposition) * 10000000LL);
-    Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
-                __FUNCTION__, lastplayedposition, recordingId.c_str());
-  }
-  else
-  {
-    // Position=0 — check for a recent SetRecordingPlayCount to determine intent
-    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
-
-    bool hadRecentPlayCount = false;
-    bool markPlayed = false;
-    {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      auto it = m_recentPlayCountCalls.find(recordingId);
-      if (it != m_recentPlayCountCalls.end() &&
-          std::chrono::steady_clock::now() - it->second.second < std::chrono::seconds(2))
-      {
-        hadRecentPlayCount = true;
-        markPlayed = (it->second.first > 0);
-        m_recentPlayCountCalls.erase(it);
-      }
-    }
-
-    if (hadRecentPlayCount)
-    {
-      body["Played"] = markPlayed;
-      Logger::Log(LEVEL_INFO, "%s - Marking %s for %s",
-                  __FUNCTION__, markPlayed ? "watched" : "unwatched", recordingId.c_str());
-    }
-    else
-    {
-      // Reset resume position (no preceding PlayCount) — just clear position
-      Logger::Log(LEVEL_INFO, "%s - Clearing resume position for %s",
-                  __FUNCTION__, recordingId.c_str());
-    }
-  }
+  Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
+              __FUNCTION__, lastplayedposition, recordingId.c_str());
 
   if (!m_client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
     return PVR_ERROR_SERVER_ERROR;
