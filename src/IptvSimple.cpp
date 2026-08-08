@@ -11,6 +11,7 @@
 #include "iptvsimple/InstanceSettings.h"
 #include "iptvsimple/utilities/Logger.h"
 #include "iptvsimple/utilities/StreamUtils.h"
+#include "iptvsimple/utilities/Toast.h"
 #include "iptvsimple/utilities/TimeUtils.h"
 #include "iptvsimple/utilities/WebUtils.h"
 
@@ -131,7 +132,7 @@ void IptvSimple::ConnectionEstablished()
   if (!m_insecureWarningShown && m_settings->IsInsecureRemoteConnection())
   {
     m_insecureWarningShown = true;
-    kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR", kodi::addon::GetLocalizedString(30727));
+    Toast::Warning(30727);
   }
 
   // Create Jellyfin client
@@ -145,7 +146,7 @@ void IptvSimple::ConnectionEstablished()
   if (!m_jellyfinClient->Authenticate())
   {
     Logger::Log(LEVEL_ERROR, "%s - Authentication failed. Token may have expired — please log in again.", __FUNCTION__);
-    kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Session expired. Please log in again.");
+    Toast::Error(30833);
     return;
   }
 
@@ -845,7 +846,7 @@ PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
   RunTimerOpAsync([this, timer]() {
     if (m_recordingManager->AddTimer(timer) != PVR_ERROR_NO_ERROR)
     {
-      kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Failed to add timer");
+      Toast::Error(30834);
       return;
     }
 
@@ -899,7 +900,7 @@ PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool force
     }
     else
     {
-      kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Failed to delete timer");
+      Toast::Error(30835);
     }
   });
   return PVR_ERROR_NO_ERROR;

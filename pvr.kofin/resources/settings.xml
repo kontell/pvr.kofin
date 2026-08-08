@@ -305,7 +305,7 @@
         </setting>
         <setting id="maxAudioChannels" type="integer" label="30791" help="30792">
           <level>0</level>
-          <default>6</default>
+          <default>8</default>
           <constraints>
             <options>
               <option label="30793">2</option>
@@ -553,6 +553,11 @@
           <level>0</level>
           <default>60</default>
           <control type="edit" format="integer" />
+        </setting>
+        <setting id="sslVerify" type="boolean" label="30842" help="30843">
+          <level>0</level>
+          <default>true</default>
+          <control type="toggle" />
         </setting>
       </group>
       <group id="2" label="30772">

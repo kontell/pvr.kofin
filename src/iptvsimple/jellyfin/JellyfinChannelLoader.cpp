@@ -436,10 +436,10 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   profile["MusicStreamingTranscodingBitrate"] = 1280000;
   profile["TimelineOffsetSeconds"] = 5;
 
-  // Build audio codec list: preferred codec first, then the rest from the
-  // allowed list. Codecs not in the list will be transcoded.
+  // Audio codecs the device can decode, preferred codec first. This answers
+  // "what may reach the device untouched", so it belongs on DirectPlayProfiles.
   const std::string& allowedAudio = m_settings->GetDirectPlayAudioCodecs();
-  std::string audioCodecs = preferredAudio;
+  std::string directPlayAudioCodecs = preferredAudio;
   std::string::size_type aStart = 0;
   while (aStart < allowedAudio.length())
   {
@@ -448,9 +448,33 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       aEnd = allowedAudio.length();
     std::string codec = allowedAudio.substr(aStart, aEnd - aStart);
     if (codec != preferredAudio)
-      audioCodecs += "," + codec;
+      directPlayAudioCodecs += "," + codec;
     aStart = aEnd + 1;
   }
+
+  // TranscodingProfiles ask a different question: what may the server *produce*.
+  // Answering it with the direct-play list is what made a forced transcode
+  // fail. Jellyfin treats a source codec appearing here as a passthrough
+  // candidate and, having found one, discards the rest of the list
+  // (StreamBuilder.cs: `audioCodecs = [audioStream.Codec]`). An E-AC3 source
+  // therefore pinned the output to eac3 with no fallback left, and once a
+  // bitrate cap put the requested AudioBitrate below the source's the copy was
+  // refused — leaving the server to *encode* eac3, which Jellyfin 10.11 cannot
+  // do for a live TV source: it answers HTTP 400 out of
+  // DynamicHlsController.GetAudioArguments and no ffmpeg is ever started.
+  //
+  // So name the encode target instead, and only that. The video side has
+  // always drawn this distinction (see tsVideoCodecs below); audio never did.
+  //
+  // Jellyfin filters this list against what HLS allows for the segment
+  // container and does not restore a fallback if that empties it, so the
+  // choice has to be valid for the container it is attached to:
+  //   ts   -> aac, ac3, eac3, mp3
+  //   mp4  -> the above plus alac, flac, opus, dts, truehd
+  // Every preferred codec the settings offer is valid in mp4; only opus is not
+  // valid in ts, so ts falls back to aac.
+  const std::string fmp4AudioCodec = preferredAudio;
+  const std::string tsAudioCodec = (preferredAudio == "opus") ? "aac" : preferredAudio;
 
   // Allowed video codecs from settings. Virtual entries h264_10bit and
   // hevc_rext are mapped to their real codec names; they control CodecProfile
@@ -536,7 +560,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   Json::Value fmp4Profile;
   fmp4Profile["Container"] = "mp4";
   fmp4Profile["Type"] = "Video";
-  fmp4Profile["AudioCodec"] = audioCodecs;
+  fmp4Profile["AudioCodec"] = fmp4AudioCodec;
   fmp4Profile["VideoCodec"] = "av1";
   fmp4Profile["Context"] = "Streaming";
   fmp4Profile["Protocol"] = "hls";
@@ -547,7 +571,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   Json::Value tsProfile;
   tsProfile["Container"] = "ts";
   tsProfile["Type"] = "Video";
-  tsProfile["AudioCodec"] = audioCodecs;
+  tsProfile["AudioCodec"] = tsAudioCodec;
   tsProfile["VideoCodec"] = tsVideoCodecs;
   tsProfile["Context"] = "Streaming";
   tsProfile["Protocol"] = "hls";
@@ -600,7 +624,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     Json::Value v;
     v["Type"] = "Video";
     v["VideoCodec"] = directPlayVideoCodecs;
-    v["AudioCodec"] = audioCodecs;
+    v["AudioCodec"] = directPlayAudioCodecs;
     directPlayProfiles.append(v);
     Json::Value a;
     a["Type"] = "Audio";
@@ -879,6 +903,44 @@ void JellyfinChannelLoader::WriteSessionFile()
   }
 }
 
+std::string JellyfinChannelLoader::GetPlayingItemId() const
+{
+  const std::string path = m_settings->GetUserPath() + "session.json";
+
+  kodi::vfs::CFile file;
+  if (!file.OpenFile(path, ADDON_READ_NO_CACHE))
+    return {};
+
+  // The file is a handful of short fields; the cap is only there so a
+  // corrupted or foreign file cannot be read without bound.
+  static constexpr size_t MAX_SESSION_BYTES = 64 * 1024;
+  std::string data;
+  char buffer[1024];
+  ssize_t bytesRead;
+  while ((bytesRead = file.Read(buffer, sizeof(buffer))) > 0)
+  {
+    data.append(buffer, static_cast<size_t>(bytesRead));
+    if (data.size() > MAX_SESSION_BYTES)
+    {
+      file.Close();
+      return {};
+    }
+  }
+  file.Close();
+
+  if (data.empty())
+    return {};
+
+  Json::Value session;
+  Json::CharReaderBuilder builder;
+  std::string errors;
+  std::istringstream stream(data);
+  if (!Json::parseFromStream(builder, stream, &session, &errors))
+    return {};
+
+  return session.get("ItemId", "").asString();
+}
+
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     const std::string& transcodingUrl, bool keepMaster, bool forceTranscode)
 {
@@ -891,6 +953,7 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   //   construct codec extradata before opening segments.
   // - Recalculate audio/video bitrates when the user set an explicit limit;
   //   when unlimited, preserve the server's original values.
+  // - State outright that a forced transcode may not stream-copy the video.
 
   auto qPos = transcodingUrl.find('?');
   if (qPos == std::string::npos)
@@ -913,44 +976,63 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
   const int maxBitrateBps = m_activeMaxBitrateBps > 0
     ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
+  const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
-  // Strip the server's VideoBitrate/AudioBitrate — we always recalculate.
-  params.erase(std::remove_if(params.begin(), params.end(), [](const std::string& p) {
-    return p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0;
+  // Strip the params we are about to restate. The bitrates are only restated
+  // when there is a budget to split; with no limit there is nothing to divide
+  // and the server's own figures stand.
+  params.erase(std::remove_if(params.begin(), params.end(), [&](const std::string& p) {
+    if (p.find("allowVideoStreamCopy=") == 0)
+      return true;
+    return !bitrateUnlimited &&
+           (p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0);
   }), params.end());
 
   // Rebuild query string
   std::string newParams;
-  for (const auto& p : params)
-  {
+  auto appendParam = [&newParams](const std::string& param) {
     if (!newParams.empty())
       newParams += "&";
-    newParams += p;
+    newParams += param;
+  };
+  for (const auto& p : params)
+    appendParam(p);
+
+  if (!bitrateUnlimited)
+  {
+    // Split the bitrate budget between audio and video, scaling the audio
+    // reservation for small budgets: audio = min(384k, budget/10). The old
+    // fixed 384 kbps reservation pushed VideoBitrate negative whenever the
+    // budget was below it — e.g. kofin-bitrate-limit=300 — and the server
+    // rejects a negative bitrate. Video always gets a positive >= 9/10 share;
+    // budgets >= 3.84 Mbps get the flat 384 kbps. The tenth matches
+    // plugin.video.kofin (core/deviceprofile.py, audio_bitrate_bps).
+    //
+    // The budget is the ceiling the user asked for, and nothing caps it
+    // against the source: sizing a forced transcode down to just under the
+    // source bitrate was only ever a way to provoke a re-encode, which
+    // allowVideoStreamCopy below now states outright.
+    const int audioBitrate = std::min(384000, maxBitrateBps / 10);
+    const int videoBitrate = maxBitrateBps - audioBitrate;
+    appendParam("VideoBitrate=" + std::to_string(videoBitrate));
+    appendParam("AudioBitrate=" + std::to_string(audioBitrate));
   }
 
-  // Split the bitrate budget between audio and video, scaling the audio
-  // reservation for small budgets: audio = min(384k, budget/8). The old fixed
-  // 384 kbps reservation pushed VideoBitrate negative whenever the budget was
-  // below it — e.g. kofin-bitrate-limit=300, or force-transcode of a source
-  // reporting < 384 kbps — and the server rejects a negative bitrate. The
-  // audio share must scale off the same budget video is carved from
-  // (min(source, max) on the force-transcode path), so video always gets a
-  // positive >= 7/8 share. Budgets >= 3.072 Mbps behave exactly as before.
-  int effectiveTotalBps;
   if (forceTranscode)
   {
-    const int sourceBps = m_activeSourceBitrateBps > 0
-      ? m_activeSourceBitrateBps : 30000000;
-    effectiveTotalBps = std::min(sourceBps, maxBitrateBps);
+    // No bitrate can force a re-encode on its own: Jellyfin permits the copy
+    // whenever the requested VideoBitrate is at or above the source's, so any
+    // budget worth asking for also permits a copy. plugin.video.kofin measured
+    // this on a ~2.0 Mbps HEVC source (plugin/play.py, deny_video_stream_copy):
+    // the server answered "-codec:v:0 copy" and re-encoded the audio instead,
+    // so which stream got re-encoded turned on the source's audio share rather
+    // than on anything the user asked for.
+    //
+    // Video only. enableAutoStreamCopy=false would deny the audio copy too,
+    // and forcing a video transcode is no reason to re-encode audio that
+    // already fits.
+    appendParam("allowVideoStreamCopy=false");
   }
-  else
-  {
-    effectiveTotalBps = maxBitrateBps;
-  }
-  const int audioBitrate = std::min(384000, effectiveTotalBps / 8);
-  const int videoBitrate = effectiveTotalBps - audioBitrate;
-  newParams += "&VideoBitrate=" + std::to_string(videoBitrate);
-  newParams += "&AudioBitrate=" + std::to_string(audioBitrate);
 
   // Replace "stream"/"master" with "live" in URL path for live TV — unless
   // the caller asked us to keep the master endpoint (adaptive needs it).

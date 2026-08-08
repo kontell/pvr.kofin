@@ -102,5 +102,16 @@
   "#30829": "Bez ograniczeń",
   "#30830": "Nagrywanie zakończone przedwcześnie",
   "#30831": "Interwał odpytywania timerów/nagrań",
-  "#30832": "Liczba sekund między odpytaniami serwera Jellyfin o zmiany timerów i nagrań (nagrania zaplanowane lub zakończone w innym miejscu, wskaźniki nagrywania w EPG, widżety). Ograniczone do zakresu od 15 do 3600."
+  "#30832": "Liczba sekund między odpytaniami serwera Jellyfin o zmiany timerów i nagrań (nagrania zaplanowane lub zakończone w innym miejscu, wskaźniki nagrywania w EPG, widżety). Ograniczone do zakresu od 15 do 3600.",
+  "#30833": "Sesja wygasła. Zaloguj się ponownie.",
+  "#30834": "Nie udało się dodać timera",
+  "#30835": "Nie udało się usunąć timera",
+  "#30836": "Połączenie nie powiodło się",
+  "#30837": "Połączenie powiodło się",
+  "#30838": "Nie udało się uruchomić Quick Connect",
+  "#30839": "Upłynął limit czasu Quick Connect",
+  "#30840": "Jellyfin nie obsługuje edycji timerów",
+  "#30841": "Nagrywanie zakończone",
+  "#30842": "Weryfikuj certyfikat SSL",
+  "#30843": "Wyłącz tylko dla serwerów z certyfikatem podpisanym samodzielnie. Dotyczy własnych żądań dodatku (logowanie, program, timery, nagrania); odtwarzanie wideo obsługują Kodi i dodatki inputstream i nie podlega tej opcji."
 }

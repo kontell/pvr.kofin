@@ -623,3 +623,56 @@ msgstr "Intervalo de consulta de temporizadores/gravações"
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "Segundos entre consultas ao servidor Jellyfin para detetar alterações em temporizadores e gravações (gravações agendadas ou concluídas noutro local, indicadores de gravação no EPG, widgets). Limitado entre 15 e 3600."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "Sessão expirada. Inicie sessão novamente."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "Não foi possível adicionar o temporizador"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "Não foi possível eliminar o temporizador"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "Falha na ligação"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "Ligação bem-sucedida"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "Não foi possível iniciar o Quick Connect"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "O Quick Connect expirou"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "O Jellyfin não permite editar temporizadores"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Gravação concluída"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Verificar certificado SSL"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Desative apenas para servidores com certificados autoassinados. Aplica-se aos pedidos do próprio add-on (início de sessão, guia, temporizadores, gravações); a reprodução de vídeo é feita pelo Kodi e pelos add-ons inputstream e não é afetada."

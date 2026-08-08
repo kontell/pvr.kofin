@@ -70,6 +70,16 @@ public:
   std::string GetJellyfinProgramId(unsigned int epgBroadcastUid) const;
   int GetChannelUid(const std::string& jellyfinId) const;
 
+  /*!
+   * The Jellyfin item id Kodi is playing right now, or "" if nothing is.
+   *
+   * Read from session.json rather than tracked in memory because there is no
+   * reliable stop callback under the stream-properties path — service.py is
+   * the stop authority and removes the file when playback ends, so the file
+   * existing is what "still playing" means.
+   */
+  std::string GetPlayingItemId() const;
+
 private:
   // *Internal carry the parsing logic; the public methods wrap them in an
   // exception firewall so jsoncpp errors never cross the Kodi ABI.

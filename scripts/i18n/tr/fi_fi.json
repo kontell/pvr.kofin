@@ -102,5 +102,16 @@
   "#30829": "Rajoittamaton",
   "#30830": "Tallennus päättyi ennenaikaisesti",
   "#30831": "Ajastimien/tallenteiden kyselyväli",
-  "#30832": "Sekuntien määrä Jellyfin-palvelimen kyselyiden välillä, kun haetaan ajastimien ja tallenteiden muutoksia (muualla ajastetut tai päättyneet tallenteet, EPG:n tallennusmerkinnät, widgetit). Rajattu välille 15–3600."
+  "#30832": "Sekuntien määrä Jellyfin-palvelimen kyselyiden välillä, kun haetaan ajastimien ja tallenteiden muutoksia (muualla ajastetut tai päättyneet tallenteet, EPG:n tallennusmerkinnät, widgetit). Rajattu välille 15–3600.",
+  "#30833": "Istunto on vanhentunut. Kirjaudu uudelleen sisään.",
+  "#30834": "Ajastimen lisääminen epäonnistui",
+  "#30835": "Ajastimen poistaminen epäonnistui",
+  "#30836": "Yhteys epäonnistui",
+  "#30837": "Yhteys onnistui",
+  "#30838": "Quick Connectin käynnistäminen epäonnistui",
+  "#30839": "Quick Connect aikakatkaistiin",
+  "#30840": "Jellyfin ei tue ajastimien muokkaamista",
+  "#30841": "Tallennus valmis",
+  "#30842": "Vahvista SSL-varmenne",
+  "#30843": "Poista käytöstä vain palvelimille, joilla on itse allekirjoitettu varmenne. Koskee lisäosan omia pyyntöjä (kirjautuminen, opas, ajastimet, tallenteet); videon toistosta vastaavat Kodi ja inputstream-lisäosat, eikä tämä vaikuta siihen."
 }

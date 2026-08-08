@@ -623,3 +623,56 @@ msgstr "Интервал опроса таймеров/записей"
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "Интервал в секундах между опросами сервера Jellyfin на предмет изменений таймеров и записей (записи, запланированные или завершённые в другом месте, индикаторы записи в EPG, виджеты). Ограничивается значениями от 15 до 3600."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "Сеанс истёк. Войдите снова."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "Не удалось добавить таймер"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "Не удалось удалить таймер"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "Не удалось подключиться"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "Подключение выполнено успешно"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "Не удалось запустить Quick Connect"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "Время ожидания Quick Connect истекло"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "Jellyfin не поддерживает изменение таймеров"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Запись завершена"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Проверять SSL-сертификат"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Отключайте только для серверов с самоподписанными сертификатами. Применяется к собственным запросам дополнения (вход, телепрограмма, таймеры, записи); воспроизведение видео выполняют Kodi и дополнения inputstream, и оно не затрагивается."

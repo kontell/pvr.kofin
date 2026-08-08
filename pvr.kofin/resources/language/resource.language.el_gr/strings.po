@@ -623,3 +623,56 @@ msgstr "Διάστημα ελέγχου χρονοδιακοπτών/εγγρα�
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "Δευτερόλεπτα μεταξύ των ελέγχων του διακομιστή Jellyfin για αλλαγές σε χρονοδιακόπτες και εγγραφές (εγγραφές που προγραμματίστηκαν ή ολοκληρώθηκαν αλλού, ενδείξεις εγγραφής στον EPG, γραφικά στοιχεία). Περιορίζεται μεταξύ 15 και 3600."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "Η συνεδρία έληξε. Συνδεθείτε ξανά."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "Δεν ήταν δυνατή η προσθήκη του χρονοδιακόπτη"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "Δεν ήταν δυνατή η διαγραφή του χρονοδιακόπτη"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "Η σύνδεση απέτυχε"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "Επιτυχής σύνδεση"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "Δεν ήταν δυνατή η εκκίνηση του Quick Connect"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "Λήξη χρόνου του Quick Connect"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "Το Jellyfin δεν υποστηρίζει την επεξεργασία χρονοδιακοπτών"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Η εγγραφή ολοκληρώθηκε"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Επαλήθευση πιστοποιητικού SSL"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Απενεργοποιήστε το μόνο για διακομιστές με αυτο-υπογεγραμμένα πιστοποιητικά. Ισχύει για τα αιτήματα του ίδιου του πρόσθετου (σύνδεση, οδηγός, χρονοδιακόπτες, εγγραφές). Η αναπαραγωγή βίντεο γίνεται από το Kodi και τα πρόσθετα inputstream και δεν επηρεάζεται."

@@ -10,6 +10,7 @@
 #include "../utilities/JsonUtils.h"
 #include "../utilities/Logger.h"
 #include <kodi/General.h>
+#include "../utilities/Toast.h"
 #include "../utilities/TimeUtils.h"
 #include "../utilities/UidUtils.h"
 #include "../utilities/WebUtils.h"
@@ -503,7 +504,7 @@ PVR_ERROR JellyfinRecordingManager::UpdateTimer(const kodi::addon::PVRTimer& tim
   // See: jellyfin-allow-padding-update-on-inprogress-timers feature request.
 
   Logger::Log(LEVEL_WARNING, "%s - Timer edits not supported by Jellyfin", __FUNCTION__);
-  kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Timer edits not supported by Jellyfin");
+  Toast::Warning(30840);
   return PVR_ERROR_REJECTED;
 }
 
@@ -1219,11 +1220,12 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   }
 
   // A recording that was in progress last poll and no longer is — whether it
-  // flipped to completed or vanished — while its scheduled end is still
-  // comfortably in the future was stopped early (tuner drop, server-side
-  // cancel, disk full, ...). Snapshot entries live for exactly one poll, so
-  // each premature stop is reported once. Toasts render over fullscreen
-  // playback, so this also covers "stopped while being watched".
+  // flipped to completed or vanished — has stopped. Which of the two things
+  // that is worth saying depends on when: comfortably before its scheduled
+  // end it was stopped early (tuner drop, server-side cancel, disk full, ...)
+  // and everyone wants to know; at its scheduled end it simply finished, and
+  // that is only news to someone watching it. Snapshot entries live for
+  // exactly one poll, so each stop is reported once.
   const time_t now = std::time(nullptr);
 
   for (auto it = m_userStoppedKeys.begin(); it != m_userStoppedKeys.end();)
@@ -1234,27 +1236,46 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
       ++it;
   }
 
+  // Read once per poll rather than per stopped recording: it is a file open.
+  // Empty when nothing is playing, which is the common case.
+  const std::string playingItemId =
+      m_channelLoader ? m_channelLoader->GetPlayingItemId() : std::string();
+
   for (const auto& entry : previousInProgress)
   {
-    if (m_inProgressRecordingIds.count(entry.first) != 0 ||
-        entry.second.scheduledEnd - now <= PREMATURE_STOP_MARGIN_SECS)
+    if (m_inProgressRecordingIds.count(entry.first) != 0)
       continue;
 
     // The user asked for this stop (deleted the timer or the recording), so it
-    // isn't a failure. DeleteRecording knows the recording ID, DeleteTimer only
-    // the name — either key marks the stop.
+    // isn't news either way. DeleteRecording knows the recording ID,
+    // DeleteTimer only the name — either key marks the stop.
     if (m_userStoppedKeys.count(entry.first) != 0 || m_userStoppedKeys.count(entry.second.name) != 0)
     {
-      Logger::Log(LEVEL_INFO, "%s - Recording '%s' stopped early on user request, not warning",
+      Logger::Log(LEVEL_INFO, "%s - Recording '%s' stopped on user request, not reporting",
                   __FUNCTION__, entry.second.name.c_str());
       continue;
     }
 
-    Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
-                __FUNCTION__, entry.second.name.c_str(),
-                static_cast<long>((entry.second.scheduledEnd - now) / 60));
-    kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR",
-                            kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
+    if (entry.second.scheduledEnd - now > PREMATURE_STOP_MARGIN_SECS)
+    {
+      Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
+                  __FUNCTION__, entry.second.name.c_str(),
+                  static_cast<long>((entry.second.scheduledEnd - now) / 60));
+      Toast::Warning(kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
+      continue;
+    }
+
+    // Reached its scheduled end. Only say so to someone watching it — this is
+    // the one case where the stream they are on is about to stop growing.
+    // Checked here rather than when the stop was detected because "is it still
+    // playing" is only true or false now: if playback has already ended there
+    // is nobody to tell.
+    if (!playingItemId.empty() && playingItemId == entry.first)
+    {
+      Logger::Log(LEVEL_INFO, "%s - Recording '%s' finished while being watched",
+                  __FUNCTION__, entry.second.name.c_str());
+      Toast::Info(kodi::addon::GetLocalizedString(30841) + ": " + entry.second.name);
+    }
   }
 
   Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings (%d in-progress)", __FUNCTION__,
@@ -1267,29 +1288,26 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
 {
   const std::string recordingId = recording.GetRecordingId();
 
-  if (count == 0)
+  // The played flag has its own endpoint, so say it outright instead of
+  // deferring to whatever position write Kodi happens to send next.
+  const std::string endpoint = "/UserPlayedItems/" + recordingId
+    + "?userId=" + m_client->GetUserId();
+
+  if (count > 0)
   {
-    // Mark as unwatched — send immediately (Kodi may not call Position(0) after this)
-    Logger::Log(LEVEL_INFO, "%s - Marking unwatched: %s", __FUNCTION__, recordingId.c_str());
-    const std::string endpoint = "/Users/" + m_client->GetUserId()
-      + "/Items/" + recordingId + "/UserData";
-    Json::Value body;
-    body["Played"] = false;
-    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
-    Json::StreamWriterBuilder writer;
-    writer["indentation"] = "";
-    if (!m_client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
+    Logger::Log(LEVEL_INFO, "%s - Marking watched: %s", __FUNCTION__, recordingId.c_str());
+    // The route binds userId and itemId from the query and route and declares
+    // no body, so this object is ignored — but it cannot be empty: a request
+    // through Kodi's VFS is only a POST because it carries postdata, and an
+    // empty body would issue a GET.
+    if (!m_client->SendPostExpectSuccess(endpoint, "{}"))
       return PVR_ERROR_SERVER_ERROR;
   }
   else
   {
-    // Record the intent — defer to SetRecordingLastPlayedPosition(0) to
-    // distinguish "mark as watched" (PlayCount then Position=0) from
-    // "playback start" (PlayCount only, no Position=0)
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_recentPlayCountCalls[recordingId] = {count, std::chrono::steady_clock::now()};
-    Logger::Log(LEVEL_DEBUG, "%s - Recorded PlayCount(%d) for %s",
-                __FUNCTION__, count, recordingId.c_str());
+    Logger::Log(LEVEL_INFO, "%s - Marking unwatched: %s", __FUNCTION__, recordingId.c_str());
+    if (!m_client->SendDelete(endpoint))
+      return PVR_ERROR_SERVER_ERROR;
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -1302,52 +1320,23 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
   if (lastplayedposition < 0)
     lastplayedposition = 0;
 
-  const std::string endpoint = "/Users/" + m_client->GetUserId()
-    + "/Items/" + recordingId + "/UserData";
+  // A partial UpdateUserItemDataDto. UserDataManager::SaveUserData assigns
+  // only the fields that are present, so this moves the resume point without
+  // touching the played flag, the play count or the favourite state. A zero
+  // position is how "reset resume position" is expressed — Jellyfin has no
+  // separate endpoint for clearing one.
+  const std::string endpoint = "/UserItems/" + recordingId + "/UserData"
+    + "?userId=" + m_client->GetUserId();
 
   Json::Value body;
+  body["PlaybackPositionTicks"] =
+    static_cast<Json::Int64>(static_cast<int64_t>(lastplayedposition) * 10000000LL);
+
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
 
-  if (lastplayedposition > 0)
-  {
-    // Normal position save
-    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(static_cast<int64_t>(lastplayedposition) * 10000000LL);
-    Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
-                __FUNCTION__, lastplayedposition, recordingId.c_str());
-  }
-  else
-  {
-    // Position=0 — check for a recent SetRecordingPlayCount to determine intent
-    body["PlaybackPositionTicks"] = static_cast<Json::Int64>(0);
-
-    bool hadRecentPlayCount = false;
-    bool markPlayed = false;
-    {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      auto it = m_recentPlayCountCalls.find(recordingId);
-      if (it != m_recentPlayCountCalls.end() &&
-          std::chrono::steady_clock::now() - it->second.second < std::chrono::seconds(2))
-      {
-        hadRecentPlayCount = true;
-        markPlayed = (it->second.first > 0);
-        m_recentPlayCountCalls.erase(it);
-      }
-    }
-
-    if (hadRecentPlayCount)
-    {
-      body["Played"] = markPlayed;
-      Logger::Log(LEVEL_INFO, "%s - Marking %s for %s",
-                  __FUNCTION__, markPlayed ? "watched" : "unwatched", recordingId.c_str());
-    }
-    else
-    {
-      // Reset resume position (no preceding PlayCount) — just clear position
-      Logger::Log(LEVEL_INFO, "%s - Clearing resume position for %s",
-                  __FUNCTION__, recordingId.c_str());
-    }
-  }
+  Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
+              __FUNCTION__, lastplayedposition, recordingId.c_str());
 
   if (!m_client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
     return PVR_ERROR_SERVER_ERROR;
@@ -1393,8 +1382,16 @@ bool JellyfinRecordingManager::OpenRecordedStream(const kodi::addon::PVRRecordin
 
   if (!m_recordingStream.CURLCreate(streamUrl) ||
       !m_recordingStream.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Authorization",
-                                       m_client->BuildAuthHeader()) ||
-      !m_recordingStream.CURLOpen(ADDON_READ_NO_CACHE))
+                                       m_client->BuildAuthHeader()))
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
+    m_recordingStream.Close();
+    return false;
+  }
+
+  m_client->ApplyTlsOptions(m_recordingStream);
+
+  if (!m_recordingStream.CURLOpen(ADDON_READ_NO_CACHE))
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
     m_recordingStream.Close();
