@@ -102,5 +102,13 @@
   "#30829": "Neobmedzené",
   "#30830": "Nahrávanie sa skončilo predčasne",
   "#30831": "Interval dopytovania časovačov/nahrávok",
-  "#30832": "Počet sekúnd medzi dopytmi na server Jellyfin na zmeny časovačov a nahrávok (nahrávky naplánované alebo dokončené inde, indikátory nahrávania v EPG, widgety). Obmedzené na 15 až 3600."
+  "#30832": "Počet sekúnd medzi dopytmi na server Jellyfin na zmeny časovačov a nahrávok (nahrávky naplánované alebo dokončené inde, indikátory nahrávania v EPG, widgety). Obmedzené na 15 až 3600.",
+  "#30833": "Relácia vypršala. Prihláste sa znova.",
+  "#30834": "Časovač sa nepodarilo pridať",
+  "#30835": "Časovač sa nepodarilo odstrániť",
+  "#30836": "Pripojenie zlyhalo",
+  "#30837": "Pripojenie bolo úspešné",
+  "#30838": "Quick Connect sa nepodarilo spustiť",
+  "#30839": "Vypršal časový limit Quick Connect",
+  "#30840": "Jellyfin nepodporuje úpravu časovačov"
 }

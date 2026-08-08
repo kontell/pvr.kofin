@@ -623,3 +623,43 @@ msgstr "Időzítők/felvételek lekérdezési időköze"
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "A Jellyfin-kiszolgáló lekérdezései közötti másodpercek száma az időzítők és felvételek változásainak észleléséhez (máshol ütemezett vagy befejezett felvételek, EPG-felvételjelzők, widgetek). 15 és 3600 közé korlátozva."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "A munkamenet lejárt. Jelentkezzen be újra."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "Az időzítőt nem sikerült hozzáadni"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "Az időzítőt nem sikerült törölni"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "A kapcsolódás sikertelen"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "A kapcsolódás sikeres"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "A Quick Connect indítása nem sikerült"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "A Quick Connect túllépte az időkorlátot"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "A Jellyfin nem támogatja az időzítők szerkesztését"

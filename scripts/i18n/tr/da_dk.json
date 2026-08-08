@@ -102,5 +102,13 @@
   "#30829": "Ubegrænset",
   "#30830": "Optagelsen stoppede for tidligt",
   "#30831": "Pollinginterval for timere/optagelser",
-  "#30832": "Sekunder mellem forespørgsler til Jellyfin-serveren om ændringer i timere og optagelser (optagelser planlagt eller afsluttet et andet sted, optageindikatorer i EPG'en, widgets). Begrænset til mellem 15 og 3600."
+  "#30832": "Sekunder mellem forespørgsler til Jellyfin-serveren om ændringer i timere og optagelser (optagelser planlagt eller afsluttet et andet sted, optageindikatorer i EPG'en, widgets). Begrænset til mellem 15 og 3600.",
+  "#30833": "Sessionen er udløbet. Log ind igen.",
+  "#30834": "Timeren kunne ikke tilføjes",
+  "#30835": "Timeren kunne ikke slettes",
+  "#30836": "Forbindelsen mislykkedes",
+  "#30837": "Forbindelsen lykkedes",
+  "#30838": "Quick Connect kunne ikke startes",
+  "#30839": "Quick Connect fik timeout",
+  "#30840": "Jellyfin understøtter ikke redigering af timere"
 }

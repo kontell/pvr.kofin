@@ -102,5 +102,13 @@
   "#30829": "Illimité",
   "#30830": "Enregistrement interrompu prématurément",
   "#30831": "Intervalle d'interrogation des programmations/enregistrements",
-  "#30832": "Secondes entre deux interrogations du serveur Jellyfin pour détecter les changements de programmations et d'enregistrements (enregistrements planifiés ou terminés ailleurs, indicateurs d'enregistrement dans le guide, widgets). Limité entre 15 et 3600."
+  "#30832": "Secondes entre deux interrogations du serveur Jellyfin pour détecter les changements de programmations et d'enregistrements (enregistrements planifiés ou terminés ailleurs, indicateurs d'enregistrement dans le guide, widgets). Limité entre 15 et 3600.",
+  "#30833": "Session expirée. Veuillez vous reconnecter.",
+  "#30834": "Impossible d'ajouter la programmation",
+  "#30835": "Impossible de supprimer la programmation",
+  "#30836": "Échec de la connexion",
+  "#30837": "Connexion réussie",
+  "#30838": "Impossible de démarrer Quick Connect",
+  "#30839": "Délai d'attente de Quick Connect dépassé",
+  "#30840": "Jellyfin ne permet pas de modifier les programmations"
 }

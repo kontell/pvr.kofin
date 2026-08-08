@@ -10,6 +10,7 @@
 #include "../utilities/JsonUtils.h"
 #include "../utilities/Logger.h"
 #include <kodi/General.h>
+#include "../utilities/Toast.h"
 #include "../utilities/TimeUtils.h"
 #include "../utilities/UidUtils.h"
 #include "../utilities/WebUtils.h"
@@ -503,7 +504,7 @@ PVR_ERROR JellyfinRecordingManager::UpdateTimer(const kodi::addon::PVRTimer& tim
   // See: jellyfin-allow-padding-update-on-inprogress-timers feature request.
 
   Logger::Log(LEVEL_WARNING, "%s - Timer edits not supported by Jellyfin", __FUNCTION__);
-  kodi::QueueNotification(QUEUE_ERROR, "Kofin PVR", "Timer edits not supported by Jellyfin");
+  Toast::Warning(30840);
   return PVR_ERROR_REJECTED;
 }
 
@@ -1253,8 +1254,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
     Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
                 __FUNCTION__, entry.second.name.c_str(),
                 static_cast<long>((entry.second.scheduledEnd - now) / 60));
-    kodi::QueueNotification(QUEUE_WARNING, "Kofin PVR",
-                            kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
+    Toast::Warning(kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
   }
 
   Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings (%d in-progress)", __FUNCTION__,

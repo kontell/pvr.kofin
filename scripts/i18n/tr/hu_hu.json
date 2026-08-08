@@ -102,5 +102,13 @@
   "#30829": "Korlátlan",
   "#30830": "A felvétel korán leállt",
   "#30831": "Időzítők/felvételek lekérdezési időköze",
-  "#30832": "A Jellyfin-kiszolgáló lekérdezései közötti másodpercek száma az időzítők és felvételek változásainak észleléséhez (máshol ütemezett vagy befejezett felvételek, EPG-felvételjelzők, widgetek). 15 és 3600 közé korlátozva."
+  "#30832": "A Jellyfin-kiszolgáló lekérdezései közötti másodpercek száma az időzítők és felvételek változásainak észleléséhez (máshol ütemezett vagy befejezett felvételek, EPG-felvételjelzők, widgetek). 15 és 3600 közé korlátozva.",
+  "#30833": "A munkamenet lejárt. Jelentkezzen be újra.",
+  "#30834": "Az időzítőt nem sikerült hozzáadni",
+  "#30835": "Az időzítőt nem sikerült törölni",
+  "#30836": "A kapcsolódás sikertelen",
+  "#30837": "A kapcsolódás sikeres",
+  "#30838": "A Quick Connect indítása nem sikerült",
+  "#30839": "A Quick Connect túllépte az időkorlátot",
+  "#30840": "A Jellyfin nem támogatja az időzítők szerkesztését"
 }
