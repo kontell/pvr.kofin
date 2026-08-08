@@ -110,5 +110,6 @@
   "#30837": "Connexió correcta",
   "#30838": "No s'ha pogut iniciar Quick Connect",
   "#30839": "Quick Connect ha esgotat el temps d'espera",
-  "#30840": "Jellyfin no permet editar temporitzadors"
+  "#30840": "Jellyfin no permet editar temporitzadors",
+  "#30841": "Enregistrament finalitzat"
 }

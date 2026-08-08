@@ -110,5 +110,6 @@
   "#30837": "Forbindelsen lykkedes",
   "#30838": "Quick Connect kunne ikke startes",
   "#30839": "Quick Connect fik timeout",
-  "#30840": "Jellyfin understøtter ikke redigering af timere"
+  "#30840": "Jellyfin understøtter ikke redigering af timere",
+  "#30841": "Optagelsen er afsluttet"
 }

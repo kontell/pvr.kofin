@@ -110,5 +110,6 @@
   "#30837": "Ligação bem-sucedida",
   "#30838": "Não foi possível iniciar o Quick Connect",
   "#30839": "O Quick Connect expirou",
-  "#30840": "O Jellyfin não permite editar temporizadores"
+  "#30840": "O Jellyfin não permite editar temporizadores",
+  "#30841": "Gravação concluída"
 }

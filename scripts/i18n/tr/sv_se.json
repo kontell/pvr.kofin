@@ -110,5 +110,6 @@
   "#30837": "Anslutningen lyckades",
   "#30838": "Det gick inte att starta Quick Connect",
   "#30839": "Tidsgränsen för Quick Connect överskreds",
-  "#30840": "Jellyfin har inte stöd för att redigera timers"
+  "#30840": "Jellyfin har inte stöd för att redigera timers",
+  "#30841": "Inspelningen är klar"
 }

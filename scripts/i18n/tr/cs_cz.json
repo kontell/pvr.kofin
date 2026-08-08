@@ -110,5 +110,6 @@
   "#30837": "Připojení bylo úspěšné",
   "#30838": "Quick Connect se nepodařilo spustit",
   "#30839": "Vypršel časový limit Quick Connect",
-  "#30840": "Jellyfin nepodporuje úpravy časovačů"
+  "#30840": "Jellyfin nepodporuje úpravy časovačů",
+  "#30841": "Nahrávání dokončeno"
 }

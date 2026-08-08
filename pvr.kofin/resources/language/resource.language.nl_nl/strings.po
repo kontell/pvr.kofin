@@ -663,3 +663,8 @@ msgstr "Time-out van Quick Connect"
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "Jellyfin ondersteunt het bewerken van timers niet"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Opname voltooid"

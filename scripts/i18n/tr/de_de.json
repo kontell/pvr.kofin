@@ -110,5 +110,6 @@
   "#30837": "Verbindung erfolgreich",
   "#30838": "Quick Connect konnte nicht gestartet werden",
   "#30839": "Zeitüberschreitung bei Quick Connect",
-  "#30840": "Jellyfin unterstützt das Bearbeiten von Timern nicht"
+  "#30840": "Jellyfin unterstützt das Bearbeiten von Timern nicht",
+  "#30841": "Aufnahme beendet"
 }

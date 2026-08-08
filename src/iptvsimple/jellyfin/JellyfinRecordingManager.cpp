@@ -1220,11 +1220,12 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   }
 
   // A recording that was in progress last poll and no longer is — whether it
-  // flipped to completed or vanished — while its scheduled end is still
-  // comfortably in the future was stopped early (tuner drop, server-side
-  // cancel, disk full, ...). Snapshot entries live for exactly one poll, so
-  // each premature stop is reported once. Toasts render over fullscreen
-  // playback, so this also covers "stopped while being watched".
+  // flipped to completed or vanished — has stopped. Which of the two things
+  // that is worth saying depends on when: comfortably before its scheduled
+  // end it was stopped early (tuner drop, server-side cancel, disk full, ...)
+  // and everyone wants to know; at its scheduled end it simply finished, and
+  // that is only news to someone watching it. Snapshot entries live for
+  // exactly one poll, so each stop is reported once.
   const time_t now = std::time(nullptr);
 
   for (auto it = m_userStoppedKeys.begin(); it != m_userStoppedKeys.end();)
@@ -1235,26 +1236,46 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
       ++it;
   }
 
+  // Read once per poll rather than per stopped recording: it is a file open.
+  // Empty when nothing is playing, which is the common case.
+  const std::string playingItemId =
+      m_channelLoader ? m_channelLoader->GetPlayingItemId() : std::string();
+
   for (const auto& entry : previousInProgress)
   {
-    if (m_inProgressRecordingIds.count(entry.first) != 0 ||
-        entry.second.scheduledEnd - now <= PREMATURE_STOP_MARGIN_SECS)
+    if (m_inProgressRecordingIds.count(entry.first) != 0)
       continue;
 
     // The user asked for this stop (deleted the timer or the recording), so it
-    // isn't a failure. DeleteRecording knows the recording ID, DeleteTimer only
-    // the name — either key marks the stop.
+    // isn't news either way. DeleteRecording knows the recording ID,
+    // DeleteTimer only the name — either key marks the stop.
     if (m_userStoppedKeys.count(entry.first) != 0 || m_userStoppedKeys.count(entry.second.name) != 0)
     {
-      Logger::Log(LEVEL_INFO, "%s - Recording '%s' stopped early on user request, not warning",
+      Logger::Log(LEVEL_INFO, "%s - Recording '%s' stopped on user request, not reporting",
                   __FUNCTION__, entry.second.name.c_str());
       continue;
     }
 
-    Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
-                __FUNCTION__, entry.second.name.c_str(),
-                static_cast<long>((entry.second.scheduledEnd - now) / 60));
-    Toast::Warning(kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
+    if (entry.second.scheduledEnd - now > PREMATURE_STOP_MARGIN_SECS)
+    {
+      Logger::Log(LEVEL_WARNING, "%s - Recording '%s' stopped %ld min before its scheduled end",
+                  __FUNCTION__, entry.second.name.c_str(),
+                  static_cast<long>((entry.second.scheduledEnd - now) / 60));
+      Toast::Warning(kodi::addon::GetLocalizedString(30830) + ": " + entry.second.name);
+      continue;
+    }
+
+    // Reached its scheduled end. Only say so to someone watching it — this is
+    // the one case where the stream they are on is about to stop growing.
+    // Checked here rather than when the stop was detected because "is it still
+    // playing" is only true or false now: if playback has already ended there
+    // is nobody to tell.
+    if (!playingItemId.empty() && playingItemId == entry.first)
+    {
+      Logger::Log(LEVEL_INFO, "%s - Recording '%s' finished while being watched",
+                  __FUNCTION__, entry.second.name.c_str());
+      Toast::Info(kodi::addon::GetLocalizedString(30841) + ": " + entry.second.name);
+    }
   }
 
   Logger::Log(LEVEL_INFO, "%s - Loaded %d recordings (%d in-progress)", __FUNCTION__,

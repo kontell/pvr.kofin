@@ -663,3 +663,8 @@ msgstr "Quick Connect a expirat"
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "Jellyfin nu acceptă editarea cronometrelor"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Înregistrare finalizată"

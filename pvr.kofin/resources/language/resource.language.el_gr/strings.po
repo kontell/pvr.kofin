@@ -663,3 +663,8 @@ msgstr "Λήξη χρόνου του Quick Connect"
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "Το Jellyfin δεν υποστηρίζει την επεξεργασία χρονοδιακοπτών"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Η εγγραφή ολοκληρώθηκε"
