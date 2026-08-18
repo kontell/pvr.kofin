@@ -73,7 +73,7 @@ void InstanceSettings::ReadSettings()
   // (TransferSettings default case) and are captured in OnSettingChanged.
   m_preferredVideoCodec = kodi::addon::GetSettingInt("preferredVideoCodec", 0);
   m_preferredAudioCodec = kodi::addon::GetSettingInt("preferredAudioCodec", 0);
-  m_maxAudioChannels = kodi::addon::GetSettingInt("maxAudioChannels", 6);
+  m_maxAudioChannels = kodi::addon::GetSettingInt("maxAudioChannels", 8);
   m_maxStreamingBitrate = kodi::addon::GetSettingInt("maxStreamingBitrate", 15);
   m_maxResolution = kodi::addon::GetSettingInt("maxResolution", 5);
 
@@ -134,6 +134,7 @@ void InstanceSettings::ReadSettings()
   // to curl and stalls the connection checker indefinitely.
   m_connectioncCheckTimeoutSecs = std::max(1, kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS));
   m_connectioncCheckIntervalSecs = std::max(5, kodi::addon::GetSettingInt("connectioncheckinterval", 60));
+  m_sslVerify = kodi::addon::GetSettingBoolean("sslVerify", true);
 }
 
 std::string InstanceSettings::GetJellyfinBaseUrl() const

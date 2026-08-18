@@ -102,5 +102,16 @@
   "#30829": "Nelimitat",
   "#30830": "Înregistrarea s-a oprit prematur",
   "#30831": "Interval de interogare pentru cronometre/înregistrări",
-  "#30832": "Secunde între interogările serverului Jellyfin pentru modificări ale cronometrelor și înregistrărilor (înregistrări programate sau finalizate în altă parte, indicatori de înregistrare în EPG, widgeturi). Limitat între 15 și 3600."
+  "#30832": "Secunde între interogările serverului Jellyfin pentru modificări ale cronometrelor și înregistrărilor (înregistrări programate sau finalizate în altă parte, indicatori de înregistrare în EPG, widgeturi). Limitat între 15 și 3600.",
+  "#30833": "Sesiunea a expirat. Autentificați-vă din nou.",
+  "#30834": "Cronometrul nu a putut fi adăugat",
+  "#30835": "Cronometrul nu a putut fi șters",
+  "#30836": "Conectare eșuată",
+  "#30837": "Conectare reușită",
+  "#30838": "Quick Connect nu a putut fi pornit",
+  "#30839": "Quick Connect a expirat",
+  "#30840": "Jellyfin nu acceptă editarea cronometrelor",
+  "#30841": "Înregistrare finalizată",
+  "#30842": "Verifică certificatul SSL",
+  "#30843": "Dezactivați doar pentru servere cu certificate autosemnate. Se aplică cererilor proprii ale suplimentului (autentificare, ghid, cronometre, înregistrări); redarea video este gestionată de Kodi și de suplimentele inputstream și nu este afectată."
 }

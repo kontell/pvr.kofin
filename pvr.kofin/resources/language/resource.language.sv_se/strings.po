@@ -623,3 +623,56 @@ msgstr "Pollningsintervall för timers/inspelningar"
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "Antal sekunder mellan förfrågningar till Jellyfin-servern om ändringar av timers och inspelningar (inspelningar som schemalagts eller avslutats någon annanstans, inspelningsindikatorer i EPG:n, widgetar). Begränsat till mellan 15 och 3600."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "Sessionen har upphört. Logga in igen."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "Det gick inte att lägga till timern"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "Det gick inte att ta bort timern"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "Anslutningen misslyckades"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "Anslutningen lyckades"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "Det gick inte att starta Quick Connect"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "Tidsgränsen för Quick Connect överskreds"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "Jellyfin har inte stöd för att redigera timers"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Inspelningen är klar"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Verifiera SSL-certifikat"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Stäng bara av för servrar med självsignerade certifikat. Gäller tilläggets egna förfrågningar (inloggning, guide, timers, inspelningar); videouppspelning sköts av Kodi och inputstream-tilläggen och påverkas inte."

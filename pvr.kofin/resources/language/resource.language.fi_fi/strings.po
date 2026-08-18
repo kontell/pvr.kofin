@@ -623,3 +623,56 @@ msgstr "Ajastimien/tallenteiden kyselyväli"
 msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "Sekuntien määrä Jellyfin-palvelimen kyselyiden välillä, kun haetaan ajastimien ja tallenteiden muutoksia (muualla ajastetut tai päättyneet tallenteet, EPG:n tallennusmerkinnät, widgetit). Rajattu välille 15–3600."
+
+#: Notification when the stored access token is no longer accepted
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr "Istunto on vanhentunut. Kirjaudu uudelleen sisään."
+
+#: Notification when creating a timer on the server failed
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr "Ajastimen lisääminen epäonnistui"
+
+#: Notification when deleting a timer on the server failed
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr "Ajastimen poistaminen epäonnistui"
+
+#: Notification when the server could not be reached or refused the login
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr "Yhteys epäonnistui"
+
+#: Notification when the Test Connection button succeeded
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr "Yhteys onnistui"
+
+#: Notification when the server would not issue a Quick Connect code
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr "Quick Connectin käynnistäminen epäonnistui"
+
+#: Notification when a Quick Connect code was never authorised in time
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr "Quick Connect aikakatkaistiin"
+
+#: Notification when the user tries to edit an existing timer
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr "Jellyfin ei tue ajastimien muokkaamista"
+
+#: Notification when a recording the user is watching reaches its scheduled end
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr "Tallennus valmis"
+
+msgctxt "#30842"
+msgid "Verify SSL certificate"
+msgstr "Vahvista SSL-varmenne"
+
+msgctxt "#30843"
+msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr "Poista käytöstä vain palvelimille, joilla on itse allekirjoitettu varmenne. Koskee lisäosan omia pyyntöjä (kirjautuminen, opas, ajastimet, tallenteet); videon toistosta vastaavat Kodi ja inputstream-lisäosat, eikä tämä vaikuta siihen."

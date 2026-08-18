@@ -156,6 +156,9 @@ namespace iptvsimple
     int GetTimerRecordingPollSecs() const { return m_timerRecordingPollSecs; }
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
     int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
+    // Applies to the addon's own HTTP only. Stream URLs are handed to
+    // inputstream.ffmpegdirect/adaptive, which make their own connections.
+    bool GetSslVerify() const { return m_sslVerify; }
 
     // Codec name helpers for device profile
     std::string GetPreferredVideoCodecName() const
@@ -204,7 +207,7 @@ namespace iptvsimple
     std::string m_allowedHdrTypes = "HDR10,HLG,HDR10Plus,DOVI,DOVIWithHDR10,DOVIWithHLG,DOVIWithSDR,DOVIWithEL,DOVIWithHDR10Plus,DOVIWithELHDR10Plus";
     int m_preferredVideoCodec = 0;  // 0=H264, 1=H265, 2=AV1
     int m_preferredAudioCodec = 0;  // 0=AAC, 1=AC3, 2=MP3, 3=Opus
-    int m_maxAudioChannels = 6;
+    int m_maxAudioChannels = 8;
     int m_maxStreamingBitrate = 15; // index into BITRATE_TABLE (15=unlimited)
     int m_maxResolution = 5;        // index into MAX_WIDTH_TABLE (5=unlimited)
 
@@ -232,5 +235,6 @@ namespace iptvsimple
     int m_timerRecordingPollSecs = 60;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
     int m_connectioncCheckIntervalSecs = 60;
+    bool m_sslVerify = true;
   };
 } //namespace iptvsimple

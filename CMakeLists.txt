@@ -37,6 +37,7 @@ set(KOFIN_SOURCES src/addon.cpp
                   src/iptvsimple/utilities/FileUtils.cpp
                   src/iptvsimple/utilities/Logger.cpp
                   src/iptvsimple/utilities/StreamUtils.cpp
+                  src/iptvsimple/utilities/Toast.cpp
                   src/iptvsimple/utilities/WebUtils.cpp
                   )
 
@@ -60,6 +61,7 @@ set(KOFIN_HEADERS src/addon.h
                   src/iptvsimple/utilities/Logger.h
                   src/iptvsimple/utilities/StreamUtils.h
                   src/iptvsimple/utilities/TimeUtils.h
+                  src/iptvsimple/utilities/Toast.h
                   src/iptvsimple/utilities/UidUtils.h
                   src/iptvsimple/utilities/WebUtils.h
                   )
