@@ -1,3 +1,13 @@
+v21.14.0
+- Fixed live channels failing to play whenever a maximum streaming bitrate was set: the add-on offered the server its own decoding codecs as transcode targets, so the server pinned the output to the source's audio codec and then could not encode it once the bitrate cap ruled out a straight copy
+- "Force transcoding" now states that the video must be re-encoded instead of trying to provoke it by sizing the stream down against the source, so it re-encodes reliably and an unlimited bitrate no longer has its figures rewritten
+- New Advanced setting: turn off SSL certificate verification, for servers with a self-signed certificate. It covers the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is unaffected
+- "Reset resume position" now works on recordings. Watched state and resume position are sent to the server as separate, explicit requests rather than told apart by their timing, so resetting a resume point can no longer flip the watched flag by mistake, and finishing a recording now marks it watched even when it had no resume point
+- Notifications now carry the Kofin icon when the add-on is reporting something and Kodi's own warning and error icons when something was refused or went wrong. Every notification is now translatable, and a few that were shown as errors are now warnings
+- A recording you are watching now tells you when it has finished recording
+- Maximum audio channels now defaults to 7.1
+- The add-on now carries the Kofin logo
+
 v21.13.0
 - Renumbered to Kodi's add-on versioning: the first number is now the Kodi version a build is for, so 22.x.y is Kodi 22 (Piers) and 21.x.y is Kodi 21 (Omega). The add-on itself is unchanged from v0.13.0 — only the numbering and the build system moved
 - Kodi 21 and Kodi 22 now build from separate branches and are released separately, so a fix can ship to one without waiting for the other
