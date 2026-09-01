@@ -676,3 +676,44 @@ msgstr "Verifică certificatul SSL"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Dezactivați doar pentru servere cu certificate autosemnate. Se aplică cererilor proprii ale suplimentului (autentificare, ghid, cronometre, înregistrări); redarea video este gestionată de Kodi și de suplimentele inputstream și nu este afectată."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Caută servere în rețeaua locală"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Caută servere Jellyfin în această rețea și le afișează pe cele care răspund. Cel ales este completat în adresa serverului de mai sus."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Alegeți un server"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Se caută servere Jellyfin…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Se verifică serverele…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "nu a răspuns"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Niciun server Jellyfin nu a răspuns — introduceți adresa manual"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s include o cale pe care acest supliment nu o poate folosi — introduceți adresa manual"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s nu a răspuns — adresa indicată s-ar putea să nu funcționeze aici"

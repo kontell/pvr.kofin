@@ -676,3 +676,44 @@ msgstr "Επαλήθευση πιστοποιητικού SSL"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Απενεργοποιήστε το μόνο για διακομιστές με αυτο-υπογεγραμμένα πιστοποιητικά. Ισχύει για τα αιτήματα του ίδιου του πρόσθετου (σύνδεση, οδηγός, χρονοδιακόπτες, εγγραφές). Η αναπαραγωγή βίντεο γίνεται από το Kodi και τα πρόσθετα inputstream και δεν επηρεάζεται."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Εύρεση διακομιστών στο τοπικό δίκτυο"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Αναζητά διακομιστές Jellyfin σε αυτό το δίκτυο και εμφανίζει όσους απαντήσουν. Ο διακομιστής που θα επιλέξετε συμπληρώνεται στη διεύθυνση διακομιστή παραπάνω."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Επιλέξτε διακομιστή"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Αναζήτηση διακομιστών Jellyfin…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Έλεγχος διακομιστών…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "δεν απάντησε"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Κανένας διακομιστής Jellyfin δεν απάντησε — εισαγάγετε τη διεύθυνση χειροκίνητα"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "Το %s περιλαμβάνει διαδρομή που δεν μπορεί να χρησιμοποιήσει αυτό το πρόσθετο — εισαγάγετε τη διεύθυνση χειροκίνητα"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "Ο %s δεν απάντησε — η διεύθυνση που έδωσε ίσως δεν λειτουργεί εδώ"

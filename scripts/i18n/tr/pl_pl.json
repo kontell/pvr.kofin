@@ -113,5 +113,14 @@
   "#30840": "Jellyfin nie obsługuje edycji timerów",
   "#30841": "Nagrywanie zakończone",
   "#30842": "Weryfikuj certyfikat SSL",
-  "#30843": "Wyłącz tylko dla serwerów z certyfikatem podpisanym samodzielnie. Dotyczy własnych żądań dodatku (logowanie, program, timery, nagrania); odtwarzanie wideo obsługują Kodi i dodatki inputstream i nie podlega tej opcji."
+  "#30843": "Wyłącz tylko dla serwerów z certyfikatem podpisanym samodzielnie. Dotyczy własnych żądań dodatku (logowanie, program, timery, nagrania); odtwarzanie wideo obsługują Kodi i dodatki inputstream i nie podlega tej opcji.",
+  "#30844": "Znajdź serwery w sieci lokalnej",
+  "#30846": "Wybierz serwer",
+  "#30847": "Wyszukiwanie serwerów Jellyfin…",
+  "#30849": "nie odpowiedział",
+  "#30850": "Żaden serwer Jellyfin nie odpowiedział — wpisz adres ręcznie",
+  "#30852": "%s nie odpowiedział — podany adres może tu nie działać",
+  "#30845": "Wyszukuje serwery Jellyfin w tej sieci i wyświetla te, które odpowiedzą. Wybrany zostanie wpisany w adres serwera powyżej.",
+  "#30848": "Sprawdzanie serwerów…",
+  "#30851": "%s zawiera ścieżkę, której ten dodatek nie może użyć — wpisz adres ręcznie"
 }

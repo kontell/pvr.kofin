@@ -676,3 +676,44 @@ msgstr "Verifica el certificat SSL"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Desactiveu-ho només per a servidors amb certificats autofirmats. S'aplica a les peticions del mateix complement (inici de sessió, guia, temporitzadors, enregistraments); la reproducció de vídeo la gestionen Kodi i els complements inputstream i no es veu afectada."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Cerca servidors a la xarxa local"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Cerca servidors Jellyfin en aquesta xarxa i mostra els que responen. El que triïs s'escriu a l'adreça del servidor de dalt."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Selecciona un servidor"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "S'estan cercant servidors Jellyfin…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "S'estan comprovant els servidors…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "no ha respost"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Cap servidor Jellyfin ha respost — introdueix l'adreça manualment"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s inclou un camí que aquest complement no pot fer servir — introdueix l'adreça manualment"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s no ha respost — l'adreça que ha donat potser no funciona aquí"

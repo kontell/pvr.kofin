@@ -113,5 +113,14 @@
   "#30840": "Jellyfin ondersteunt het bewerken van timers niet",
   "#30841": "Opname voltooid",
   "#30842": "SSL-certificaat verifiëren",
-  "#30843": "Schakel dit alleen uit voor servers met een zelfondertekend certificaat. Geldt voor de eigen aanvragen van de add-on (aanmelden, gids, timers, opnamen); videoweergave wordt door Kodi en de inputstream-add-ons afgehandeld en verandert niet."
+  "#30843": "Schakel dit alleen uit voor servers met een zelfondertekend certificaat. Geldt voor de eigen aanvragen van de add-on (aanmelden, gids, timers, opnamen); videoweergave wordt door Kodi en de inputstream-add-ons afgehandeld en verandert niet.",
+  "#30844": "Servers op lokaal netwerk zoeken",
+  "#30846": "Kies een server",
+  "#30847": "Zoeken naar Jellyfin-servers…",
+  "#30849": "gaf geen antwoord",
+  "#30850": "Geen enkele Jellyfin-server antwoordde — voer het adres handmatig in",
+  "#30852": "%s gaf geen antwoord — het opgegeven adres werkt hier misschien niet",
+  "#30845": "Zoekt naar Jellyfin-servers op dit netwerk en toont de servers die antwoorden. De server die je kiest wordt ingevuld bij het serveradres hierboven.",
+  "#30848": "Servers controleren…",
+  "#30851": "%s bevat een pad dat deze add-on niet kan gebruiken — voer het adres handmatig in"
 }
