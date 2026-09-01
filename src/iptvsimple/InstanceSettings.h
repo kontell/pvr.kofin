@@ -131,6 +131,15 @@ namespace iptvsimple
 
     // Input stream: 0 = ffmpegdirect, 1 = adaptive, 2 = kodi internal
     int GetInputStream() const { return m_inputStream; }
+    // The addon that plays catchup/EPG streams. Default ffmpegdirect so an
+    // install without inputstream.tempo keeps working; tempo is the fork
+    // with the same catchup engine plus SyncPlay's rate control (and, on
+    // Omega, fixes that were backported to tempo only).
+    std::string GetCatchupInputstream() const
+    {
+      return m_catchupInputstream == 1 ? "inputstream.tempo"
+                                       : "inputstream.ffmpegdirect";
+    }
     bool GetTimeshiftEnabled() const { return m_timeshiftEnabled; }
 
     // In-progress recording input stream: 0 = adaptive, 1 = kodi internal
@@ -212,6 +221,7 @@ namespace iptvsimple
     int m_maxResolution = 5;        // index into MAX_WIDTH_TABLE (5=unlimited)
 
     // Input stream
+    int m_catchupInputstream = 0;
     int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
     bool m_timeshiftEnabled = true;
     int m_inProgressInputStream = 0;  // 0=adaptive, 1=kodi internal
