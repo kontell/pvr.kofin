@@ -32,14 +32,19 @@ namespace
 {
 
 // Append the stream URL, MIME type, inputstream and manifest_type for a catchup
-// stream played via inputstream.ffmpegdirect. MIME and manifest_type are derived
+// stream played via inputstream.tempo. MIME and manifest_type are derived
 // from the resolved catchup URL (and the channel's catchup-TS flag) rather than
 // assuming HLS: TS catchup sources — Xtream-codes, Flussonic "mpegts", and
-// shift/append on a .ts base — must NOT be labelled HLS, or ffmpegdirect tries to
-// parse raw MPEG-TS as an HLS playlist and fails. GetMimeType()/GetManifestType()
-// return "" for TS/unknown types, matching pvr.iptvsimple's SetAllStreamProperties.
-void AppendFfmpegDirectCatchupProperties(std::vector<kodi::addon::PVRStreamProperty>& properties,
-                                         const std::string& streamURL, bool isCatchupTSStream)
+// shift/append on a .ts base — must NOT be labelled HLS, or the ffmpeg open path
+// tries to parse raw MPEG-TS as an HLS playlist and fails. GetMimeType()/
+// GetManifestType() return "" for TS/unknown types, matching pvr.iptvsimple.
+//
+// inputstream.tempo, not ffmpegdirect, and deliberately: tempo is the
+// ffmpegdirect fork that keeps the whole catchup engine (same properties under
+// its own namespace) and adds the rate control a kofin-hosted SyncPlay group
+// pulses for fine sync (plugin.video.kofin docs/syncplay-pvr-plan.md, P3).
+void AppendCatchupInputstreamProperties(std::vector<kodi::addon::PVRStreamProperty>& properties,
+                                        const std::string& streamURL, bool isCatchupTSStream)
 {
   const StreamType streamType = StreamUtils::GetStreamType(streamURL, "", isCatchupTSStream);
   const std::string mimeType = StreamUtils::GetMimeType(streamType);
@@ -48,9 +53,9 @@ void AppendFfmpegDirectCatchupProperties(std::vector<kodi::addon::PVRStreamPrope
   properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
   if (!mimeType.empty())
     properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, mimeType);
-  properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
+  properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.tempo");
   if (!manifestType.empty())
-    properties.emplace_back("inputstream.ffmpegdirect.manifest_type", manifestType);
+    properties.emplace_back("inputstream.tempo.manifest_type", manifestType);
 }
 
 } // unnamed namespace
@@ -395,8 +400,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // Play-EPG-as-live catchup: GetEPGTagStreamProperties stored the timeshifted
     // programme state and returned EPGPLAYBACKASLIVE=true, so Kodi is opening the
     // channel to consume it here. Catchup can only shift into the past over the
-    // raw tuner URL via ffmpegdirect, so pin the whole pipeline to direct play +
-    // ffmpegdirect (matching GetEPGTagStreamProperties) regardless of the global
+    // raw tuner URL, so pin the whole pipeline to direct play +
+    // inputstream.tempo (matching GetEPGTagStreamProperties) regardless of the global
     // transcode/bitrate/inputstream settings — otherwise the URL resolves to a
     // live-only Jellyfin transcode stream that can't seek back to the programme.
     const bool pendingTimeshiftedCatchup = m_catchupController &&
@@ -414,7 +419,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       overrides.forceRemux = false;
       overrides.forceTranscode = false;
       overrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
-      overrides.inputstream = "inputstream.ffmpegdirect";
+      overrides.inputstream = "inputstream.tempo";
     }
     else if (!overrides.inputstream)
     {
@@ -476,8 +481,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       : inputStream == 1;
     if (pendingTimeshiftedCatchup)
     {
-      // Catchup replays only through ffmpegdirect — override any M3U/global
-      // inputstream choice so the catchup branch below is taken.
+      // Catchup replays only through the catchup-capable inputstream — override
+      // any M3U/global inputstream choice so the catchup branch below is taken.
       useFfmpegDirect = true;
       useAdaptive = false;
     }
@@ -508,9 +513,9 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
 
       // Update the stream URL property (was set to raw tuner URL earlier).
       // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
-      // sources aren't mislabelled as HLS (see AppendFfmpegDirectCatchupProperties).
+      // sources aren't mislabelled as HLS (see AppendCatchupInputstreamProperties).
       properties.clear();
-      AppendFfmpegDirectCatchupProperties(properties, streamURL, m_currentChannel.IsCatchupTSStream());
+      AppendCatchupInputstreamProperties(properties, streamURL, m_currentChannel.IsCatchupTSStream());
 
       for (const auto& prop : catchupProperties)
         properties.emplace_back(prop.first, prop.second);
@@ -709,9 +714,9 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (!GetChannel(tag.GetUniqueChannelId(), channel) || !channel.IsCatchupSupported())
     return PVR_ERROR_FAILED;
 
-  // Catchup only works via inputstream.ffmpegdirect over the raw tuner URL
-  // (the catchup-source template shifts that URL into the past), so pin the
-  // whole pipeline to direct play + ffmpegdirect regardless of the global or
+  // Catchup only works over the raw tuner URL (the catchup-source template
+  // shifts that URL into the past), so pin the whole pipeline to direct play
+  // + inputstream.tempo regardless of the global or
   // per-channel transcode/bitrate/inputstream settings. Those settings keep
   // applying to live-channel playback (GetChannelStreamProperties).
   auto epgOverrides = iptvsimple::jellyfin::ChannelOverrides::FromChannel(channel);
@@ -719,7 +724,7 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   epgOverrides.forceRemux = false;
   epgOverrides.forceTranscode = false;
   epgOverrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
-  epgOverrides.inputstream = "inputstream.ffmpegdirect";
+  epgOverrides.inputstream = "inputstream.tempo";
   std::string streamURL;
   if (m_channelLoader)
   {
@@ -761,8 +766,8 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (!catchupUrl.empty())
   {
     // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
-    // sources aren't mislabelled as HLS (see AppendFfmpegDirectCatchupProperties).
-    AppendFfmpegDirectCatchupProperties(properties, catchupUrl, channel.IsCatchupTSStream());
+    // sources aren't mislabelled as HLS (see AppendCatchupInputstreamProperties).
+    AppendCatchupInputstreamProperties(properties, catchupUrl, channel.IsCatchupTSStream());
 
     for (const auto& prop : catchupProperties)
       properties.emplace_back(prop.first, prop.second);
