@@ -113,5 +113,14 @@
   "#30840": "A Jellyfin nem támogatja az időzítők szerkesztését",
   "#30841": "A felvétel befejeződött",
   "#30842": "SSL-tanúsítvány ellenőrzése",
-  "#30843": "Csak saját aláírású tanúsítvánnyal rendelkező kiszolgálóknál kapcsolja ki. A kiegészítő saját kéréseire vonatkozik (bejelentkezés, műsorújság, időzítők, felvételek); a videolejátszást a Kodi és az inputstream kiegészítők végzik, és ezt nem érinti."
+  "#30843": "Csak saját aláírású tanúsítvánnyal rendelkező kiszolgálóknál kapcsolja ki. A kiegészítő saját kéréseire vonatkozik (bejelentkezés, műsorújság, időzítők, felvételek); a videolejátszást a Kodi és az inputstream kiegészítők végzik, és ezt nem érinti.",
+  "#30844": "Kiszolgálók keresése a helyi hálózaton",
+  "#30846": "Válasszon kiszolgálót",
+  "#30847": "Jellyfin-kiszolgálók keresése…",
+  "#30849": "nem válaszolt",
+  "#30850": "Egyetlen Jellyfin-kiszolgáló sem válaszolt — adja meg a címet kézzel",
+  "#30852": "%s nem válaszolt — a megadott cím itt nem feltétlenül működik",
+  "#30845": "Jellyfin-kiszolgálókat keres ezen a hálózaton, és felsorolja azokat, amelyek válaszolnak. A kiválasztott bekerül a fenti kiszolgálócímbe.",
+  "#30848": "Kiszolgálók ellenőrzése…",
+  "#30851": "A(z) %s elérési utat tartalmaz, amelyet ez a kiegészítő nem tud használni — adja meg a címet kézzel"
 }

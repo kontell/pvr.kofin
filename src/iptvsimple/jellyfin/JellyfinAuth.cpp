@@ -99,22 +99,44 @@ void JellyfinAuth::RunLoginInternal()
     return;
   }
 
-  // Show Select dialog: Username/Password or Quick Connect
-  std::vector<std::string> entries;
-  entries.push_back(kodi::addon::GetLocalizedString(30706)); // "Username/Password"
-  entries.push_back(kodi::addon::GetLocalizedString(30707)); // "Quick Connect"
-
-  int selected = kodi::gui::dialogs::Select::Show(
-    kodi::addon::GetLocalizedString(30708), entries); // "Choose login method"
-
-  if (selected < 0)
-    return; // cancelled
+  // Quick Connect leads: it is the easier path on a remote, and it is what
+  // plugin.video.kofin offers first. But listing it first also makes it the
+  // default choice, so it is offered only when the server actually has it --
+  // otherwise the highlighted entry would be the one that fails.
+  // IsQuickConnectEnabled fails open, so an unreachable or ambiguous answer
+  // still shows both.
+  auto probeClient = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
+  const bool quickConnectOffered = probeClient->IsQuickConnectEnabled();
 
   bool success = false;
-  if (selected == 0)
+  if (!quickConnectOffered)
+  {
+    // No dialog: a picker with one entry is a question with a single answer.
     success = LoginWithPassword();
+  }
   else
-    success = LoginWithQuickConnect();
+  {
+    std::vector<std::string> entries;
+    entries.push_back(kodi::addon::GetLocalizedString(30707)); // "Quick Connect"
+    entries.push_back(kodi::addon::GetLocalizedString(30706)); // "Username/Password"
+
+    const int selected = kodi::gui::dialogs::Select::Show(
+      kodi::addon::GetLocalizedString(30708), entries); // "Choose login method"
+
+    if (selected < 0)
+      return; // cancelled
+
+    // Indexed explicitly rather than `if (selected == 0) ... else ...`: the
+    // entry order and the calls have to stay paired, and an else-branch
+    // silently inverts the mapping the moment the order changes -- which is
+    // precisely what reordering this list would have done.
+    if (selected == 0)
+      success = LoginWithQuickConnect();
+    else if (selected == 1)
+      success = LoginWithPassword();
+    else
+      return;
+  }
 
   if (success)
   {

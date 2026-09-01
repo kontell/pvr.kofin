@@ -23,6 +23,27 @@
           </dependencies>
           <control type="edit" format="string" />
         </setting>
+        <!-- Runs discover.py directly rather than trigger.py: this is not a
+             sentinel poke for the C++ side to pick up, it is a flow that ends
+             by writing jellyfinServerAddress itself, and trigger.py's value is
+             its allowlist. <close> is required, not stylistic: the picker is
+             modal, and a modal raised over the open settings dialog fights it. -->
+        <setting id="findServers" type="string" label="30844" help="30845">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="isLoggedIn">false</condition>
+            </dependency>
+          </dependencies>
+          <control type="button" format="action">
+            <data>RunScript(special://home/addons/pvr.kofin/resources/scripts/discover.py)</data>
+            <close>true</close>
+          </control>
+        </setting>
         <setting id="loginButton" type="string" label="30703">
           <level>0</level>
           <default></default>

@@ -676,3 +676,44 @@ msgstr "Vérifier le certificat SSL"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "À désactiver uniquement pour les serveurs avec un certificat auto-signé. S'applique aux requêtes de l'extension elle-même (connexion, guide, programmations, enregistrements) ; la lecture vidéo est gérée par Kodi et les extensions inputstream et n'est pas concernée."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Rechercher des serveurs sur le réseau local"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Recherche les serveurs Jellyfin sur ce réseau et affiche ceux qui répondent. Celui que vous choisissez est inscrit dans l'adresse du serveur ci-dessus."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Sélectionnez un serveur"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Recherche de serveurs Jellyfin…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Vérification des serveurs…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "n'a pas répondu"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Aucun serveur Jellyfin n'a répondu — saisissez l'adresse manuellement"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s comprend un chemin que cette extension ne peut pas utiliser — saisissez l'adresse manuellement"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s n'a pas répondu — l'adresse fournie ne fonctionne peut-être pas ici"

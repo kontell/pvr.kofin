@@ -676,3 +676,44 @@ msgstr "Verificér SSL-certifikat"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Slå kun fra for servere med selvsignerede certifikater. Gælder tilføjelsens egne forespørgsler (login, guide, timere, optagelser); videoafspilning håndteres af Kodi og inputstream-tilføjelserne og påvirkes ikke."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Find servere på lokalnetværket"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Søger efter Jellyfin-servere på dette netværk og viser dem, der svarer. Den, du vælger, udfyldes i serveradressen ovenfor."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Vælg en server"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Søger efter Jellyfin-servere…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Kontrollerer servere…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "svarede ikke"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Ingen Jellyfin-servere svarede — indtast adressen manuelt"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s indeholder en sti, som dette add-on ikke kan bruge — indtast adressen manuelt"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s svarede ikke — adressen virker måske ikke herfra"

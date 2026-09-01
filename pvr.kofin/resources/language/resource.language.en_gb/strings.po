@@ -675,3 +675,48 @@ msgstr ""
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr ""
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr ""
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr ""
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr ""
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr ""
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr ""
+
+#: Marks a discovered server whose address this device could not reach. Reads
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr ""
+
+#: Names manual entry rather than suggesting another go: a server answers the
+#: broadcast in milliseconds or not at all, and the usual causes (auto-discovery
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr ""
+
+#: The add-on's address handling keeps only host and port, so a server
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr ""
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr ""

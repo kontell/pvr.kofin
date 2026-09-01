@@ -676,3 +676,44 @@ msgstr "Weryfikuj certyfikat SSL"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Wyłącz tylko dla serwerów z certyfikatem podpisanym samodzielnie. Dotyczy własnych żądań dodatku (logowanie, program, timery, nagrania); odtwarzanie wideo obsługują Kodi i dodatki inputstream i nie podlega tej opcji."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Znajdź serwery w sieci lokalnej"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Wyszukuje serwery Jellyfin w tej sieci i wyświetla te, które odpowiedzą. Wybrany zostanie wpisany w adres serwera powyżej."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Wybierz serwer"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Wyszukiwanie serwerów Jellyfin…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Sprawdzanie serwerów…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "nie odpowiedział"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Żaden serwer Jellyfin nie odpowiedział — wpisz adres ręcznie"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s zawiera ścieżkę, której ten dodatek nie może użyć — wpisz adres ręcznie"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s nie odpowiedział — podany adres może tu nie działać"

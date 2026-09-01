@@ -113,5 +113,14 @@
   "#30840": "Jellyfin no admite editar temporizadores",
   "#30841": "Grabación finalizada",
   "#30842": "Verificar el certificado SSL",
-  "#30843": "Desactívalo solo para servidores con certificados autofirmados. Se aplica a las solicitudes del propio complemento (inicio de sesión, guía, temporizadores, grabaciones); la reproducción de video la manejan Kodi y los complementos inputstream y no se ve afectada."
+  "#30843": "Desactívalo solo para servidores con certificados autofirmados. Se aplica a las solicitudes del propio complemento (inicio de sesión, guía, temporizadores, grabaciones); la reproducción de video la manejan Kodi y los complementos inputstream y no se ve afectada.",
+  "#30844": "Buscar servidores en la red local",
+  "#30846": "Selecciona un servidor",
+  "#30847": "Buscando servidores Jellyfin…",
+  "#30849": "no respondió",
+  "#30850": "Ningún servidor Jellyfin respondió — introduce la dirección manualmente",
+  "#30852": "%s no respondió — puede que la dirección que dio no funcione aquí",
+  "#30845": "Busca servidores Jellyfin en esta red y muestra los que responden. El que elijas se escribe en la dirección del servidor de arriba.",
+  "#30848": "Comprobando servidores…",
+  "#30851": "%s incluye una ruta que este complemento no puede usar — introduce la dirección manualmente"
 }

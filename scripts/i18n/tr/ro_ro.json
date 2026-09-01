@@ -113,5 +113,14 @@
   "#30840": "Jellyfin nu acceptă editarea cronometrelor",
   "#30841": "Înregistrare finalizată",
   "#30842": "Verifică certificatul SSL",
-  "#30843": "Dezactivați doar pentru servere cu certificate autosemnate. Se aplică cererilor proprii ale suplimentului (autentificare, ghid, cronometre, înregistrări); redarea video este gestionată de Kodi și de suplimentele inputstream și nu este afectată."
+  "#30843": "Dezactivați doar pentru servere cu certificate autosemnate. Se aplică cererilor proprii ale suplimentului (autentificare, ghid, cronometre, înregistrări); redarea video este gestionată de Kodi și de suplimentele inputstream și nu este afectată.",
+  "#30844": "Caută servere în rețeaua locală",
+  "#30846": "Alegeți un server",
+  "#30847": "Se caută servere Jellyfin…",
+  "#30849": "nu a răspuns",
+  "#30850": "Niciun server Jellyfin nu a răspuns — introduceți adresa manual",
+  "#30852": "%s nu a răspuns — adresa indicată s-ar putea să nu funcționeze aici",
+  "#30845": "Caută servere Jellyfin în această rețea și le afișează pe cele care răspund. Cel ales este completat în adresa serverului de mai sus.",
+  "#30848": "Se verifică serverele…",
+  "#30851": "%s include o cale pe care acest supliment nu o poate folosi — introduceți adresa manual"
 }

@@ -113,5 +113,14 @@
   "#30840": "Jellyfin no permet editar temporitzadors",
   "#30841": "Enregistrament finalitzat",
   "#30842": "Verifica el certificat SSL",
-  "#30843": "Desactiveu-ho només per a servidors amb certificats autofirmats. S'aplica a les peticions del mateix complement (inici de sessió, guia, temporitzadors, enregistraments); la reproducció de vídeo la gestionen Kodi i els complements inputstream i no es veu afectada."
+  "#30843": "Desactiveu-ho només per a servidors amb certificats autofirmats. S'aplica a les peticions del mateix complement (inici de sessió, guia, temporitzadors, enregistraments); la reproducció de vídeo la gestionen Kodi i els complements inputstream i no es veu afectada.",
+  "#30844": "Cerca servidors a la xarxa local",
+  "#30846": "Selecciona un servidor",
+  "#30847": "S'estan cercant servidors Jellyfin…",
+  "#30849": "no ha respost",
+  "#30850": "Cap servidor Jellyfin ha respost — introdueix l'adreça manualment",
+  "#30852": "%s no ha respost — l'adreça que ha donat potser no funciona aquí",
+  "#30845": "Cerca servidors Jellyfin en aquesta xarxa i mostra els que responen. El que triïs s'escriu a l'adreça del servidor de dalt.",
+  "#30848": "S'estan comprovant els servidors…",
+  "#30851": "%s inclou un camí que aquest complement no pot fer servir — introdueix l'adreça manualment"
 }

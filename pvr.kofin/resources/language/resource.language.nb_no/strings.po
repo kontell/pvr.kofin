@@ -676,3 +676,44 @@ msgstr "Verifiser SSL-sertifikat"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Slå av bare for servere med selvsignerte sertifikater. Gjelder tilleggets egne forespørsler (innlogging, guide, timere, opptak); videoavspilling håndteres av Kodi og inputstream-tilleggene og påvirkes ikke."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Finn servere på lokalnettverket"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Søker etter Jellyfin-servere på dette nettverket og viser dem som svarer. Den du velger fylles inn i serveradressen over."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Velg en server"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Søker etter Jellyfin-servere…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Kontrollerer servere…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "svarte ikke"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Ingen Jellyfin-servere svarte — skriv inn adressen manuelt"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s inneholder en sti dette tillegget ikke kan bruke — skriv inn adressen manuelt"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s svarte ikke — adressen den oppga fungerer kanskje ikke her"

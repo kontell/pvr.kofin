@@ -113,5 +113,14 @@
   "#30840": "Jellyfin har inte stöd för att redigera timers",
   "#30841": "Inspelningen är klar",
   "#30842": "Verifiera SSL-certifikat",
-  "#30843": "Stäng bara av för servrar med självsignerade certifikat. Gäller tilläggets egna förfrågningar (inloggning, guide, timers, inspelningar); videouppspelning sköts av Kodi och inputstream-tilläggen och påverkas inte."
+  "#30843": "Stäng bara av för servrar med självsignerade certifikat. Gäller tilläggets egna förfrågningar (inloggning, guide, timers, inspelningar); videouppspelning sköts av Kodi och inputstream-tilläggen och påverkas inte.",
+  "#30844": "Sök servrar på lokala nätverket",
+  "#30846": "Välj en server",
+  "#30847": "Söker efter Jellyfin-servrar…",
+  "#30849": "svarade inte",
+  "#30850": "Ingen Jellyfin-server svarade — ange adressen manuellt",
+  "#30852": "%s svarade inte — adressen den uppgav fungerar kanske inte här",
+  "#30845": "Söker efter Jellyfin-servrar på det här nätverket och visar dem som svarar. Den du väljer fylls i som serveradress ovan.",
+  "#30848": "Kontrollerar servrar…",
+  "#30851": "%s innehåller en sökväg som det här tillägget inte kan använda — ange adressen manuellt"
 }
