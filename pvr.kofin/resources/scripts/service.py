@@ -219,6 +219,7 @@ class PlaybackReporter(xbmc.Player):
         xbmc.log(f'pvr.kofin reporter: playback started ({content})', xbmc.LOGINFO)
 
         self._send('/Sessions/Playing', self._build_body())
+        self._send_sync_claim()
 
     def onPlayBackStopped(self):
         self._stop()
@@ -299,6 +300,40 @@ class PlaybackReporter(xbmc.Player):
         if not self.session:
             return
         self._send('/Sessions/Playing/Progress', self._build_body())
+
+    def _send_sync_claim(self):
+        """Tell a kofin-hosted SyncPlay engine what is on screen.
+
+        The public provider contract (plugin.video.kofin,
+        docs/syncplay-provider-contract.md): recordings and live channels are
+        Jellyfin items, so the claim names provider "jellyfin" and a group
+        follower plays the same id through kofin's ordinary route. A live
+        channel sends no runtime — a zero-runtime claim is the contract's
+        spelling of "live". Sent from here rather than C++ because
+        executeJSONRPC lands on this Kodi's own bus, which no localhost
+        socket can promise on a host running two Kodis. Fire-and-forget:
+        with no kofin engine listening the notification costs nothing, and
+        the engine drops the claim itself when playback stops.
+        """
+        data = {
+            'v': 1,
+            'provider': 'jellyfin',
+            'key': self.session['ItemId'],
+            'play_method': self.session['PlayMethod'] or 'DirectPlay',
+            'play_session': self.session['PlaySessionId'],
+        }
+        if self.is_recording:
+            try:
+                data['name'] = self.getVideoInfoTag().getTitle()
+                data['runtime_ticks'] = int(self.getTotalTime() * 10_000_000)
+            except RuntimeError:
+                pass  # player already tearing down; the claim still identifies
+        xbmc.executeJSONRPC(json.dumps({
+            'jsonrpc': '2.0', 'id': 1, 'method': 'JSONRPC.NotifyAll',
+            'params': {'sender': ADDON_ID,
+                       'message': 'SyncProvider.Claim',
+                       'data': data}}))
+        xbmc.log('pvr.kofin reporter: sync claim sent', xbmc.LOGDEBUG)
 
     def _build_body(self):
         return {
