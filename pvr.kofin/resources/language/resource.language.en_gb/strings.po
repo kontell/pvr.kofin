@@ -720,3 +720,15 @@ msgstr ""
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr ""
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr ""
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is the FFmpeg Direct fork with the same catchup engine plus the rate control SyncPlay fine sync needs — choose it when inputstream.tempo is installed."
+msgstr ""
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr ""

@@ -360,22 +360,24 @@ void CatchupController::ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGT
 
 void CatchupController::SetCatchupInputStreamProperties(bool playbackAsLive, const Channel& channel, std::map<std::string, std::string>& catchupProperties)
 {
+  const std::string catchupAddonPrefix = m_settings->GetCatchupInputstream() + ".";
+
   const int tzShift = GetTimezoneShift(channel);
 
   catchupProperties.insert({PVR_STREAM_PROPERTY_EPGPLAYBACKASLIVE, playbackAsLive ? "true" : "false"});
-  catchupProperties.insert({"inputstream.tempo.is_realtime_stream", "true"});
-  catchupProperties.insert({"inputstream.tempo.stream_mode", "catchup"});
-  catchupProperties.insert({"inputstream.tempo.default_url", channel.GetStreamURL()});
-  catchupProperties.insert({"inputstream.tempo.playback_as_live", playbackAsLive ? "true" : "false"});
-  catchupProperties.insert({"inputstream.tempo.catchup_url_format_string", GetCatchupUrlFormatString(channel)});
-  catchupProperties.insert({"inputstream.tempo.catchup_buffer_start_time", std::to_string(m_catchupStartTime)});
-  catchupProperties.insert({"inputstream.tempo.catchup_buffer_end_time", std::to_string(m_catchupEndTime)});
-  catchupProperties.insert({"inputstream.tempo.catchup_buffer_offset", std::to_string(m_timeshiftBufferOffset)});
-  catchupProperties.insert({"inputstream.tempo.timezone_shift", std::to_string(tzShift)});
+  catchupProperties.insert({catchupAddonPrefix + "is_realtime_stream", "true"});
+  catchupProperties.insert({catchupAddonPrefix + "stream_mode", "catchup"});
+  catchupProperties.insert({catchupAddonPrefix + "default_url", channel.GetStreamURL()});
+  catchupProperties.insert({catchupAddonPrefix + "playback_as_live", playbackAsLive ? "true" : "false"});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_url_format_string", GetCatchupUrlFormatString(channel)});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_buffer_start_time", std::to_string(m_catchupStartTime)});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_buffer_end_time", std::to_string(m_catchupEndTime)});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_buffer_offset", std::to_string(m_timeshiftBufferOffset)});
+  catchupProperties.insert({catchupAddonPrefix + "timezone_shift", std::to_string(tzShift)});
   if (!m_programmeCatchupId.empty())
-    catchupProperties.insert({"inputstream.tempo.programme_catchup_id", m_programmeCatchupId});
-  catchupProperties.insert({"inputstream.tempo.catchup_terminates", channel.CatchupSourceTerminates() ? "true" : "false"});
-  catchupProperties.insert({"inputstream.tempo.catchup_granularity", std::to_string(channel.GetCatchupGranularitySeconds())});
+    catchupProperties.insert({catchupAddonPrefix + "programme_catchup_id", m_programmeCatchupId});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_terminates", channel.CatchupSourceTerminates() ? "true" : "false"});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_granularity", std::to_string(channel.GetCatchupGranularitySeconds())});
 
   Logger::Log(LEVEL_DEBUG, "%s - default_url: %s", __FUNCTION__, WebUtils::RedactUrl(channel.GetStreamURL()).c_str());
   Logger::Log(LEVEL_DEBUG, "%s - catchup_url_format_string: %s", __FUNCTION__, WebUtils::RedactUrl(GetCatchupUrlFormatString(channel)).c_str());

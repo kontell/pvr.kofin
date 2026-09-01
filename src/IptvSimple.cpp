@@ -39,12 +39,14 @@ namespace
 // tries to parse raw MPEG-TS as an HLS playlist and fails. GetMimeType()/
 // GetManifestType() return "" for TS/unknown types, matching pvr.iptvsimple.
 //
-// inputstream.tempo, not ffmpegdirect, and deliberately: tempo is the
-// ffmpegdirect fork that keeps the whole catchup engine (same properties under
-// its own namespace) and adds the rate control a kofin-hosted SyncPlay group
-// pulses for fine sync (plugin.video.kofin docs/syncplay-pvr-plan.md, P3).
+// The catchup inputstream is a setting (default ffmpegdirect, so an install
+// without inputstream.tempo keeps working): tempo is the ffmpegdirect fork
+// that keeps the whole catchup engine (same properties under its own
+// namespace) and adds the rate control a kofin-hosted SyncPlay group pulses
+// for fine sync (plugin.video.kofin docs/syncplay-pvr-plan.md, P3).
 void AppendCatchupInputstreamProperties(std::vector<kodi::addon::PVRStreamProperty>& properties,
-                                        const std::string& streamURL, bool isCatchupTSStream)
+                                        const std::string& streamURL, bool isCatchupTSStream,
+                                        const std::string& inputstreamAddon)
 {
   const StreamType streamType = StreamUtils::GetStreamType(streamURL, "", isCatchupTSStream);
   const std::string mimeType = StreamUtils::GetMimeType(streamType);
@@ -53,9 +55,9 @@ void AppendCatchupInputstreamProperties(std::vector<kodi::addon::PVRStreamProper
   properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
   if (!mimeType.empty())
     properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, mimeType);
-  properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.tempo");
+  properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, inputstreamAddon);
   if (!manifestType.empty())
-    properties.emplace_back("inputstream.tempo.manifest_type", manifestType);
+    properties.emplace_back(inputstreamAddon + ".manifest_type", manifestType);
 }
 
 } // unnamed namespace
@@ -419,7 +421,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       overrides.forceRemux = false;
       overrides.forceTranscode = false;
       overrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
-      overrides.inputstream = "inputstream.tempo";
+      overrides.inputstream = m_settings->GetCatchupInputstream();
     }
     else if (!overrides.inputstream)
     {
@@ -515,7 +517,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
       // sources aren't mislabelled as HLS (see AppendCatchupInputstreamProperties).
       properties.clear();
-      AppendCatchupInputstreamProperties(properties, streamURL, m_currentChannel.IsCatchupTSStream());
+      AppendCatchupInputstreamProperties(properties, streamURL, m_currentChannel.IsCatchupTSStream(),
+                                         m_settings->GetCatchupInputstream());
 
       for (const auto& prop : catchupProperties)
         properties.emplace_back(prop.first, prop.second);
@@ -724,7 +727,7 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   epgOverrides.forceRemux = false;
   epgOverrides.forceTranscode = false;
   epgOverrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
-  epgOverrides.inputstream = "inputstream.tempo";
+  epgOverrides.inputstream = m_settings->GetCatchupInputstream();
   std::string streamURL;
   if (m_channelLoader)
   {
@@ -767,7 +770,8 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   {
     // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
     // sources aren't mislabelled as HLS (see AppendCatchupInputstreamProperties).
-    AppendCatchupInputstreamProperties(properties, catchupUrl, channel.IsCatchupTSStream());
+    AppendCatchupInputstreamProperties(properties, catchupUrl, channel.IsCatchupTSStream(),
+                                       m_settings->GetCatchupInputstream());
 
     for (const auto& prop : catchupProperties)
       properties.emplace_back(prop.first, prop.second);
