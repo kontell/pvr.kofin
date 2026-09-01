@@ -26,6 +26,12 @@ import xbmcvfs
 
 ADDON_ID = 'pvr.kofin'
 REPORT_INTERVAL = 10  # seconds between progress reports
+# The provider name catchup content claims under (the public provider
+# contract); recordings and live channels stay provider "jellyfin".
+SYNC_PROVIDER = 'pvr.kofin'
+# A programme whose end is at least this far gone is catchup, not live —
+# covers EPG clock skew around a live programme's final minute.
+CATCHUP_GRACE_SECS = 60
 
 
 def get_addon():
@@ -306,10 +312,16 @@ class PlaybackReporter(xbmc.Player):
 
         The public provider contract (plugin.video.kofin,
         docs/syncplay-provider-contract.md): recordings and live channels are
-        Jellyfin items, so the claim names provider "jellyfin" and a group
+        Jellyfin items, so those claims name provider "jellyfin" and a group
         follower plays the same id through kofin's ordinary route. A live
         channel sends no runtime — a zero-runtime claim is the contract's
-        spelling of "live". Sent from here rather than C++ because
+        spelling of "live". A catchup play (a live-TV playback whose
+        programme has already ended) is nobody's Jellyfin item: it claims
+        under this add-on's own name with the programme identity as the key
+        (channel GUID @ programme start, epoch seconds) and a tempo route —
+        the catchup pipeline runs through inputstream.tempo, which polls its
+        shared tempo file when the stream names none, so the engine's fine
+        sync can pulse this member. Sent from here rather than C++ because
         executeJSONRPC lands on this Kodi's own bus, which no localhost
         socket can promise on a host running two Kodis. Fire-and-forget:
         with no kofin engine listening the notification costs nothing, and
@@ -328,12 +340,49 @@ class PlaybackReporter(xbmc.Player):
                 data['runtime_ticks'] = int(self.getTotalTime() * 10_000_000)
             except RuntimeError:
                 pass  # player already tearing down; the claim still identifies
+        else:
+            programme = self._playing_programme()
+            if programme and programme['end'] < time.time() - CATCHUP_GRACE_SECS:
+                data['provider'] = SYNC_PROVIDER
+                data['key'] = '%s@%d' % (self.session['ItemId'], programme['start'])
+                data['name'] = programme['title']
+                data['runtime_ticks'] = int(
+                    (programme['end'] - programme['start']) * 10_000_000)
+                data['tempo'] = {
+                    'file': xbmcvfs.translatePath(
+                        'special://temp/inputstream_tempo'),
+                    'queue_secs': 8.0,
+                    'manifest_type': 'hls',
+                }
         xbmc.executeJSONRPC(json.dumps({
             'jsonrpc': '2.0', 'id': 1, 'method': 'JSONRPC.NotifyAll',
             'params': {'sender': ADDON_ID,
                        'message': 'SyncProvider.Claim',
                        'data': data}}))
-        xbmc.log('pvr.kofin reporter: sync claim sent', xbmc.LOGDEBUG)
+        xbmc.log('pvr.kofin reporter: sync claim sent (%s)' % data['provider'],
+                 xbmc.LOGDEBUG)
+
+    def _playing_programme(self):
+        """{'title', 'start', 'end'} of the programme on screen, or None.
+
+        Player.GetItem carries the EPG tag's title and times for both live
+        and catchup playback of a channel; the times arrive as local-time
+        strings.
+        """
+        try:
+            result = json.loads(xbmc.executeJSONRPC(json.dumps({
+                'jsonrpc': '2.0', 'id': 1, 'method': 'Player.GetItem',
+                'params': {'playerid': 1,
+                           'properties': ['title', 'starttime', 'endtime']},
+            }))).get('result', {}).get('item', {})
+            start = time.mktime(time.strptime(
+                result['starttime'], '%Y-%m-%d %H:%M:%S'))
+            end = time.mktime(time.strptime(
+                result['endtime'], '%Y-%m-%d %H:%M:%S'))
+        except (KeyError, ValueError, OSError):
+            return None
+        return {'title': result.get('title', ''), 'start': int(start),
+                'end': int(end)}
 
     def _build_body(self):
         return {
@@ -384,10 +433,122 @@ class PlaybackReporter(xbmc.Player):
         post_json(base_url, endpoint, body, token, device_id)
 
 
+def rpc(method, params):
+    """One local JSON-RPC call; {} on any failure."""
+    try:
+        reply = json.loads(xbmc.executeJSONRPC(json.dumps(
+            {'jsonrpc': '2.0', 'id': 1, 'method': method, 'params': params})))
+        return reply.get('result') or {}
+    except (ValueError, TypeError):
+        return {}
+
+
+def register_sync_provider():
+    """Register with a kofin-hosted SyncPlay engine as a delegated-start
+    provider: catchup content has no URL a template could carry (an EPG tag
+    is tuned, not fetched), so the engine broadcasts SyncSession.Start and
+    this service executes it (the provider contract's delegated start)."""
+    xbmc.executeJSONRPC(json.dumps({
+        'jsonrpc': '2.0', 'id': 1, 'method': 'JSONRPC.NotifyAll',
+        'params': {'sender': ADDON_ID,
+                   'message': 'SyncProvider.Register',
+                   'data': {'v': 1, 'provider': SYNC_PROVIDER,
+                            'play': {'delegated': True}}}}))
+    xbmc.log('pvr.kofin reporter: sync provider registered', xbmc.LOGINFO)
+
+
+def execute_sync_start(key):
+    """Tune this Kodi to the programme a SyncSession.Start names.
+
+    The key is `<channel jellyfin id>@<programme start, epoch seconds>`.
+    The channel resolves through the server (the GUID is nowhere in Kodi's
+    JSON-RPC view of PVR), then the local EPG names the broadcast: times in
+    PVR.GetBroadcasts are local-time strings, so the epoch converts through
+    localtime. Failing quietly is right — the engine's load watchdog gives
+    playback back to the member if nothing starts.
+    """
+    try:
+        channel_guid, _, start_raw = key.partition('@')
+        start_local = time.strftime('%Y-%m-%d %H:%M:%S',
+                                    time.localtime(int(start_raw)))
+    except ValueError:
+        xbmc.log('pvr.kofin reporter: bad sync start key %r' % key,
+                 xbmc.LOGWARNING)
+        return
+
+    base = normalize_base_url(get_setting('jellyfinServerAddress'))
+    token = get_setting('jellyfinAccessToken')
+    device_id = get_setting('deviceId')
+    user_id = get_setting('jellyfinUserId')
+    name = None
+    try:
+        req = urllib.request.Request(
+            base + '/LiveTv/Channels?userId=' + user_id,
+            headers={'Authorization': build_auth_header(token, device_id)})
+        with urllib.request.urlopen(req, timeout=10,
+                                    context=ssl_context()) as resp:
+            doc = json.load(resp)
+        name = next((c.get('Name') for c in doc.get('Items', [])
+                     if c.get('Id') == channel_guid), None)
+    except (urllib.error.URLError, OSError, ValueError):
+        pass
+    if not name:
+        xbmc.log('pvr.kofin reporter: sync start channel %s not found'
+                 % channel_guid, xbmc.LOGWARNING)
+        return
+
+    channels = rpc('PVR.GetChannels',
+                   {'channelgroupid': 'alltv'}).get('channels', [])
+    channel = next((c for c in channels if c.get('label') == name), None)
+    if not channel:
+        xbmc.log('pvr.kofin reporter: no local channel named %r' % name,
+                 xbmc.LOGWARNING)
+        return
+
+    broadcasts = rpc('PVR.GetBroadcasts',
+                     {'channelid': channel['channelid'],
+                      'properties': ['starttime']}).get('broadcasts', [])
+    broadcast = next((b for b in broadcasts
+                      if b.get('starttime') == start_local), None)
+    if not broadcast:
+        xbmc.log('pvr.kofin reporter: no broadcast at %s on %r'
+                 % (start_local, name), xbmc.LOGWARNING)
+        return
+
+    xbmc.log('pvr.kofin reporter: sync start -> broadcast %s (%r at %s)'
+             % (broadcast['broadcastid'], name, start_local), xbmc.LOGINFO)
+    rpc('Player.Open', {'item': {'broadcastid': broadcast['broadcastid']}})
+
+
+class SyncMonitor(xbmc.Monitor):
+    """The provider contract's inbound side: re-register on the engine's
+    announce, and execute delegated starts addressed to this provider."""
+
+    def onNotification(self, sender, method, data):
+        if sender == ADDON_ID:
+            return  # our own outbound messages echo back
+
+        if method == 'Other.SyncSession.State':
+            register_sync_provider()
+            return
+
+        if method == 'Other.SyncSession.Start':
+            try:
+                payload = json.loads(data)
+                if isinstance(payload, list):
+                    payload = payload[0]
+            except (ValueError, IndexError):
+                return
+            if payload.get('provider') != SYNC_PROVIDER:
+                return
+            execute_sync_start(str(payload.get('key') or ''))
+
+
 if __name__ == '__main__':
-    monitor = xbmc.Monitor()
+    monitor = SyncMonitor()
     player = PlaybackReporter()
     xbmc.log('pvr.kofin reporter: started', xbmc.LOGINFO)
+    register_sync_provider()
 
     while not monitor.abortRequested():
         if monitor.waitForAbort(REPORT_INTERVAL):
