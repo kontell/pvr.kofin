@@ -163,8 +163,12 @@ class PlaybackReporter(xbmc.Player):
         # getPlayingFile() returns the resolved stream URL (not a pvr:// URL)
         # so we gate on the PVR playback condition instead.
         session_data = None
+        # EPG-tag playback answers neither IsPlayingTV nor IsPlayingRecording
+        # on every path: the tempo catchup route reports PVR.IsPlayingEpgTag
+        # (measured on Piers), the ffmpegdirect route reported IsPlayingTV.
         if (xbmc.getCondVisibility('PVR.IsPlayingTV') or
-                xbmc.getCondVisibility('PVR.IsPlayingRecording')):
+                xbmc.getCondVisibility('PVR.IsPlayingRecording') or
+                xbmc.getCondVisibility('PVR.IsPlayingEpgTag')):
             try:
                 with open(SESSION_PATH, 'r') as f:
                     session_data = json.load(f)
