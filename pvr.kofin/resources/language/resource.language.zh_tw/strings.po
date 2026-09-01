@@ -676,3 +676,44 @@ msgstr "驗證 SSL 憑證"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "僅在伺服器使用自我簽署憑證時關閉。適用於外掛自身的請求（登入、節目表、計時器、錄製）；影片播放由 Kodi 與 inputstream 外掛處理，不受影響。"
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "在區域網路中尋找伺服器"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "在本網路中尋找 Jellyfin 伺服器並列出有回應的伺服器。所選伺服器會填入上方的伺服器位址。"
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "選擇伺服器"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "正在尋找 Jellyfin 伺服器…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "正在檢查伺服器…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "無回應"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "沒有 Jellyfin 伺服器回應 — 請手動輸入位址"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s 包含此附加元件無法使用的路徑 — 請手動輸入位址"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s 無回應 — 它提供的位址在此可能無法使用"

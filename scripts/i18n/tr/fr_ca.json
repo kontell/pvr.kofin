@@ -113,5 +113,14 @@
   "#30840": "Jellyfin ne permet pas de modifier les programmations",
   "#30841": "Enregistrement terminé",
   "#30842": "Vérifier le certificat SSL",
-  "#30843": "À désactiver uniquement pour les serveurs avec un certificat auto-signé. S'applique aux requêtes de l'extension elle-même (connexion, guide, programmations, enregistrements) ; la lecture vidéo est gérée par Kodi et les extensions inputstream et n'est pas concernée."
+  "#30843": "À désactiver uniquement pour les serveurs avec un certificat auto-signé. S'applique aux requêtes de l'extension elle-même (connexion, guide, programmations, enregistrements) ; la lecture vidéo est gérée par Kodi et les extensions inputstream et n'est pas concernée.",
+  "#30844": "Rechercher des serveurs sur le réseau local",
+  "#30846": "Sélectionnez un serveur",
+  "#30847": "Recherche de serveurs Jellyfin…",
+  "#30849": "n'a pas répondu",
+  "#30850": "Aucun serveur Jellyfin n'a répondu — saisissez l'adresse manuellement",
+  "#30852": "%s n'a pas répondu — l'adresse fournie ne fonctionne peut-être pas ici",
+  "#30845": "Recherche les serveurs Jellyfin sur ce réseau et affiche ceux qui répondent. Celui que vous choisissez est inscrit dans l'adresse du serveur ci-dessus.",
+  "#30848": "Vérification des serveurs…",
+  "#30851": "%s comprend un chemin que cette extension ne peut pas utiliser — saisissez l'adresse manuellement"
 }

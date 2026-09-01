@@ -676,3 +676,44 @@ msgstr "Verificar certificado SSL"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Desative apenas para servidores com certificados autoassinados. Aplica-se às requisições do próprio add-on (login, guia, temporizadores, gravações); a reprodução de vídeo é feita pelo Kodi e pelos add-ons inputstream e não é afetada."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Procurar servidores na rede local"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Procura servidores Jellyfin nesta rede e lista os que responderem. O escolhido é preenchido no endereço do servidor acima."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Selecione um servidor"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Procurando servidores Jellyfin…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Verificando servidores…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "não respondeu"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Nenhum servidor Jellyfin respondeu — informe o endereço manualmente"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s inclui um caminho que este complemento não pode usar — informe o endereço manualmente"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s não respondeu — o endereço informado pode não funcionar aqui"

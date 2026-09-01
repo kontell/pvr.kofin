@@ -113,5 +113,14 @@
   "#30840": "Jellyfin non supporta la modifica dei timer",
   "#30841": "Registrazione completata",
   "#30842": "Verifica il certificato SSL",
-  "#30843": "Disattivalo solo per server con certificati autofirmati. Si applica alle richieste dell'add-on stesso (accesso, guida, timer, registrazioni); la riproduzione video è gestita da Kodi e dagli add-on inputstream e non è interessata."
+  "#30843": "Disattivalo solo per server con certificati autofirmati. Si applica alle richieste dell'add-on stesso (accesso, guida, timer, registrazioni); la riproduzione video è gestita da Kodi e dagli add-on inputstream e non è interessata.",
+  "#30844": "Cerca server sulla rete locale",
+  "#30846": "Seleziona un server",
+  "#30847": "Ricerca di server Jellyfin…",
+  "#30849": "non ha risposto",
+  "#30850": "Nessun server Jellyfin ha risposto — inserisci l'indirizzo manualmente",
+  "#30852": "%s non ha risposto — l'indirizzo fornito potrebbe non funzionare qui",
+  "#30845": "Cerca i server Jellyfin su questa rete ed elenca quelli che rispondono. Quello scelto viene inserito nell'indirizzo del server qui sopra.",
+  "#30848": "Verifica dei server…",
+  "#30851": "%s include un percorso che questo add-on non può usare — inserisci l'indirizzo manualmente"
 }

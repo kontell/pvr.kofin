@@ -143,6 +143,26 @@ bool JellyfinClient::AuthenticateByPassword(const std::string& username, const s
   return true;
 }
 
+bool JellyfinClient::IsQuickConnectEnabled()
+{
+  // /QuickConnect/Enabled answers a bare JSON boolean. Kodi's curl layer fails
+  // CURLOpen on HTTP >= 400 and exposes no status code, so a transport failure
+  // is indistinguishable from a refusal -- both arrive here as a null value.
+  // Only a definite false is treated as "off"; everything else keeps the login
+  // picker as it was, which is never worse than the behaviour this replaced.
+  Json::Value response = DoRequest(BuildUrl("/QuickConnect/Enabled"));
+
+  if (response.isNull() || !response.isBool())
+  {
+    Logger::Log(LEVEL_INFO,
+                "%s - Quick Connect availability unknown; offering it anyway",
+                __FUNCTION__);
+    return true;
+  }
+
+  return response.asBool();
+}
+
 bool JellyfinClient::StartQuickConnect(std::string& code)
 {
   Logger::Log(LEVEL_INFO, "%s - Initiating Quick Connect", __FUNCTION__);

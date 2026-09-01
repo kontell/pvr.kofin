@@ -113,5 +113,14 @@
   "#30840": "Jellyfin unterstützt das Bearbeiten von Timern nicht",
   "#30841": "Aufnahme beendet",
   "#30842": "SSL-Zertifikat überprüfen",
-  "#30843": "Deaktiviere dies nur für Server mit selbstsignierten Zertifikaten. Gilt für die eigenen Anfragen des Add-ons (Anmeldung, EPG, Timer, Aufnahmen); die Videowiedergabe übernehmen Kodi und die Inputstream-Add-ons und ist nicht betroffen."
+  "#30843": "Deaktiviere dies nur für Server mit selbstsignierten Zertifikaten. Gilt für die eigenen Anfragen des Add-ons (Anmeldung, EPG, Timer, Aufnahmen); die Videowiedergabe übernehmen Kodi und die Inputstream-Add-ons und ist nicht betroffen.",
+  "#30844": "Server im lokalen Netzwerk suchen",
+  "#30846": "Server auswählen",
+  "#30847": "Suche nach Jellyfin-Servern…",
+  "#30849": "hat nicht geantwortet",
+  "#30850": "Kein Jellyfin-Server hat geantwortet — Adresse manuell eingeben",
+  "#30852": "%s hat nicht geantwortet — die angegebene Adresse funktioniert hier womöglich nicht",
+  "#30845": "Sucht im Netzwerk nach Jellyfin-Servern und listet die auf, die antworten. Der ausgewählte wird oben als Serveradresse eingetragen.",
+  "#30848": "Server werden geprüft…",
+  "#30851": "%s enthält einen Pfad, den dieses Add-on nicht verwenden kann — Adresse manuell eingeben"
 }

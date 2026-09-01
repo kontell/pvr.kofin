@@ -676,3 +676,44 @@ msgstr "SSL 인증서 확인"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "자체 서명 인증서를 사용하는 서버에서만 끄세요. 애드온 자체 요청(로그인, 편성표, 타이머, 녹화)에 적용됩니다. 동영상 재생은 Kodi와 inputstream 애드온이 처리하므로 영향을 받지 않습니다."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "로컬 네트워크에서 서버 찾기"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "이 네트워크에서 Jellyfin 서버를 찾아 응답한 서버를 나열합니다. 선택한 서버는 위의 서버 주소에 입력됩니다."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "서버 선택"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Jellyfin 서버를 찾는 중…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "서버 확인 중…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "응답 없음"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "응답한 Jellyfin 서버가 없습니다 — 주소를 직접 입력하세요"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s에 이 애드온이 사용할 수 없는 경로가 포함되어 있습니다 — 주소를 직접 입력하세요"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s이(가) 응답하지 않았습니다 — 알려준 주소가 여기서는 동작하지 않을 수 있습니다"

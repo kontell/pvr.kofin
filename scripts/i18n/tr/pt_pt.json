@@ -113,5 +113,14 @@
   "#30840": "O Jellyfin não permite editar temporizadores",
   "#30841": "Gravação concluída",
   "#30842": "Verificar certificado SSL",
-  "#30843": "Desative apenas para servidores com certificados autoassinados. Aplica-se aos pedidos do próprio add-on (início de sessão, guia, temporizadores, gravações); a reprodução de vídeo é feita pelo Kodi e pelos add-ons inputstream e não é afetada."
+  "#30843": "Desative apenas para servidores com certificados autoassinados. Aplica-se aos pedidos do próprio add-on (início de sessão, guia, temporizadores, gravações); a reprodução de vídeo é feita pelo Kodi e pelos add-ons inputstream e não é afetada.",
+  "#30844": "Procurar servidores na rede local",
+  "#30846": "Selecione um servidor",
+  "#30847": "A procurar servidores Jellyfin…",
+  "#30849": "não respondeu",
+  "#30850": "Nenhum servidor Jellyfin respondeu — introduza o endereço manualmente",
+  "#30852": "%s não respondeu — o endereço indicado pode não funcionar aqui",
+  "#30845": "Procura servidores Jellyfin nesta rede e lista os que responderem. O escolhido é preenchido no endereço do servidor acima.",
+  "#30848": "A verificar servidores…",
+  "#30851": "%s inclui um caminho que este add-on não pode usar — introduza o endereço manualmente"
 }

@@ -113,5 +113,14 @@
   "#30840": "Jellyfin nepodporuje úpravy časovačů",
   "#30841": "Nahrávání dokončeno",
   "#30842": "Ověřovat certifikát SSL",
-  "#30843": "Vypněte pouze pro servery s vlastnoručně podepsanými certifikáty. Platí pro požadavky samotného doplňku (přihlášení, program, časovače, nahrávky); přehrávání videa zajišťuje Kodi a doplňky inputstream a není tím ovlivněno."
+  "#30843": "Vypněte pouze pro servery s vlastnoručně podepsanými certifikáty. Platí pro požadavky samotného doplňku (přihlášení, program, časovače, nahrávky); přehrávání videa zajišťuje Kodi a doplňky inputstream a není tím ovlivněno.",
+  "#30844": "Najít servery v místní síti",
+  "#30846": "Vyberte server",
+  "#30847": "Vyhledávání serverů Jellyfin…",
+  "#30849": "neodpověděl",
+  "#30850": "Žádný server Jellyfin neodpověděl — zadejte adresu ručně",
+  "#30852": "%s neodpověděl — zadaná adresa zde nemusí fungovat",
+  "#30845": "Vyhledá servery Jellyfin v této síti a zobrazí ty, které odpoví. Vybraný se doplní do adresy serveru výše.",
+  "#30848": "Kontrola serverů…",
+  "#30851": "%s obsahuje cestu, kterou tento doplněk neumí použít — zadejte adresu ručně"
 }

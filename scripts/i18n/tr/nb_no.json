@@ -113,5 +113,14 @@
   "#30840": "Jellyfin støtter ikke redigering av timere",
   "#30841": "Opptaket er ferdig",
   "#30842": "Verifiser SSL-sertifikat",
-  "#30843": "Slå av bare for servere med selvsignerte sertifikater. Gjelder tilleggets egne forespørsler (innlogging, guide, timere, opptak); videoavspilling håndteres av Kodi og inputstream-tilleggene og påvirkes ikke."
+  "#30843": "Slå av bare for servere med selvsignerte sertifikater. Gjelder tilleggets egne forespørsler (innlogging, guide, timere, opptak); videoavspilling håndteres av Kodi og inputstream-tilleggene og påvirkes ikke.",
+  "#30844": "Finn servere på lokalnettverket",
+  "#30846": "Velg en server",
+  "#30847": "Søker etter Jellyfin-servere…",
+  "#30849": "svarte ikke",
+  "#30850": "Ingen Jellyfin-servere svarte — skriv inn adressen manuelt",
+  "#30852": "%s svarte ikke — adressen den oppga fungerer kanskje ikke her",
+  "#30845": "Søker etter Jellyfin-servere på dette nettverket og viser dem som svarer. Den du velger fylles inn i serveradressen over.",
+  "#30848": "Kontrollerer servere…",
+  "#30851": "%s inneholder en sti dette tillegget ikke kan bruke — skriv inn adressen manuelt"
 }

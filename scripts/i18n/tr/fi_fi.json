@@ -113,5 +113,14 @@
   "#30840": "Jellyfin ei tue ajastimien muokkaamista",
   "#30841": "Tallennus valmis",
   "#30842": "Vahvista SSL-varmenne",
-  "#30843": "Poista käytöstä vain palvelimille, joilla on itse allekirjoitettu varmenne. Koskee lisäosan omia pyyntöjä (kirjautuminen, opas, ajastimet, tallenteet); videon toistosta vastaavat Kodi ja inputstream-lisäosat, eikä tämä vaikuta siihen."
+  "#30843": "Poista käytöstä vain palvelimille, joilla on itse allekirjoitettu varmenne. Koskee lisäosan omia pyyntöjä (kirjautuminen, opas, ajastimet, tallenteet); videon toistosta vastaavat Kodi ja inputstream-lisäosat, eikä tämä vaikuta siihen.",
+  "#30844": "Etsi palvelimia lähiverkosta",
+  "#30846": "Valitse palvelin",
+  "#30847": "Etsitään Jellyfin-palvelimia…",
+  "#30849": "ei vastannut",
+  "#30850": "Yksikään Jellyfin-palvelin ei vastannut — syötä osoite käsin",
+  "#30852": "%s ei vastannut — sen antama osoite ei ehkä toimi täältä",
+  "#30845": "Etsii Jellyfin-palvelimia tästä verkosta ja luettelee ne, jotka vastaavat. Valitsemasi palvelin täytetään yllä olevaan palvelimen osoitteeseen.",
+  "#30848": "Tarkistetaan palvelimia…",
+  "#30851": "%s sisältää polun, jota tämä lisäosa ei voi käyttää — syötä osoite käsin"
 }
