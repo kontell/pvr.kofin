@@ -131,6 +131,11 @@ namespace iptvsimple
 
     // Input stream: 0 = ffmpegdirect, 1 = adaptive, 2 = kodi internal
     int GetInputStream() const { return m_inputStream; }
+    // The add-on a live channel plays through when the setting names the
+    // FFmpeg Direct family: ffmpegdirect itself, or tempo — the same engine
+    // with the rate control SyncPlay fine sync needs.
+    std::string GetLiveInputstream() const { return m_inputStream == 3 ? "inputstream.tempo" : "inputstream.ffmpegdirect"; }
+    bool IsFfmpegDirectFamily(int inputStream) const { return inputStream == 0 || inputStream == 3; }
     // The addon that plays catchup/EPG streams. Default ffmpegdirect so an
     // install without inputstream.tempo keeps working; tempo is the fork
     // with the same catchup engine plus SyncPlay's rate control (and, on
@@ -222,7 +227,7 @@ namespace iptvsimple
 
     // Input stream
     int m_catchupInputstream = 0;
-    int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
+    int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal, 3=tempo
     bool m_timeshiftEnabled = true;
     int m_inProgressInputStream = 0;  // 0=adaptive, 1=kodi internal
 
