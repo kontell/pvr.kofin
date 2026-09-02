@@ -1,3 +1,9 @@
+v22.16.0
+- Force remuxing now copies the source video and audio instead of re-encoding the audio: the maximum audio channels and streaming bitrate are no longer applied, because either would refuse the copy. Force transcoding re-encodes both, honours those limits, and wins when both are ticked, so Force remuxing greys out
+- A live channel started by a SyncPlay group now plays through this add-on's own channel like the member who pressed play, so it has the programme information, the live OSD and the timeshift bar; it used to be fetched as a plain stream with none of them
+- Live and catchup playback are no longer mistaken for one another around a programme's end: programme times are read as UTC, as Kodi reports them
+- Catchup inputstream now sits with the in-progress recording setting, and choosing Tempo offers its settings below the timeshift toggle
+
 v22.15.0
 - New Inputstream tab choices: catchup and EPG programmes can play through Tempo instead of FFmpeg Direct, and so can live channels. Tempo is the FFmpeg Direct fork with the same timeshift and catchup engine plus the rate control SyncPlay fine sync needs; an install without it keeps its old path. Through Tempo a live channel timeshifts from the local buffer rather than through catchup, which cannot hold a clock across a pause
 - A kofin SyncPlay group now converges live channels and catchup programmes when they play through Tempo: the reporter tells the engine the route only when the stream really runs through it, with Kodi's real queue depth
