@@ -1,4 +1,6 @@
 v22.14.0
+- New Inputstream tab choices: catchup and EPG programmes can play through Tempo instead of FFmpeg Direct, and so can live channels. Tempo is the FFmpeg Direct fork with the same timeshift and catchup engine plus the rate control SyncPlay fine sync needs; an install without it keeps its old path
+- A kofin SyncPlay group now converges live channels and catchup programmes when they play through Tempo: the reporter tells the engine the route only when the stream really runs through it, with Kodi's real queue depth
 - Fixed live channels failing to play whenever a maximum streaming bitrate was set: the add-on offered the server its own decoding codecs as transcode targets, so the server pinned the output to the source's audio codec and then could not encode it once the bitrate cap ruled out a straight copy
 - "Force transcoding" now states that the video must be re-encoded instead of trying to provoke it by sizing the stream down against the source, so it re-encodes reliably and an unlimited bitrate no longer has its figures rewritten
 - New Advanced setting: turn off SSL certificate verification, for servers with a self-signed certificate. It covers the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is unaffected

@@ -430,6 +430,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
         case 0: overrides.inputstream = "inputstream.ffmpegdirect"; break;
         case 1: overrides.inputstream = "inputstream.adaptive"; break;
         case 2: overrides.inputstream = "inputstream.ffmpeg"; break;
+        case 3: overrides.inputstream = "inputstream.tempo"; break;
       }
     }
     std::string streamURL;
@@ -475,9 +476,13 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // CatchupController is persistent — if GetEPGTagStreamProperties was called
     // first, it stored the programme times and ProcessChannelForPlayback will
     // use them (same pattern as pvr.iptvsimple).
+    // The FFmpeg Direct family: ffmpegdirect, or tempo (its fork with the
+    // same timeshift/catchup engine plus SyncPlay's rate control).
     bool useFfmpegDirect = !channelInputstream.empty()
-      ? channelInputstream == "inputstream.ffmpegdirect"
-      : inputStream == 0;
+      ? (channelInputstream == "inputstream.ffmpegdirect" || channelInputstream == "inputstream.tempo")
+      : m_settings->IsFfmpegDirectFamily(inputStream);
+    const std::string liveInputstream = !channelInputstream.empty()
+      ? channelInputstream : m_settings->GetLiveInputstream();
     bool useAdaptive = !channelInputstream.empty()
       ? channelInputstream == "inputstream.adaptive"
       : inputStream == 1;
@@ -530,12 +535,12 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     }
     else if (useFfmpegDirect)
     {
-      properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
+      properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, liveInputstream);
       if (!manifestType.empty())
-        properties.emplace_back("inputstream.ffmpegdirect.manifest_type", manifestType);
-      properties.emplace_back("inputstream.ffmpegdirect.is_realtime_stream", "true");
+        properties.emplace_back(liveInputstream + ".manifest_type", manifestType);
+      properties.emplace_back(liveInputstream + ".is_realtime_stream", "true");
       if (m_settings->GetTimeshiftEnabled())
-        properties.emplace_back("inputstream.ffmpegdirect.stream_mode", "timeshift");
+        properties.emplace_back(liveInputstream + ".stream_mode", "timeshift");
     }
     else if (useAdaptive)
     {
