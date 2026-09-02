@@ -732,3 +732,7 @@ msgstr ""
 msgctxt "#30855"
 msgid "Tempo"
 msgstr ""
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr ""
