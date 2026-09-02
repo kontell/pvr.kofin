@@ -159,7 +159,7 @@ msgid "InputStream addon"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is the FFmpeg Direct fork with the same timeshift engine plus the rate control SyncPlay fine sync needs — choose it when inputstream.tempo is installed."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is the FFmpeg Direct fork with the same timeshift engine plus the rate control SyncPlay fine sync needs — choose it when inputstream.tempo is installed; live channels then timeshift from the local buffer rather than through catchup."
 msgstr ""
 
 msgctxt "#30663"
