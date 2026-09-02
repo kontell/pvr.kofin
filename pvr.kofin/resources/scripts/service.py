@@ -32,6 +32,12 @@ SYNC_PROVIDER = 'pvr.kofin'
 # A programme whose end is at least this far gone is catchup, not live —
 # covers EPG clock skew around a live programme's final minute.
 CATCHUP_GRACE_SECS = 60
+# The tempo file the C++ side stamps on every stream it routes through
+# inputstream.tempo (AppendTempoProperties): the add-on arms its pipeline,
+# and writes the state line the engine reads its clock from, only for a
+# stream that names one. The claim names the same file.
+TEMPO_FILE = 'special://temp/inputstream_tempo.pvr.kofin'
+TEMPO_QUEUE_SECS_DEFAULT = 8.0  # Kodi 21 hard-codes its demux queue
 
 
 def get_addon():
@@ -216,6 +222,7 @@ class PlaybackReporter(xbmc.Player):
             'PlaySessionId': session_data.get('PlaySessionId', ''),
             'LiveStreamId': session_data.get('LiveStreamId', ''),
             'PlayMethod': session_data.get('PlayMethod', ''),
+            'WrittenAt': session_data.get('WrittenAt', 0),
             'BaseUrl': get_setting('jellyfinServerAddress'),
             'Token': get_setting('jellyfinAccessToken'),
             'DeviceId': get_setting('deviceId'),
@@ -322,10 +329,13 @@ class PlaybackReporter(xbmc.Player):
         spelling of "live". A catchup play (a live-TV playback whose
         programme has already ended) is nobody's Jellyfin item: it claims
         under this add-on's own name with the programme identity as the key
-        (channel GUID @ programme start, epoch seconds) and a tempo route —
-        the catchup pipeline runs through inputstream.tempo, which polls its
-        shared tempo file when the stream names none, so the engine's fine
-        sync can pulse this member. Sent from here rather than C++ because
+        (channel GUID @ programme start, epoch seconds). A live or catchup
+        play that runs through inputstream.tempo (the Inputstream tab's
+        choice) adds the tempo route — the add-on polls its shared tempo
+        file when the stream names none — so the engine's fine sync can
+        pulse this member: on the source clock the add-on reports for a
+        live channel, on the programme for catchup. Sent from here rather
+        than C++ because
         executeJSONRPC lands on this Kodi's own bus, which no localhost
         socket can promise on a host running two Kodis. Fire-and-forget:
         with no kofin engine listening the notification costs nothing, and
@@ -352,12 +362,9 @@ class PlaybackReporter(xbmc.Player):
                 data['name'] = programme['title']
                 data['runtime_ticks'] = int(
                     (programme['end'] - programme['start']) * 10_000_000)
-                data['tempo'] = {
-                    'file': xbmcvfs.translatePath(
-                        'special://temp/inputstream_tempo'),
-                    'queue_secs': 8.0,
-                    'manifest_type': 'hls',
-                }
+            route = self._tempo_route()
+            if route:
+                data['tempo'] = route
         xbmc.executeJSONRPC(json.dumps({
             'jsonrpc': '2.0', 'id': 1, 'method': 'JSONRPC.NotifyAll',
             'params': {'sender': ADDON_ID,
@@ -365,6 +372,41 @@ class PlaybackReporter(xbmc.Player):
                        'data': data}}))
         xbmc.log('pvr.kofin reporter: sync claim sent (%s)' % data['provider'],
                  xbmc.LOGDEBUG)
+
+    def _tempo_route(self):
+        """The fine-sync route to claim, or None.
+
+        Only when this playback really runs through inputstream.tempo: the
+        C++ side chooses the inputstream (the Inputstream tab), and what
+        tells the two apart from here is the add-on's state line for the
+        add-on's file, written at the pipeline's anchor — so a line older
+        than this stream's session cut (WrittenAt, stamped by the C++ side
+        as it resolves the URL) belongs to some earlier play. A route the
+        pulses could never reach would arm the engine and fail its first
+        pulse on every item. The queue depth is Kodi's own (Kodi 22's
+        setting; fixed at 8 s on Kodi 21), which a kofin service shortens
+        for the session — the engine measures a queue depth after every
+        pulse, so it has to be the real one.
+        """
+        state_path = xbmcvfs.translatePath(TEMPO_FILE) + '.state'
+        try:
+            written = os.path.getmtime(state_path)
+        except OSError:
+            return None
+        since = self.session.get('WrittenAt') or (self.start_time - 15)
+        if written < since - 1:
+            return None
+        queue = rpc('Settings.GetSettingValue',
+                    {'setting': 'videoplayer.queuetimesize'}).get('value')
+        try:
+            queue_secs = int(queue) / 10.0 if queue else TEMPO_QUEUE_SECS_DEFAULT
+        except (TypeError, ValueError):
+            queue_secs = TEMPO_QUEUE_SECS_DEFAULT
+        return {
+            'file': xbmcvfs.translatePath(TEMPO_FILE),
+            'queue_secs': queue_secs,
+            'manifest_type': 'hls',
+        }
 
     def _playing_programme(self):
         """{'title', 'start', 'end'} of the programme on screen, or None.
