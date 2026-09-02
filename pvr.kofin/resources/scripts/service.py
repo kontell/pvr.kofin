@@ -11,6 +11,7 @@ binary-addon equivalent), so backend session reporting — Sessions/Playing,
 .../Progress, .../Stopped, and LiveStreams/Close — has to run from a service
 script. HTTP uses urllib directly, independent of Kodi's HTTP stack.
 """
+import calendar
 import json
 import os
 import ssl
@@ -26,8 +27,11 @@ import xbmcvfs
 
 ADDON_ID = 'pvr.kofin'
 REPORT_INTERVAL = 10  # seconds between progress reports
-# The provider name catchup content claims under (the public provider
-# contract); recordings and live channels stay provider "jellyfin".
+# The provider name tuned content claims under (the public provider
+# contract): live channels and catchup programmes alike, because both are
+# *tuned, not fetched* — a follower reaches them by opening this add-on's
+# PVR channel, not by fetching a URL. Recordings stay provider "jellyfin":
+# they are ordinary Jellyfin items a follower can play by id.
 SYNC_PROVIDER = 'pvr.kofin'
 # A programme whose end is at least this far gone is catchup, not live —
 # covers EPG clock skew around a live programme's final minute.
@@ -322,13 +326,22 @@ class PlaybackReporter(xbmc.Player):
         """Tell a kofin-hosted SyncPlay engine what is on screen.
 
         The public provider contract (plugin.video.kofin,
-        docs/syncplay-provider-contract.md): recordings and live channels are
-        Jellyfin items, so those claims name provider "jellyfin" and a group
-        follower plays the same id through kofin's ordinary route. A live
-        channel sends no runtime — a zero-runtime claim is the contract's
-        spelling of "live". A catchup play (a live-TV playback whose
-        programme has already ended) is nobody's Jellyfin item: it claims
-        under this add-on's own name with the programme identity as the key
+        docs/syncplay-provider-contract.md): a recording is an ordinary
+        Jellyfin item, so its claim names provider "jellyfin" and a group
+        follower plays the same id through kofin's ordinary route.
+
+        A **live channel** claims under this add-on's own name instead, with
+        the channel id as the key and no runtime — a zero-runtime claim is
+        the contract's spelling of "live". Naming jellyfin there was wrong:
+        the engine would build `plugin://plugin.video.kofin/?mode=play&id=`
+        for the follower, which resolves the Jellyfin live stream as a plain
+        plugin item — no PVR channel, so no EPG, no live OSD, no timeshift
+        bar, while the member who pressed play watches `pvr://`. The
+        pipelines have to be the same on every member, so live is delegated
+        like catchup and the follower tunes this add-on's channel.
+
+        A catchup play (a live-TV playback whose programme has already
+        ended) claims under the same name with the programme identity as the key
         (channel GUID @ programme start, epoch seconds). A live or catchup
         play that runs through inputstream.tempo (the Inputstream tab's
         choice) adds the tempo route — the add-on polls its shared tempo
@@ -355,13 +368,17 @@ class PlaybackReporter(xbmc.Player):
             except RuntimeError:
                 pass  # player already tearing down; the claim still identifies
         else:
+            # Live and catchup are both delegated (see the docstring); the
+            # key is what tells them apart, and no runtime means live.
+            data['provider'] = SYNC_PROVIDER
             programme = self._playing_programme()
             if programme and programme['end'] < time.time() - CATCHUP_GRACE_SECS:
-                data['provider'] = SYNC_PROVIDER
                 data['key'] = '%s@%d' % (self.session['ItemId'], programme['start'])
                 data['name'] = programme['title']
                 data['runtime_ticks'] = int(
                     (programme['end'] - programme['start']) * 10_000_000)
+            elif programme:
+                data['name'] = programme['title']
             route = self._tempo_route()
             if route:
                 data['tempo'] = route
@@ -412,8 +429,13 @@ class PlaybackReporter(xbmc.Player):
         """{'title', 'start', 'end'} of the programme on screen, or None.
 
         Player.GetItem carries the EPG tag's title and times for both live
-        and catchup playback of a channel; the times arrive as local-time
-        strings.
+        and catchup playback of a channel. **The times are UTC**, whatever
+        the box's timezone: reading them as local time shifted every
+        programme by the UTC offset, so under an hour of DST the last hour
+        of a live programme read as already ended and a live play at the
+        edge claimed catchup (observed on the rig, 2026-09-02: a 13:30–20:00
+        local programme parsed as ending 18:00 UTC and claimed catchup from
+        19:03 onwards).
         """
         try:
             result = json.loads(xbmc.executeJSONRPC(json.dumps({
@@ -421,9 +443,9 @@ class PlaybackReporter(xbmc.Player):
                 'params': {'playerid': 1,
                            'properties': ['title', 'starttime', 'endtime']},
             }))).get('result', {}).get('item', {})
-            start = time.mktime(time.strptime(
+            start = calendar.timegm(time.strptime(
                 result['starttime'], '%Y-%m-%d %H:%M:%S'))
-            end = time.mktime(time.strptime(
+            end = calendar.timegm(time.strptime(
                 result['endtime'], '%Y-%m-%d %H:%M:%S'))
         except (KeyError, ValueError, OSError):
             return None
@@ -503,25 +525,12 @@ def register_sync_provider():
     xbmc.log('pvr.kofin reporter: sync provider registered', xbmc.LOGINFO)
 
 
-def execute_sync_start(key):
-    """Tune this Kodi to the programme a SyncSession.Start names.
+def _resolve_local_channel(channel_guid):
+    """The local Kodi PVR channel for a Jellyfin channel id, or None.
 
-    The key is `<channel jellyfin id>@<programme start, epoch seconds>`.
-    The channel resolves through the server (the GUID is nowhere in Kodi's
-    JSON-RPC view of PVR), then the local EPG names the broadcast: times in
-    PVR.GetBroadcasts are local-time strings, so the epoch converts through
-    localtime. Failing quietly is right — the engine's load watchdog gives
-    playback back to the member if nothing starts.
+    The GUID is nowhere in Kodi's JSON-RPC view of PVR, so it resolves
+    through the server to a channel name and then by name locally.
     """
-    try:
-        channel_guid, _, start_raw = key.partition('@')
-        start_local = time.strftime('%Y-%m-%d %H:%M:%S',
-                                    time.localtime(int(start_raw)))
-    except ValueError:
-        xbmc.log('pvr.kofin reporter: bad sync start key %r' % key,
-                 xbmc.LOGWARNING)
-        return
-
     base = normalize_base_url(get_setting('jellyfinServerAddress'))
     token = get_setting('jellyfinAccessToken')
     device_id = get_setting('deviceId')
@@ -541,7 +550,7 @@ def execute_sync_start(key):
     if not name:
         xbmc.log('pvr.kofin reporter: sync start channel %s not found'
                  % channel_guid, xbmc.LOGWARNING)
-        return
+        return None, None
 
     channels = rpc('PVR.GetChannels',
                    {'channelgroupid': 'alltv'}).get('channels', [])
@@ -549,20 +558,62 @@ def execute_sync_start(key):
     if not channel:
         xbmc.log('pvr.kofin reporter: no local channel named %r' % name,
                  xbmc.LOGWARNING)
+        return None, name
+    return channel, name
+
+
+def execute_sync_start(key):
+    """Tune this Kodi to what a SyncSession.Start names.
+
+    Two kinds of key, and the difference is the whole point of this
+    executor: `<channel jellyfin id>` alone is the **live** channel, and
+    `<channel jellyfin id>@<programme start, epoch seconds>` is a catchup
+    programme. Both open through this add-on's own PVR channel, so every
+    member of the group runs the same pipeline as the one who pressed play
+    — the same `pvr://` item, the same EPG, the same live OSD.
+
+    Programme times in PVR.GetBroadcasts are UTC strings, so the epoch
+    converts back through gmtime (the claim side reads them the same way).
+
+    Failing quietly is right — the engine's load watchdog gives playback
+    back to the member if nothing starts.
+    """
+    channel_guid, sep, start_raw = key.partition('@')
+
+    if not sep:
+        # Live: tune the channel itself, at its own live edge.
+        channel, name = _resolve_local_channel(channel_guid)
+        if not channel:
+            return
+        xbmc.log('pvr.kofin reporter: sync start -> live channel %s (%r)'
+                 % (channel['channelid'], name), xbmc.LOGINFO)
+        rpc('Player.Open', {'item': {'channelid': channel['channelid']}})
+        return
+
+    try:
+        start_utc = time.strftime('%Y-%m-%d %H:%M:%S',
+                                  time.gmtime(int(start_raw)))
+    except ValueError:
+        xbmc.log('pvr.kofin reporter: bad sync start key %r' % key,
+                 xbmc.LOGWARNING)
+        return
+
+    channel, name = _resolve_local_channel(channel_guid)
+    if not channel:
         return
 
     broadcasts = rpc('PVR.GetBroadcasts',
                      {'channelid': channel['channelid'],
                       'properties': ['starttime']}).get('broadcasts', [])
     broadcast = next((b for b in broadcasts
-                      if b.get('starttime') == start_local), None)
+                      if b.get('starttime') == start_utc), None)
     if not broadcast:
         xbmc.log('pvr.kofin reporter: no broadcast at %s on %r'
-                 % (start_local, name), xbmc.LOGWARNING)
+                 % (start_utc, name), xbmc.LOGWARNING)
         return
 
     xbmc.log('pvr.kofin reporter: sync start -> broadcast %s (%r at %s)'
-             % (broadcast['broadcastid'], name, start_local), xbmc.LOGINFO)
+             % (broadcast['broadcastid'], name, start_utc), xbmc.LOGINFO)
     rpc('Player.Open', {'item': {'broadcastid': broadcast['broadcastid']}})
 
 
