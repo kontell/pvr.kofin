@@ -197,6 +197,9 @@
             <dependency type="visible">
               <condition operator="is" setting="forceDirectPlay">false</condition>
             </dependency>
+            <dependency type="enable">
+              <condition operator="is" setting="forceTranscoding">false</condition>
+            </dependency>
           </dependencies>
         </setting>
         <setting id="forceTranscoding" type="boolean" label="30806" help="30807">
