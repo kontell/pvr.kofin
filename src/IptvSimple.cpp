@@ -513,7 +513,16 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       useAdaptive = false;
     }
 
-    if (isDirectPlay && useFfmpegDirect && m_currentChannel.IsCatchupSupported())
+    // Through Tempo a live channel takes the timeshift buffer, not catchup as
+    // live: the catchup class reopens a bounded catchup stream on every resume
+    // (a seek, or the pause a SyncPlay join imposes), whose timestamps are its
+    // own — so the source clock the group converges on breaks at the first
+    // pause, and the reopened stream then runs out. The timeshift class keeps
+    // one continuous stream and the buffer for pause and skip. EPG programmes
+    // keep the catchup pipeline (GetEPGTagStreamProperties).
+    const bool catchupAsLive = m_currentChannel.IsCatchupSupported() &&
+                               liveInputstream != "inputstream.tempo";
+    if (isDirectPlay && useFfmpegDirect && catchupAsLive)
     {
       // Update channel's stream URL to the actual tuner URL
       m_currentChannel.SetStreamURL(streamURL);
