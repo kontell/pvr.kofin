@@ -32,10 +32,11 @@ SYNC_PROVIDER = 'pvr.kofin'
 # A programme whose end is at least this far gone is catchup, not live —
 # covers EPG clock skew around a live programme's final minute.
 CATCHUP_GRACE_SECS = 60
-# inputstream.tempo's shared tempo file — the one it polls when a stream
-# names none — and the state line it answers with. This add-on's C++ side
-# stamps no tempo_file, so every tempo-routed play of ours reports there.
-TEMPO_FILE = 'special://temp/inputstream_tempo'
+# The tempo file the C++ side stamps on every stream it routes through
+# inputstream.tempo (AppendTempoProperties): the add-on arms its pipeline,
+# and writes the state line the engine reads its clock from, only for a
+# stream that names one. The claim names the same file.
+TEMPO_FILE = 'special://temp/inputstream_tempo.pvr.kofin'
 TEMPO_QUEUE_SECS_DEFAULT = 8.0  # Kodi 21 hard-codes its demux queue
 
 
@@ -378,7 +379,7 @@ class PlaybackReporter(xbmc.Player):
         Only when this playback really runs through inputstream.tempo: the
         C++ side chooses the inputstream (the Inputstream tab), and what
         tells the two apart from here is the add-on's state line for the
-        shared file, written at the pipeline's anchor — so a line older
+        add-on's file, written at the pipeline's anchor — so a line older
         than this stream's session cut (WrittenAt, stamped by the C++ side
         as it resolves the URL) belongs to some earlier play. A route the
         pulses could never reach would arm the engine and fail its first
