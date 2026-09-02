@@ -39,6 +39,74 @@ namespace
 // of channels × a full EPG window) while bounding the otherwise-permanent growth.
 constexpr size_t EPG_UID_MAP_MAX_ENTRIES = 250000;
 
+// HLS will copy only these. A remux TranscodingProfile that lists anything
+// else either gets it stripped (no fallback restored) or, if the source
+// matches, pinned as the encode target — which is how E-AC3 400'd.
+const std::set<std::string> kHlsTsAudio = {"aac", "ac3", "eac3", "mp3"};
+const std::set<std::string> kHlsMp4Audio = {
+    "aac", "ac3", "eac3", "mp3", "alac", "flac", "opus", "dts", "truehd"};
+const std::set<std::string> kHlsTsVideo = {"h264", "hevc", "vp9"};
+
+std::vector<std::string> SplitCsv(const std::string& csv)
+{
+  std::vector<std::string> out;
+  std::string::size_type s = 0;
+  while (s < csv.length())
+  {
+    auto e = csv.find(',', s);
+    if (e == std::string::npos)
+      e = csv.length();
+    if (e > s)
+      out.push_back(csv.substr(s, e - s));
+    s = e + 1;
+  }
+  return out;
+}
+
+std::string JoinCsv(const std::vector<std::string>& parts)
+{
+  std::string out;
+  for (const auto& p : parts)
+  {
+    if (p.empty())
+      continue;
+    if (!out.empty())
+      out += ",";
+    out += p;
+  }
+  return out;
+}
+
+// Preferred first when it is HLS-legal, then the rest of the allowed list
+// that HLS can mux. Empty if nothing in the allowed list is legal.
+std::string HlsCopyList(const std::string& allowedCsv,
+                        const std::string& preferred,
+                        const std::set<std::string>& legal)
+{
+  const auto tokens = SplitCsv(allowedCsv);
+  std::string lead = legal.count(preferred) ? preferred : "";
+  if (lead.empty())
+  {
+    for (const auto& token : tokens)
+    {
+      if (legal.count(token))
+      {
+        lead = token;
+        break;
+      }
+    }
+  }
+  if (lead.empty())
+    return "";
+  std::vector<std::string> out{lead};
+  for (const auto& token : tokens)
+  {
+    if (token != lead && legal.count(token))
+      out.push_back(token);
+  }
+  return JoinCsv(out);
+}
+
 bool ParseBoolProp(const std::string& value)
 {
   std::string v = value;
@@ -422,11 +490,14 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   const std::string preferredAudio = m_settings->GetPreferredAudioCodecName();
 
   // Per-channel overrides win over global settings; otherwise fall back.
+  // Force transcode wins over force remux: copy-off and the bitrate cap are
+  // the transcode column, and remux is HLS + codec-copy.
   const bool forceDirectPlay = overrides.forceDirectPlay.value_or(m_settings->GetForceDirectPlay());
-  const int maxBitrateBps = forceDirectPlay ? 1000000000
-      : overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
   const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
   const bool forceTranscodeActive = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
+  const bool remuxCopy = forceRemux && !forceTranscodeActive;
+  const int maxBitrateBps = (forceDirectPlay || remuxCopy) ? 1000000000
+      : overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
   Json::Value profile;
@@ -452,29 +523,28 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     aStart = aEnd + 1;
   }
 
-  // TranscodingProfiles ask a different question: what may the server *produce*.
-  // Answering it with the direct-play list is what made a forced transcode
-  // fail. Jellyfin treats a source codec appearing here as a passthrough
-  // candidate and, having found one, discards the rest of the list
-  // (StreamBuilder.cs: `audioCodecs = [audioStream.Codec]`). An E-AC3 source
-  // therefore pinned the output to eac3 with no fallback left, and once a
-  // bitrate cap put the requested AudioBitrate below the source's the copy was
-  // refused — leaving the server to *encode* eac3, which Jellyfin 10.11 cannot
-  // do for a live TV source: it answers HTTP 400 out of
-  // DynamicHlsController.GetAudioArguments and no ffmpeg is ever started.
+  // TranscodingProfiles.AudioCodec is a copy-candidate list *and* the encode
+  // target. StreamBuilder pins to the source codec if it appears anywhere
+  // (`audioCodecs = [audioStream.Codec]`), then a later bitrate rewrite that
+  // sits below the source refuses the copy and 10.11 tries to *encode* E-AC3
+  // for live TV — HTTP 400, no ffmpeg (e02129d).
   //
-  // So name the encode target instead, and only that. The video side has
-  // always drawn this distinction (see tsVideoCodecs below); audio never did.
-  //
-  // Jellyfin filters this list against what HLS allows for the segment
-  // container and does not restore a fallback if that empties it, so the
-  // choice has to be valid for the container it is attached to:
-  //   ts   -> aac, ac3, eac3, mp3
-  //   mp4  -> the above plus alac, flac, opus, dts, truehd
-  // Every preferred codec the settings offer is valid in mp4; only opus is not
-  // valid in ts, so ts falls back to aac.
-  const std::string fmp4AudioCodec = preferredAudio;
-  const std::string tsAudioCodec = (preferredAudio == "opus") ? "aac" : preferredAudio;
+  // Force remux is HLS + codec-copy: list every HLS-legal allowed codec so a
+  // matching source copies, and ignore the bitrate / channel caps so that
+  // copy is not then refused. Force transcode (and the default fallback)
+  // names the encode target only. Opus is not valid in MPEG-TS.
+  std::string fmp4AudioCodec;
+  std::string tsAudioCodec;
+  if (remuxCopy)
+  {
+    fmp4AudioCodec = HlsCopyList(allowedAudio, preferredAudio, kHlsMp4Audio);
+    const std::string tsPreferred = (preferredAudio == "opus") ? "aac" : preferredAudio;
+    tsAudioCodec = HlsCopyList(allowedAudio, tsPreferred, kHlsTsAudio);
+  }
+  if (fmp4AudioCodec.empty())
+    fmp4AudioCodec = preferredAudio;
+  if (tsAudioCodec.empty())
+    tsAudioCodec = (preferredAudio == "opus") ? "aac" : preferredAudio;
 
   // Allowed video codecs from settings. Virtual entries h264_10bit and
   // hevc_rext are mapped to their real codec names; they control CodecProfile
@@ -553,6 +623,15 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
       vStart = vEnd + 1;
     }
   }
+  if (remuxCopy)
+  {
+    const std::string tsPreferred =
+        (preferredVideo == "av1" && (hevcAllowed || hevcRextAllowed)) ? "hevc"
+                                                                       : preferredVideo;
+    const std::string remuxTsVideo = HlsCopyList(tsVideoCodecs, tsPreferred, kHlsTsVideo);
+    if (!remuxTsVideo.empty())
+      tsVideoCodecs = remuxTsVideo;
+  }
 
   // Two TranscodingProfiles: fMP4 for AV1, TS for everything else.
   // The server ranks profiles by codec-copy compatibility and picks the
@@ -564,7 +643,8 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   fmp4Profile["VideoCodec"] = "av1";
   fmp4Profile["Context"] = "Streaming";
   fmp4Profile["Protocol"] = "hls";
-  fmp4Profile["MaxAudioChannels"] = maxCh;
+  if (!remuxCopy)
+    fmp4Profile["MaxAudioChannels"] = maxCh;
   fmp4Profile["MinSegments"] = minSegs;
   fmp4Profile["BreakOnNonKeyFrames"] = true;
 
@@ -575,7 +655,8 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   tsProfile["VideoCodec"] = tsVideoCodecs;
   tsProfile["Context"] = "Streaming";
   tsProfile["Protocol"] = "hls";
-  tsProfile["MaxAudioChannels"] = maxCh;
+  if (!remuxCopy)
+    tsProfile["MaxAudioChannels"] = maxCh;
   tsProfile["MinSegments"] = minSegs;
   tsProfile["BreakOnNonKeyFrames"] = true;
 
@@ -855,7 +936,9 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
 
   if (hasTranscodingUrl)
   {
-    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), true, forceTranscodeActive);
+    const bool forceRemuxActive = effectiveOverrides.forceRemux.value_or(m_settings->GetForceTranscode());
+    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), true, forceTranscodeActive,
+                                          forceRemuxActive);
   }
   else
   {
@@ -942,7 +1025,7 @@ std::string JellyfinChannelLoader::GetPlayingItemId() const
 }
 
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
-    const std::string& transcodingUrl, bool keepMaster, bool forceTranscode)
+    const std::string& transcodingUrl, bool keepMaster, bool forceTranscode, bool forceRemux)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
   // - For ffmpegdirect/internal: replace "stream"/"master" with "live" so we
@@ -952,8 +1035,10 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   //   #EXT-X-STREAM-INF + CODECS attributes that adaptive needs to
   //   construct codec extradata before opening segments.
   // - Recalculate audio/video bitrates when the user set an explicit limit;
-  //   when unlimited, preserve the server's original values.
-  // - State outright that a forced transcode may not stream-copy the video.
+  //   when unlimited, preserve the server's original values. Force remux
+  //   ignores the cap: lowering AudioBitrate below the source is what
+  //   turned an E-AC3 copy into an encode 400.
+  // - State outright that a forced transcode may not stream-copy video or audio.
 
   auto qPos = transcodingUrl.find('?');
   if (qPos == std::string::npos)
@@ -981,9 +1066,14 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   // Strip the params we are about to restate. The bitrates are only restated
   // when there is a budget to split; with no limit there is nothing to divide
   // and the server's own figures stand.
+  const bool remuxCopy = forceRemux && !forceTranscode;
   params.erase(std::remove_if(params.begin(), params.end(), [&](const std::string& p) {
     if (p.find("allowVideoStreamCopy=") == 0)
       return true;
+    if (forceTranscode && p.find("allowAudioStreamCopy=") == 0)
+      return true;
+    if (remuxCopy)
+      return false;
     return !bitrateUnlimited &&
            (p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0);
   }), params.end());
@@ -998,7 +1088,7 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   for (const auto& p : params)
     appendParam(p);
 
-  if (!bitrateUnlimited)
+  if (!remuxCopy && !bitrateUnlimited)
   {
     // Split the bitrate budget between audio and video, scaling the audio
     // reservation for small budgets: audio = min(384k, budget/10). The old
@@ -1028,10 +1118,10 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     // so which stream got re-encoded turned on the source's audio share rather
     // than on anything the user asked for.
     //
-    // Video only. enableAutoStreamCopy=false would deny the audio copy too,
-    // and forcing a video transcode is no reason to re-encode audio that
-    // already fits.
+    // Force transcode denies both copies. Remux leaves them on, and ignores
+    // the bitrate split above, so a listed E-AC3 source stays a copy.
     appendParam("allowVideoStreamCopy=false");
+    appendParam("allowAudioStreamCopy=false");
   }
 
   // Replace "stream"/"master" with "live" in URL path for live TV — unless
@@ -1165,7 +1255,9 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   if (hasTranscodingUrl)
   {
     const bool keepMaster = overrides.inputstream.value_or("") == "inputstream.adaptive";
-    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster, forceTranscodeActive);
+    const bool forceRemuxActive = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
+    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster, forceTranscodeActive,
+                                          forceRemuxActive);
   }
   else if (source.isMember("Path") && !source["Path"].asString().empty())
   {

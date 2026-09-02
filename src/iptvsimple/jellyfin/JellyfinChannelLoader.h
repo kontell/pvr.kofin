@@ -94,7 +94,8 @@ private:
   static std::string FormatIso8601(time_t time);
   static time_t ParseIso8601(const std::string& dateStr);
   Json::Value BuildDeviceProfile(const ChannelOverrides& overrides);
-  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster, bool forceTranscode);
+  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster,
+                                        bool forceTranscode, bool forceRemux);
   void WriteSessionFile();
   void RewriteLocalhost(std::string& url);
 
