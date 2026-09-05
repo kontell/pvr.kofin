@@ -8,7 +8,7 @@ Play catchup/ archive content from EPG in same manner as IPTV simple client.
 
 Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replacing M3U/XMLTV data sources with Jellyfin REST API calls.
 
-**Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9.x or later with Live TV configured.
+**Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9.0-10.11.11 with Live TV configured.
 
 For playback of movies, shows & music see the [Kofin](https://github.com/kontell/plugin.video.kofin) add-on.
 
