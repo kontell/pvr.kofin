@@ -275,11 +275,12 @@ bool M3UParser::Parse()
       m_channels[ToLower(pendingChannelName)] = pending;
 
       Logger::Log(LEVEL_DEBUG,
-                  "%s - Parsed '%s': groups=%zu kodiProps=%zu kofinProps=%zu catchup=%s",
+                  "%s - Parsed '%s': groups=%zu kodiProps=%zu kofinProps=%zu catchup=%s url=%s",
                   fn, pendingChannelName.c_str(),
                   pending.groupNames.size(), pending.kodiProps.size(),
                   pending.kofinProps.size(),
-                  pending.hasCatchup ? "yes" : "no");
+                  pending.hasCatchup ? "yes" : "no",
+                  pending.streamUrl.empty() ? "no" : "yes");
     }
 
     pendingHasEntry = false;
@@ -414,8 +415,14 @@ bool M3UParser::Parse()
     if (line[0] == '#' || line[0] == '\0')
       continue;
 
-    // URL line — finalize the pending entry. The URL itself is unused (entries
-    // are matched to Jellyfin channels by name), so it is optional.
+    // URL line — keep it for direct play and catchup. Matching is still by
+    // name, so the line remains optional.
+    if (pendingHasEntry)
+    {
+      std::string url = line;
+      TrimInPlace(url);
+      pending.streamUrl = url;
+    }
     finalizePending();
   }
 

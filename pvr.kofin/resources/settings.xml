@@ -23,6 +23,27 @@
           </dependencies>
           <control type="edit" format="string" />
         </setting>
+        <!-- Runs discover.py directly rather than trigger.py: this is not a
+             sentinel poke for the C++ side to pick up, it is a flow that ends
+             by writing jellyfinServerAddress itself, and trigger.py's value is
+             its allowlist. <close> is required, not stylistic: the picker is
+             modal, and a modal raised over the open settings dialog fights it. -->
+        <setting id="findServers" type="string" label="30844" help="30845">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="isLoggedIn">false</condition>
+            </dependency>
+          </dependencies>
+          <control type="button" format="action">
+            <data>RunScript(special://home/addons/pvr.kofin/resources/scripts/discover.py)</data>
+            <close>true</close>
+          </control>
+        </setting>
         <setting id="loginButton" type="string" label="30703">
           <level>0</level>
           <default></default>
@@ -163,18 +184,13 @@
     <!-- Transcoding -->
     <category id="transcoding" label="30620">
       <group id="1">
-        <setting id="forceDirectPlay" type="boolean" label="30808" help="30809">
-          <level>0</level>
-          <default>false</default>
-          <control type="toggle" />
-        </setting>
         <setting id="forceTranscode" type="boolean" label="30622" help="30623">
           <level>0</level>
           <default>false</default>
           <control type="toggle" />
           <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
+            <dependency type="enable">
+              <condition operator="is" setting="forceTranscoding">false</condition>
             </dependency>
           </dependencies>
         </setting>
@@ -182,11 +198,6 @@
           <level>0</level>
           <default>false</default>
           <control type="toggle" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="directPlayVideoCodecs" type="list[string]" label="30781" help="30782">
           <level>0</level>
@@ -208,11 +219,6 @@
             <multiselect>true</multiselect>
             <hidevalue>true</hidevalue>
           </control>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="directPlayAudioCodecs" type="list[string]" label="30783" help="30784">
           <level>0</level>
@@ -234,11 +240,6 @@
             <multiselect>true</multiselect>
             <hidevalue>true</hidevalue>
           </control>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="allowedHdrTypes" type="list[string]" label="30810" help="30811">
           <level>0</level>
@@ -262,11 +263,6 @@
             <multiselect>true</multiselect>
             <hidevalue>true</hidevalue>
           </control>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="preferredVideoCodec" type="integer" label="30624" help="30625">
           <level>0</level>
@@ -279,11 +275,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="preferredAudioCodec" type="integer" label="30629" help="30630">
           <level>0</level>
@@ -297,11 +288,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="maxAudioChannels" type="integer" label="30791" help="30792">
           <level>0</level>
@@ -314,11 +300,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="maxStreamingBitrate" type="integer" label="30634" help="30635">
           <level>0</level>
@@ -344,11 +325,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="maxResolution" type="integer" label="30822" help="30823">
           <level>0</level>
@@ -364,11 +340,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
       </group>
     </category>
@@ -384,6 +355,7 @@
               <option label="30663">0</option>
               <option label="30664">1</option>
               <option label="30665">2</option>
+              <option label="30855">3</option>
             </options>
           </constraints>
           <control type="spinner" format="string" />
@@ -393,7 +365,10 @@
           <default>true</default>
           <dependencies>
             <dependency type="visible">
-              <condition operator="is" setting="inputStream">0</condition>
+              <or>
+                <condition operator="is" setting="inputStream">0</condition>
+                <condition operator="is" setting="inputStream">3</condition>
+              </or>
             </dependency>
           </dependencies>
           <control type="toggle" />
@@ -413,6 +388,33 @@
             <data>Addon.OpenSettings(inputstream.ffmpegdirect)</data>
             <close>true</close>
           </control>
+        </setting>
+        <setting id="openTempoSettings" type="string" label="30856">
+          <level>0</level>
+          <default></default>
+          <constraints>
+            <allowempty>true</allowempty>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="inputStream">3</condition>
+            </dependency>
+          </dependencies>
+          <control type="button" format="action">
+            <data>Addon.OpenSettings(inputstream.tempo)</data>
+            <close>true</close>
+          </control>
+        </setting>
+        <setting id="catchupInputstream" type="integer" label="30853" help="30854">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30663">0</option>
+              <option label="30855">1</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
         </setting>
         <setting id="inProgressInputStream" type="integer" label="30668" help="30669">
           <level>0</level>

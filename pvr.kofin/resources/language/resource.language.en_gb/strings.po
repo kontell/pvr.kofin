@@ -33,7 +33,7 @@ msgid "Force remuxing"
 msgstr ""
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
 msgstr ""
 
 msgctxt "#30624"
@@ -159,7 +159,7 @@ msgid "InputStream addon"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr ""
 
 msgctxt "#30663"
@@ -489,15 +489,7 @@ msgid "Force transcoding"
 msgstr ""
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
-msgstr ""
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr ""
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr ""
 
 msgctxt "#30802"
@@ -534,7 +526,7 @@ msgid "Allowed HDR types"
 msgstr ""
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
 msgstr ""
 
 msgctxt "#30812"
@@ -583,7 +575,7 @@ msgid "Maximum resolution"
 msgstr ""
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
 msgstr ""
 
 msgctxt "#30824"
@@ -674,4 +666,65 @@ msgstr ""
 
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
+msgstr ""
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr ""
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr ""
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr ""
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr ""
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr ""
+
+#: Marks a discovered server whose address this device could not reach. Reads
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr ""
+
+#: Names manual entry rather than suggesting another go: a server answers the
+#: broadcast in milliseconds or not at all, and the usual causes (auto-discovery
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr ""
+
+#: The add-on's address handling keeps only host and port, so a server
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr ""
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr ""
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr ""
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr ""
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr ""
+
+msgctxt "#30856"
+msgid "Tempo settings..."
 msgstr ""

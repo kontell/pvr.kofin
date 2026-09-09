@@ -55,6 +55,16 @@ public:
                      kodi::addon::PVREPGTagsResultSet& results);
   std::string GetLiveStreamUrl(const std::string& channelId,
                                 const ChannelOverrides& overrides = {});
+
+  // Live or catchup URL for a channel. Playlist-direct play skips PlaybackInfo.
+  struct LivePlayback
+  {
+    std::string url;
+    bool fromPlaylist = false;
+  };
+  LivePlayback ResolveLivePlayback(const iptvsimple::data::Channel& channel,
+                                   const ChannelOverrides& overrides,
+                                   bool catchupPipeline);
   std::string GetItemStreamUrl(const std::string& itemId,
                                 const ChannelOverrides& overrides = {});
   std::string GetRecordingStreamUrl(const std::string& recordingId, bool inProgress,
@@ -94,8 +104,10 @@ private:
   static std::string FormatIso8601(time_t time);
   static time_t ParseIso8601(const std::string& dateStr);
   Json::Value BuildDeviceProfile(const ChannelOverrides& overrides);
-  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster, bool forceTranscode);
+  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster,
+                                        bool forceTranscode, bool forceRemux);
   void WriteSessionFile();
+  void WritePlaylistSessionFile(const std::string& itemId);
   void RewriteLocalhost(std::string& url);
 
   // Guards the three lookup maps below. They are rebuilt on the worker thread

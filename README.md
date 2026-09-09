@@ -8,7 +8,7 @@ Play catchup/ archive content from EPG in same manner as IPTV simple client.
 
 Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replacing M3U/XMLTV data sources with Jellyfin REST API calls.
 
-**Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9.x or later with Live TV configured.
+**Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9.0-10.11.11 with Live TV configured.
 
 For playback of movies, shows & music see the [Kofin](https://github.com/kontell/plugin.video.kofin) add-on.
 
@@ -43,17 +43,19 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - On login the addon stores a Jellyfin access token (not your password) in Kodi's addon settings. Like all Kodi addon settings it is stored **in plaintext** under `userdata/addon_data/pvr.kofin/` - be aware of this when sharing Kodi backups or your addon_data folder. Logging out revokes the token on the server.
 
 ## Catchup
-If supported by your IPTV provider catchup works by using inputstream.ffmpegdirect to play directly from the provider (transcoding settings are irrelevant for catchup playback). To use it you must upload a reference playlist that provides the relevant catchup tags which are omitted by Jellyfin. Refer to IPTV Simple Client for detailed catchup documentation.
+If supported by your IPTV provider catchup works by using inputstream.ffmpegdirect (or Tempo) to play directly from the provider (transcoding settings are irrelevant for catchup playback). The matching reference-playlist entry must include a streaming URL; catchup tags alone are not enough. Refer to IPTV Simple Client for detailed catchup documentation.
 
 ## Reference Playlist
 
 An optional M3U reference playlist can be configured to apply per-channel properties that Jellyfin doesn't provide. Channels are matched by name (case-insensitive) between the playlist and Jellyfin. The same `#KODIPROP:`, `#EXTVLCOPT:`, and `#EXTVLCOPT--` directives supported by IPTV Simple Client are honored, along with standard M3U tags like `group-title=` for channel grouping.
 
+When a matching entry includes a streaming URL, live playback uses that URL directly unless Force remuxing or Force transcoding is on. Jellyfin 12 no longer DirectPlays HLS/DASH tuner sources, so the playlist URL is the way to play those channels without remuxing.
+
 In addition to standard KodiProps, the following Kofin-specific properties can be set per channel:
 
 | Property | Values | Description |
 |----------|--------|-------------|
-| `kofin-force-direct-play` | `true` / `false` | Force direct play for this channel |
+| `kofin-force-direct-play` | `true` / `false` | Direct-play this channel even when Force remuxing or Force transcoding is on. Uses the playlist URL when present, otherwise asks the server for DirectPlay |
 | `kofin-force-remux` | `true` / `false` | Force remuxing for this channel (overrides global setting) |
 | `kofin-force-transcode` | `true` / `false` | Force transcoding for this channel (overrides global setting) |
 | `kofin-bitrate-limit` | kbps (e.g. `4000`) | Set a bitrate limit for this channel (0 or omitted = unlimited) |

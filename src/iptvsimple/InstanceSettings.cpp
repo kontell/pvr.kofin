@@ -67,7 +67,6 @@ void InstanceSettings::ReadSettings()
   // Transcoding
   m_forceTranscode = kodi::addon::GetSettingBoolean("forceTranscode", false);
   m_forceTranscoding = kodi::addon::GetSettingBoolean("forceTranscoding", false);
-  m_forceDirectPlay = kodi::addon::GetSettingBoolean("forceDirectPlay", false);
   // directPlayVideoCodecs / directPlayAudioCodecs / allowedHdrTypes are list[string]
   // settings — GetSettingString can't read them. They arrive via SetSetting
   // (TransferSettings default case) and are captured in OnSettingChanged.
@@ -79,6 +78,7 @@ void InstanceSettings::ReadSettings()
 
   // Input stream
   m_inputStream = kodi::addon::GetSettingInt("inputStream", 0);
+  m_catchupInputstream = kodi::addon::GetSettingInt("catchupInputstream", 0);
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
   m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 0);
 

@@ -34,8 +34,8 @@ msgid "Force remuxing"
 msgstr "Принудительный ремукс"
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
-msgstr "Заставляет сервер Jellyfin ремультиплексировать все потоки прямого эфира в HLS вместо прямого воспроизведения. Позволяет совместно использовать поток, если это включено в настройках тюнера Jellyfin."
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
+msgstr "Выполняет ремукс в HLS и копирует исходные кодеки. Не использует Максимальное число аудиоканалов и битрейт потоковой передачи. Кодеки прямого воспроизведения, Разрешённые типы HDR и Максимальное разрешение по-прежнему действуют. В настройках тюнера Jellyfin; Для более быстрого переключения каналов отключите: Read input at native frame rate. Для повторного использования тюнеров включите: Allow stream sharing."
 
 msgctxt "#30624"
 msgid "Preferred video codec"
@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "Дополнение InputStream"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr "Дополнение InputStream, используемое для воспроизведения. FFmpeg Direct поддерживает сдвиг по времени с локальным буфером на устройстве. Adaptive поддерживает сдвиг по времени с буфером на стороне сервера. FFmpeg (встроенный в Kodi) не поддерживает сдвиг по времени."
 
 msgctxt "#30663"
@@ -490,16 +490,8 @@ msgid "Force transcoding"
 msgstr "Принудительное перекодирование"
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr "Заставляет сервер перекодировать в предпочитаемый видеокодек вместо ремукса. Битрейт ограничивается битрейтом источника (или максимальным битрейтом потоковой передачи, в зависимости от того, что ниже), чтобы запустить повторное кодирование."
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr "Принудительное прямое воспроизведение"
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr "Заставляет сервер воспроизводить все потоки напрямую, без перекодирования и ремукса. Устройство должно уметь декодировать исходный формат нативно. Не применяется к текущим записям. Также можно задать для отдельных каналов через свойство M3U kofin-force-direct-play."
 
 msgctxt "#30802"
 msgid "H264 10-bit"
@@ -535,8 +527,8 @@ msgid "Allowed HDR types"
 msgstr "Разрешённые типы HDR"
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
-msgstr "Форматы HDR, которые разрешено передавать на ваш дисплей. Невыбранные форматы преобразуются сервером в SDR с помощью тональной компрессии. SDR разрешён всегда. Не влияет, когда включено «Принудительное прямое воспроизведение»."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
+msgstr "Форматы HDR, которые разрешено передавать на ваш дисплей. Невыбранные форматы преобразуются сервером в SDR с помощью тональной компрессии. SDR разрешён всегда."
 
 msgctxt "#30812"
 msgid "HDR10"
@@ -584,8 +576,8 @@ msgid "Maximum resolution"
 msgstr "Максимальное разрешение"
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
-msgstr "Ограничивает видео по ширине; источники с более высоким разрешением масштабируются сервером вниз. Не влияет, когда включено «Принудительное прямое воспроизведение»."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
+msgstr "Ограничивает видео по ширине; источники с более высоким разрешением масштабируются сервером вниз."
 
 msgctxt "#30824"
 msgid "480p"
@@ -676,3 +668,60 @@ msgstr "Проверять SSL-сертификат"
 msgctxt "#30843"
 msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
 msgstr "Отключайте только для серверов с самоподписанными сертификатами. Применяется к собственным запросам дополнения (вход, телепрограмма, таймеры, записи); воспроизведение видео выполняют Kodi и дополнения inputstream, и оно не затрагивается."
+
+#: Account settings button that broadcasts for Jellyfin servers on the LAN
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr "Найти серверы в локальной сети"
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr "Ищет серверы Jellyfin в этой сети и показывает те, что ответили. Выбранный подставляется в адрес сервера выше."
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr "Выберите сервер"
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr "Поиск серверов Jellyfin…"
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr "Проверка серверов…"
+
+#: as a fragment after the address, not as a sentence.
+msgctxt "#30849"
+msgid "did not answer"
+msgstr "не ответил"
+
+#: off, Docker bridge networking, another subnet) no retry reaches.
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr "Ни один сервер Jellyfin не ответил — введите адрес вручную"
+
+#: published under a path cannot be stored. %s is the discovered address.
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr "%s содержит путь, который это дополнение не может использовать — введите адрес вручную"
+
+#: Raised only if the user picks a server that answered nothing. %s is its name.
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr "%s не ответил — указанный им адрес может здесь не работать"
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr "Inputstream для catchup"
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr "Какой inputstream-аддон воспроизводит catchup и программы EPG. Tempo — это FFmpeg Direct плюс регулирование скорости SyncPlay."
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr "Tempo"
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr "Настройки Tempo..."

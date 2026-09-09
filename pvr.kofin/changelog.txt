@@ -1,3 +1,14 @@
+v21.17.0
+- Live playback uses a matching reference-playlist streaming URL when present, instead of asking Jellyfin for DirectPlay. Jellyfin 12 no longer DirectPlays HLS/DASH tuner sources; catchup now also requires that URL. Force remuxing and Force transcoding still go through the server. The global Force direct play setting is gone; kofin-force-direct-play remains as a per-channel override
+- Direct play of a playlist URL still reports Now Playing to the Jellyfin dashboard; the tuner is not opened on the server
+- Force remuxing now copies the source video and audio instead of re-encoding the audio: the maximum audio channels and streaming bitrate are no longer applied, because either would refuse the copy. Force transcoding re-encodes both, honours those limits, and wins when both are ticked, so Force remuxing greys out
+- A live channel started by a SyncPlay group now plays through this add-on's own channel like the member who pressed play, so it has the programme information, the live OSD and the timeshift bar; it used to be fetched as a plain stream with none of them
+- Live and catchup playback are no longer mistaken for one another around a programme's end: programme times are read as UTC, as Kodi reports them
+- Catchup inputstream now sits with the in-progress recording setting, and choosing Tempo offers its settings below the timeshift toggle
+- New Inputstream tab choices: catchup and EPG programmes can play through Tempo instead of FFmpeg Direct, and so can live channels. Tempo is the FFmpeg Direct fork with the same timeshift and catchup engine plus the rate control SyncPlay fine sync needs; an install without it keeps its old path. Through Tempo a live channel timeshifts from the local buffer rather than through catchup, which cannot hold a clock across a pause
+- A kofin SyncPlay group now converges live channels and catchup programmes when they play through Tempo: the reporter tells the engine the route only when the stream really runs through it, with Kodi's real queue depth
+- Find Jellyfin servers on the local network, and lead with Quick Connect
+
 v21.14.0
 - Fixed live channels failing to play whenever a maximum streaming bitrate was set: the add-on offered the server its own decoding codecs as transcode targets, so the server pinned the output to the source's audio codec and then could not encode it once the bitrate cap ruled out a straight copy
 - "Force transcoding" now states that the video must be re-encoded instead of trying to provoke it by sizing the stream down against the source, so it re-encodes reliably and an unlimited bitrate no longer has its figures rewritten

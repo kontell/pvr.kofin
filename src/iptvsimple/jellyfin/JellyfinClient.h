@@ -33,6 +33,11 @@ public:
   // same reason. Call after CURLCreate and before CURLOpen.
   void ApplyTlsOptions(kodi::vfs::CFile& file) const;
   bool AuthenticateByPassword(const std::string& username, const std::string& password);
+  // Whether the server offers Quick Connect at all. Fails *open*: a
+  // transport failure and a refusal are indistinguishable through Kodi's
+  // curl layer, so anything short of a definite "false" answers true and
+  // the caller still offers the choice.
+  bool IsQuickConnectEnabled();
   bool StartQuickConnect(std::string& code);
   bool CheckQuickConnect(std::string& userId, std::string& accessToken);
   bool ValidateToken();
