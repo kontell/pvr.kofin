@@ -6,8 +6,8 @@
  *  See LICENSE.md for more information.
  *
  *  Adapted from pvr.iptvsimple CatchupController — removed Epg/StreamManager
- *  dependencies. Jellyfin provides stream URLs via PlaybackInfo; catchup URL
- *  construction uses the Channel's catchup source populated from the reference M3U.
+ *  dependencies. Catchup URLs are built from the reference-playlist streaming
+ *  URL and catchup-source tags; Jellyfin PlaybackInfo is not used.
  */
 
 #include "CatchupController.h"

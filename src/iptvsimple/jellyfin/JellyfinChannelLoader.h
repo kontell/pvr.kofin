@@ -55,6 +55,16 @@ public:
                      kodi::addon::PVREPGTagsResultSet& results);
   std::string GetLiveStreamUrl(const std::string& channelId,
                                 const ChannelOverrides& overrides = {});
+
+  // Live or catchup URL for a channel. Playlist-direct play skips PlaybackInfo.
+  struct LivePlayback
+  {
+    std::string url;
+    bool fromPlaylist = false;
+  };
+  LivePlayback ResolveLivePlayback(const iptvsimple::data::Channel& channel,
+                                   const ChannelOverrides& overrides,
+                                   bool catchupPipeline);
   std::string GetItemStreamUrl(const std::string& itemId,
                                 const ChannelOverrides& overrides = {});
   std::string GetRecordingStreamUrl(const std::string& recordingId, bool inProgress,
@@ -97,6 +107,7 @@ private:
   std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster,
                                         bool forceTranscode, bool forceRemux);
   void WriteSessionFile();
+  void WritePlaylistSessionFile(const std::string& itemId);
   void RewriteLocalhost(std::string& url);
 
   // Guards the three lookup maps below. They are rebuilt on the worker thread
@@ -119,6 +130,7 @@ private:
   std::string m_activeMediaSourceId;
   std::string m_activePlaySessionId;
   std::string m_activePlayMethod;         // "DirectPlay" or "Transcode"
+  bool m_bypassJellyfinSession = false;    // playlist-direct: no server live stream
   int m_activeMaxBitrateBps{0};            // bitrate ceiling used for current session (override-aware)
   int m_activeSourceBitrateBps{0};         // source stream bitrate from PlaybackInfo
 

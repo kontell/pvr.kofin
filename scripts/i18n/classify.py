@@ -12,6 +12,7 @@ PASSTHROUGH = {
     *(f"#{n}" for n in range(30636, 30651)),
     # inputstream branded names
     "#30663", "#30664",
+    "#30855",  # Tempo
     # Opus (codec)
     "#30715",
     # more codec tokens

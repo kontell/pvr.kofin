@@ -54,6 +54,7 @@ void Channel::UpdateTo(Channel& left) const
   left.m_channelName      = m_channelName;
   left.m_iconPath         = m_iconPath;
   left.m_streamURL        = m_streamURL;
+  left.m_playlistStreamURL = m_playlistStreamURL;
   left.m_hasCatchup       = m_hasCatchup;
   left.m_catchupMode      = m_catchupMode;
   left.m_catchupDays      = m_catchupDays;
@@ -89,6 +90,7 @@ void Channel::Reset()
   m_channelName.clear();
   m_iconPath.clear();
   m_streamURL.clear();
+  m_playlistStreamURL.clear();
   m_hasCatchup = false;
   m_catchupMode = CatchupMode::DISABLED;
   m_catchupDays = 0;
@@ -222,13 +224,16 @@ void Channel::ConfigureCatchupMode()
   bool appendProtocolOptions = true;
 
   // preserve any kodi protocol options after "|"
-  std::string url = m_streamURL;
+  // Catchup templates must be built from the provider URL (the reference
+  // playlist line), not the Jellyfin UID placeholder in m_streamURL.
+  const std::string& sourceUrl = !m_playlistStreamURL.empty() ? m_playlistStreamURL : m_streamURL;
+  std::string url = sourceUrl;
   std::string protocolOptions;
-  size_t found = m_streamURL.find_first_of('|');
+  size_t found = sourceUrl.find_first_of('|');
   if (found != std::string::npos)
   {
-    url = m_streamURL.substr(0, found);
-    protocolOptions = m_streamURL.substr(found, m_streamURL.length());
+    url = sourceUrl.substr(0, found);
+    protocolOptions = sourceUrl.substr(found, sourceUrl.length());
   }
 
   // Catchup override settings removed - Jellyfin does not use M3U catchup

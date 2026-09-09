@@ -34,7 +34,7 @@ msgid "Force remuxing"
 msgstr "强制重新封装"
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgid "Remux all live TV into HLS and copy the source codecs, so tuner stream-sharing can work. Does not use Maximum audio channels or Maximum streaming bitrate below — those would re-encode a listed codec. Direct play codecs, Allowed HDR types and Maximum resolution still apply."
 msgstr "强制 Jellyfin 服务器将所有直播电视流重新封装为 HLS，而不是直接播放。如果在 Jellyfin 调谐器设置中启用，则允许流共享。"
 
 msgctxt "#30624"
@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "InputStream 插件"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr "用于播放的 InputStream 插件。FFmpeg Direct 通过设备上的本地缓冲支持时移。Adaptive 通过服务器端缓冲支持时移。FFmpeg（Kodi 内置）不支持时移。"
 
 msgctxt "#30663"
@@ -490,16 +490,8 @@ msgid "Force transcoding"
 msgstr "强制转码"
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr "强制服务器转码为首选视频编解码器，而不是重新封装。比特率被限制为源比特率（或最大流式传输比特率，以较低者为准）以触发重新编码。"
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr "强制直接播放"
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr "强制服务器直接播放所有流，不进行转码或重新封装。设备必须能够原生解码源格式。不适用于进行中的录制。也可以通过 kofin-force-direct-play M3U 属性按频道设置。"
 
 msgctxt "#30802"
 msgid "H264 10-bit"
@@ -535,7 +527,7 @@ msgid "Allowed HDR types"
 msgstr "允许的 HDR 类型"
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
 msgstr "允许传递到您的显示器的 HDR 格式。未选择的格式将由服务器通过色调映射转换为 SDR。始终允许 SDR。启用“强制直接播放”时无影响。"
 
 msgctxt "#30812"
@@ -584,7 +576,7 @@ msgid "Maximum resolution"
 msgstr "最大分辨率"
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
 msgstr "按宽度限制视频；更高分辨率的源将由服务器缩小。启用“强制直接播放”时无影响。"
 
 msgctxt "#30824"
@@ -717,3 +709,19 @@ msgstr "%s 包含此插件无法使用的路径 — 请手动输入地址"
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s 无响应 — 它提供的地址在此可能无法使用"
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr "回看 inputstream"
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr "用于播放回看和电子节目指南节目的 inputstream 插件。Tempo 是带 SyncPlay 速率控制的 FFmpeg Direct。"
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr "Tempo"
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr "Tempo 设置..."
