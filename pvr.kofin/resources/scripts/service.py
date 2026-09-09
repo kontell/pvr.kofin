@@ -227,6 +227,7 @@ class PlaybackReporter(xbmc.Player):
             'LiveStreamId': session_data.get('LiveStreamId', ''),
             'PlayMethod': session_data.get('PlayMethod', ''),
             'WrittenAt': session_data.get('WrittenAt', 0),
+            'BypassJellyfinSession': bool(session_data.get('BypassJellyfinSession')),
             'BaseUrl': get_setting('jellyfinServerAddress'),
             'Token': get_setting('jellyfinAccessToken'),
             'DeviceId': get_setting('deviceId'),
@@ -239,7 +240,8 @@ class PlaybackReporter(xbmc.Player):
                   'video'
         xbmc.log(f'pvr.kofin reporter: playback started ({content})', xbmc.LOGINFO)
 
-        self._send('/Sessions/Playing', self._build_body())
+        if not self.session['BypassJellyfinSession']:
+            self._send('/Sessions/Playing', self._build_body())
         self._send_sync_claim()
 
     def onPlayBackStopped(self):
@@ -292,6 +294,8 @@ class PlaybackReporter(xbmc.Player):
 
     def _finalize(self, session, is_recording, position_ticks):
         """Report Stopped and close the live stream for a finished session."""
+        if session.get('BypassJellyfinSession'):
+            return
         stopped_body = {
             'ItemId': session['ItemId'],
             'MediaSourceId': session['MediaSourceId'],
@@ -318,7 +322,7 @@ class PlaybackReporter(xbmc.Player):
 
     def report_progress(self):
         """Called from main loop. Sends progress if session is active."""
-        if not self.session:
+        if not self.session or self.session.get('BypassJellyfinSession'):
             return
         self._send('/Sessions/Playing/Progress', self._build_body())
 

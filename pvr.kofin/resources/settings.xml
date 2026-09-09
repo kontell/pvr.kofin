@@ -184,19 +184,11 @@
     <!-- Transcoding -->
     <category id="transcoding" label="30620">
       <group id="1">
-        <setting id="forceDirectPlay" type="boolean" label="30808" help="30809">
-          <level>0</level>
-          <default>false</default>
-          <control type="toggle" />
-        </setting>
         <setting id="forceTranscode" type="boolean" label="30622" help="30623">
           <level>0</level>
           <default>false</default>
           <control type="toggle" />
           <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
             <dependency type="enable">
               <condition operator="is" setting="forceTranscoding">false</condition>
             </dependency>
@@ -206,11 +198,6 @@
           <level>0</level>
           <default>false</default>
           <control type="toggle" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="directPlayVideoCodecs" type="list[string]" label="30781" help="30782">
           <level>0</level>
@@ -232,11 +219,6 @@
             <multiselect>true</multiselect>
             <hidevalue>true</hidevalue>
           </control>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="directPlayAudioCodecs" type="list[string]" label="30783" help="30784">
           <level>0</level>
@@ -258,11 +240,6 @@
             <multiselect>true</multiselect>
             <hidevalue>true</hidevalue>
           </control>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="allowedHdrTypes" type="list[string]" label="30810" help="30811">
           <level>0</level>
@@ -286,11 +263,6 @@
             <multiselect>true</multiselect>
             <hidevalue>true</hidevalue>
           </control>
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="preferredVideoCodec" type="integer" label="30624" help="30625">
           <level>0</level>
@@ -303,11 +275,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="preferredAudioCodec" type="integer" label="30629" help="30630">
           <level>0</level>
@@ -321,11 +288,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="maxAudioChannels" type="integer" label="30791" help="30792">
           <level>0</level>
@@ -338,11 +300,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="maxStreamingBitrate" type="integer" label="30634" help="30635">
           <level>0</level>
@@ -368,11 +325,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
         <setting id="maxResolution" type="integer" label="30822" help="30823">
           <level>0</level>
@@ -388,11 +340,6 @@
             </options>
           </constraints>
           <control type="spinner" format="string" />
-          <dependencies>
-            <dependency type="visible">
-              <condition operator="is" setting="forceDirectPlay">false</condition>
-            </dependency>
-          </dependencies>
         </setting>
       </group>
     </category>

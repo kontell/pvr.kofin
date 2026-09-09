@@ -36,6 +36,10 @@ struct M3UChannelInfo
   // Optional logo override (tvg-logo)
   std::string tvgLogo;
 
+  // Streaming URL from the EXTINF URL line. Empty when the entry has none.
+  // Used for direct play and catchup; matching is still by channel name.
+  std::string streamUrl;
+
   // Properties to forward to Kodi (inputstream.*, mimetype, etc.)
   std::map<std::string, std::string> kodiProps;
 

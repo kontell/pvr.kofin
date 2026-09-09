@@ -492,14 +492,6 @@ msgctxt "#30807"
 msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr ""
 
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr ""
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr ""
-
 msgctxt "#30802"
 msgid "H264 10-bit"
 msgstr ""
@@ -534,7 +526,7 @@ msgid "Allowed HDR types"
 msgstr ""
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
 msgstr ""
 
 msgctxt "#30812"
@@ -583,7 +575,7 @@ msgid "Maximum resolution"
 msgstr ""
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
 msgstr ""
 
 msgctxt "#30824"

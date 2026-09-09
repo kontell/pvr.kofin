@@ -34,7 +34,7 @@ msgid "Force remuxing"
 msgstr "Εξαναγκασμός remux"
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
+msgid "Remux all live TV into HLS and copy the source codecs, so tuner stream-sharing can work. Does not use Maximum audio channels or Maximum streaming bitrate below — those would re-encode a listed codec. Direct play codecs, Allowed HDR types and Maximum resolution still apply."
 msgstr "Εξαναγκάζει τον διακομιστή Jellyfin να κάνει remux όλων των ροών ζωντανής τηλεόρασης σε HLS αντί για άμεση αναπαραγωγή. Επιτρέπει τον διαμοιρασμό ροών, εάν είναι ενεργοποιημένος στις ρυθμίσεις δέκτη του Jellyfin."
 
 msgctxt "#30624"
@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "Πρόσθετο InputStream"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr "Το πρόσθετο InputStream που θα χρησιμοποιηθεί για την αναπαραγωγή. Το FFmpeg Direct υποστηρίζει χρονική μετατόπιση με τοπική προσωρινή μνήμη στη συσκευή. Το Adaptive υποστηρίζει χρονική μετατόπιση με προσωρινή μνήμη στην πλευρά του διακομιστή. Το FFmpeg (εσωτερικό του Kodi) δεν υποστηρίζει χρονική μετατόπιση."
 
 msgctxt "#30663"
@@ -490,16 +490,8 @@ msgid "Force transcoding"
 msgstr "Εξαναγκασμός επανακωδικοποίησης"
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr "Εξαναγκάζει τον διακομιστή να επανακωδικοποιήσει στον προτιμώμενο κωδικοποιητή βίντεο αντί να κάνει remux. Ο ρυθμός μετάδοσης περιορίζεται στον ρυθμό μετάδοσης της προέλευσης (ή στον μέγιστο ρυθμό μετάδοσης ροής, όποιος είναι χαμηλότερος) για να ενεργοποιηθεί η επανακωδικοποίηση."
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr "Εξαναγκασμός άμεσης αναπαραγωγής"
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr "Εξαναγκάζει τον διακομιστή να αναπαράγει όλες τις ροές άμεσα, χωρίς επανακωδικοποίηση ή remux. Η συσκευή πρέπει να μπορεί να αποκωδικοποιεί εγγενώς τη μορφή προέλευσης. Δεν ισχύει για εγγραφές σε εξέλιξη. Μπορεί επίσης να οριστεί ανά κανάλι μέσω της ιδιότητας M3U kofin-force-direct-play."
 
 msgctxt "#30802"
 msgid "H264 10-bit"
@@ -535,8 +527,8 @@ msgid "Allowed HDR types"
 msgstr "Επιτρεπόμενοι τύποι HDR"
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
-msgstr "Μορφές HDR που επιτρέπεται να μεταβιβαστούν στην οθόνη σας. Οι μη επιλεγμένες μορφές αντιστοιχίζονται τονικά σε SDR από τον διακομιστή. Το SDR επιτρέπεται πάντα. Καμία επίδραση όταν είναι ενεργός ο Εξαναγκασμός άμεσης αναπαραγωγής."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
+msgstr "Μορφές HDR που επιτρέπεται να μεταβιβαστούν στην οθόνη σας. Οι μη επιλεγμένες μορφές αντιστοιχίζονται τονικά σε SDR από τον διακομιστή. Το SDR επιτρέπεται πάντα."
 
 msgctxt "#30812"
 msgid "HDR10"
@@ -584,8 +576,8 @@ msgid "Maximum resolution"
 msgstr "Μέγιστη ανάλυση"
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
-msgstr "Περιορίζει το βίντεο κατά πλάτος· οι πηγές υψηλότερης ανάλυσης υποβαθμίζονται από τον διακομιστή. Καμία επίδραση όταν είναι ενεργός ο Εξαναγκασμός άμεσης αναπαραγωγής."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
+msgstr "Περιορίζει το βίντεο κατά πλάτος· οι πηγές υψηλότερης ανάλυσης υποβαθμίζονται από τον διακομιστή."
 
 msgctxt "#30824"
 msgid "480p"
@@ -717,3 +709,19 @@ msgstr "Το %s περιλαμβάνει διαδρομή που δεν μπορ
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "Ο %s δεν απάντησε — η διεύθυνση που έδωσε ίσως δεν λειτουργεί εδώ"
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr "Inputstream catchup"
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr "Ποιο πρόσθετο inputstream αναπαράγει το catchup και τα προγράμματα EPG. Το Tempo είναι το FFmpeg Direct plus τον έλεγχο ρυθμού SyncPlay."
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr "Tempo"
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr "Ρυθμίσεις Tempo..."

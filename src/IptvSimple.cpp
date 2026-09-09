@@ -421,22 +421,20 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // Play-EPG-as-live catchup: GetEPGTagStreamProperties stored the timeshifted
     // programme state and returned EPGPLAYBACKASLIVE=true, so Kodi is opening the
     // channel to consume it here. Catchup can only shift into the past over the
-    // raw tuner URL, so pin the whole pipeline to direct play +
-    // inputstream.tempo (matching GetEPGTagStreamProperties) regardless of the global
-    // transcode/bitrate/inputstream settings — otherwise the URL resolves to a
-    // live-only Jellyfin transcode stream that can't seek back to the programme.
+    // provider URL from the reference playlist, so pin the inputstream to the
+    // catchup add-on regardless of the global transcode/bitrate/inputstream
+    // settings — otherwise a Jellyfin remux would be live-only and couldn't
+    // seek back to the programme.
     const bool pendingTimeshiftedCatchup = m_catchupController &&
         m_catchupController->IsPendingTimeshiftedEpgPlayback() &&
         m_currentChannel.IsCatchupSupported();
 
-    // Resolve live stream URL from Jellyfin via PlaybackInfo (with KofinProps overrides).
     // If the channel didn't pin an inputstream via M3U, fall back to the global
     // setting so BuildDeviceProfile / PostProcessTranscodingUrl pick the right
     // container + URL endpoint for the actual inputstream Kodi will use.
     auto overrides = iptvsimple::jellyfin::ChannelOverrides::FromChannel(m_currentChannel);
     if (pendingTimeshiftedCatchup)
     {
-      overrides.forceDirectPlay = true;
       overrides.forceRemux = false;
       overrides.forceTranscode = false;
       overrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
@@ -455,9 +453,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     std::string streamURL;
     if (m_channelLoader)
     {
-      const std::string jellyfinId = m_channelLoader->GetJellyfinId(m_currentChannel.GetUniqueId());
-      if (!jellyfinId.empty())
-        streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId, overrides);
+      streamURL = m_channelLoader->ResolveLivePlayback(
+          m_currentChannel, overrides, pendingTimeshiftedCatchup).url;
     }
 
     if (streamURL.empty())
@@ -751,33 +748,22 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (!GetChannel(tag.GetUniqueChannelId(), channel) || !channel.IsCatchupSupported())
     return PVR_ERROR_FAILED;
 
-  // Catchup only works over the raw tuner URL (the catchup-source template
-  // shifts that URL into the past), so pin the whole pipeline to direct play
-  // + inputstream.tempo regardless of the global or
-  // per-channel transcode/bitrate/inputstream settings. Those settings keep
-  // applying to live-channel playback (GetChannelStreamProperties).
+  // Catchup only works over the provider URL from the reference playlist
+  // (the catchup-source template shifts that URL into the past). Remux /
+  // transcode settings keep applying to live-channel playback.
   auto epgOverrides = iptvsimple::jellyfin::ChannelOverrides::FromChannel(channel);
-  epgOverrides.forceDirectPlay = true;
   epgOverrides.forceRemux = false;
   epgOverrides.forceTranscode = false;
   epgOverrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
   epgOverrides.inputstream = m_settings->GetCatchupInputstream();
   std::string streamURL;
   if (m_channelLoader)
-  {
-    const std::string jellyfinId = m_channelLoader->GetJellyfinId(channel.GetUniqueId());
-    if (!jellyfinId.empty())
-      streamURL = m_channelLoader->GetLiveStreamUrl(jellyfinId, epgOverrides);
-  }
+    streamURL = m_channelLoader->ResolveLivePlayback(channel, epgOverrides, true).url;
 
   if (streamURL.empty())
     return PVR_ERROR_FAILED;
 
-  const bool isDirectPlay = streamURL.find(m_settings->GetJellyfinBaseUrl()) != 0;
-  if (!isDirectPlay)
-    return PVR_ERROR_FAILED; // Catchup only works with direct play
-
-  // Update channel stream URL to the tuner URL and regenerate catchup source
+  // Update channel stream URL to the provider URL and regenerate catchup source
   channel.SetStreamURL(streamURL);
   channel.ConfigureCatchupMode();
 

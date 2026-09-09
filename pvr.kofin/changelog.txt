@@ -1,3 +1,6 @@
+v22.17.0
+- Live playback uses a matching reference-playlist streaming URL when present, instead of asking Jellyfin for DirectPlay. Jellyfin 12 no longer DirectPlays HLS/DASH tuner sources; catchup now also requires that URL. Force remuxing and Force transcoding still go through the server. The global Force direct play setting is gone; kofin-force-direct-play remains as a per-channel override
+
 v22.16.0
 - Force remuxing now copies the source video and audio instead of re-encoding the audio: the maximum audio channels and streaming bitrate are no longer applied, because either would refuse the copy. Force transcoding re-encodes both, honours those limits, and wins when both are ticked, so Force remuxing greys out
 - A live channel started by a SyncPlay group now plays through this add-on's own channel like the member who pressed play, so it has the programme information, the live OSD and the timeshift bar; it used to be fetched as a plain stream with none of them

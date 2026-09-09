@@ -43,7 +43,8 @@ namespace iptvsimple
       Channel(const Channel &c) : m_radio(c.IsRadio()), m_uniqueId(c.GetUniqueId()),
         m_channelNumber(c.GetChannelNumber()), m_subChannelNumber(c.GetSubChannelNumber()),
         m_channelName(c.GetChannelName()),
-        m_iconPath(c.GetIconPath()), m_streamURL(c.GetStreamURL()), m_hasCatchup(c.HasCatchup()),
+        m_iconPath(c.GetIconPath()), m_streamURL(c.GetStreamURL()),
+        m_playlistStreamURL(c.GetPlaylistStreamURL()), m_hasCatchup(c.HasCatchup()),
         m_catchupMode(c.GetCatchupMode()), m_catchupDays(c.GetCatchupDays()), m_catchupSource(c.GetCatchupSource()),
         m_isCatchupTSStream(c.IsCatchupTSStream()), m_catchupSupportsTimeshifting(c.CatchupSupportsTimeshifting()),
         m_catchupSourceTerminates(c.CatchupSourceTerminates()), m_catchupGranularitySeconds(c.GetCatchupGranularitySeconds()),
@@ -72,6 +73,11 @@ namespace iptvsimple
 
       const std::string& GetStreamURL() const { return m_streamURL; }
       void SetStreamURL(const std::string& url);
+
+      // Provider URL from the reference playlist, if the matching entry had one.
+      // Distinct from m_streamURL, which is the UID-feeding Jellyfin placeholder.
+      const std::string& GetPlaylistStreamURL() const { return m_playlistStreamURL; }
+      void SetPlaylistStreamURL(const std::string& url) { m_playlistStreamURL = url; }
 
       bool IsCatchupSupported() const; // Does the M3U entry or default settings denote catchup support
       bool HasCatchup() const { return m_hasCatchup; } // Does the M3U entry denote catchup support
@@ -136,6 +142,7 @@ namespace iptvsimple
       std::string m_channelName = "";
       std::string m_iconPath = "";
       std::string m_streamURL = "";
+      std::string m_playlistStreamURL = "";
       bool m_hasCatchup = false;
       CatchupMode m_catchupMode = CatchupMode::DISABLED;
       int m_catchupDays = 0;
