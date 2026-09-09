@@ -34,8 +34,8 @@ msgid "Force remuxing"
 msgstr "리먹스 강제"
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
-msgstr "Jellyfin 서버가 모든 라이브 TV 스트림을 직접 재생하는 대신 HLS로 리먹스하도록 강제합니다. Jellyfin 튜너 설정에서 활성화된 경우 스트림 공유를 허용합니다."
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
+msgstr "HLS로 리먹스하고 소스 코덱을 복사합니다. 최대 오디오 채널과 스트리밍 비트레이트는 사용하지 않습니다. 직접 재생 코덱, 허용된 HDR 유형, 최대 해상도는 그대로 적용됩니다. Jellyfin 튜너 설정에서 채널 전환을 빠르게 하려면 Read input at native frame rate를 끄고, 튜너를 재사용하려면 Allow stream sharing을 켜세요."
 
 msgctxt "#30624"
 msgid "Preferred video codec"
@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "InputStream 애드온"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr "재생에 사용할 InputStream 애드온. FFmpeg Direct는 기기의 로컬 버퍼로 타임시프트를 지원합니다. Adaptive는 서버 측 버퍼로 타임시프트를 지원합니다. FFmpeg(Kodi 내장)는 타임시프트를 지원하지 않습니다."
 
 msgctxt "#30663"
@@ -490,16 +490,8 @@ msgid "Force transcoding"
 msgstr "트랜스코딩 강제"
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr "서버가 리먹스 대신 선호 비디오 코덱으로 트랜스코딩하도록 강제합니다. 재인코딩을 트리거하기 위해 비트레이트는 소스 비트레이트(또는 최대 스트리밍 비트레이트 중 더 낮은 값)로 제한됩니다."
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr "직접 재생 강제"
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr "서버가 트랜스코딩이나 리먹스 없이 모든 스트림을 직접 재생하도록 강제합니다. 기기가 소스 형식을 기본적으로 디코딩할 수 있어야 합니다. 진행 중인 녹화에는 적용되지 않습니다. kofin-force-direct-play M3U 속성을 통해 채널별로 설정할 수도 있습니다."
 
 msgctxt "#30802"
 msgid "H264 10-bit"
@@ -535,8 +527,8 @@ msgid "Allowed HDR types"
 msgstr "허용되는 HDR 유형"
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
-msgstr "디스플레이로 전달이 허용되는 HDR 형식. 선택하지 않은 형식은 서버에서 톤 매핑을 통해 SDR로 변환됩니다. SDR은 항상 허용됩니다. 직접 재생 강제가 켜져 있으면 영향을 주지 않습니다."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
+msgstr "디스플레이로 전달이 허용되는 HDR 형식. 선택하지 않은 형식은 서버에서 톤 매핑을 통해 SDR로 변환됩니다. SDR은 항상 허용됩니다."
 
 msgctxt "#30812"
 msgid "HDR10"
@@ -584,8 +576,8 @@ msgid "Maximum resolution"
 msgstr "최대 해상도"
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
-msgstr "너비로 비디오를 제한합니다. 더 높은 해상도의 소스는 서버에서 축소됩니다. 직접 재생 강제가 켜져 있으면 영향을 주지 않습니다."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
+msgstr "너비로 비디오를 제한합니다. 더 높은 해상도의 소스는 서버에서 축소됩니다."
 
 msgctxt "#30824"
 msgid "480p"
@@ -717,3 +709,19 @@ msgstr "%s에 이 애드온이 사용할 수 없는 경로가 포함되어 있�
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s이(가) 응답하지 않았습니다 — 알려준 주소가 여기서는 동작하지 않을 수 있습니다"
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr "따라보기 inputstream"
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr "따라보기와 EPG 프로그램을 재생할 inputstream 애드온. Tempo는 SyncPlay 속도 제어가 더해진 FFmpeg Direct입니다."
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr "Tempo"
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr "Tempo 설정..."

@@ -33,7 +33,7 @@ msgid "Force remuxing"
 msgstr ""
 
 msgctxt "#30623"
-msgid "Remux all live TV into HLS and copy the source codecs, so tuner stream-sharing can work. Does not use Maximum audio channels or Maximum streaming bitrate below — those would re-encode a listed codec. Direct play codecs, Allowed HDR types and Maximum resolution still apply."
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
 msgstr ""
 
 msgctxt "#30624"
@@ -492,14 +492,6 @@ msgctxt "#30807"
 msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr ""
 
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr ""
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr ""
-
 msgctxt "#30802"
 msgid "H264 10-bit"
 msgstr ""
@@ -534,7 +526,7 @@ msgid "Allowed HDR types"
 msgstr ""
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
 msgstr ""
 
 msgctxt "#30812"
@@ -583,7 +575,7 @@ msgid "Maximum resolution"
 msgstr ""
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
 msgstr ""
 
 msgctxt "#30824"

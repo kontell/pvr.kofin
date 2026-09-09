@@ -34,8 +34,8 @@ msgid "Force remuxing"
 msgstr "リマックスを強制"
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
-msgstr "Jellyfin サーバーに、すべてのライブTVストリームをダイレクト再生せずに HLS へリマックスさせます。Jellyfin のチューナー設定で有効になっている場合、ストリーム共有が可能になります。"
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
+msgstr "HLS にリマックスし、ソースのコーデックをコピーします。最大音声チャンネル数とストリーミングビットレートは使いません。ダイレクト再生コーデック、許可する HDR タイプ、最大解像度は引き続き適用されます。Jellyfin のチューナー設定で、チャンネル切替を速くするには Read input at native frame rate をオフに、チューナーを再利用するには Allow stream sharing をオンにします。"
 
 msgctxt "#30624"
 msgid "Preferred video codec"
@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "InputStream アドオン"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr "再生に使用する InputStream アドオン。FFmpeg Direct は、デバイス上のローカルバッファーでタイムシフトに対応します。Adaptive は、サーバー側のバッファーでタイムシフトに対応します。FFmpeg（Kodi 内蔵）はタイムシフトに対応していません。"
 
 msgctxt "#30663"
@@ -490,16 +490,8 @@ msgid "Force transcoding"
 msgstr "トランスコードを強制"
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr "リマックスの代わりに、優先ビデオコーデックへのトランスコードをサーバーに強制します。再エンコードを発生させるため、ビットレートはソースのビットレート（または最大ストリーミングビットレートのいずれか低い方）に制限されます。"
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr "ダイレクト再生を強制"
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr "トランスコードやリマックスを行わず、すべてのストリームをダイレクト再生するようサーバーに強制します。デバイスはソース形式をネイティブにデコードできる必要があります。進行中の録画には適用されません。M3U プロパティ kofin-force-direct-play でチャンネルごとに設定することもできます。"
 
 msgctxt "#30802"
 msgid "H264 10-bit"
@@ -535,7 +527,7 @@ msgid "Allowed HDR types"
 msgstr "許可する HDR の種類"
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
 msgstr "ディスプレイへの引き渡しを許可する HDR 形式。選択しなかった形式は、サーバーによってトーンマッピングで SDR に変換されます。SDR は常に許可されます。「ダイレクト再生を強制」が有効な場合は影響しません。"
 
 msgctxt "#30812"
@@ -584,7 +576,7 @@ msgid "Maximum resolution"
 msgstr "最大解像度"
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
 msgstr "動画を幅で制限します。より高い解像度のソースはサーバーによってダウンスケールされます。「ダイレクト再生を強制」が有効な場合は影響しません。"
 
 msgctxt "#30824"
@@ -717,3 +709,19 @@ msgstr "%s にはこのアドオンが使用できないパスが含まれてい
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s は応答しませんでした — 通知されたアドレスはここでは使えない可能性があります"
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr "キャッチアップ inputstream"
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr "キャッチアップと EPG 番組を再生する inputstream アドオン。Tempo は FFmpeg Direct に SyncPlay の速度制御を加えたものです。"
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr "Tempo"
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr "Tempo の設定..."

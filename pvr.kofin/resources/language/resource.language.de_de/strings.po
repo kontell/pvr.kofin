@@ -34,8 +34,8 @@ msgid "Force remuxing"
 msgstr "Remuxing erzwingen"
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
-msgstr "Zwingt den Jellyfin-Server, alle Live-TV-Streams in HLS zu remuxen, anstatt sie direkt wiederzugeben. Ermöglicht die Stream-Freigabe, wenn sie in den Jellyfin-Tuner-Einstellungen aktiviert ist."
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
+msgstr "Remuxt nach HLS und kopiert die Quell-Codecs. Verwendet nicht Maximale Audiokanäle oder die Streaming-Bitrate. Video-Codecs für Direktwiedergabe, Erlaubte HDR-Typen und Maximale Auflösung gelten weiterhin. In den Jellyfin-Tuner-Einstellungen; Für schnelleres Umschalten der Kanäle deaktivieren: Read input at native frame rate. Für Wiederverwendung von Tunern aktivieren: Allow stream sharing."
 
 msgctxt "#30624"
 msgid "Preferred video codec"
@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "InputStream-Add-on"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr "Das für die Wiedergabe zu verwendende InputStream-Add-on. FFmpeg Direct unterstützt Timeshift mit einem lokalen Puffer auf dem Gerät. Adaptive unterstützt Timeshift mit einem serverseitigen Puffer. FFmpeg (Kodi-intern) unterstützt kein Timeshift."
 
 msgctxt "#30663"
@@ -490,16 +490,8 @@ msgid "Force transcoding"
 msgstr "Transkodierung erzwingen"
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr "Zwingt den Server, in den bevorzugten Video-Codec zu transkodieren, anstatt zu remuxen. Die Bitrate wird auf die Quellbitrate (oder die maximale Streaming-Bitrate, je nachdem, welche niedriger ist) begrenzt, um eine Neukodierung auszulösen."
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr "Direktwiedergabe erzwingen"
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr "Zwingt den Server, alle Streams direkt wiederzugeben, ohne Transkodierung oder Remuxing. Das Gerät muss das Quellformat nativ dekodieren können. Gilt nicht für laufende Aufnahmen. Kann auch pro Kanal über die M3U-Eigenschaft kofin-force-direct-play festgelegt werden."
 
 msgctxt "#30802"
 msgid "H264 10-bit"
@@ -535,8 +527,8 @@ msgid "Allowed HDR types"
 msgstr "Erlaubte HDR-Typen"
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
-msgstr "HDR-Formate, die an dein Display durchgereicht werden dürfen. Nicht ausgewählte Formate werden vom Server per Tone-Mapping auf SDR umgesetzt. SDR ist immer erlaubt. Keine Auswirkung, wenn „Direktwiedergabe erzwingen“ aktiviert ist."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
+msgstr "HDR-Formate, die an dein Display durchgereicht werden dürfen. Nicht ausgewählte Formate werden vom Server per Tone-Mapping auf SDR umgesetzt. SDR ist immer erlaubt."
 
 msgctxt "#30812"
 msgid "HDR10"
@@ -584,8 +576,8 @@ msgid "Maximum resolution"
 msgstr "Maximale Auflösung"
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
-msgstr "Begrenzt das Video anhand der Breite; höher aufgelöste Quellen werden vom Server herunterskaliert. Keine Auswirkung, wenn „Direktwiedergabe erzwingen“ aktiviert ist."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
+msgstr "Begrenzt das Video anhand der Breite; höher aufgelöste Quellen werden vom Server herunterskaliert."
 
 msgctxt "#30824"
 msgid "480p"
@@ -717,3 +709,19 @@ msgstr "%s enthält einen Pfad, den dieses Add-on nicht verwenden kann — Adres
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s hat nicht geantwortet — die angegebene Adresse funktioniert hier womöglich nicht"
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr "Catchup-Inputstream"
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr "Welches InputStream-Add-on Catchup- und EPG-Sendungen wiedergibt. Tempo ist FFmpeg Direct plus SyncPlay-Ratenregelung."
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr "Tempo"
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr "Tempo-Einstellungen..."

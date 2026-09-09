@@ -34,8 +34,8 @@ msgid "Force remuxing"
 msgstr "Vynutit remux"
 
 msgctxt "#30623"
-msgid "Force the Jellyfin server to remux all live TV streams into HLS instead of direct playing. Allows for stream sharing if enabled in Jellyfin tuner settings."
-msgstr "Vynutí, aby server Jellyfin remuxoval všechny streamy živé televize do HLS místo přímého přehrávání. Umožňuje sdílení streamů, pokud je povoleno v nastavení tuneru Jellyfin."
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
+msgstr "Remuxuje do HLS a zkopíruje zdrojové kodeky. Nepoužívá Maximální počet zvukových kanálů ani streamovací bitrate. Kodeky přímého přehrávání, Povolené typy HDR a Maximální rozlišení platí dál. V nastavení tuneru Jellyfin; Pro rychlejší přepínání kanálů vypněte: Read input at native frame rate. Pro opětovné použití tunerů zapněte: Allow stream sharing."
 
 msgctxt "#30624"
 msgid "Preferred video codec"
@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "Doplněk InputStream"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
 msgstr "Doplněk InputStream použitý pro přehrávání. FFmpeg Direct podporuje časový posun s místní vyrovnávací pamětí v zařízení. Adaptive podporuje časový posun s vyrovnávací pamětí na straně serveru. FFmpeg (interní v Kodi) časový posun nepodporuje."
 
 msgctxt "#30663"
@@ -490,16 +490,8 @@ msgid "Force transcoding"
 msgstr "Vynutit překódování"
 
 msgctxt "#30807"
-msgid "Force the server to transcode to the preferred video codec instead of remuxing. The bitrate is capped at the source bitrate (or the maximum streaming bitrate, whichever is lower) to trigger re-encoding."
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
 msgstr "Vynutí, aby server překódoval do preferovaného videokodeku místo remuxování. Datový tok je omezen na datový tok zdroje (nebo na maximální datový tok streamování, podle toho, který je nižší), aby se spustilo opětovné kódování."
-
-msgctxt "#30808"
-msgid "Force direct play"
-msgstr "Vynutit přímé přehrávání"
-
-msgctxt "#30809"
-msgid "Force the server to direct play all streams without transcoding or remuxing. The device must be able to decode the source format natively. Does not apply to in-progress recordings. Can also be set per-channel via the kofin-force-direct-play M3U property."
-msgstr "Vynutí, aby server přehrával všechny streamy přímo, bez překódování nebo remuxování. Zařízení musí umět nativně dekódovat zdrojový formát. Neplatí pro probíhající nahrávky. Lze také nastavit pro jednotlivé kanály prostřednictvím vlastnosti M3U kofin-force-direct-play."
 
 msgctxt "#30802"
 msgid "H264 10-bit"
@@ -535,8 +527,8 @@ msgid "Allowed HDR types"
 msgstr "Povolené typy HDR"
 
 msgctxt "#30811"
-msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed. No effect when Force direct play is on."
-msgstr "Formáty HDR, které lze předat na váš displej. Nevybrané formáty server převede na SDR pomocí tonálního mapování. SDR je povoleno vždy. Bez vlivu, když je zapnuto „Vynutit přímé přehrávání“."
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
+msgstr "Formáty HDR, které lze předat na váš displej. Nevybrané formáty server převede na SDR pomocí tonálního mapování. SDR je povoleno vždy."
 
 msgctxt "#30812"
 msgid "HDR10"
@@ -584,8 +576,8 @@ msgid "Maximum resolution"
 msgstr "Maximální rozlišení"
 
 msgctxt "#30823"
-msgid "Caps video by width; higher-resolution sources are downscaled by the server. No effect when Force direct play is on."
-msgstr "Omezuje video podle šířky; zdroje s vyšším rozlišením server zmenší. Bez vlivu, když je zapnuto „Vynutit přímé přehrávání“."
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
+msgstr "Omezuje video podle šířky; zdroje s vyšším rozlišením server zmenší."
 
 msgctxt "#30824"
 msgid "480p"
@@ -717,3 +709,19 @@ msgstr "%s obsahuje cestu, kterou tento doplněk neumí použít — zadejte adr
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s neodpověděl — zadaná adresa zde nemusí fungovat"
+
+msgctxt "#30853"
+msgid "Catchup inputstream"
+msgstr "Inputstream pro catchup"
+
+msgctxt "#30854"
+msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgstr "Který doplněk inputstream přehrává catchup a pořady EPG. Tempo je FFmpeg Direct plus řízení rychlosti SyncPlay."
+
+msgctxt "#30855"
+msgid "Tempo"
+msgstr "Tempo"
+
+msgctxt "#30856"
+msgid "Tempo settings..."
+msgstr "Nastavení Tempo..."

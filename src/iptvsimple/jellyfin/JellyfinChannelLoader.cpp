@@ -289,8 +289,12 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
       const M3UChannelInfo* info = m3uParser.GetChannelInfo(name);
       if (info)
       {
-        // Catchup (only when catchup is enabled by the user)
-        if (m_settings->CatchupEnabled() && info->hasCatchup)
+        if (!info->streamUrl.empty())
+          channel.SetPlaylistStreamURL(info->streamUrl);
+
+        // Catchup only works over the provider URL from the playlist. Without
+        // one, HasArchive stays off even if the entry had catchup tags.
+        if (m_settings->CatchupEnabled() && info->hasCatchup && !info->streamUrl.empty())
         {
           channel.SetHasCatchup(true);
           channel.SetCatchupMode(info->catchupMode);
@@ -492,7 +496,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // Per-channel overrides win over global settings; otherwise fall back.
   // Force transcode wins over force remux: copy-off and the bitrate cap are
   // the transcode column, and remux is HLS + codec-copy.
-  const bool forceDirectPlay = overrides.forceDirectPlay.value_or(m_settings->GetForceDirectPlay());
+  const bool forceDirectPlay = overrides.forceDirectPlay.value_or(false);
   const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
   const bool forceTranscodeActive = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
   const bool remuxCopy = forceRemux && !forceTranscodeActive;
@@ -1170,6 +1174,57 @@ void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
   const std::string host = url.substr(hostStart, hostEnd - hostStart);
   if (host == "127.0.0.1" || host == "localhost")
     url.replace(hostStart, hostEnd - hostStart, serverHost);
+}
+
+void JellyfinChannelLoader::WritePlaylistSessionFile(const std::string& itemId)
+{
+  CloseLiveStream();
+  m_activeItemId = itemId;
+  m_activePlayMethod = "DirectPlay";
+  // Unique per open so a zap between two playlist-direct channels is not
+  // mistaken for a duplicate start of the same stream (service.py compares
+  // PlaySessionId). No LiveStreamId — the tuner was never opened on the
+  // server. Sessions/Playing still reports the channel on the dashboard.
+  m_activePlaySessionId = itemId + "-" + std::to_string(std::time(nullptr));
+  WriteSessionFile();
+}
+
+JellyfinChannelLoader::LivePlayback JellyfinChannelLoader::ResolveLivePlayback(
+    const Channel& channel, const ChannelOverrides& overrides, bool catchupPipeline)
+{
+  LivePlayback result;
+  const std::string& playlistUrl = channel.GetPlaylistStreamURL();
+  const bool havePlaylist = !playlistUrl.empty();
+  const bool forceDirect = overrides.forceDirectPlay.value_or(false);
+  const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
+  const bool forceXcode = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
+
+  const bool usePlaylist =
+      (catchupPipeline && havePlaylist) ||
+      (forceDirect && havePlaylist) ||
+      (!catchupPipeline && !forceDirect && !forceRemux && !forceXcode && havePlaylist);
+
+  if (usePlaylist)
+  {
+    std::string url = playlistUrl;
+    RewriteLocalhost(url);
+    WritePlaylistSessionFile(channel.GetTvgId());
+    result.url = url;
+    result.fromPlaylist = true;
+    Logger::Log(LEVEL_DEBUG, "%s - Playlist direct play: %s",
+                __FUNCTION__, WebUtils::RedactUrl(url).c_str());
+    return result;
+  }
+
+  if (catchupPipeline)
+    return result;
+
+  const std::string jellyfinId = channel.GetTvgId();
+  if (jellyfinId.empty())
+    return result;
+
+  result.url = GetLiveStreamUrl(jellyfinId, overrides);
+  return result;
 }
 
 std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId,
