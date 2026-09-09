@@ -3,7 +3,7 @@
   "Addon Description": "Natiivi Kodin PVR-integraatio Jellyfinin live-TV:lle. Tarjoaa live-TV-kanavat, EPG:n, tallenteet ja ajastimet Jellyfin-palvelimelta.",
   "#30620": "Transkoodaus",
   "#30622": "Pakota remuxaus",
-  "#30623": "Pakottaa Jellyfin-palvelimen remuxaamaan kaikki live-TV-lähetykset HLS-muotoon suoran toiston sijaan. Mahdollistaa lähetysten jakamisen, jos se on otettu käyttöön Jellyfinin virittimen asetuksissa.",
+  "#30623": "Remuksaa HLS:ksi ja kopioi lähteen koodekit. Ei käytä Äänikanavien enimmäismäärää eikä suoratoiston bittinopeutta. Suoran toiston koodekit, Sallitut HDR-tyypit ja Enimmäistarkkuus ovat yhä voimassa. Jellyfinin viritinasetuksissa; Nopeampaa kanavanvaihtoa varten poista käytöstä: Read input at native frame rate. Viritinten uudelleenkäyttöä varten ota käyttöön: Allow stream sharing.",
   "#30624": "Ensisijainen videokoodekki",
   "#30625": "Transkoodauksessa pyydettävä videokoodekki. Jellyfin ei valitse AV1:tä koodaukseen, ellei lähdekoodekki ole myös AV1 tai ellei lähdekoodekkia ole poistettu käytöstä suoraa toistoa varten.",
   "#30629": "Ensisijainen äänikoodekki",

@@ -3,7 +3,7 @@
   "Addon Description": "Natívna integrácia PVR v Kodi pre živú televíziu Jellyfin. Poskytuje kanály živej televízie, EPG, nahrávky a časovače zo servera Jellyfin.",
   "#30620": "Prekódovanie",
   "#30622": "Vynútiť remux",
-  "#30623": "Vynúti, aby server Jellyfin remuxoval všetky streamy živej televízie do HLS namiesto priameho prehrávania. Umožňuje zdieľanie streamov, ak je povolené v nastaveniach tunera Jellyfin.",
+  "#30623": "Remuxuje do HLS a skopíruje zdrojové kodeky. Nepoužíva Maximálny počet zvukových kanálov ani streamovací bitrate. Kodeky priameho prehrávania, Povolené typy HDR a Maximálne rozlíšenie platia ďalej. V nastaveniach tunera Jellyfin; Pre rýchlejšie prepínanie kanálov vypnite: Read input at native frame rate. Pre opätovné použitie tunerov zapnite: Allow stream sharing.",
   "#30624": "Preferovaný videokodek",
   "#30625": "Videokodek požadovaný pri prekódovaní. Jellyfin nezvolí AV1 na kódovanie, pokiaľ zdrojový kodek nie je tiež AV1 alebo pokiaľ zdrojový kodek nie je vypnutý pre priame prehrávanie.",
   "#30629": "Preferovaný zvukový kodek",

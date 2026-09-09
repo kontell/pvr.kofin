@@ -3,7 +3,7 @@
   "Addon Description": "Native Kodi-PVR-integratie voor Jellyfin live-tv. Biedt live-tv-kanalen, EPG, opnamen en timers van een Jellyfin-server.",
   "#30620": "Transcoderen",
   "#30622": "Remuxen forceren",
-  "#30623": "Dwingt de Jellyfin-server om alle live-tv-streams te remuxen naar HLS in plaats van ze direct af te spelen. Maakt het delen van streams mogelijk als dit is ingeschakeld in de Jellyfin-tunerinstellingen.",
+  "#30623": "Remuxt naar HLS en kopieert de broncodecs. Gebruikt Maximum aantal audiokanalen of streamingbitrate niet. Codecs voor direct afspelen, Toegestane HDR-typen en Maximale resolutie blijven gelden. In de Jellyfin-tunerinstellingen; Voor sneller zappen, schakel uit: Read input at native frame rate. Voor hergebruik van tuners, schakel in: Allow stream sharing.",
   "#30624": "Voorkeurscodec voor video",
   "#30625": "De videocodec die bij het transcoderen wordt aangevraagd. AV1 wordt door Jellyfin niet voor het coderen gekozen, tenzij de broncodec ook AV1 is of de broncodec is uitgeschakeld voor direct afspelen.",
   "#30629": "Voorkeurscodec voor audio",
