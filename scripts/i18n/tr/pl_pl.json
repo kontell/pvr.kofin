@@ -3,7 +3,7 @@
   "Addon Description": "Natywna integracja PVR Kodi dla telewizji na żywo Jellyfin. Udostępnia kanały telewizji na żywo, EPG, nagrania i harmonogramy z serwera Jellyfin.",
   "#30620": "Transkodowanie",
   "#30622": "Wymuś remuksowanie",
-  "#30623": "Wymusza na serwerze Jellyfin remuksowanie wszystkich strumieni telewizji na żywo do HLS zamiast odtwarzania bezpośredniego. Umożliwia współdzielenie strumieni, jeśli jest włączone w ustawieniach tunera Jellyfin.",
+  "#30623": "Remuksuje do HLS i kopiuje kodeki źródłowe. Nie używa Maksymalnej liczby kanałów audio ani przepływności strumienia. Kodeki odtwarzania bezpośredniego, Dozwolone typy HDR i Maksymalna rozdzielczość nadal obowiązują. W ustawieniach tunera Jellyfin; Aby szybciej przełączać kanały, wyłącz: Read input at native frame rate. Aby ponownie używać tunerów, włącz: Allow stream sharing.",
   "#30624": "Preferowany kodek wideo",
   "#30625": "Kodek wideo żądany podczas transkodowania. Jellyfin nie wybierze AV1 do kodowania, chyba że kodek źródłowy również jest AV1 lub kodek źródłowy jest wyłączony dla odtwarzania bezpośredniego.",
   "#30629": "Preferowany kodek audio",

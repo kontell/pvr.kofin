@@ -34,8 +34,8 @@ msgid "Force remuxing"
 msgstr "Remuxen forceren"
 
 msgctxt "#30623"
-msgid "Remux all live TV into HLS and copy the source codecs, so tuner stream-sharing can work. Does not use Maximum audio channels or Maximum streaming bitrate below — those would re-encode a listed codec. Direct play codecs, Allowed HDR types and Maximum resolution still apply."
-msgstr "Dwingt de Jellyfin-server om alle live-tv-streams te remuxen naar HLS in plaats van ze direct af te spelen. Maakt het delen van streams mogelijk als dit is ingeschakeld in de Jellyfin-tunerinstellingen."
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
+msgstr "Remuxt naar HLS en kopieert de broncodecs. Gebruikt Maximum aantal audiokanalen of streamingbitrate niet. Codecs voor direct afspelen, Toegestane HDR-typen en Maximale resolutie blijven gelden. In de Jellyfin-tunerinstellingen; Voor sneller zappen, schakel uit: Read input at native frame rate. Voor hergebruik van tuners, schakel in: Allow stream sharing."
 
 msgctxt "#30624"
 msgid "Preferred video codec"

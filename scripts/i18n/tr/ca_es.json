@@ -3,7 +3,7 @@
   "Addon Description": "Integració PVR nativa del Kodi per a la TV en directe de Jellyfin. Proporciona canals de TV en directe, EPG, enregistraments i temporitzadors des d'un servidor Jellyfin.",
   "#30620": "Transcodificació",
   "#30622": "Força el remux",
-  "#30623": "Força el servidor Jellyfin a fer remux de tots els fluxos de TV en directe a HLS en lloc de reproduir-los directament. Permet compartir fluxos si està activat a la configuració del sintonitzador del Jellyfin.",
+  "#30623": "Fa remux a HLS i copia els còdecs d’origen. No fa servir Canals d’àudio màxims ni la taxa de bits de streaming. Els còdecs de reproducció directa, els tipus HDR permesos i la resolució màxima es continuen aplicant. Als paràmetres del sintonitzador Jellyfin; Per a un canvi de canal més ràpid, desactiveu: Read input at native frame rate. Per reutilitzar sintonitzadors, activeu: Allow stream sharing.",
   "#30624": "Còdec de vídeo preferit",
   "#30625": "El còdec de vídeo que s'ha de sol·licitar en transcodificar. El Jellyfin no triarà l'AV1 per a la codificació tret que el còdec d'origen també sigui AV1 o que el còdec d'origen estigui desactivat per a la reproducció directa.",
   "#30629": "Còdec d'àudio preferit",
