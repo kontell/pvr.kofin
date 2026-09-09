@@ -977,7 +977,6 @@ void JellyfinChannelLoader::WriteSessionFile()
   session["PlaySessionId"] = m_activePlaySessionId;
   session["LiveStreamId"] = m_activeLiveStreamId;
   session["PlayMethod"] = m_activePlayMethod;
-  session["BypassJellyfinSession"] = m_bypassJellyfinSession;
   // Consumed by service.py to ignore stale files (e.g. crash leftovers).
   session["WrittenAt"] = static_cast<Json::Int64>(std::time(nullptr));
   Json::StreamWriterBuilder writer;
@@ -1184,9 +1183,9 @@ void JellyfinChannelLoader::WritePlaylistSessionFile(const std::string& itemId)
   m_activePlayMethod = "DirectPlay";
   // Unique per open so a zap between two playlist-direct channels is not
   // mistaken for a duplicate start of the same stream (service.py compares
-  // PlaySessionId). Jellyfin never sees this id: BypassJellyfinSession.
+  // PlaySessionId). No LiveStreamId — the tuner was never opened on the
+  // server. Sessions/Playing still reports the channel on the dashboard.
   m_activePlaySessionId = itemId + "-" + std::to_string(std::time(nullptr));
-  m_bypassJellyfinSession = true;
   WriteSessionFile();
 }
 
@@ -1352,10 +1351,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
 void JellyfinChannelLoader::CloseLiveStream()
 {
   if (m_activeLiveStreamId.empty() && m_activePlaySessionId.empty())
-  {
-    m_bypassJellyfinSession = false;
     return;
-  }
 
   Logger::Log(LEVEL_INFO, "%s - Clearing session %s, stream %s",
               __FUNCTION__, m_activePlaySessionId.c_str(), m_activeLiveStreamId.c_str());
@@ -1365,7 +1361,6 @@ void JellyfinChannelLoader::CloseLiveStream()
   m_activeMediaSourceId.clear();
   m_activeItemId.clear();
   m_activePlayMethod.clear();
-  m_bypassJellyfinSession = false;
 }
 
 
