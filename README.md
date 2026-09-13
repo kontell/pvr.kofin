@@ -69,7 +69,3 @@ In addition to standard KodiProps, the following Kofin-specific properties can b
 | Android ARM32 | yes | yes |
 | Android ARM64 | yes | yes |
 | Windows x86_64 | yes | yes |
-
-## License
-
-This project is licensed under the [GPL-2.0-or-later](LICENSE.md) license.
