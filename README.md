@@ -21,8 +21,6 @@ For playback of movies, shows & music see the [Kofin](https://github.com/kontell
 - Optional transcoding
 - Pause live tv (local or server buffer)
 - One-shot and series recording timers
-- inputstream.ffmpegdirect / inputstream.adaptive support
-- Login with username/ password or quick connect code
 
 ## Installation
 
