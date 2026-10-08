@@ -125,7 +125,7 @@
   "#30854": "L'add-on inputstream qui lit le rattrapage et les programmes EPG. Tempo est FFmpeg Direct plus le contrôle de débit SyncPlay.",
   "#30855": "Tempo",
   "#30856": "Paramètres Tempo...",
-  "#30857": "Saisissez ce code dans le tableau de bord de Jellyfin :",
+  "#30857": "Saisissez ce code dans un client déjà connecté (navigateur, téléphone, etc.) :",
   "#30858": "Code : %s",
   "#30859": "En attente d'autorisation…",
   "#30860": "Enregistrement manuel",

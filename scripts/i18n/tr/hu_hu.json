@@ -125,7 +125,7 @@
   "#30854": "Melyik inputstream-kiegészítő játssza a catchupot és az EPG-műsorokat. A Tempo az FFmpeg Direct plusz a SyncPlay sebességszabályozása.",
   "#30855": "Tempo",
   "#30856": "Tempo beállítások...",
-  "#30857": "Adja meg ezt a kódot a Jellyfin vezérlőpultján:",
+  "#30857": "Adja meg ezt a kódot egy már bejelentkezett kliensben (böngésző, telefon stb.):",
   "#30858": "Kód: %s",
   "#30859": "Várakozás az engedélyezésre…",
   "#30860": "Kézi felvétel",

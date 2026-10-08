@@ -125,7 +125,7 @@
   "#30854": "Qual add-on inputstream reproduz o catchup e os programas EPG. O Tempo é o FFmpeg Direct com o controle de ritmo do SyncPlay.",
   "#30855": "Tempo",
   "#30856": "Configurações do Tempo...",
-  "#30857": "Informe este código no painel do Jellyfin:",
+  "#30857": "Informe este código em um cliente já conectado (navegador, celular etc.):",
   "#30858": "Código: %s",
   "#30859": "Aguardando autorização…",
   "#30860": "Gravação manual",
