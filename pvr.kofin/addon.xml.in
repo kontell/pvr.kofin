@@ -23,6 +23,6 @@
       <fanart>fanart.png</fanart>
     </assets>
     <summary lang="en_GB">Kodi PVR client for Jellyfin Live TV</summary>
-    <description lang="en_GB">Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server with native Kodi UI integration.</description>
+    <description lang="en_GB">Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server.</description>
   </extension>
 </addon>

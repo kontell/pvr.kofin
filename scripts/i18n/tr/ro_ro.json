@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Supliment PVR Kodi pentru televiziunea în direct Jellyfin.",
-  "Addon Description": "Integrare PVR nativă Kodi pentru televiziunea în direct Jellyfin. Oferă canale TV în direct, EPG, înregistrări și programări dintr-un server Jellyfin.",
+  "Addon Summary": "Client PVR Kodi pentru televiziunea în direct Jellyfin",
+  "Addon Description": "Integrare PVR Kodi pentru televiziunea în direct Jellyfin. Oferă canale TV în direct, EPG, înregistrări și programări dintr-un server Jellyfin.",
   "#30620": "Transcodare",
   "#30622": "Forțează remultiplexarea",
   "#30623": "Face remux în HLS și copiază codecurile sursă. Nu folosește Numărul maxim de canale audio nici bitrate-ul de streaming. Codecurile de redare directă, Tipurile HDR permise și Rezoluția maximă se aplică în continuare. În setările tunerului Jellyfin; Pentru schimbarea mai rapidă a canalului, dezactivați: Read input at native frame rate. Pentru reutilizarea tunereelor, activați: Allow stream sharing.",

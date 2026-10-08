@@ -17,12 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgctxt "Addon Summary"
-msgid "Kodi PVR addon for Jellyfin Live TV."
-msgstr "適用於 Jellyfin 直播電視的 Kodi PVR 外掛。"
+msgid "Kodi PVR client for Jellyfin Live TV"
+msgstr "適用於 Jellyfin 直播電視的 Kodi PVR 用戶端"
 
 msgctxt "Addon Description"
-msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
-msgstr "適用於 Jellyfin 直播電視的原生 Kodi PVR 整合。提供來自 Jellyfin 伺服器的直播電視頻道、EPG、錄製與計時器。"
+msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "適用於 Jellyfin 直播電視的 Kodi PVR 整合。提供來自 Jellyfin 伺服器的直播電視頻道、EPG、錄製與計時器。"
 
 #: Transcoding category
 msgctxt "#30620"

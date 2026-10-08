@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Kodi PVR-kiegészítő a Jellyfin élő TV-jéhez.",
-  "Addon Description": "Natív Kodi PVR-integráció a Jellyfin élő TV-jéhez. Élő TV-csatornákat, EPG-t, felvételeket és időzítőket biztosít egy Jellyfin-kiszolgálóról.",
+  "Addon Summary": "Kodi PVR-kliens a Jellyfin élő TV-jéhez",
+  "Addon Description": "Kodi PVR-integráció a Jellyfin élő TV-jéhez. Élő TV-csatornákat, EPG-t, felvételeket és időzítőket biztosít egy Jellyfin-kiszolgálóról.",
   "#30620": "Átkódolás",
   "#30622": "Remuxolás kényszerítése",
   "#30623": "HLS-re remuxol, és másolja a forráskodekeket. Nem használja a Maximális hangcsatornákat és a streaming bitrátát. A közvetlen lejátszás kodekjei, az Engedélyezett HDR-típusok és a Maximális felbontás továbbra is érvényes. A Jellyfin tunerbeállításaiban; A gyorsabb csatornaváltáshoz kapcsolja ki: Read input at native frame rate. A tunerek újrafelhasználásához kapcsolja be: Allow stream sharing.",

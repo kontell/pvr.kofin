@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Dodatek PVR do Kodi dla telewizji na żywo Jellyfin.",
-  "Addon Description": "Natywna integracja PVR Kodi dla telewizji na żywo Jellyfin. Udostępnia kanały telewizji na żywo, EPG, nagrania i harmonogramy z serwera Jellyfin.",
+  "Addon Summary": "Klient PVR Kodi dla telewizji na żywo Jellyfin",
+  "Addon Description": "Integracja PVR Kodi dla telewizji na żywo Jellyfin. Udostępnia kanały telewizji na żywo, EPG, nagrania i harmonogramy z serwera Jellyfin.",
   "#30620": "Transkodowanie",
   "#30622": "Wymuś remuksowanie",
   "#30623": "Remuksuje do HLS i kopiuje kodeki źródłowe. Nie używa Maksymalnej liczby kanałów audio ani przepływności strumienia. Kodeki odtwarzania bezpośredniego, Dozwolone typy HDR i Maksymalna rozdzielczość nadal obowiązują. W ustawieniach tunera Jellyfin; Aby szybciej przełączać kanały, wyłącz: Read input at native frame rate. Aby ponownie używać tunerów, włącz: Allow stream sharing.",
