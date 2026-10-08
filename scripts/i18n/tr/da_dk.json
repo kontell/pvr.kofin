@@ -124,5 +124,12 @@
   "#30853": "Catchup-inputstream",
   "#30854": "Hvilket inputstream-add-on der afspiller catchup og EPG-programmer. Tempo er FFmpeg Direct plus SyncPlay-hastighedsstyring.",
   "#30855": "Tempo",
-  "#30856": "Tempo-indstillinger..."
+  "#30856": "Tempo-indstillinger...",
+  "#30857": "Indtast denne kode i Jellyfin-kontrolpanelet:",
+  "#30858": "Kode: %s",
+  "#30859": "Venter på godkendelse…",
+  "#30860": "Manuel optagelse",
+  "#30861": "Optag én gang (EPG)",
+  "#30862": "Optag én gang (oprettet af serieregel)",
+  "#30863": "Optag serie"
 }

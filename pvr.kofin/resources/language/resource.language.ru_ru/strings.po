@@ -725,3 +725,35 @@ msgstr "Tempo"
 msgctxt "#30856"
 msgid "Tempo settings..."
 msgstr "Настройки Tempo..."
+
+#: Quick Connect progress dialog. The code itself is on the line below.
+msgctxt "#30857"
+msgid "Enter this code in your Jellyfin dashboard:"
+msgstr "Введите этот код в панели управления Jellyfin:"
+
+#: %s is the Quick Connect code to type into Jellyfin
+msgctxt "#30858"
+msgid "Code: %s"
+msgstr "Код: %s"
+
+msgctxt "#30859"
+msgid "Waiting for authorisation…"
+msgstr "Ожидание авторизации…"
+
+#: Timer types, as listed in Kodi's timer dialog
+msgctxt "#30860"
+msgid "Manual recording"
+msgstr "Запись вручную"
+
+msgctxt "#30861"
+msgid "Record once (EPG)"
+msgstr "Записать один раз (EPG)"
+
+#: A single recording that a series timer scheduled; read-only in Kodi
+msgctxt "#30862"
+msgid "Record once (created by series rule)"
+msgstr "Записать один раз (создано правилом сериала)"
+
+msgctxt "#30863"
+msgid "Record series"
+msgstr "Записывать сериал"

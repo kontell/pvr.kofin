@@ -124,5 +124,12 @@
   "#30853": "Inputstream de catchup",
   "#30854": "Quin complement inputstream reprodueix el catchup i els programes EPG. Tempo és FFmpeg Direct més el control de velocitat de SyncPlay.",
   "#30855": "Tempo",
-  "#30856": "Paràmetres de Tempo..."
+  "#30856": "Paràmetres de Tempo...",
+  "#30857": "Introdueix aquest codi al tauler de Jellyfin:",
+  "#30858": "Codi: %s",
+  "#30859": "S'està esperant l'autorització…",
+  "#30860": "Enregistrament manual",
+  "#30861": "Enregistra una vegada (EPG)",
+  "#30862": "Enregistra una vegada (creat per una regla de sèrie)",
+  "#30863": "Enregistra la sèrie"
 }
