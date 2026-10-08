@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Kodi-PVR-tillägg för Jellyfin live-TV.",
-  "Addon Description": "Inbyggd Kodi-PVR-integration för Jellyfin live-TV. Tillhandahåller live-TV-kanaler, EPG, inspelningar och timers från en Jellyfin-server.",
+  "Addon Summary": "Kodi-PVR-klient för Jellyfin live-TV",
+  "Addon Description": "Kodi-PVR-integration för Jellyfin live-TV. Tillhandahåller live-TV-kanaler, EPG, inspelningar och timers från en Jellyfin-server.",
   "#30620": "Omkodning",
   "#30622": "Tvinga remuxning",
   "#30623": "Remuxar till HLS och kopierar källans kodare. Använder inte Maximalt antal ljudkanaler eller strömmande bithastighet. Kodekar för direktuppspelning, Tillåtna HDR-typer och Maximal upplösning gäller fortfarande. I Jellyfins tunerinställningar; För snabbare kanalbyte, inaktivera: Read input at native frame rate. För återanvändning av tuners, aktivera: Allow stream sharing.",

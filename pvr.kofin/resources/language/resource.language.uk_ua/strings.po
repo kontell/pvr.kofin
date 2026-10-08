@@ -17,12 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 msgctxt "Addon Summary"
-msgid "Kodi PVR addon for Jellyfin Live TV."
-msgstr "Додаток PVR для Kodi для прямого ефіру Jellyfin."
+msgid "Kodi PVR client for Jellyfin Live TV"
+msgstr "PVR-клієнт Kodi для прямого ефіру Jellyfin"
 
 msgctxt "Addon Description"
-msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
-msgstr "Нативна інтеграція PVR у Kodi для прямого ефіру Jellyfin. Надає канали прямого ефіру, EPG, записи та таймери із сервера Jellyfin."
+msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Інтеграція PVR у Kodi для прямого ефіру Jellyfin. Надає канали прямого ефіру, EPG, записи та таймери із сервера Jellyfin."
 
 #: Transcoding category
 msgctxt "#30620"
