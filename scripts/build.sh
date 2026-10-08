@@ -26,7 +26,8 @@ set -euo pipefail
 # Examples:
 #   ./scripts/build.sh --os linux --arch x86_64 --kodi 21 --kodi-src ~/kodi-omega
 #   ./scripts/build.sh --os android --arch aarch64 --kodi 22 --kodi-src ~/kodi-piers --ndk ~/android-ndk-r25c
-#   ./scripts/build.sh --os osx --arch arm64 --kodi 22 --kodi-src ~/kodi-piers
+#   ./scripts/build.sh --os osx --arch arm64 --kodi 21 --kodi-src ~/kodi-omega
+#   ./scripts/build.sh --os osx --arch x86_64 --kodi 22 --kodi-src ~/kodi-piers
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ADDON_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -183,11 +184,12 @@ TCEOF
         # bootstrapping its whole depends tree first; an add-on whose only
         # dependency is jsoncpp does not need the tree, only the same answers.
         #
-        # The minimums are those of xbmc's Omega branch, and they are not the
-        # same on every Kodi: for macOS x86_64, Kodi 22 has required 10.15 since
-        # its second beta.
+        # The minimums are those of the xbmc branch for the Kodi being built:
+        # Omega for 21, Piers for 22. They differ in one place. macOS x86_64 is
+        # 10.14 on Omega, and has been 10.15 on Piers since 22.0 beta 2.
+        if [[ "$KODI_VERSION" == "21" ]]; then OSX_X86_64_MIN=10.14; else OSX_X86_64_MIN=10.15; fi
         case "${TARGET_OS}-${TARGET_ARCH}" in
-            osx-x86_64)   APPLE_SDK=macosx;    APPLE_CPU=x86_64; APPLE_MIN="-mmacosx-version-min=10.14" ;;
+            osx-x86_64)   APPLE_SDK=macosx;    APPLE_CPU=x86_64; APPLE_MIN="-mmacosx-version-min=$OSX_X86_64_MIN" ;;
             osx-arm64)    APPLE_SDK=macosx;    APPLE_CPU=arm64;  APPLE_MIN="-mmacosx-version-min=11.0" ;;
             ios-aarch64)  APPLE_SDK=iphoneos;  APPLE_CPU=arm64;  APPLE_MIN="-miphoneos-version-min=12.0" ;;
             tvos-aarch64) APPLE_SDK=appletvos; APPLE_CPU=arm64;  APPLE_MIN="-mappletvos-version-min=12.0" ;;
