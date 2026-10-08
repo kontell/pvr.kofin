@@ -17,12 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 msgctxt "Addon Summary"
-msgid "Kodi PVR addon for Jellyfin Live TV."
-msgstr "Дополнение PVR для Kodi для прямого эфира Jellyfin."
+msgid "Kodi PVR client for Jellyfin Live TV"
+msgstr "PVR-клиент Kodi для прямого эфира Jellyfin"
 
 msgctxt "Addon Description"
-msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
-msgstr "Нативная интеграция PVR в Kodi для прямого эфира Jellyfin. Предоставляет каналы прямого эфира, EPG, записи и таймеры с сервера Jellyfin."
+msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Интеграция PVR в Kodi для прямого эфира Jellyfin. Предоставляет каналы прямого эфира, EPG, записи и таймеры с сервера Jellyfin."
 
 #: Transcoding category
 msgctxt "#30620"
@@ -725,3 +725,35 @@ msgstr "Tempo"
 msgctxt "#30856"
 msgid "Tempo settings..."
 msgstr "Настройки Tempo..."
+
+#: Quick Connect progress dialog. The code itself is on the line below.
+msgctxt "#30857"
+msgid "Enter this code in an already logged in client (browser, phone, etc):"
+msgstr "Введите этот код в клиенте, где уже выполнен вход (браузер, телефон и т. д.):"
+
+#: %s is the Quick Connect code to type into Jellyfin
+msgctxt "#30858"
+msgid "Code: %s"
+msgstr "Код: %s"
+
+msgctxt "#30859"
+msgid "Waiting for authorisation…"
+msgstr "Ожидание авторизации…"
+
+#: Timer types, as listed in Kodi's timer dialog
+msgctxt "#30860"
+msgid "Manual recording"
+msgstr "Запись вручную"
+
+msgctxt "#30861"
+msgid "Record once (EPG)"
+msgstr "Записать один раз (EPG)"
+
+#: A single recording that a series timer scheduled; read-only in Kodi
+msgctxt "#30862"
+msgid "Record once (created by series rule)"
+msgstr "Записать один раз (создано правилом сериала)"
+
+msgctxt "#30863"
+msgid "Record series"
+msgstr "Записывать сериал"

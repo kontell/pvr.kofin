@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Dodatek PVR do Kodi dla telewizji na żywo Jellyfin.",
-  "Addon Description": "Natywna integracja PVR Kodi dla telewizji na żywo Jellyfin. Udostępnia kanały telewizji na żywo, EPG, nagrania i harmonogramy z serwera Jellyfin.",
+  "Addon Summary": "Klient PVR Kodi dla telewizji na żywo Jellyfin",
+  "Addon Description": "Integracja PVR Kodi dla telewizji na żywo Jellyfin. Udostępnia kanały telewizji na żywo, EPG, nagrania i harmonogramy z serwera Jellyfin.",
   "#30620": "Transkodowanie",
   "#30622": "Wymuś remuksowanie",
   "#30623": "Remuksuje do HLS i kopiuje kodeki źródłowe. Nie używa Maksymalnej liczby kanałów audio ani przepływności strumienia. Kodeki odtwarzania bezpośredniego, Dozwolone typy HDR i Maksymalna rozdzielczość nadal obowiązują. W ustawieniach tunera Jellyfin; Aby szybciej przełączać kanały, wyłącz: Read input at native frame rate. Aby ponownie używać tunerów, włącz: Allow stream sharing.",
@@ -124,5 +124,12 @@
   "#30853": "Inputstream catchup",
   "#30854": "Który dodatek inputstream odtwarza catchup i programy EPG. Tempo to FFmpeg Direct plus regulacja tempa SyncPlay.",
   "#30855": "Tempo",
-  "#30856": "Ustawienia Tempo..."
+  "#30856": "Ustawienia Tempo...",
+  "#30857": "Wpisz ten kod w już zalogowanym kliencie (przeglądarka, telefon itp.):",
+  "#30858": "Kod: %s",
+  "#30859": "Oczekiwanie na autoryzację…",
+  "#30860": "Nagrywanie ręczne",
+  "#30861": "Nagraj raz (EPG)",
+  "#30862": "Nagraj raz (utworzone przez regułę serii)",
+  "#30863": "Nagrywaj serię"
 }

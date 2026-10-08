@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Kodin PVR-lisäosa Jellyfinin live-TV:lle.",
-  "Addon Description": "Natiivi Kodin PVR-integraatio Jellyfinin live-TV:lle. Tarjoaa live-TV-kanavat, EPG:n, tallenteet ja ajastimet Jellyfin-palvelimelta.",
+  "Addon Summary": "Kodin PVR-asiakasohjelma Jellyfinin live-TV:lle",
+  "Addon Description": "Kodin PVR-integraatio Jellyfinin live-TV:lle. Tarjoaa live-TV-kanavat, EPG:n, tallenteet ja ajastimet Jellyfin-palvelimelta.",
   "#30620": "Transkoodaus",
   "#30622": "Pakota remuxaus",
   "#30623": "Remuksaa HLS:ksi ja kopioi lähteen koodekit. Ei käytä Äänikanavien enimmäismäärää eikä suoratoiston bittinopeutta. Suoran toiston koodekit, Sallitut HDR-tyypit ja Enimmäistarkkuus ovat yhä voimassa. Jellyfinin viritinasetuksissa; Nopeampaa kanavanvaihtoa varten poista käytöstä: Read input at native frame rate. Viritinten uudelleenkäyttöä varten ota käyttöön: Allow stream sharing.",
@@ -124,5 +124,12 @@
   "#30853": "Catchup-inputstream",
   "#30854": "Mikä inputstream-lisäosa toistaa catchupin ja EPG-ohjelmat. Tempo on FFmpeg Direct plus SyncPlay-nopeudensäätö.",
   "#30855": "Tempo",
-  "#30856": "Tempon asetukset..."
+  "#30856": "Tempon asetukset...",
+  "#30857": "Syötä tämä koodi jo sisäänkirjautuneeseen asiakasohjelmaan (selain, puhelin jne.):",
+  "#30858": "Koodi: %s",
+  "#30859": "Odotetaan valtuutusta…",
+  "#30860": "Manuaalinen tallennus",
+  "#30861": "Tallenna kerran (EPG)",
+  "#30862": "Tallenna kerran (sarjasäännön luoma)",
+  "#30863": "Tallenna sarja"
 }

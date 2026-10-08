@@ -23,6 +23,7 @@ OK_IDENTICAL = {
     "#30730",  # Catchup (kept as the IPTV term in many languages)
     "#30700",  # Account (standard loanword in it/nl/de-adjacent UIs)
     "#30761",  # Default (kept in some languages)
+    "#30858",  # Code: %s ("Code" is the same word in de/nl)
 }
 
 

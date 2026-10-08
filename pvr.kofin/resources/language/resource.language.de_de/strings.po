@@ -17,12 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "Addon Summary"
-msgid "Kodi PVR addon for Jellyfin Live TV."
-msgstr "Kodi-PVR-Add-on für Jellyfin-Live-TV."
+msgid "Kodi PVR client for Jellyfin Live TV"
+msgstr "Kodi-PVR-Client für Jellyfin-Live-TV"
 
 msgctxt "Addon Description"
-msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
-msgstr "Native Kodi-PVR-Integration für Jellyfin-Live-TV. Bietet Live-TV-Kanäle, EPG, Aufnahmen und Timer von einem Jellyfin-Server."
+msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Kodi-PVR-Integration für Jellyfin-Live-TV. Bietet Live-TV-Kanäle, EPG, Aufnahmen und Timer von einem Jellyfin-Server."
 
 #: Transcoding category
 msgctxt "#30620"
@@ -725,3 +725,35 @@ msgstr "Tempo"
 msgctxt "#30856"
 msgid "Tempo settings..."
 msgstr "Tempo-Einstellungen..."
+
+#: Quick Connect progress dialog. The code itself is on the line below.
+msgctxt "#30857"
+msgid "Enter this code in an already logged in client (browser, phone, etc):"
+msgstr "Diesen Code in einem bereits angemeldeten Client eingeben (Browser, Telefon usw.):"
+
+#: %s is the Quick Connect code to type into Jellyfin
+msgctxt "#30858"
+msgid "Code: %s"
+msgstr "Code: %s"
+
+msgctxt "#30859"
+msgid "Waiting for authorisation…"
+msgstr "Warten auf Autorisierung…"
+
+#: Timer types, as listed in Kodi's timer dialog
+msgctxt "#30860"
+msgid "Manual recording"
+msgstr "Manuelle Aufnahme"
+
+msgctxt "#30861"
+msgid "Record once (EPG)"
+msgstr "Einmal aufnehmen (EPG)"
+
+#: A single recording that a series timer scheduled; read-only in Kodi
+msgctxt "#30862"
+msgid "Record once (created by series rule)"
+msgstr "Einmal aufnehmen (von Serienregel erstellt)"
+
+msgctxt "#30863"
+msgid "Record series"
+msgstr "Serie aufnehmen"

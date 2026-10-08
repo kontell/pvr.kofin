@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Jellyfin 라이브 TV용 Kodi PVR 애드온.",
-  "Addon Description": "Jellyfin 라이브 TV를 위한 네이티브 Kodi PVR 통합. Jellyfin 서버에서 라이브 TV 채널, EPG, 녹화 및 타이머를 제공합니다.",
+  "Addon Summary": "Jellyfin 라이브 TV용 Kodi PVR 클라이언트",
+  "Addon Description": "Jellyfin 라이브 TV를 위한 Kodi PVR 통합. Jellyfin 서버에서 라이브 TV 채널, EPG, 녹화 및 타이머를 제공합니다.",
   "#30620": "트랜스코딩",
   "#30622": "리먹스 강제",
   "#30623": "HLS로 리먹스하고 소스 코덱을 복사합니다. 최대 오디오 채널과 스트리밍 비트레이트는 사용하지 않습니다. 직접 재생 코덱, 허용된 HDR 유형, 최대 해상도는 그대로 적용됩니다. Jellyfin 튜너 설정에서 채널 전환을 빠르게 하려면 Read input at native frame rate를 끄고, 튜너를 재사용하려면 Allow stream sharing을 켜세요.",
@@ -124,5 +124,12 @@
   "#30853": "따라보기 inputstream",
   "#30854": "따라보기와 EPG 프로그램을 재생할 inputstream 애드온. Tempo는 SyncPlay 속도 제어가 더해진 FFmpeg Direct입니다.",
   "#30855": "Tempo",
-  "#30856": "Tempo 설정..."
+  "#30856": "Tempo 설정...",
+  "#30857": "이미 로그인된 클라이언트(브라우저, 휴대폰 등)에서 이 코드를 입력하세요:",
+  "#30858": "코드: %s",
+  "#30859": "승인 대기 중…",
+  "#30860": "수동 녹화",
+  "#30861": "한 번 녹화(EPG)",
+  "#30862": "한 번 녹화(시리즈 규칙으로 생성됨)",
+  "#30863": "시리즈 녹화"
 }

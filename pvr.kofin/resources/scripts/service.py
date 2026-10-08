@@ -1,3 +1,8 @@
+#  Copyright (C) 2026 Kofin
+#
+#  SPDX-License-Identifier: GPL-2.0-or-later
+#  See LICENSE.md for more information.
+
 """
 pvr.kofin playback reporter — reports playback state to the Jellyfin server.
 
@@ -194,7 +199,7 @@ class PlaybackReporter(xbmc.Player):
             written_at = session_data.get('WrittenAt', 0)
             if written_at and time.time() - written_at > 300:
                 xbmc.log('pvr.kofin reporter: ignoring stale session.json',
-                         xbmc.LOGINFO)
+                         xbmc.LOGDEBUG)
                 session_data = None
             elif not session_data.get('ItemId', ''):
                 session_data = None
@@ -210,7 +215,7 @@ class PlaybackReporter(xbmc.Player):
             new_psid = session_data.get('PlaySessionId', '') if session_data else None
             if new_psid != self.session['PlaySessionId']:
                 xbmc.log('pvr.kofin reporter: playback replaced without stop event',
-                         xbmc.LOGINFO)
+                         xbmc.LOGDEBUG)
                 self._finalize(self.session, self.is_recording,
                                self.last_position_ticks)
                 self.session = None
@@ -237,7 +242,7 @@ class PlaybackReporter(xbmc.Player):
         content = 'live TV' if xbmc.getCondVisibility('PVR.IsPlayingTV') else \
                   'recording' if xbmc.getCondVisibility('PVR.IsPlayingRecording') else \
                   'video'
-        xbmc.log(f'pvr.kofin reporter: playback started ({content})', xbmc.LOGINFO)
+        xbmc.log(f'pvr.kofin reporter: playback started ({content})', xbmc.LOGDEBUG)
 
         self._send('/Sessions/Playing', self._build_body())
         self._send_sync_claim()
@@ -287,7 +292,7 @@ class PlaybackReporter(xbmc.Player):
         except (OSError, json.JSONDecodeError):
             pass
 
-        xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGINFO)
+        xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGDEBUG)
         self._finalize(session, is_recording, final_position_ticks)
 
     def _finalize(self, session, is_recording, position_ticks):
@@ -522,7 +527,7 @@ def register_sync_provider():
                    'message': 'SyncProvider.Register',
                    'data': {'v': 1, 'provider': SYNC_PROVIDER,
                             'play': {'delegated': True}}}}))
-    xbmc.log('pvr.kofin reporter: sync provider registered', xbmc.LOGINFO)
+    xbmc.log('pvr.kofin reporter: sync provider registered', xbmc.LOGDEBUG)
 
 
 def _resolve_local_channel(channel_guid):
@@ -586,7 +591,7 @@ def execute_sync_start(key):
         if not channel:
             return
         xbmc.log('pvr.kofin reporter: sync start -> live channel %s (%r)'
-                 % (channel['channelid'], name), xbmc.LOGINFO)
+                 % (channel['channelid'], name), xbmc.LOGDEBUG)
         rpc('Player.Open', {'item': {'channelid': channel['channelid']}})
         return
 
@@ -613,7 +618,7 @@ def execute_sync_start(key):
         return
 
     xbmc.log('pvr.kofin reporter: sync start -> broadcast %s (%r at %s)'
-             % (broadcast['broadcastid'], name, start_utc), xbmc.LOGINFO)
+             % (broadcast['broadcastid'], name, start_utc), xbmc.LOGDEBUG)
     rpc('Player.Open', {'item': {'broadcastid': broadcast['broadcastid']}})
 
 
@@ -644,7 +649,7 @@ class SyncMonitor(xbmc.Monitor):
 if __name__ == '__main__':
     monitor = SyncMonitor()
     player = PlaybackReporter()
-    xbmc.log('pvr.kofin reporter: started', xbmc.LOGINFO)
+    xbmc.log('pvr.kofin reporter: started', xbmc.LOGDEBUG)
     register_sync_provider()
 
     while not monitor.abortRequested():
@@ -656,4 +661,4 @@ if __name__ == '__main__':
     if player.session:
         player._stop()
 
-    xbmc.log('pvr.kofin reporter: stopped', xbmc.LOGINFO)
+    xbmc.log('pvr.kofin reporter: stopped', xbmc.LOGDEBUG)

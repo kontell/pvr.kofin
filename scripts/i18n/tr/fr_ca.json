@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Extension PVR Kodi pour la TV en direct Jellyfin.",
-  "Addon Description": "Intégration PVR native de Kodi pour la TV en direct Jellyfin. Fournit les chaînes de TV en direct, le guide des programmes (EPG), les enregistrements et les programmations depuis un serveur Jellyfin.",
+  "Addon Summary": "Client PVR Kodi pour la TV en direct Jellyfin",
+  "Addon Description": "Intégration PVR de Kodi pour la TV en direct Jellyfin. Fournit les chaînes de TV en direct, le guide des programmes (EPG), les enregistrements et les programmations depuis un serveur Jellyfin.",
   "#30620": "Transcodage",
   "#30622": "Forcer le remuxage",
   "#30623": "Remuxe en HLS et copie les codecs source. N’utilise pas Nombre maximal de canaux audio ni le débit de streaming. Les codecs de lecture directe, les types HDR autorisés et la résolution maximale s’appliquent toujours. Dans les réglages du tuner Jellyfin ; Pour un changement de chaîne plus rapide, désactivez : Read input at native frame rate. Pour réutiliser les tuners, activez : Allow stream sharing.",
@@ -124,5 +124,12 @@
   "#30853": "Inputstream Catchup",
   "#30854": "L'add-on inputstream qui lit le rattrapage et les programmes EPG. Tempo est FFmpeg Direct plus le contrôle de débit SyncPlay.",
   "#30855": "Tempo",
-  "#30856": "Paramètres Tempo..."
+  "#30856": "Paramètres Tempo...",
+  "#30857": "Saisissez ce code dans un client déjà connecté (navigateur, téléphone, etc.) :",
+  "#30858": "Code : %s",
+  "#30859": "En attente d'autorisation…",
+  "#30860": "Enregistrement manuel",
+  "#30861": "Enregistrer une fois (EPG)",
+  "#30862": "Enregistrer une fois (créé par une règle de série)",
+  "#30863": "Enregistrer la série"
 }

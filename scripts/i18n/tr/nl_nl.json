@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Kodi-PVR-add-on voor Jellyfin live-tv.",
-  "Addon Description": "Native Kodi-PVR-integratie voor Jellyfin live-tv. Biedt live-tv-kanalen, EPG, opnamen en timers van een Jellyfin-server.",
+  "Addon Summary": "Kodi-PVR-client voor Jellyfin live-tv",
+  "Addon Description": "Kodi-PVR-integratie voor Jellyfin live-tv. Biedt live-tv-kanalen, EPG, opnamen en timers van een Jellyfin-server.",
   "#30620": "Transcoderen",
   "#30622": "Remuxen forceren",
   "#30623": "Remuxt naar HLS en kopieert de broncodecs. Gebruikt Maximum aantal audiokanalen of streamingbitrate niet. Codecs voor direct afspelen, Toegestane HDR-typen en Maximale resolutie blijven gelden. In de Jellyfin-tunerinstellingen; Voor sneller zappen, schakel uit: Read input at native frame rate. Voor hergebruik van tuners, schakel in: Allow stream sharing.",
@@ -124,5 +124,12 @@
   "#30853": "Catchup-inputstream",
   "#30854": "Welke inputstream-add-on catchup en EPG-programma's afspeelt. Tempo is FFmpeg Direct plus SyncPlay-snelheidsregeling.",
   "#30855": "Tempo",
-  "#30856": "Tempo-instellingen..."
+  "#30856": "Tempo-instellingen...",
+  "#30857": "Voer deze code in op een client die al is aangemeld (browser, telefoon, enz.):",
+  "#30858": "Code: %s",
+  "#30859": "Wachten op autorisatie…",
+  "#30860": "Handmatige opname",
+  "#30861": "Eenmalig opnemen (EPG)",
+  "#30862": "Eenmalig opnemen (aangemaakt door serieregel)",
+  "#30863": "Serie opnemen"
 }
