@@ -237,12 +237,10 @@ jobs:
   # especially — entirely unbuilt until release time. The cross-builds are
   # 45-110s each on pvr.kofin, so the coverage is close to free there.
   #
-  # The Linux, Android and Windows x86_64 entries below are copied from
-  # release.yml and checked against it, so a platform added to one cannot
-  # silently be missing from the other. Windows i686 and arm64, and everything in
-  # package-apple, are built and packaged here and not released: they are the
-  # rest of the official repository's matrix, and repository.kontell does not
-  # carry them.
+  # The matrices below are copied from release.yml and checked against it, so a
+  # platform added to one cannot silently be missing from the other. The
+  # exceptions are iOS and tvOS in package-apple, which are built and packaged
+  # here and not released: Kodi's own builder deploys neither.
   package-linux:
     # Pull requests only. A push to this branch is normally the merge of a PR
     # whose checks already ran against the merge ref, and release.yml rebuilds
