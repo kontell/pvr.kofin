@@ -1,3 +1,8 @@
+#  Copyright (C) 2026 Kofin
+#
+#  SPDX-License-Identifier: GPL-2.0-or-later
+#  See LICENSE.md for more information.
+
 import sys
 
 import xbmcaddon

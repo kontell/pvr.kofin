@@ -1,3 +1,8 @@
+#  Copyright (C) 2026 Kofin
+#
+#  SPDX-License-Identifier: GPL-2.0-or-later
+#  See LICENSE.md for more information.
+
 """Find Jellyfin servers on the local network and fill in the server address.
 
 Run from the Account settings button, by way of trigger.py:
@@ -87,7 +92,7 @@ def text(string_id):
     return ADDON.getLocalizedString(string_id)
 
 
-def log(message, level=xbmc.LOGINFO):
+def log(message, level=xbmc.LOGDEBUG):
     xbmc.log('pvr.kofin discover: %s' % message, level)
 
 
