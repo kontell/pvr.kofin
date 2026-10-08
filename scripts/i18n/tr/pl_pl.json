@@ -124,5 +124,12 @@
   "#30853": "Inputstream catchup",
   "#30854": "Który dodatek inputstream odtwarza catchup i programy EPG. Tempo to FFmpeg Direct plus regulacja tempa SyncPlay.",
   "#30855": "Tempo",
-  "#30856": "Ustawienia Tempo..."
+  "#30856": "Ustawienia Tempo...",
+  "#30857": "Wpisz ten kod w panelu Jellyfin:",
+  "#30858": "Kod: %s",
+  "#30859": "Oczekiwanie na autoryzację…",
+  "#30860": "Nagrywanie ręczne",
+  "#30861": "Nagraj raz (EPG)",
+  "#30862": "Nagraj raz (utworzone przez regułę serii)",
+  "#30863": "Nagrywaj serię"
 }

@@ -124,5 +124,12 @@
   "#30853": "Catchup-Inputstream",
   "#30854": "Welches InputStream-Add-on Catchup- und EPG-Sendungen wiedergibt. Tempo ist FFmpeg Direct plus SyncPlay-Ratenregelung.",
   "#30855": "Tempo",
-  "#30856": "Tempo-Einstellungen..."
+  "#30856": "Tempo-Einstellungen...",
+  "#30857": "Diesen Code im Jellyfin-Dashboard eingeben:",
+  "#30858": "Code: %s",
+  "#30859": "Warten auf Autorisierung…",
+  "#30860": "Manuelle Aufnahme",
+  "#30861": "Einmal aufnehmen (EPG)",
+  "#30862": "Einmal aufnehmen (von Serienregel erstellt)",
+  "#30863": "Serie aufnehmen"
 }

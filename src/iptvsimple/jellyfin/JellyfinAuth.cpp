@@ -22,6 +22,7 @@
 #include <kodi/gui/dialogs/Keyboard.h>
 #include <kodi/gui/dialogs/Progress.h>
 #include <kodi/gui/dialogs/Select.h>
+#include <kodi/tools/StringUtils.h>
 
 using namespace iptvsimple;
 using namespace iptvsimple::jellyfin;
@@ -186,10 +187,13 @@ bool JellyfinAuth::LoginWithQuickConnect()
   }
 
   auto progress = std::make_unique<kodi::gui::dialogs::CProgress>();
-  progress->SetHeading("Kofin PVR - Quick Connect");
-  progress->SetLine(1, "Enter this code in your Jellyfin dashboard:");
-  progress->SetLine(2, "Code: " + code);
-  progress->SetLine(3, "Waiting for authorization...");
+  std::string codeLine = kodi::addon::GetLocalizedString(30858);
+  kodi::tools::StringUtils::Replace(codeLine, "%s", code);
+
+  progress->SetHeading("Kofin PVR - " + kodi::addon::GetLocalizedString(30707));
+  progress->SetLine(1, kodi::addon::GetLocalizedString(30857));
+  progress->SetLine(2, codeLine);
+  progress->SetLine(3, kodi::addon::GetLocalizedString(30859));
   progress->SetCanCancel(true);
   progress->SetPercentage(0);
   progress->ShowProgressBar(true);

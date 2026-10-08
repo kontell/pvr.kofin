@@ -124,5 +124,12 @@
   "#30853": "Catchup-inputstream",
   "#30854": "Melyik inputstream-kiegészítő játssza a catchupot és az EPG-műsorokat. A Tempo az FFmpeg Direct plusz a SyncPlay sebességszabályozása.",
   "#30855": "Tempo",
-  "#30856": "Tempo beállítások..."
+  "#30856": "Tempo beállítások...",
+  "#30857": "Adja meg ezt a kódot a Jellyfin vezérlőpultján:",
+  "#30858": "Kód: %s",
+  "#30859": "Várakozás az engedélyezésre…",
+  "#30860": "Kézi felvétel",
+  "#30861": "Felvétel egyszer (EPG)",
+  "#30862": "Felvétel egyszer (sorozatszabály hozta létre)",
+  "#30863": "Sorozat felvétele"
 }

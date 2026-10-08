@@ -124,5 +124,12 @@
   "#30853": "Catchup-inputstream",
   "#30854": "Mikä inputstream-lisäosa toistaa catchupin ja EPG-ohjelmat. Tempo on FFmpeg Direct plus SyncPlay-nopeudensäätö.",
   "#30855": "Tempo",
-  "#30856": "Tempon asetukset..."
+  "#30856": "Tempon asetukset...",
+  "#30857": "Syötä tämä koodi Jellyfinin hallintapaneeliin:",
+  "#30858": "Koodi: %s",
+  "#30859": "Odotetaan valtuutusta…",
+  "#30860": "Manuaalinen tallennus",
+  "#30861": "Tallenna kerran (EPG)",
+  "#30862": "Tallenna kerran (sarjasäännön luoma)",
+  "#30863": "Tallenna sarja"
 }

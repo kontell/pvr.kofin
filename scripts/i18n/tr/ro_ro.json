@@ -124,5 +124,12 @@
   "#30853": "Inputstream catchup",
   "#30854": "Ce add-on inputstream redă catchup-ul și programele EPG. Tempo este FFmpeg Direct plus controlul de ritm SyncPlay.",
   "#30855": "Tempo",
-  "#30856": "Setări Tempo..."
+  "#30856": "Setări Tempo...",
+  "#30857": "Introduceți acest cod în panoul de control Jellyfin:",
+  "#30858": "Cod: %s",
+  "#30859": "Se așteaptă autorizarea…",
+  "#30860": "Înregistrare manuală",
+  "#30861": "Înregistrează o dată (EPG)",
+  "#30862": "Înregistrează o dată (creată de o regulă de serial)",
+  "#30863": "Înregistrează serialul"
 }

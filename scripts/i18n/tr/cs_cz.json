@@ -124,5 +124,12 @@
   "#30853": "Inputstream pro catchup",
   "#30854": "Který doplněk inputstream přehrává catchup a pořady EPG. Tempo je FFmpeg Direct plus řízení rychlosti SyncPlay.",
   "#30855": "Tempo",
-  "#30856": "Nastavení Tempo..."
+  "#30856": "Nastavení Tempo...",
+  "#30857": "Zadejte tento kód na ovládacím panelu Jellyfin:",
+  "#30858": "Kód: %s",
+  "#30859": "Čeká se na autorizaci…",
+  "#30860": "Ruční nahrávání",
+  "#30861": "Nahrát jednou (EPG)",
+  "#30862": "Nahrát jednou (vytvořeno pravidlem seriálu)",
+  "#30863": "Nahrávat seriál"
 }
