@@ -16,10 +16,3 @@ Recommends: kodi-inputstream-adaptive,
 Description: Jellyfin Live TV PVR client for Kodi
  Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG,
  recordings, and timers from a Jellyfin server.
-
-Package: kodi-pvr-kofin-dbg
-Section: debug
-Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: debug symbols for the Jellyfin Live TV PVR client for Kodi
- Debugging symbols for kodi-pvr-kofin.
