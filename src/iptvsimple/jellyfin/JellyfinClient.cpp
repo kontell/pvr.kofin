@@ -167,7 +167,10 @@ bool JellyfinClient::StartQuickConnect(std::string& code)
 {
   Logger::Log(LEVEL_INFO, "%s - Initiating Quick Connect", __FUNCTION__);
 
-  Json::Value response = DoRequest(BuildUrl("/QuickConnect/Initiate"));
+  // POST, not GET: Jellyfin 10.9 moved Initiate to POST and kept GET only as
+  // a legacy route, which newer servers no longer serve (405 on 12.2). The
+  // "{}" body is what makes DoRequest issue a POST at all.
+  Json::Value response = SendPost("/QuickConnect/Initiate", "{}");
 
   if (response.isNull() || !response.isMember("Code") || !response.isMember("Secret"))
   {
