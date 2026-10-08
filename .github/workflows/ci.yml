@@ -240,8 +240,9 @@ jobs:
   # The Linux, Android and Windows x86_64 entries below are copied from
   # release.yml and checked against it, so a platform added to one cannot
   # silently be missing from the other. Windows i686 and arm64, and everything in
-  # package-apple, are built here and not released: they are the rest of the
-  # official repository's matrix, and repository.kontell does not carry them.
+  # package-apple, are built and packaged here and not released: they are the
+  # rest of the official repository's matrix, and repository.kontell does not
+  # carry them.
   package-linux:
     # Pull requests only. A push to this branch is normally the merge of a PR
     # whose checks already ran against the merge ref, and release.yml rebuilds
@@ -459,10 +460,13 @@ jobs:
     # already carries. build.sh writes the toolchain file, from the values
     # Kodi's own depends build uses.
     #
-    # macOS is packaged. iOS and tvOS are compiled only: Kodi's builder compiles
-    # add-ons for them but deploys none, so there is nothing to upload.
+    # All four are packaged. For iOS and tvOS that matches Kodi's builder, which
+    # archives a zip for each but deploys neither to its mirror. The zips are
+    # well-formed add-ons (Kodi knows the ios-aarch64 and tvos-aarch64 platform
+    # tags and reads library_darwin_embedded); what they are not is something a
+    # stock install can be expected to pick up from a repository.
     if: github.event_name == 'pull_request'
-    name: ${{ matrix.zip && 'package' || 'compile' }} (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
+    name: package (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
     runs-on: macos-15
     strategy:
       fail-fast: false
@@ -470,10 +474,10 @@ jobs:
         include:
           # cpu and platform are what the built library must report: see the
           # assertion below.
-          - { os: osx, arch: x86_64, channel: Piers, kodi: 22, zip: true, cpu: x86_64, platform: MACOS }
-          - { os: osx, arch: arm64, channel: Piers, kodi: 22, zip: true, cpu: arm64, platform: MACOS }
-          - { os: ios, arch: aarch64, channel: Piers, kodi: 22, zip: false, cpu: arm64, platform: IOS }
-          - { os: tvos, arch: aarch64, channel: Piers, kodi: 22, zip: false, cpu: arm64, platform: TVOS }
+          - { os: osx, arch: x86_64, channel: Piers, kodi: 22, cpu: x86_64, platform: MACOS }
+          - { os: osx, arch: arm64, channel: Piers, kodi: 22, cpu: arm64, platform: MACOS }
+          - { os: ios, arch: aarch64, channel: Piers, kodi: 22, cpu: arm64, platform: IOS }
+          - { os: tvos, arch: aarch64, channel: Piers, kodi: 22, cpu: arm64, platform: TVOS }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -529,7 +533,6 @@ jobs:
           fi
 
       - name: Upload artifact
-        if: matrix.zip
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-pr
