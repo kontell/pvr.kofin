@@ -182,8 +182,12 @@ TCEOF
         # -arch flag, and the minimum OS version per target. Kodi reaches them by
         # bootstrapping its whole depends tree first; an add-on whose only
         # dependency is jsoncpp does not need the tree, only the same answers.
+        #
+        # The minimums are those of xbmc's Piers branch. They are not fixed for
+        # the life of a release: macOS x86_64 was 10.14 at 22.0 beta 1 and has
+        # been 10.15 since beta 2.
         case "${TARGET_OS}-${TARGET_ARCH}" in
-            osx-x86_64)   APPLE_SDK=macosx;    APPLE_CPU=x86_64; APPLE_MIN="-mmacosx-version-min=10.14" ;;
+            osx-x86_64)   APPLE_SDK=macosx;    APPLE_CPU=x86_64; APPLE_MIN="-mmacosx-version-min=10.15" ;;
             osx-arm64)    APPLE_SDK=macosx;    APPLE_CPU=arm64;  APPLE_MIN="-mmacosx-version-min=11.0" ;;
             ios-aarch64)  APPLE_SDK=iphoneos;  APPLE_CPU=arm64;  APPLE_MIN="-miphoneos-version-min=12.0" ;;
             tvos-aarch64) APPLE_SDK=appletvos; APPLE_CPU=arm64;  APPLE_MIN="-mappletvos-version-min=12.0" ;;
