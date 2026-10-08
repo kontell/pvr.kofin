@@ -2,11 +2,21 @@ import sys
 
 import xbmcaddon
 
-# Round-trips a settings action button into the C++ addon's SetSetting
-# callback (see the settings.xml button definitions). Only the four known
-# button IDs may be poked: RunScript is callable by any addon or skin, so
-# arbitrary setting names must not be writable through here.
+# The add-on's one RunScript entry point. addon.xml declares this file as the
+# xbmc.python.library extension, which is what lets settings.xml say
+# RunScript(pvr.kofin,<action>) without naming the directory the add-on is
+# installed in.
+#
+# A button action round-trips into the C++ addon's SetSetting callback (see the
+# settings.xml button definitions). Only the four known button IDs may be
+# poked: RunScript is callable by any addon or skin, so arbitrary setting names
+# must not be writable through here.
 ALLOWED_BUTTONS = ('loginButton', 'logoutButton', 'testConnection', 'restartAddon')
 
-if len(sys.argv) > 1 and sys.argv[1] in ALLOWED_BUTTONS:
-    xbmcaddon.Addon('pvr.kofin').setSetting(sys.argv[1], 'trigger')
+action = sys.argv[1] if len(sys.argv) > 1 else ''
+
+if action in ALLOWED_BUTTONS:
+    xbmcaddon.Addon('pvr.kofin').setSetting(action, 'trigger')
+elif action == 'discover':
+    import discover
+    discover.run()

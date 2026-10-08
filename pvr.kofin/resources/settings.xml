@@ -23,11 +23,12 @@
           </dependencies>
           <control type="edit" format="string" />
         </setting>
-        <!-- Runs discover.py directly rather than trigger.py: this is not a
-             sentinel poke for the C++ side to pick up, it is a flow that ends
-             by writing jellyfinServerAddress itself, and trigger.py's value is
-             its allowlist. <close> is required, not stylistic: the picker is
-             modal, and a modal raised over the open settings dialog fights it. -->
+        <!-- Enters through trigger.py like the buttons below, because an
+             add-on has one RunScript entry point, but it is not a sentinel
+             poke for the C++ side to pick up: discover.py runs the whole flow
+             and ends by writing jellyfinServerAddress itself. <close> is
+             required, not stylistic: the picker is modal, and a modal raised
+             over the open settings dialog fights it. -->
         <setting id="findServers" type="string" label="30844" help="30845">
           <level>0</level>
           <default></default>
@@ -40,7 +41,7 @@
             </dependency>
           </dependencies>
           <control type="button" format="action">
-            <data>RunScript(special://home/addons/pvr.kofin/resources/scripts/discover.py)</data>
+            <data>RunScript(pvr.kofin,discover)</data>
             <close>true</close>
           </control>
         </setting>
@@ -56,7 +57,7 @@
             </dependency>
           </dependencies>
           <control type="button" format="action">
-            <data>RunScript(special://home/addons/pvr.kofin/resources/scripts/trigger.py,loginButton)</data>
+            <data>RunScript(pvr.kofin,loginButton)</data>
             <close>true</close>
           </control>
         </setting>
@@ -104,7 +105,7 @@
             </dependency>
           </dependencies>
           <control type="button" format="action">
-            <data>RunScript(special://home/addons/pvr.kofin/resources/scripts/trigger.py,testConnection)</data>
+            <data>RunScript(pvr.kofin,testConnection)</data>
             <close>true</close>
           </control>
         </setting>
@@ -120,7 +121,7 @@
             </dependency>
           </dependencies>
           <control type="button" format="action">
-            <data>RunScript(special://home/addons/pvr.kofin/resources/scripts/trigger.py,logoutButton)</data>
+            <data>RunScript(pvr.kofin,logoutButton)</data>
             <close>true</close>
           </control>
         </setting>
@@ -131,7 +132,7 @@
             <allowempty>true</allowempty>
           </constraints>
           <control type="button" format="action">
-            <data>RunScript(special://home/addons/pvr.kofin/resources/scripts/trigger.py,restartAddon)</data>
+            <data>RunScript(pvr.kofin,restartAddon)</data>
             <close>true</close>
           </control>
         </setting>

@@ -1,8 +1,8 @@
 """Find Jellyfin servers on the local network and fill in the server address.
 
-Run from the Account settings button:
+Run from the Account settings button, by way of trigger.py:
 
-    RunScript(special://home/addons/pvr.kofin/resources/scripts/discover.py)
+    RunScript(pvr.kofin,discover)
 
 The button carries <close>true</close>, which is load-bearing rather than
 house style: this script opens modal dialogs, and a modal raised while the
@@ -34,10 +34,11 @@ on a host where something already holds 7359, since only one process per
 machine can bind it.
 
 Security: RunScript is callable by any add-on or skin, so this script is
-reachable from outside the settings dialog. Unlike trigger.py, which guards an
-allowlist because it can poke arbitrary setting names, the only thing writable
-here is jellyfinServerAddress, and only with a value that a real Jellyfin on
-this LAN answered from and that the user then picked out of a dialog.
+reachable from outside the settings dialog. Unlike the button actions in
+trigger.py, which are held to an allowlist because they poke setting names, the
+only thing writable here is jellyfinServerAddress, and only with a value that a
+real Jellyfin on this LAN answered from and that the user then picked out of a
+dialog.
 """
 
 import json
@@ -300,10 +301,13 @@ def main():
     xbmc.executebuiltin('Addon.OpenSettings(%s)' % ADDON_ID)
 
 
-main()
-
-# Kodi warns "left several classes in memory that we couldn't clean up" when an
-# xbmcaddon.Addon outlives the script, so drop the module-level reference here
-# rather than constructing one per call: a handful of lookups is not worth
-# ~3 ms of Addon construction each, and the warning is noise in every log.
-del ADDON
+def run():
+    """Entry point, called by trigger.py."""
+    global ADDON
+    main()
+    # Kodi warns "left several classes in memory that we couldn't clean up" when
+    # an xbmcaddon.Addon outlives the script, so drop the module-level reference
+    # here rather than constructing one per call: a handful of lookups is not
+    # worth ~3 ms of Addon construction each, and the warning is noise in every
+    # log.
+    del ADDON
