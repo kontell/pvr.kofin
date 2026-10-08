@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Kodi-PVR-tilføjelse til Jellyfin-live-tv.",
-  "Addon Description": "Indbygget Kodi-PVR-integration til Jellyfin-live-tv. Leverer live-tv-kanaler, EPG, optagelser og timere fra en Jellyfin-server.",
+  "Addon Summary": "Kodi-PVR-klient til Jellyfin-live-tv",
+  "Addon Description": "Kodi-PVR-integration til Jellyfin-live-tv. Leverer live-tv-kanaler, EPG, optagelser og timere fra en Jellyfin-server.",
   "#30620": "Transkodning",
   "#30622": "Tving remuxning",
   "#30623": "Remuxer til HLS og kopierer kildens codecs. Bruger ikke Maksimalt antal lydkanaler eller streamingbitrate. Codecs til direkte afspilning, Tilladte HDR-typer og Maksimal opløsning gælder stadig. I Jellyfins tunerindstillinger; For hurtigere kanalskift skal du slå fra: Read input at native frame rate. For genbrug af tunere skal du slå til: Allow stream sharing.",
@@ -124,5 +124,12 @@
   "#30853": "Catchup-inputstream",
   "#30854": "Hvilket inputstream-add-on der afspiller catchup og EPG-programmer. Tempo er FFmpeg Direct plus SyncPlay-hastighedsstyring.",
   "#30855": "Tempo",
-  "#30856": "Tempo-indstillinger..."
+  "#30856": "Tempo-indstillinger...",
+  "#30857": "Indtast denne kode i en klient, der allerede er logget ind (browser, telefon osv.):",
+  "#30858": "Kode: %s",
+  "#30859": "Venter på godkendelse…",
+  "#30860": "Manuel optagelse",
+  "#30861": "Optag én gang (EPG)",
+  "#30862": "Optag én gang (oprettet af serieregel)",
+  "#30863": "Optag serie"
 }

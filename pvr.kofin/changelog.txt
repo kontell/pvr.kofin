@@ -1,217 +1,238 @@
+v21.18.0
+- Fix Quick Connect login on Jellyfin 12
+- Settings buttons no longer depend on install path
+- Translate Quick Connect dialog and timer types
+- Clearer Quick Connect prompt
+- New icon and fanart
+- Move routine log lines to debug
+
 v21.17.0
-- Live playback uses a matching reference-playlist streaming URL when present, instead of asking Jellyfin for DirectPlay. Jellyfin 12 no longer DirectPlays HLS/DASH tuner sources; catchup now also requires that URL. Force remuxing and Force transcoding still go through the server. The global Force direct play setting is gone; kofin-force-direct-play remains as a per-channel override
-- Direct play of a playlist URL still reports Now Playing to the Jellyfin dashboard; the tuner is not opened on the server
-- Force remuxing now copies the source video and audio instead of re-encoding the audio: the maximum audio channels and streaming bitrate are no longer applied, because either would refuse the copy. Force transcoding re-encodes both, honours those limits, and wins when both are ticked, so Force remuxing greys out
-- A live channel started by a SyncPlay group now plays through this add-on's own channel like the member who pressed play, so it has the programme information, the live OSD and the timeshift bar; it used to be fetched as a plain stream with none of them
-- Live and catchup playback are no longer mistaken for one another around a programme's end: programme times are read as UTC, as Kodi reports them
-- Catchup inputstream now sits with the in-progress recording setting, and choosing Tempo offers its settings below the timeshift toggle
-- New Inputstream tab choices: catchup and EPG programmes can play through Tempo instead of FFmpeg Direct, and so can live channels. Tempo is the FFmpeg Direct fork with the same timeshift and catchup engine plus the rate control SyncPlay fine sync needs; an install without it keeps its old path. Through Tempo a live channel timeshifts from the local buffer rather than through catchup, which cannot hold a clock across a pause
-- A kofin SyncPlay group now converges live channels and catchup programmes when they play through Tempo: the reporter tells the engine the route only when the stream really runs through it, with Kodi's real queue depth
-- Find Jellyfin servers on the local network, and lead with Quick Connect
+- Play the reference-playlist URL directly when present
+- Catchup now needs a playlist URL
+- Remove global Force direct play; per-channel override stays
+- Report playlist direct play to the dashboard
+- Force remuxing copies source video and audio
+- Force transcoding wins over Force remuxing
+- SyncPlay live channels play as PVR channels
+- Fix live/catchup confusion at programme end
+- Move catchup inputstream setting; link Tempo settings
+- Tempo inputstream for live, catchup and EPG
+- SyncPlay fine sync through Tempo
+- Find servers on the local network
+- List Quick Connect first at login
 
 v21.14.0
-- Fixed live channels failing to play whenever a maximum streaming bitrate was set: the add-on offered the server its own decoding codecs as transcode targets, so the server pinned the output to the source's audio codec and then could not encode it once the bitrate cap ruled out a straight copy
-- "Force transcoding" now states that the video must be re-encoded instead of trying to provoke it by sizing the stream down against the source, so it re-encodes reliably and an unlimited bitrate no longer has its figures rewritten
-- New Advanced setting: turn off SSL certificate verification, for servers with a self-signed certificate. It covers the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is unaffected
-- "Reset resume position" now works on recordings. Watched state and resume position are sent to the server as separate, explicit requests rather than told apart by their timing, so resetting a resume point can no longer flip the watched flag by mistake, and finishing a recording now marks it watched even when it had no resume point
-- Notifications now carry the Kofin icon when the add-on is reporting something and Kodi's own warning and error icons when something was refused or went wrong. Every notification is now translatable, and a few that were shown as errors are now warnings
-- A recording you are watching now tells you when it has finished recording
-- Maximum audio channels now defaults to 7.1
-- The add-on now carries the Kofin logo
+- Fix live playback with a bitrate limit
+- Force transcoding re-encodes reliably
+- Setting to skip SSL certificate verification
+- Reset resume position works on recordings
+- Send watched and resume state separately
+- Mark finished recordings watched
+- Notification icons by severity; all translatable
+- Notify when a recording being watched finishes
+- Maximum audio channels defaults to 7.1
+- Add Kofin logo
 
 v21.13.0
-- Renumbered to Kodi's add-on versioning: the first number is now the Kodi version a build is for, so 22.x.y is Kodi 22 (Piers) and 21.x.y is Kodi 21 (Omega). The add-on itself is unchanged from v0.13.0 — only the numbering and the build system moved
-- Kodi 21 and Kodi 22 now build from separate branches and are released separately, so a fix can ship to one without waiting for the other
+- Version now leads with the Kodi version
+- Kodi 21 and 22 built and released separately
 
 v0.13.0
-- New Advanced setting: configurable timer/recording poll interval (default 60s, range 15–3600)
-- Fixed a tuner/stream leak when switching channels, and pinned catchup to direct play so it plays reliably
-- Added a notification when an in-progress recording stops before its scheduled end
-- Hardened authentication and connection handling, with further thread-safety, teardown, and correctness fixes plus more dead-code cleanup
+- Add timer/recording poll interval setting
+- Fix tuner leak when switching channels
+- Pin catchup to direct play
+- Notify when a recording stops early
+- Harden authentication and connection handling
+- Thread-safety and teardown fixes
 
 v0.12.0
-- Security hardening: access tokens are redacted from logs, login credentials are JSON-escaped, logging out now revokes the server session, and a warning is shown when connecting over plain HTTP
-- More robust reconnects: continuous connection health checks, with no crash or spurious logout when the server briefly drops
-- Reliability fixes: guarded JSON parsing, safer background timer/thread handling, and correct guide icons for back-to-back programmes that share the same title
-- Removed a large amount of dead code inherited from the pvr.iptvsimple fork (zlib/lzma, the unused Providers subsystem, and other leftovers)
+- Redact access tokens in logs
+- JSON-escape login credentials
+- Logout revokes the server session
+- Warn on plain HTTP connections
+- Continuous connection health checks
+- No logout when the server briefly drops
+- Guard JSON parsing
+- Fix guide icons for same-titled programmes
+- Remove dead pvr.iptvsimple code
 
 v0.11.0
-- Add UI translations for 26 languages (machine-translated, pending native review): French, German, Spanish, Italian, Portuguese, Dutch, Polish, Russian, Swedish, Danish, Norwegian, Finnish, Greek, Hungarian, Czech, Slovak, Ukrainian, Catalan, Romanian, Japanese, Korean, and Simplified & Traditional Chinese
-- Add a translation toolchain (scripts/i18n) to regenerate the language files from the English source
+- Translations for 26 languages (machine-translated)
+- Add translation toolchain
 
 v0.10.1
 - Decouple catchup from the reference playlist setting
-- Tidy up settings descriptions
+- Tidy settings descriptions
 
 v0.10.0
-- Starting a recording no longer freezes the Kodi UI for several seconds: the timer is now created on a background thread instead of blocking the interface while the Jellyfin requests complete
-- Recordings, home-screen widgets, and the EPG "Play recording" menu entry now refresh as soon as a recording starts or stops, instead of waiting up to 60 seconds for the next background poll
-- Stopping a recording no longer briefly shows the deleted timer and still-in-progress recording: the UI now refreshes only after the change has been applied on the server and reloaded
-- When recording a live programme from the guide, the entry shows the scheduled (clock) icon until the recording is ready, then switches to the red recording icon — matching when "Play recording" actually becomes available
+- Starting a recording no longer freezes the UI
+- Recordings and guide refresh immediately
+- No stale timer after stopping a recording
+- Clock icon until a recording is playable
 
 v0.9.3
-- Play in-progress recordings from the beginning instead of starting roughly 30 seconds in (the still-transcoding stream was being treated as live, so playback began near the playlist head rather than at the start)
+- Play in-progress recordings from the start
 
 v0.9.2
-- Fix a potential crash from a data race on the Jellyfin channel/EPG lookup maps when a background channel/EPG reload coincided with browsing the guide or starting playback (map access is now synchronised)
-- Clamp the channel update interval to a minimum of 1 hour so a 0 value can't trigger a continuous reload loop
+- Fix crash when a reload met guide browsing
+- Minimum channel update interval is 1 hour
 
 v0.9.1
-- Fix catchup playback for TS-based sources (Xtream Codes, Flussonic mpegts, shift/append on a .ts stream): MIME and manifest type are now derived from the resolved catchup URL instead of always being labelled HLS, so inputstream.ffmpegdirect no longer fails trying to parse raw MPEG-TS as a playlist
+- Fix catchup on MPEG-TS sources
 
 v0.9.0
-- Add "Allowed HDR types" setting: choose which HDR/Dolby Vision formats pass through to your display; unselected formats are tone-mapped to SDR by the server (HEVC, AV1, VP9)
-- Add "Maximum resolution" setting: cap playback resolution; higher-resolution sources are downscaled by the server
-- TS transcoding profile leads with HEVC when AV1 is the preferred codec, so a forced transcode targets the more efficient codec
+- Add Allowed HDR types setting
+- Add Maximum resolution setting
+- HEVC leads TS transcodes when AV1 is preferred
 
 v0.8.0
-- Dual TranscodingProfiles: AV1 streams use an fMP4 container and all other codecs use TS, replacing the transcoding-URL container-switch hack — the server selects the container by codec-copy compatibility
-- Jellyfin v12 compatibility: use the non-deprecated Authorization header and ApiKey query parameter (instead of X-Emby-Authorization / api_key)
-- Show Jellyfin server disk space in Kodi (recordings storage free/used)
-- Preferred video codec setting clarified: AV1 is only used when the source codec is also AV1
-- Internal: removed dead code inherited from pvr.iptvsimple; moved Jellyfin login/auth into a dedicated JellyfinAuth module
+- fMP4 for AV1, TS for other codecs
+- Jellyfin 12 Authorization header
+- Show server disk space
+- Clarify preferred video codec setting
+- Move login into JellyfinAuth; remove dead code
 
 v0.7.2
-- Fix AV1 fMP4 container switch not triggering when server reports DirectPlayError transcode reason
+- Fix AV1 fMP4 switch on DirectPlayError
 
 v0.7.1
-- Add "Force direct play" global setting and kofin-force-direct-play per-channel KofinProp — sends wildcard DirectPlayProfile so the server proxies streams without transcoding or remuxing
-- Force direct play hides all other transcoding settings when active
-- Does not apply to in-progress recordings (always HLS remux)
+- Add Force direct play setting and kofin-force-direct-play
+- Force direct play hides other transcoding settings
+- In-progress recordings still remux
 
 v0.7.0
-- Unified TranscodingProfile: single profile with preferred codec first, then all allowed codecs — server codec-copies when it can, transcodes to preferred when it must
-- Add "Force transcoding" global setting — caps bitrate at source to force re-encode to preferred codec (previously per-channel only via kofin-force-transcode)
-- Fix fMP4 container crash on in-progress recordings: profile always requests TS, PostProcessTranscodingUrl switches to fMP4 only for actual AV1 video transcodes
-- Preferred video codec included in DirectPlayProfiles — setting a preferred codec implies the device can decode it
-- DTS added to audio codec options
-- Session metadata moved from Kodi settings to file — eliminates "Unknown setting type" log spam for list[string] codec settings
-- Release build matrix now runs on pull requests for cross-platform compile verification
-- Fix doubled CI checks on PRs
+- Single transcoding profile, preferred codec first
+- Add global Force transcoding setting
+- Fix fMP4 crash on in-progress recordings
+- Preferred codec counts as direct-playable
+- Add DTS audio option
+- Move session metadata from settings to a file
+- Build matrix runs on pull requests
+- Fix doubled CI checks
 
 v0.6.8
-- Replace per-codec force-transcode toggles with multi-select Direct play video/audio codec lists
-- Add MP2 to the audio codec list (common in DVB broadcasts)
-- Add Maximum audio channels setting (Stereo/5.1/7.1) — was hardcoded to 6
-- Update settings descriptions: bitrate limit disables direct play, catchup requires unlimited
-- Recording playback uses full device profile: respects codec lists, Hi10P/HEVC RExt constraints, subtitle profiles, bitrate limit, and preferred codec
-- Completed recordings can direct play when force remux is off and bitrate is unlimited
-- In-progress recordings respect kofin-force-transcode and kofin-bitrate-limit KofinProps from source channel
+- Direct play codec lists replace per-codec toggles
+- Add MP2 audio
+- Add Maximum audio channels setting
+- Update settings descriptions
+- Recordings use the full device profile
+- Completed recordings can direct play
+- In-progress recordings honour per-channel overrides
 
 v0.6.7
-- Fix v0.6.6 regression where force-remux caused force-transcode: only cap VideoBitrate at source bitrate for actual transcode sessions, not remux — Jellyfin's CanStreamCopyVideo re-checks the URL's VideoBitrate on each master.m3u8 request and denies copy when it's below the source bitrate
+- Fix Force remuxing triggering a transcode
 
 v0.6.6
-- Fix 4K HEVC-to-H264 transcode failing with "Codec id 27 require extradata" in inputstream.adaptive at unlimited bitrate: cap HLS VideoBitrate at the source stream bitrate (~30 Mbps) instead of the server's ~1 Gbps sentinel so segments stay small enough for adaptive's codec-init window
+- Fix 4K HEVC to H.264 transcode with inputstream.adaptive
 
 v0.6.5
-- Set MinSegments=3 in the Jellyfin device profile when using inputstream.adaptive so the initial variant playlist comes back populated with multiple segments. Adaptive rejects single-segment playlists with "Codec id NN require extradata" even when the master has CODECS attributes; recordings always worked because they came back populated. Adds ~10s of initial buffering for adaptive users; ffmpegdirect stays at MinSegments=1
+- Request three initial segments for inputstream.adaptive
 
 v0.6.4
-- Fix inputstream.adaptive playback of Jellyfin transcoded/remuxed live TV: keep TS container (not fMP4) and use master.m3u8 — adaptive constructs codec extradata from the master playlist's #EXT-X-STREAM-INF CODECS attribute and demuxes the TS segments cleanly. fMP4 with #EXT-X-MAP confused adaptive's parser; the recording playback path (which always worked with adaptive) was the reference
+- Fix inputstream.adaptive on transcoded live TV
 
 v0.6.3
-- Fall back to the global InputStream setting when the channel doesn't pin one via M3U, so the device profile container (TS vs fMP4) and URL endpoint (live.m3u8 vs master.m3u8) match the inputstream Kodi actually uses
-- Update InputStream setting help text to warn that inputstream.adaptive doesn't currently work with Jellyfin's live transcode output; recommend FFmpeg Direct for transcoded/remuxed channels
+- Fall back to the global InputStream setting
+- Help text warns about adaptive with live transcodes
 
 v0.6.2
-- Keep Jellyfin's master.m3u8 path (instead of rewriting to live.m3u8) when the channel uses inputstream.adaptive — adaptive needs the master playlist's #EXT-X-STREAM-INF CODECS attribute to construct codec extradata before opening fMP4 segments
+- Keep master.m3u8 for inputstream.adaptive
 
 v0.6.1
-- Use fMP4 container in the Jellyfin device profile when the channel uses inputstream.adaptive (newer adaptive can't extract codec extradata from MPEG-TS HLS segments)
-- Trim whitespace on M3U prop values so trailing spaces don't break boolean parsing
-- Read inputstream override from channel properties instead of cached name (was set before KodiProps were applied)
-- Re-declare legacy catchupM3U* settings as hidden so migration reads stop spamming "is not a integer" errors
+- fMP4 container for inputstream.adaptive
+- Trim whitespace in M3U properties
+- Read inputstream override from channel properties
+- Silence legacy catchup setting errors
 
 v0.6.0
-- Reference playlist promoted to first-class M3U layer (channel groups, KodiProps, KofinProps); catchup is now one consumer of it
-- Channel groups from M3U group-title= and #EXTGRP: are added alongside the "Jellyfin" all-channels group
-- KodiProps (#KODIPROP, #EXTVLCOPT, #EXTVLCOPT--) honored: per-channel inputstream selection, mimetype, http-user-agent/referrer/reconnect
-- KofinProps for per-channel device-profile overrides: kofin-force-remux, kofin-bitrate-limit, kofin-force-transcode (e.g. force HDR transcode on a single channel)
-- New global force-transcode codec toggles: AV1, HEVC, MPEG-2, VC-1, VP9 (excludes the codec from direct play / remux)
-- Settings reorganised: Playback split into Transcoding + InputStream; reference-playlist path moved to Advanced. Existing M3U paths migrated automatically.
+- Reference playlist becomes a full M3U layer
+- Channel groups from group-title and EXTGRP
+- Honour KodiProps per channel
+- KofinProps for per-channel overrides
+- Per-codec force-transcode toggles
+- Reorganise settings; migrate M3U paths
 
 v0.5.4
-- Fix recording Premiered date for completed recordings (fall back to DateCreated)
-- Set full recording date for skin Premiered info (not just year)
-- Default new timer type to manual recording instead of EPG
+- Fix Premiered date for recordings
+- Full recording date for skins
+- Manual recording is the default timer type
 
 v0.5.2
-- Fix regression in v0.5.1 that broke creating recordings from the EPG (restore "Record once (EPG)" timer type)
+- Restore Record once (EPG) timer type
 
 v0.5.1
-- Fix recording playback being incorrectly marked watched after seek/skip then stop
-- Report real player position (not wall-clock elapsed) for recordings
-- Drop broken "Record once (EPG)" timer type; manual is now the default
+- Fix recordings marked watched after a seek
+- Report real player position for recordings
+- Drop Record once (EPG) timer type
 
 v0.5.0
-- Add Windows x86_64 release builds (Kodi 21 Omega, Kodi 22 Piers)
-- Drop stale Azure Pipelines config (CI consolidated in GitHub Actions)
+- Add Windows x86_64 builds
+- Remove Azure Pipelines config
 
 v0.4.0
-- Rewrite playback reporting as Python service (fixes Kodi hang on stop)
-- Dashboard session persists for live TV, recordings, and in-progress recordings
-- Report hostname/IP in device name instead of just "Kodi"
-- Guard Python reporter against replaying stale sessions on non-kofin playback
-- Rename "Input stream" to "InputStream" in settings
+- Move playback reporting to a Python service
+- Dashboard session persists through playback
+- Device name includes hostname or IP
+- Ignore stale sessions from other playback
+- Rename Input stream to InputStream
 
 v0.3.1
-- Fix Jellyfin dashboard session dropping after 5 minutes during live TV playback
-- Rename "Input stream" to "InputStream" in settings
+- Fix dashboard session dropping after 5 minutes
+- Rename Input stream to InputStream
 
 v0.3.0
-- Add manual timer support (record by channel + time, no EPG required)
-- Disable timer editing with error notification (Jellyfin silently ignores updates)
-- Fix instant record start time (was showing 01:00 instead of current time)
-- Fix manual timer date when only time is edited in dialog
+- Add manual timers (channel and time)
+- Disable timer editing, with a notice
+- Fix instant record start time
+- Fix manual timer date
 
 v0.2.5
-- Rewrite recording playback state sync using Jellyfin Played flag and PlaybackPositionTicks only
-- Fix mark as watched/unwatched syncing to Jellyfin server
-- Fix resume position flickering on cursor hover
-- Playback start no longer marks recording as watched on Jellyfin
+- Rewrite recording playback state sync
+- Fix watched/unwatched sync to the server
+- Fix resume position flicker
+- Starting playback no longer marks watched
 
 v0.2.4
-- Fix watched state sync: derive Kodi PlayCount from Jellyfin Played flag
-- Mark as watched/unwatched now correctly updates Jellyfin server
-- Fix UI hang when stopping a recording (async timer delete)
-- Stop per-recording polling of resume position (reduces network traffic and UI lag)
-- Clean up translations: remove old pvr.iptvsimple strings
-- Replace changelog with Kofin release history
-- Release workflow now includes changelog in release notes
+- Fix watched state sync
+- Mark watched/unwatched updates the server
+- Fix UI hang when stopping a recording
+- Stop per-recording resume polling
+- Remove old pvr.iptvsimple strings
+- Replace changelog with Kofin history
+- Changelog in release notes
 
 v0.2.3
-- Remove duplicate group headings in settings
-- Add CI/CD: build script, compile checks, multi-platform release workflow
-- Support 10 platform builds: linux (x86_64, armv7, aarch64), android (armv7, aarch64) x Kodi 21/22
+- Remove duplicate settings headings
+- Add build script and release workflow
+- Linux and Android builds, Kodi 21 and 22
 
 v0.2.2
-- Migrate settings to new format with descriptions/tooltips
-- Change provider to Kontell
-- Add in-progress recording input stream setting (adaptive vs kodi internal)
+- New settings format with descriptions
+- Provider is now Kontell
+- Add in-progress recording inputstream setting
 
 v0.2.1
-- Clean up build system to match Kodi project practice
-- Fix cross-compilation find_package(Kodi)
-- Add setting descriptions, renumber catchup IDs
+- Clean up build system
+- Fix cross-compilation
+- Add setting descriptions
 
 v0.2.0
-- Add catchup/archive support via reference M3U and ffmpegdirect catchup mode
-- Catchup parity with pvr.iptvsimple: CatchupController, M3U parser, catchup settings
+- Add catchup via reference M3U
+- Catchup parity with pvr.iptvsimple
 - Add connection check settings
 
 v0.1.0
-- Jellyfin API integration: channels, EPG, recordings, timers
-- Account login flow (username/password and Quick Connect)
-- Live TV playback with remux/transcode device profiles
-- Recording playback via inputstream.adaptive (HLS remux)
-- In-progress recording support with timer cross-reference
-- Playback stop detection via Python service
-- Session reporting for Jellyfin dashboard
-- Watched state sync (play count, resume position)
-- inputstream.ffmpegdirect timeshift support
+- Jellyfin channels, EPG, recordings and timers
+- Login by password or Quick Connect
+- Live TV with remux and transcode
+- Recording playback via inputstream.adaptive
+- In-progress recordings
+- Playback stop detection
+- Dashboard session reporting
+- Watched state sync
+- Timeshift via inputstream.ffmpegdirect
 
 v0.0.1
 - Fork pvr.iptvsimple as pvr.kofin
-- Strip M3U/XMLTV/catchup/VOD data sources
-- Replace with Jellyfin REST API calls
+- Remove M3U, XMLTV, catchup and VOD sources
+- Add Jellyfin REST API calls

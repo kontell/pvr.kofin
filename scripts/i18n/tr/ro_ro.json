@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Supliment PVR Kodi pentru televiziunea în direct Jellyfin.",
-  "Addon Description": "Integrare PVR nativă Kodi pentru televiziunea în direct Jellyfin. Oferă canale TV în direct, EPG, înregistrări și programări dintr-un server Jellyfin.",
+  "Addon Summary": "Client PVR Kodi pentru televiziunea în direct Jellyfin",
+  "Addon Description": "Integrare PVR Kodi pentru televiziunea în direct Jellyfin. Oferă canale TV în direct, EPG, înregistrări și programări dintr-un server Jellyfin.",
   "#30620": "Transcodare",
   "#30622": "Forțează remultiplexarea",
   "#30623": "Face remux în HLS și copiază codecurile sursă. Nu folosește Numărul maxim de canale audio nici bitrate-ul de streaming. Codecurile de redare directă, Tipurile HDR permise și Rezoluția maximă se aplică în continuare. În setările tunerului Jellyfin; Pentru schimbarea mai rapidă a canalului, dezactivați: Read input at native frame rate. Pentru reutilizarea tunereelor, activați: Allow stream sharing.",
@@ -124,5 +124,12 @@
   "#30853": "Inputstream catchup",
   "#30854": "Ce add-on inputstream redă catchup-ul și programele EPG. Tempo este FFmpeg Direct plus controlul de ritm SyncPlay.",
   "#30855": "Tempo",
-  "#30856": "Setări Tempo..."
+  "#30856": "Setări Tempo...",
+  "#30857": "Introduceți acest cod într-un client deja autentificat (browser, telefon etc.):",
+  "#30858": "Cod: %s",
+  "#30859": "Se așteaptă autorizarea…",
+  "#30860": "Înregistrare manuală",
+  "#30861": "Înregistrează o dată (EPG)",
+  "#30862": "Înregistrează o dată (creată de o regulă de serial)",
+  "#30863": "Înregistrează serialul"
 }

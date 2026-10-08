@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "Kodi-PVR-Add-on für Jellyfin-Live-TV.",
-  "Addon Description": "Native Kodi-PVR-Integration für Jellyfin-Live-TV. Bietet Live-TV-Kanäle, EPG, Aufnahmen und Timer von einem Jellyfin-Server.",
+  "Addon Summary": "Kodi-PVR-Client für Jellyfin-Live-TV",
+  "Addon Description": "Kodi-PVR-Integration für Jellyfin-Live-TV. Bietet Live-TV-Kanäle, EPG, Aufnahmen und Timer von einem Jellyfin-Server.",
   "#30620": "Transkodierung",
   "#30622": "Remuxing erzwingen",
   "#30623": "Remuxt nach HLS und kopiert die Quell-Codecs. Verwendet nicht Maximale Audiokanäle oder die Streaming-Bitrate. Video-Codecs für Direktwiedergabe, Erlaubte HDR-Typen und Maximale Auflösung gelten weiterhin. In den Jellyfin-Tuner-Einstellungen; Für schnelleres Umschalten der Kanäle deaktivieren: Read input at native frame rate. Für Wiederverwendung von Tunern aktivieren: Allow stream sharing.",
@@ -124,5 +124,12 @@
   "#30853": "Catchup-Inputstream",
   "#30854": "Welches InputStream-Add-on Catchup- und EPG-Sendungen wiedergibt. Tempo ist FFmpeg Direct plus SyncPlay-Ratenregelung.",
   "#30855": "Tempo",
-  "#30856": "Tempo-Einstellungen..."
+  "#30856": "Tempo-Einstellungen...",
+  "#30857": "Diesen Code in einem bereits angemeldeten Client eingeben (Browser, Telefon usw.):",
+  "#30858": "Code: %s",
+  "#30859": "Warten auf Autorisierung…",
+  "#30860": "Manuelle Aufnahme",
+  "#30861": "Einmal aufnehmen (EPG)",
+  "#30862": "Einmal aufnehmen (von Serienregel erstellt)",
+  "#30863": "Serie aufnehmen"
 }

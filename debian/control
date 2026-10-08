@@ -1,0 +1,18 @@
+Source: kodi-pvr-kofin
+Priority: extra
+Maintainer: Kontell <91025994+kontell@users.noreply.github.com>
+Build-Depends: debhelper (>= 9.0.0), cmake,
+               kodi-addon-dev | kodi-addons-dev, libjsoncpp-dev
+Standards-Version: 4.1.2
+Section: libs
+Homepage: https://github.com/kontell/pvr.kofin
+
+Package: kodi-pvr-kofin
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Recommends: kodi-inputstream-adaptive,
+            kodi-inputstream-ffmpegdirect
+Description: Jellyfin Live TV PVR client for Kodi
+ Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG,
+ recordings, and timers from a Jellyfin server.

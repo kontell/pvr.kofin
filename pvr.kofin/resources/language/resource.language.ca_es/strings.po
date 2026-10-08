@@ -17,12 +17,12 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "Addon Summary"
-msgid "Kodi PVR addon for Jellyfin Live TV."
-msgstr "Complement PVR del Kodi per a la TV en directe de Jellyfin."
+msgid "Kodi PVR client for Jellyfin Live TV"
+msgstr "Client PVR del Kodi per a la TV en directe de Jellyfin"
 
 msgctxt "Addon Description"
-msgid "Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
-msgstr "Integració PVR nativa del Kodi per a la TV en directe de Jellyfin. Proporciona canals de TV en directe, EPG, enregistraments i temporitzadors des d'un servidor Jellyfin."
+msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr "Integració PVR del Kodi per a la TV en directe de Jellyfin. Proporciona canals de TV en directe, EPG, enregistraments i temporitzadors des d'un servidor Jellyfin."
 
 #: Transcoding category
 msgctxt "#30620"
@@ -725,3 +725,35 @@ msgstr "Tempo"
 msgctxt "#30856"
 msgid "Tempo settings..."
 msgstr "Paràmetres de Tempo..."
+
+#: Quick Connect progress dialog. The code itself is on the line below.
+msgctxt "#30857"
+msgid "Enter this code in an already logged in client (browser, phone, etc):"
+msgstr "Introdueix aquest codi en un client amb la sessió ja iniciada (navegador, telèfon, etc.):"
+
+#: %s is the Quick Connect code to type into Jellyfin
+msgctxt "#30858"
+msgid "Code: %s"
+msgstr "Codi: %s"
+
+msgctxt "#30859"
+msgid "Waiting for authorisation…"
+msgstr "S'està esperant l'autorització…"
+
+#: Timer types, as listed in Kodi's timer dialog
+msgctxt "#30860"
+msgid "Manual recording"
+msgstr "Enregistrament manual"
+
+msgctxt "#30861"
+msgid "Record once (EPG)"
+msgstr "Enregistra una vegada (EPG)"
+
+#: A single recording that a series timer scheduled; read-only in Kodi
+msgctxt "#30862"
+msgid "Record once (created by series rule)"
+msgstr "Enregistra una vegada (creat per una regla de sèrie)"
+
+msgctxt "#30863"
+msgid "Record series"
+msgstr "Enregistra la sèrie"

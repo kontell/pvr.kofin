@@ -1,6 +1,6 @@
 {
-  "Addon Summary": "適用於 Jellyfin 直播電視的 Kodi PVR 外掛。",
-  "Addon Description": "適用於 Jellyfin 直播電視的原生 Kodi PVR 整合。提供來自 Jellyfin 伺服器的直播電視頻道、EPG、錄製與計時器。",
+  "Addon Summary": "適用於 Jellyfin 直播電視的 Kodi PVR 用戶端",
+  "Addon Description": "適用於 Jellyfin 直播電視的 Kodi PVR 整合。提供來自 Jellyfin 伺服器的直播電視頻道、EPG、錄製與計時器。",
   "#30620": "轉碼",
   "#30622": "強制重新封裝",
   "#30623": "重新封裝為 HLS 並複製來源編解碼器。不使用最大音訊聲道數或串流位元率。直接播放編解碼器、允許的 HDR 類型和最大解析度仍然生效。在 Jellyfin 調諧器設定中：要加快切台，請關閉 Read input at native frame rate；要重複使用調諧器，請開啟 Allow stream sharing。",
@@ -124,5 +124,12 @@
   "#30853": "回看 inputstream",
   "#30854": "用於播放回看與電子節目表節目的 inputstream 附加元件。Tempo 是加上 SyncPlay 速率控制的 FFmpeg Direct。",
   "#30855": "Tempo",
-  "#30856": "Tempo 設定..."
+  "#30856": "Tempo 設定...",
+  "#30857": "請在已登入的用戶端（瀏覽器、手機等）中輸入此代碼：",
+  "#30858": "代碼：%s",
+  "#30859": "正在等待授權…",
+  "#30860": "手動錄製",
+  "#30861": "錄製一次（電子節目表）",
+  "#30862": "錄製一次（由影集規則建立）",
+  "#30863": "錄製影集"
 }

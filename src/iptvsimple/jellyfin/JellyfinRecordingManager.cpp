@@ -73,7 +73,7 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
   {
     kodi::addon::PVRTimerType type;
     type.SetId(TIMER_ONCE_MANUAL);
-    type.SetDescription("Manual recording");
+    type.SetDescription(kodi::addon::GetLocalizedString(30860));
     type.SetAttributes(
       PVR_TIMER_TYPE_IS_MANUAL |
       PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
@@ -89,7 +89,7 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
   {
     kodi::addon::PVRTimerType type;
     type.SetId(TIMER_ONCE_EPG);
-    type.SetDescription("Record once (EPG)");
+    type.SetDescription(kodi::addon::GetLocalizedString(30861));
     type.SetAttributes(
       PVR_TIMER_TYPE_REQUIRES_EPG_TAG_ON_CREATE |
       PVR_TIMER_TYPE_SUPPORTS_CHANNELS |
@@ -105,7 +105,7 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
   {
     kodi::addon::PVRTimerType type;
     type.SetId(TIMER_ONCE_CREATED_BY_SERIES);
-    type.SetDescription("Record once (created by series rule)");
+    type.SetDescription(kodi::addon::GetLocalizedString(30862));
     type.SetAttributes(
       PVR_TIMER_TYPE_IS_READONLY |
       PVR_TIMER_TYPE_FORBIDS_NEW_INSTANCES |
@@ -121,7 +121,7 @@ PVR_ERROR JellyfinRecordingManager::GetTimerTypes(std::vector<kodi::addon::PVRTi
   {
     kodi::addon::PVRTimerType type;
     type.SetId(TIMER_SERIES);
-    type.SetDescription("Record series");
+    type.SetDescription(kodi::addon::GetLocalizedString(30863));
     type.SetAttributes(
       PVR_TIMER_TYPE_IS_REPEATING |
       PVR_TIMER_TYPE_REQUIRES_EPG_SERIES_ON_CREATE |
