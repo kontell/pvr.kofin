@@ -5,9 +5,9 @@
   name="Kofin PVR for Jellyfin"
   provider-name="Kontell">
   <requires>@ADDON_DEPENDS@
-    <import addon="inputstream.ffmpegdirect" minversion="20.0.0"/>
+    <import addon="inputstream.ffmpegdirect" minversion="22.0.0"/>
     <import addon="inputstream.tempo" minversion="22.4.1" optional="true"/>
-    <import addon="inputstream.adaptive" minversion="20.0.0"/>
+    <import addon="inputstream.adaptive" minversion="22.0.0"/>
   </requires>
   <extension
     point="kodi.pvrclient"
@@ -17,8 +17,10 @@
   <extension point="xbmc.addon.metadata">
     <platform>@PLATFORM@</platform>
     <license>GPL-2.0-or-later</license>
+    <source>https://github.com/kontell/pvr.kofin</source>
     <assets>
       <icon>icon.png</icon>
+      <fanart>fanart.jpg</fanart>
     </assets>
     <summary lang="en_GB">Kodi PVR client for Jellyfin Live TV</summary>
     <description lang="en_GB">Native Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server with native Kodi UI integration.</description>
