@@ -1,6 +1,13 @@
 # Every-PR gate: does it compile for both Kodi versions, and does it package.
 # release.yml handles tags and is the only place a release is built.
 #
+# The platforms are the ones Team Kodi's own add-on builder compiles for
+# (xbmc/pipeline-library, vars/buildPlugin.groovy): Android armv7 and aarch64,
+# macOS x86_64 and arm64, iOS, tvOS, and Windows i686, x86_64 and arm64. Linux is
+# here because repository.kontell ships it; the official repository does not.
+# Being listed there means being built for all of them, so a platform that only
+# fails on their builder is one this workflow should have caught first.
+#
 # Named CI, and its jobs named for what they do, because the old arrangement had
 # release.yml running the full 12-way cross-compile matrix on every pull request:
 # a PR's checks were called "Linux aarch64 / Kodi 21" under a workflow called
@@ -114,13 +121,17 @@ jobs:
     # whose checks already ran against the merge ref, and release.yml rebuilds
     # every platform on the tag — so the merge-time repeat is redundant.
     if: github.event_name == 'pull_request'
-    name: compile (msvc, ${{ matrix.channel }})
+    name: compile (${{ matrix.toolset }}, ${{ matrix.channel }})
     runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { channel: Piers, kodi: 22 }
+          - { channel: Piers, kodi: 22, toolset: msvc, cmake_extra: "" }
+          # The Windows Store build. Nothing serves a zip of it, so it is only
+          # compiled; upstream add-ons carry the same check in their Azure
+          # pipeline, with these two arguments.
+          - { channel: Piers, kodi: 22, toolset: "msvc uwp", cmake_extra: "-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0.22621.0" }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -154,6 +165,7 @@ jobs:
           cmake \
             -B "${app_id}/build" \
             -G "Visual Studio 17 2022" -A x64 -T host=x64 \
+            ${{ matrix.cmake_extra }} \
             -DADDONS_TO_BUILD="${app_id}" \
             -DADDON_SRC_PREFIX="${WS}" \
             -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
@@ -168,8 +180,11 @@ jobs:
   # especially — entirely unbuilt until release time. The cross-builds are
   # 45-110s each on pvr.kofin, so the coverage is close to free there.
   #
-  # The matrices below are copied from release.yml and checked against it, so a
-  # platform added to one cannot silently be missing from the other.
+  # The Linux, Android and Windows x86_64 entries below are copied from
+  # release.yml and checked against it, so a platform added to one cannot
+  # silently be missing from the other. Windows i686 and arm64, and everything in
+  # package-apple, are built here and not released: they are the rest of the
+  # official repository's matrix, and repository.kontell does not carry them.
   package-linux:
     # Pull requests only. A push to this branch is normally the merge of a PR
     # whose checks already ran against the merge ref, and release.yml rebuilds
@@ -285,13 +300,19 @@ jobs:
     # whose checks already ran against the merge ref, and release.yml rebuilds
     # every platform on the tag — so the merge-time repeat is redundant.
     if: github.event_name == 'pull_request'
-    name: package (windows x86_64, ${{ matrix.channel }})
+    name: package (windows ${{ matrix.arch }}, ${{ matrix.channel }})
     runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { channel: Piers, kodi: 22 }
+          # arch is the name the zip and the repository use; msvc_arch is what
+          # the Visual Studio generator calls the same thing; machine is that
+          # architecture's PE header value. All three are built on the x64
+          # runner, the last two as cross-builds.
+          - { channel: Piers, kodi: 22, arch: x86_64, msvc_arch: x64, machine: "8664" }
+          - { channel: Piers, kodi: 22, arch: i686, msvc_arch: Win32, machine: "014c" }
+          - { channel: Piers, kodi: 22, arch: arm64, msvc_arch: ARM64, machine: "aa64" }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -323,7 +344,7 @@ jobs:
 
           cmake \
             -B "${app_id}/build" \
-            -G "Visual Studio 17 2022" -A x64 -T host=x64 \
+            -G "Visual Studio 17 2022" -A ${{ matrix.msvc_arch }} -T host=x64 \
             -DADDONS_TO_BUILD="${app_id}" \
             -DADDON_SRC_PREFIX="${WS}" \
             -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
@@ -334,7 +355,7 @@ jobs:
           cmake --build "${app_id}/build" --config Release --target "${app_id}"
 
           VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
-          ZIP_NAME="${app_id}-${VERSION}-windows-x86_64.zip"
+          ZIP_NAME="${app_id}-${VERSION}-windows-${{ matrix.arch }}.zip"
           mkdir -p artifacts
           # Fail loudly if the install step produced nothing, rather than letting
           # 7z make an empty archive that upload-artifact then can't find.
@@ -348,11 +369,113 @@ jobs:
           (cd install && 7z a -tzip "${WS}/artifacts/${ZIP_NAME}" "${app_id}/")
           ls -la artifacts/
 
+      - name: Assert the DLL is for ${{ matrix.arch }}
+        # A cross-build that quietly fell back to the host architecture would
+        # still configure, compile, package and upload. The machine field of the
+        # PE header is what says which one it is.
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll="$(find "install/${app_id}" -maxdepth 1 -name '*.dll' | head -1)"
+          [[ -n "$dll" ]] || { echo "::error::no DLL under install/${app_id}"; exit 1; }
+          machine="$(python -c "import struct,sys; d=open(sys.argv[1],'rb').read(); o=struct.unpack_from('<I',d,0x3c)[0]; print('%04x' % struct.unpack_from('<H',d,o+4)[0])" "$dll")"
+          echo "$dll: machine 0x$machine, expected 0x${{ matrix.machine }}"
+          if [[ "$machine" != "${{ matrix.machine }}" ]]; then
+            echo "::error::$dll is machine 0x$machine, not 0x${{ matrix.machine }} (${{ matrix.arch }})." >&2
+            exit 1
+          fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.app_id }}-windows-x86_64-pr
+          name: ${{ env.app_id }}-windows-${{ matrix.arch }}-pr
           retention-days: 14
           path: artifacts/*.zip
           if-no-files-found: error
 
+  package-apple:
+    # Pull requests only, for the reason given on package-linux.
+    #
+    # One arm64 runner builds all four. Apple's toolchain cross-compiles between
+    # its own architectures and platforms without help, so macOS x86_64 does not
+    # need an Intel runner, and iOS and tvOS need nothing beyond the SDKs Xcode
+    # already carries. build.sh writes the toolchain file, from the values
+    # Kodi's own depends build uses.
+    #
+    # macOS is packaged. iOS and tvOS are compiled only: Kodi's builder compiles
+    # add-ons for them but deploys none, so there is nothing to upload.
+    if: github.event_name == 'pull_request'
+    name: ${{ matrix.zip && 'package' || 'compile' }} (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # cpu and platform are what the built library must report: see the
+          # assertion below.
+          - { os: osx, arch: x86_64, channel: Piers, kodi: 22, zip: true, cpu: x86_64, platform: MACOS }
+          - { os: osx, arch: arm64, channel: Piers, kodi: 22, zip: true, cpu: arm64, platform: MACOS }
+          - { os: ios, arch: aarch64, channel: Piers, kodi: 22, zip: false, cpu: arm64, platform: IOS }
+          - { os: tvos, arch: aarch64, channel: Piers, kodi: 22, zip: false, cpu: arm64, platform: TVOS }
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Build
+        run: |
+          xcodebuild -version
+          ./${app_id}/scripts/build.sh \
+            --os ${{ matrix.os }} \
+            --arch ${{ matrix.arch }} \
+            --kodi ${{ matrix.kodi }} \
+            --kodi-src ./xbmc \
+            --output ./artifacts \
+            --jobs $(sysctl -n hw.ncpu)
+
+      - name: Assert the library is ${{ matrix.platform }} ${{ matrix.cpu }}
+        # Same reason as the Windows job: every one of these is a cross-build of
+        # some kind, and a library built for the runner instead of the target
+        # would pass everything else here.
+        run: |
+          set -euo pipefail
+          lib="$(find ${app_id}/build-ci-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}/install/${app_id} -maxdepth 1 -type f -name '*.dylib' | head -1)"
+          [[ -n "$lib" ]] || { echo "::error::no .dylib in the install tree"; exit 1; }
+          archs="$(lipo -archs "$lib")"
+          build="$(xcrun vtool -show-build "$lib")"
+          echo "$lib"
+          echo "architectures: $archs"
+          echo "$build"
+          if [[ "$archs" != "${{ matrix.cpu }}" ]]; then
+            echo "::error::$lib is built for '$archs', not ${{ matrix.cpu }}." >&2
+            exit 1
+          fi
+          if ! grep -qE "platform +${{ matrix.platform }}\$" <<<"$build"; then
+            echo "::error::$lib is not a ${{ matrix.platform }} binary." >&2
+            exit 1
+          fi
+
+      - name: Upload artifact
+        if: matrix.zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}-pr
+          retention-days: 14
+          path: artifacts/*.zip
+          if-no-files-found: error
