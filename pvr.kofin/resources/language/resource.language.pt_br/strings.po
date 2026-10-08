@@ -728,8 +728,8 @@ msgstr "Configurações do Tempo..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
-msgid "Enter this code in your Jellyfin dashboard:"
-msgstr "Informe este código no painel do Jellyfin:"
+msgid "Enter this code in an already logged in client (browser, phone, etc):"
+msgstr "Informe este código em um cliente já conectado (navegador, celular etc.):"
 
 #: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"

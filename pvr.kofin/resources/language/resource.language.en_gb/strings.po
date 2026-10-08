@@ -731,7 +731,7 @@ msgstr ""
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
-msgid "Enter this code in your Jellyfin dashboard:"
+msgid "Enter this code in an already logged in client (browser, phone, etc):"
 msgstr ""
 
 #: %s is the Quick Connect code to type into Jellyfin

@@ -728,8 +728,8 @@ msgstr "Tempo beállítások..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
-msgid "Enter this code in your Jellyfin dashboard:"
-msgstr "Adja meg ezt a kódot a Jellyfin vezérlőpultján:"
+msgid "Enter this code in an already logged in client (browser, phone, etc):"
+msgstr "Adja meg ezt a kódot egy már bejelentkezett kliensben (böngésző, telefon stb.):"
 
 #: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"
