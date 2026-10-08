@@ -4,19 +4,29 @@ set -euo pipefail
 # Build pvr.kofin for a given platform and Kodi version.
 #
 # Usage:
-#   ./scripts/build.sh --os <linux|android> --arch <x86_64|armv7|aarch64> --kodi <21|22>
+#   ./scripts/build.sh --os <linux|android|osx|ios|tvos> --arch <x86_64|armv7|aarch64|arm64>
+#                      --kodi <21|22>
 #                      [--kodi-src <path>] [--ndk <path>] [--build-type <Release|Debug>]
 #                      [--output <path>] [--jobs <N>]
+#
+# Targets:
+#   linux    x86_64 | armv7 | aarch64
+#   android  armv7 | aarch64
+#   osx      x86_64 | arm64        (on a Mac of either architecture)
+#   ios      aarch64               (on a Mac)
+#   tvos     aarch64               (on a Mac)
 #
 # Prerequisites:
 #   All platforms:  cmake, make, autopoint
 #   Linux armv7:    gcc-arm-linux-gnueabihf, g++-arm-linux-gnueabihf
 #   Linux aarch64:  gcc-aarch64-linux-gnu, g++-aarch64-linux-gnu
 #   Android:        Android NDK (pass --ndk <path>)
+#   Apple:          Xcode, with the SDK for the target installed
 #
 # Examples:
 #   ./scripts/build.sh --os linux --arch x86_64 --kodi 21 --kodi-src ~/kodi-omega
 #   ./scripts/build.sh --os android --arch aarch64 --kodi 22 --kodi-src ~/kodi-piers --ndk ~/android-ndk-r25c
+#   ./scripts/build.sh --os osx --arch arm64 --kodi 22 --kodi-src ~/kodi-piers
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ADDON_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -30,10 +40,11 @@ KODI_SRC=""
 NDK_PATH=""
 BUILD_TYPE="Release"
 OUTPUT_DIR=""
-JOBS="$(nproc)"
+# macOS has no nproc.
+JOBS="$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN)"
 
 usage() {
-    sed -n '3,14p' "$0" | sed 's/^# \?//'
+    sed -n '3,25p' "$0" | sed -E 's/^# ?//'
     exit 1
 }
 
@@ -53,13 +64,13 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate required args
-[[ -z "$TARGET_OS" ]]    && echo "Error: --os required (linux|android)" && exit 1
-[[ -z "$TARGET_ARCH" ]]  && echo "Error: --arch required (x86_64|armv7|aarch64)" && exit 1
+[[ -z "$TARGET_OS" ]]    && echo "Error: --os required (linux|android|osx|ios|tvos)" && exit 1
+[[ -z "$TARGET_ARCH" ]]  && echo "Error: --arch required (x86_64|armv7|aarch64|arm64)" && exit 1
 [[ -z "$KODI_VERSION" ]] && echo "Error: --kodi required (21|22)" && exit 1
 [[ -z "$KODI_SRC" ]]     && echo "Error: --kodi-src required (path to Kodi source tree)" && exit 1
 
-[[ "$TARGET_OS" =~ ^(linux|android)$ ]] || { echo "Error: --os must be linux or android"; exit 1; }
-[[ "$TARGET_ARCH" =~ ^(x86_64|armv7|aarch64)$ ]] || { echo "Error: --arch must be x86_64, armv7, or aarch64"; exit 1; }
+[[ "$TARGET_OS" =~ ^(linux|android|osx|ios|tvos)$ ]] || { echo "Error: --os must be linux, android, osx, ios or tvos"; exit 1; }
+[[ "$TARGET_ARCH" =~ ^(x86_64|armv7|aarch64|arm64)$ ]] || { echo "Error: --arch must be x86_64, armv7, aarch64 or arm64"; exit 1; }
 [[ "$KODI_VERSION" =~ ^(21|22)$ ]] || { echo "Error: --kodi must be 21 or 22"; exit 1; }
 [[ "$TARGET_OS" == "android" && -z "$NDK_PATH" ]] && { echo "Error: --ndk required for Android builds"; exit 1; }
 
@@ -160,6 +171,56 @@ TCEOF
             -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_FILE"
             -DCPU=arm64-v8a
         )
+        ;;
+    osx-x86_64|osx-arm64|ios-aarch64|tvos-aarch64)
+        # The names are Kodi's own: its repository files these builds under
+        # osx-x86_64, osx-arm64, ios-aarch64 and tvos-aarch64, and derives the
+        # last two from CORE_PLATFORM_NAME plus a CPU of arm64.
+        #
+        # The values mirror what Kodi's depends build writes into
+        # Toolchain_binaddons.cmake (tools/depends/configure.ac): which SDK, the
+        # -arch flag, and the minimum OS version per target. Kodi reaches them by
+        # bootstrapping its whole depends tree first; an add-on whose only
+        # dependency is jsoncpp does not need the tree, only the same answers.
+        #
+        # The minimums are those of xbmc's Omega branch, and they are not the
+        # same on every Kodi: for macOS x86_64, Kodi 22 has required 10.15 since
+        # its second beta.
+        case "${TARGET_OS}-${TARGET_ARCH}" in
+            osx-x86_64)   APPLE_SDK=macosx;    APPLE_CPU=x86_64; APPLE_MIN="-mmacosx-version-min=10.14" ;;
+            osx-arm64)    APPLE_SDK=macosx;    APPLE_CPU=arm64;  APPLE_MIN="-mmacosx-version-min=11.0" ;;
+            ios-aarch64)  APPLE_SDK=iphoneos;  APPLE_CPU=arm64;  APPLE_MIN="-miphoneos-version-min=12.0" ;;
+            tvos-aarch64) APPLE_SDK=appletvos; APPLE_CPU=arm64;  APPLE_MIN="-mappletvos-version-min=12.0" ;;
+        esac
+        if [[ "$TARGET_OS" == "osx" ]]; then
+            APPLE_CORE="set(CORE_SYSTEM_NAME osx)"
+        else
+            APPLE_CORE="set(CORE_SYSTEM_NAME darwin_embedded)
+set(CORE_PLATFORM_NAME $TARGET_OS)"
+        fi
+        command -v xcrun >/dev/null || { echo "Error: $TARGET_OS builds need Xcode (xcrun not found)"; exit 1; }
+        APPLE_SDK_PATH="$(xcrun --sdk "$APPLE_SDK" --show-sdk-path)"
+        APPLE_FLAGS="-arch $APPLE_CPU $APPLE_MIN -isysroot $APPLE_SDK_PATH"
+        echo "  Toolchain: Xcode $APPLE_SDK SDK ($APPLE_SDK_PATH), $APPLE_CPU"
+        # CMake turns this into its own -mmacosx-version-min, which would then
+        # contradict the iOS or tvOS minimum given above.
+        unset MACOSX_DEPLOYMENT_TARGET
+        TOOLCHAIN_FILE="$TOOLCHAIN_DIR/${TARGET_OS}-${TARGET_ARCH}.cmake"
+        cat > "$TOOLCHAIN_FILE" << TCEOF
+set(CMAKE_SYSTEM_NAME Darwin)
+set(CMAKE_SYSTEM_PROCESSOR $APPLE_CPU)
+set(CPU $APPLE_CPU)
+$APPLE_CORE
+set(CMAKE_OSX_SYSROOT $APPLE_SDK_PATH)
+set(CMAKE_C_FLAGS "$APPLE_FLAGS")
+set(CMAKE_CXX_FLAGS "$APPLE_FLAGS")
+set(CMAKE_FIND_ROOT_PATH $APPLE_SDK_PATH $APPLE_SDK_PATH/usr)
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_FRAMEWORK LAST)
+TCEOF
+        CMAKE_ARGS+=(-DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_FILE")
         ;;
     *)
         echo "Error: unsupported platform $TARGET_OS-$TARGET_ARCH"
