@@ -139,13 +139,19 @@ jobs:
 
   # ---------------------------------------------------------------------- Windows
   build-windows:
-    name: package (windows x86_64, ${{ matrix.channel }})
+    name: package (windows ${{ matrix.arch }}, ${{ matrix.channel }})
     runs-on: windows-2022
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { channel: Piers, kodi: 22 }
+          # arch is the name the zip and the repository use; msvc_arch is what
+          # the Visual Studio generator calls the same thing; machine is that
+          # architecture's PE header value. All are built on the x64 runner,
+          # the ones after the first as cross-builds.
+          - { channel: Piers, kodi: 22, arch: x86_64, msvc_arch: x64, machine: "8664" }
+          - { channel: Piers, kodi: 22, arch: i686, msvc_arch: Win32, machine: "014c" }
+          - { channel: Piers, kodi: 22, arch: arm64, msvc_arch: ARM64, machine: "aa64" }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -177,7 +183,7 @@ jobs:
 
           cmake \
             -B "${app_id}/build" \
-            -G "Visual Studio 17 2022" -A x64 -T host=x64 \
+            -G "Visual Studio 17 2022" -A ${{ matrix.msvc_arch }} -T host=x64 \
             -DADDONS_TO_BUILD="${app_id}" \
             -DADDON_SRC_PREFIX="${WS}" \
             -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
@@ -188,7 +194,7 @@ jobs:
           cmake --build "${app_id}/build" --config Release --target "${app_id}"
 
           VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
-          ZIP_NAME="${app_id}-${VERSION}-windows-x86_64.zip"
+          ZIP_NAME="${app_id}-${VERSION}-windows-${{ matrix.arch }}.zip"
           mkdir -p artifacts
           # Fail loudly if the install step produced nothing, rather than letting
           # 7z make an empty archive that upload-artifact then can't find.
@@ -202,17 +208,108 @@ jobs:
           (cd install && 7z a -tzip "${WS}/artifacts/${ZIP_NAME}" "${app_id}/")
           ls -la artifacts/
 
+      - name: Assert the DLL is for ${{ matrix.arch }}
+        # A cross-build that quietly fell back to the host architecture would
+        # still configure, compile, package and upload. The machine field of the
+        # PE header is what says which one it is.
+        shell: bash
+        run: |
+          set -euo pipefail
+          dll="$(find "install/${app_id}" -maxdepth 1 -name '*.dll' | head -1)"
+          [[ -n "$dll" ]] || { echo "::error::no DLL under install/${app_id}"; exit 1; }
+          machine="$(python -c "import struct,sys; d=open(sys.argv[1],'rb').read(); o=struct.unpack_from('<I',d,0x3c)[0]; print('%04x' % struct.unpack_from('<H',d,o+4)[0])" "$dll")"
+          echo "$dll: machine 0x$machine, expected 0x${{ matrix.machine }}"
+          if [[ "$machine" != "${{ matrix.machine }}" ]]; then
+            echo "::error::$dll is machine 0x$machine, not 0x${{ matrix.machine }} (${{ matrix.arch }})." >&2
+            exit 1
+          fi
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.app_id }}-windows-x86_64
+          name: ${{ env.app_id }}-windows-${{ matrix.arch }}
+          path: artifacts/*.zip
+          if-no-files-found: error
+
+  # ------------------------------------------------------------------------ macOS
+  build-apple:
+    # One arm64 runner builds both. Apple's toolchain cross-compiles between its
+    # own architectures without help, so x86_64 does not need an Intel runner;
+    # build.sh writes the toolchain file. iOS and tvOS are built by ci.yml and
+    # are not released: Kodi's own builder deploys neither.
+    name: package (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
+    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # cpu and platform are what the built library must report.
+          - { os: osx, arch: x86_64, channel: Piers, kodi: 22, cpu: x86_64, platform: MACOS }
+          - { os: osx, arch: arm64, channel: Piers, kodi: 22, cpu: arm64, platform: MACOS }
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Build
+        run: |
+          xcodebuild -version
+          ./${app_id}/scripts/build.sh \
+            --os ${{ matrix.os }} \
+            --arch ${{ matrix.arch }} \
+            --kodi ${{ matrix.kodi }} \
+            --kodi-src ./xbmc \
+            --output ./artifacts \
+            --jobs $(sysctl -n hw.ncpu)
+
+      - name: Assert the library is ${{ matrix.platform }} ${{ matrix.cpu }}
+        # Both are cross-builds of a kind, and a library built for the runner
+        # instead of the target would pass everything else here.
+        run: |
+          set -euo pipefail
+          lib="$(find ${app_id}/build-ci-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}/install/${app_id} -maxdepth 1 -type f -name '*.dylib' | head -1)"
+          [[ -n "$lib" ]] || { echo "::error::no .dylib in the install tree"; exit 1; }
+          archs="$(lipo -archs "$lib")"
+          build="$(xcrun vtool -show-build "$lib")"
+          echo "$lib"
+          echo "architectures: $archs"
+          echo "$build"
+          if [[ "$archs" != "${{ matrix.cpu }}" ]]; then
+            echo "::error::$lib is built for '$archs', not ${{ matrix.cpu }}." >&2
+            exit 1
+          fi
+          if ! grep -qE "platform +${{ matrix.platform }}\$" <<<"$build"; then
+            echo "::error::$lib is not a ${{ matrix.platform }} binary." >&2
+            exit 1
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}
           path: artifacts/*.zip
           if-no-files-found: error
 
   # ---------------------------------------------------------------------- Release
   release:
     name: release
-    needs: [build-linux, build-windows]
+    needs: [build-linux, build-windows, build-apple]
     runs-on: ubuntu-24.04
     permissions:
       contents: write # creates the draft GitHub release
@@ -304,14 +401,14 @@ jobs:
           find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
           find artifacts -mindepth 1 -type d -empty -delete
           ls -la artifacts/
-          # 6 platforms, one Kodi version. A short count means a build produced no
+          # 10 platforms, one Kodi version. A short count means a build produced no
           # zip; with if-no-files-found: error upstream that should already have
           # failed, so this is the backstop that keeps a partial release from being
           # drafted at all.
           count="$(find artifacts -name '*.zip' | wc -l)"
           echo "zips: $count"
-          if [[ "$count" -ne 6 ]]; then
-            echo "::error::expected 6 zips (6 platforms, one Kodi version), found $count." \
+          if [[ "$count" -ne 10 ]]; then
+            echo "::error::expected 10 zips (10 platforms, one Kodi version), found $count." \
                  "Publishing a partial set strands platforms on an older build." >&2
             exit 1
           fi

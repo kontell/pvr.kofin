@@ -12,12 +12,24 @@
 #   22.0b1-Piers   PVR 9.2.0, MIN 9.2.0   -> no cushion at all
 #
 # Kodi accepts an addon only within [MIN, current]. On Kodi 22 those are equal, so
-# the moment master bumps PVR to 9.3.0/MIN 9.3.0, supporting Beta 1 and supporting
-# master tip become mutually exclusive: a 9.2.0 binary is refused by the newer
-# Kodi and a 9.3.0 binary is refused by Beta 1. No single build satisfies both, and
-# no CI arrangement invents one.
+# the moment upstream bumps PVR to 9.3.0/MIN 9.3.0, supporting Beta 1 and
+# supporting upstream's tip become mutually exclusive: a 9.2.0 binary is refused
+# by the newer Kodi and a 9.3.0 binary is refused by Beta 1. No single build
+# satisfies both, and no CI arrangement invents one.
 #
-# So this asserts the one question worth asking — is master's MIN still something
+# "Upstream's tip" is the head of xbmc's Piers branch. xbmc cut that branch for
+# the Kodi 22 release, and master has since become Kodi 23, so master's numbers
+# no longer say anything about this channel.
+#
+# The PVR interface is not the only one with a window. A built addon.xml imports
+# seven: kodi.binary.instance.pvr and six kodi.binary.global.* (main, general,
+# gui, filesystem, network, tools), each with the version the pinned headers
+# carry, and Kodi applies the same [MIN, current] test to every one of them. They
+# move independently: the Piers branch took global.main to 2.0.4 after RC1 while
+# PVR stood still. That bump kept its MIN at 2.0.3, so it cost nothing — which is
+# exactly the distinction this has to be able to see. All seven are checked.
+#
+# So this asserts the one question worth asking — is the tip's MIN still something
 # our pinned build satisfies — and builds against tip as a secondary signal. When
 # it fails it is a decision, not a breakage: either drop Beta 1 and re-pin
 # forward, or hold Beta 1 and accept that newer Kodi 22 builds are unsupported
@@ -50,23 +62,43 @@ jobs:
           raw="https://raw.githubusercontent.com/xbmc/xbmc"
           versions_h="xbmc/addons/kodi-dev-kit/include/kodi/versions.h"
 
+          # One download per ref, then read as often as needed.
+          tmp="$(mktemp -d)"
+          fetch() { # ref
+            [[ -f "$tmp/$1.h" ]] || curl -fsSL "$raw/$1/$versions_h" -o "$tmp/$1.h"
+          }
           read_def() { # ref, macro
-            curl -fsSL "$raw/$1/$versions_h" \
-              | sed -n "s/^#define $2[[:space:]]*\"\([0-9.]*\)\".*/\1/p" | head -1
+            sed -n "s/^#define $2[[:space:]]*\"\([0-9.]*\)\".*/\1/p" "$tmp/$1.h" | head -1
           }
           # 9.2.0 <= 9.3.0 ?
           le() { [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" == "$1" ]]; }
 
           status=0
-          for pair in "Piers:${kodi_piers_ref}:master"; do
+          for pair in "Piers:${kodi_piers_ref}:Piers"; do
             channel="${pair%%:*}"; rest="${pair#*:}"
             pinned="${rest%%:*}"; tip="${rest#*:}"
             echo "== $channel: pinned $pinned, upstream $tip"
-            for api in PVR INPUTSTREAM; do
-              ours="$(read_def "$pinned" "ADDON_INSTANCE_VERSION_${api}")"
-              tip_min="$(read_def "$tip" "ADDON_INSTANCE_VERSION_${api}_MIN")"
-              tip_cur="$(read_def "$tip" "ADDON_INSTANCE_VERSION_${api}")"
-              [[ -z "$ours" || -z "$tip_min" ]] && { echo "   $api: could not read"; continue; }
+            fetch "$pinned"
+            fetch "$tip"
+            # The interfaces a built addon.xml imports, plus INPUTSTREAM. Each
+            # entry is the middle of its macro in versions.h:
+            # ADDON_<entry> and ADDON_<entry>_MIN.
+            for macro in INSTANCE_VERSION_PVR INSTANCE_VERSION_INPUTSTREAM \
+                         GLOBAL_VERSION_MAIN GLOBAL_VERSION_GENERAL GLOBAL_VERSION_GUI \
+                         GLOBAL_VERSION_FILESYSTEM GLOBAL_VERSION_NETWORK GLOBAL_VERSION_TOOLS; do
+              # INSTANCE_VERSION_PVR -> instance.pvr, as in kodi.binary.instance.pvr
+              api="$(tr '[:upper:]' '[:lower:]' <<<"${macro/_VERSION_/.}")"
+              ours="$(read_def "$pinned" "ADDON_${macro}")"
+              tip_min="$(read_def "$tip" "ADDON_${macro}_MIN")"
+              tip_cur="$(read_def "$tip" "ADDON_${macro}")"
+              if [[ -z "$ours" || -z "$tip_min" ]]; then
+                # Not a skip. A check that cannot read what it compares has not
+                # passed, and a macro that vanished upstream is drift too.
+                echo "::warning::$channel $api: could not read ADDON_${macro} or its _MIN" \
+                     "(pinned '$ours', $tip minimum '$tip_min')."
+                status=1
+                continue
+              fi
               echo "   $api: we declare $ours; $tip accepts [$tip_min, $tip_cur]"
               if ! le "$tip_min" "$ours"; then
                 echo "::warning::$channel $api: upstream $tip now requires >= $tip_min," \
@@ -89,7 +121,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { tip: master, kodi: 22 }
+          - { tip: Piers, kodi: 22 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
