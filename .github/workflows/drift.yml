@@ -12,12 +12,16 @@
 #   22.0b1-Piers   PVR 9.2.0, MIN 9.2.0   -> no cushion at all
 #
 # Kodi accepts an addon only within [MIN, current]. On Kodi 22 those are equal, so
-# the moment master bumps PVR to 9.3.0/MIN 9.3.0, supporting Beta 1 and supporting
-# master tip become mutually exclusive: a 9.2.0 binary is refused by the newer
-# Kodi and a 9.3.0 binary is refused by Beta 1. No single build satisfies both, and
-# no CI arrangement invents one.
+# the moment upstream bumps PVR to 9.3.0/MIN 9.3.0, supporting Beta 1 and
+# supporting upstream's tip become mutually exclusive: a 9.2.0 binary is refused
+# by the newer Kodi and a 9.3.0 binary is refused by Beta 1. No single build
+# satisfies both, and no CI arrangement invents one.
 #
-# So this asserts the one question worth asking — is master's MIN still something
+# "Upstream's tip" is the head of xbmc's Piers branch. xbmc cut that branch for
+# the Kodi 22 release, and master has since become Kodi 23, so master's numbers
+# no longer say anything about this channel.
+#
+# So this asserts the one question worth asking — is the tip's MIN still something
 # our pinned build satisfies — and builds against tip as a secondary signal. When
 # it fails it is a decision, not a breakage: either drop Beta 1 and re-pin
 # forward, or hold Beta 1 and accept that newer Kodi 22 builds are unsupported
@@ -58,7 +62,7 @@ jobs:
           le() { [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" == "$1" ]]; }
 
           status=0
-          for pair in "Piers:${kodi_piers_ref}:master"; do
+          for pair in "Piers:${kodi_piers_ref}:Piers"; do
             channel="${pair%%:*}"; rest="${pair#*:}"
             pinned="${rest%%:*}"; tip="${rest#*:}"
             echo "== $channel: pinned $pinned, upstream $tip"
@@ -89,7 +93,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { tip: master, kodi: 22 }
+          - { tip: Piers, kodi: 22 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
