@@ -159,7 +159,7 @@ msgid "InputStream addon"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
 msgstr ""
 
 msgctxt "#30663"
@@ -711,22 +711,6 @@ msgstr ""
 #: Raised only if the user picks a server that answered nothing. %s is its name.
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
-msgstr ""
-
-msgctxt "#30853"
-msgid "Catchup inputstream"
-msgstr ""
-
-msgctxt "#30854"
-msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
-msgstr ""
-
-msgctxt "#30855"
-msgid "Tempo"
-msgstr ""
-
-msgctxt "#30856"
-msgid "Tempo settings..."
 msgstr ""
 
 #: Quick Connect progress dialog. The code itself is on the line below.
