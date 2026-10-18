@@ -5,36 +5,24 @@
 # declared kodi.binary.instance.pvr version move with no commit here. Pinning
 # without watching, though, is just a slower way to be surprised.
 #
-# The thing being watched is narrower than "does it still build", and it is
-# specific to Kodi 22:
-#
-#   Omega          PVR 8.3.0, MIN 8.2.0   -> a one-minor cushion
-#   22.0b1-Piers   PVR 9.2.0, MIN 9.2.0   -> no cushion at all
-#
-# Kodi accepts an addon only within [MIN, current]. On Kodi 22 those are equal, so
-# the moment upstream bumps PVR to 9.3.0/MIN 9.3.0, supporting Beta 1 and
-# supporting upstream's tip become mutually exclusive: a 9.2.0 binary is refused
-# by the newer Kodi and a 9.3.0 binary is refused by Beta 1. No single build
-# satisfies both, and no CI arrangement invents one.
-#
-# "Upstream's tip" is the head of xbmc's Piers branch. xbmc cut that branch for
-# the Kodi 22 release, and master has since become Kodi 23, so master's numbers
-# no longer say anything about this channel.
+# The thing being watched is narrower than "does it still build". Kodi accepts
+# an addon only within [MIN, current], and for PVR those are equal (9.2.0, 9.2.0)
+# at both Kodi 22 and the master commit this branch pins. Kodi 23 is in alpha, so
+# master can raise PVR's MIN in any commit, and from then on a build for the pin
+# is refused by every newer Kodi 23 build.
 #
 # The PVR interface is not the only one with a window. A built addon.xml imports
 # seven: kodi.binary.instance.pvr and six kodi.binary.global.* (main, general,
 # gui, filesystem, network, tools), each with the version the pinned headers
 # carry, and Kodi applies the same [MIN, current] test to every one of them. They
-# move independently: the Piers branch took global.main to 2.0.4 after RC1 while
-# PVR stood still. That bump kept its MIN at 2.0.3, so it cost nothing — which is
-# exactly the distinction this has to be able to see. All seven are checked.
+# move independently, so all seven are checked.
 #
-# So this asserts the one question worth asking — is the tip's MIN still something
-# our pinned build satisfies — and builds against tip as a secondary signal. When
-# it fails it is a decision, not a breakage: either drop Beta 1 and re-pin
-# forward, or hold Beta 1 and accept that newer Kodi 22 builds are unsupported
-# until you do. Learning it from a Monday cron beats learning it from a user whose
-# Kodi updated.
+# So this asserts the one question worth asking — is master's MIN still something
+# our pinned build satisfies — and builds against master as a secondary signal.
+# When it fails, re-pin forward: an alpha's earlier builds are not worth holding.
+#
+# The schedule only fires on the default branch (Piers), so on this branch the
+# check runs when dispatched: gh workflow run drift.yml --ref master
 name: Upstream drift
 
 on:
@@ -47,8 +35,7 @@ permissions:
 
 env:
   app_id: pvr.kofin
-  kodi_omega_ref: "21.3-Omega"
-  kodi_piers_ref: "22.0b1-Piers"
+  kodi_master_ref: "fe8292d1019c801b2c8b8b709c34316f48cf50ab"
 
 jobs:
   abi-window:
@@ -74,7 +61,7 @@ jobs:
           le() { [[ "$(printf '%s\n%s\n' "$1" "$2" | sort -V | head -1)" == "$1" ]]; }
 
           status=0
-          for pair in "Piers:${kodi_piers_ref}:Piers"; do
+          for pair in "master:${kodi_master_ref}:master"; do
             channel="${pair%%:*}"; rest="${pair#*:}"
             pinned="${rest%%:*}"; tip="${rest#*:}"
             echo "== $channel: pinned $pinned, upstream $tip"
@@ -121,7 +108,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { tip: Piers, kodi: 22 }
+          - { tip: master, kodi: 23 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5

@@ -5,7 +5,7 @@ set -euo pipefail
 #
 # Usage:
 #   ./scripts/build.sh --os <linux|android|osx|ios|tvos> --arch <x86_64|armv7|aarch64|arm64>
-#                      --kodi <21|22>
+#                      --kodi <21|22|23>
 #                      [--kodi-src <path>] [--ndk <path>] [--build-type <Release|Debug>]
 #                      [--output <path>] [--jobs <N>]
 #
@@ -67,12 +67,12 @@ done
 # Validate required args
 [[ -z "$TARGET_OS" ]]    && echo "Error: --os required (linux|android|osx|ios|tvos)" && exit 1
 [[ -z "$TARGET_ARCH" ]]  && echo "Error: --arch required (x86_64|armv7|aarch64|arm64)" && exit 1
-[[ -z "$KODI_VERSION" ]] && echo "Error: --kodi required (21|22)" && exit 1
+[[ -z "$KODI_VERSION" ]] && echo "Error: --kodi required (21|22|23)" && exit 1
 [[ -z "$KODI_SRC" ]]     && echo "Error: --kodi-src required (path to Kodi source tree)" && exit 1
 
 [[ "$TARGET_OS" =~ ^(linux|android|osx|ios|tvos)$ ]] || { echo "Error: --os must be linux, android, osx, ios or tvos"; exit 1; }
 [[ "$TARGET_ARCH" =~ ^(x86_64|armv7|aarch64|arm64)$ ]] || { echo "Error: --arch must be x86_64, armv7, aarch64 or arm64"; exit 1; }
-[[ "$KODI_VERSION" =~ ^(21|22)$ ]] || { echo "Error: --kodi must be 21 or 22"; exit 1; }
+[[ "$KODI_VERSION" =~ ^(21|22|23)$ ]] || { echo "Error: --kodi must be 21, 22 or 23"; exit 1; }
 [[ "$TARGET_OS" == "android" && -z "$NDK_PATH" ]] && { echo "Error: --ndk required for Android builds"; exit 1; }
 
 # Resolve paths
@@ -185,8 +185,9 @@ TCEOF
         # dependency is jsoncpp does not need the tree, only the same answers.
         #
         # The minimums are those of the xbmc branch for the Kodi being built:
-        # Omega for 21, Piers for 22. They differ in one place. macOS x86_64 is
-        # 10.14 on Omega, and has been 10.15 on Piers since 22.0 beta 2.
+        # Omega for 21, Piers for 22, master for 23. They differ in one place.
+        # macOS x86_64 is 10.14 on Omega, and has been 10.15 on Piers since 22.0
+        # beta 2 and on master since it became Kodi 23.
         if [[ "$KODI_VERSION" == "21" ]]; then OSX_X86_64_MIN=10.14; else OSX_X86_64_MIN=10.15; fi
         case "${TARGET_OS}-${TARGET_ARCH}" in
             osx-x86_64)   APPLE_SDK=macosx;    APPLE_CPU=x86_64; APPLE_MIN="-mmacosx-version-min=$OSX_X86_64_MIN" ;;

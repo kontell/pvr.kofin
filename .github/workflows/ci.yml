@@ -16,7 +16,7 @@ name: CI
 
 on:
   push:
-    branches: [Piers]
+    branches: [master]
     # Documentation cannot break a build. Applied to pushes only: on a pull
     # request an all-ignored change reports no checks at all, which is a trap if
     # required checks are ever turned on.
@@ -45,8 +45,11 @@ env:
   # into the shipped addon.xml move with no commit here — and a zip can then stop
   # installing on a Kodi the user already has. drift.yml watches upstream tip
   # separately so this staying still is a decision, not neglect.
-  kodi_omega_ref: "21.3-Omega"
-  kodi_piers_ref: "22.0b1-Piers"
+  #
+  # Kodi 23 has no tag yet, so this is a commit on xbmc's master branch
+  # (2026-10-18, version.txt 23.0 ALPHA1). Move it to the first 23.0 tag once
+  # one exists.
+  kodi_master_ref: "fe8292d1019c801b2c8b8b709c34316f48cf50ab"
 
 jobs:
   compile:
@@ -74,7 +77,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: xbmc/xbmc
-          ref: ${{ env.kodi_piers_ref }}
+          ref: ${{ env.kodi_master_ref }}
           path: xbmc
           sparse-checkout: |
             version.txt
@@ -118,9 +121,9 @@ jobs:
 
   compile-tip:
     # Informational: it never blocks a merge. Everything else here builds against
-    # the pinned tag, so that what ships is reproducible. The official
+    # the pinned commit, so that what ships is reproducible. The official
     # repository's builder does not use that pin; it compiles against the head of
-    # an xbmc branch, and for Kodi 22 that branch is Piers. This job answers
+    # an xbmc branch, and for Kodi 23 that branch is master. This job answers
     # whether it would still succeed today. A failure means upstream moved, which
     # is a decision about the pin (drift.yml watches the same thing weekly), not a
     # defect in the pull request.
@@ -132,7 +135,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { tip: Piers, kodi: 22 }
+          - { tip: master, kodi: 23 }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -184,11 +187,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { channel: Piers, kodi: 22, toolset: msvc, cmake_extra: "" }
+          - { channel: master, kodi: 23, toolset: msvc, cmake_extra: "" }
           # The Windows Store build. Nothing serves a zip of it, so it is only
           # compiled; upstream add-ons carry the same check in their Azure
           # pipeline, with these two arguments.
-          - { channel: Piers, kodi: 22, toolset: "msvc uwp", cmake_extra: "-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0.22621.0" }
+          - { channel: master, kodi: 23, toolset: "msvc uwp", cmake_extra: "-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0.22621.0" }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -199,7 +202,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: xbmc/xbmc
-          ref: ${{ env.kodi_piers_ref }}
+          ref: ${{ env.kodi_master_ref }}
           path: xbmc
           sparse-checkout: |
             version.txt
@@ -258,11 +261,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: linux, arch: x86_64, channel: Piers, kodi: 22 }
-          - { os: linux, arch: armv7, channel: Piers, kodi: 22, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
-          - { os: linux, arch: aarch64, channel: Piers, kodi: 22, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
-          - { os: android, arch: armv7, channel: Piers, kodi: 22 }
-          - { os: android, arch: aarch64, channel: Piers, kodi: 22 }
+          - { os: linux, arch: x86_64, channel: master, kodi: 23 }
+          - { os: linux, arch: armv7, channel: master, kodi: 23, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
+          - { os: linux, arch: aarch64, channel: master, kodi: 23, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
+          - { os: android, arch: armv7, channel: master, kodi: 23 }
+          - { os: android, arch: aarch64, channel: master, kodi: 23 }
     steps:
       - name: Install toolchain
         # Ahead of checkout so actions/checkout finds git and clones, rather than
@@ -286,7 +289,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: xbmc/xbmc
-          ref: ${{ env.kodi_piers_ref }}
+          ref: ${{ env.kodi_master_ref }}
           path: xbmc
           sparse-checkout: |
             version.txt
@@ -366,9 +369,9 @@ jobs:
           # the Visual Studio generator calls the same thing; machine is that
           # architecture's PE header value. All three are built on the x64
           # runner, the last two as cross-builds.
-          - { channel: Piers, kodi: 22, arch: x86_64, msvc_arch: x64, machine: "8664" }
-          - { channel: Piers, kodi: 22, arch: i686, msvc_arch: Win32, machine: "014c" }
-          - { channel: Piers, kodi: 22, arch: arm64, msvc_arch: ARM64, machine: "aa64" }
+          - { channel: master, kodi: 23, arch: x86_64, msvc_arch: x64, machine: "8664" }
+          - { channel: master, kodi: 23, arch: i686, msvc_arch: Win32, machine: "014c" }
+          - { channel: master, kodi: 23, arch: arm64, msvc_arch: ARM64, machine: "aa64" }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -379,7 +382,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: xbmc/xbmc
-          ref: ${{ env.kodi_piers_ref }}
+          ref: ${{ env.kodi_master_ref }}
           path: xbmc
           sparse-checkout: |
             version.txt
@@ -472,10 +475,10 @@ jobs:
         include:
           # cpu and platform are what the built library must report: see the
           # assertion below.
-          - { os: osx, arch: x86_64, channel: Piers, kodi: 22, cpu: x86_64, platform: MACOS }
-          - { os: osx, arch: arm64, channel: Piers, kodi: 22, cpu: arm64, platform: MACOS }
-          - { os: ios, arch: aarch64, channel: Piers, kodi: 22, cpu: arm64, platform: IOS }
-          - { os: tvos, arch: aarch64, channel: Piers, kodi: 22, cpu: arm64, platform: TVOS }
+          - { os: osx, arch: x86_64, channel: master, kodi: 23, cpu: x86_64, platform: MACOS }
+          - { os: osx, arch: arm64, channel: master, kodi: 23, cpu: arm64, platform: MACOS }
+          - { os: ios, arch: aarch64, channel: master, kodi: 23, cpu: arm64, platform: IOS }
+          - { os: tvos, arch: aarch64, channel: master, kodi: 23, cpu: arm64, platform: TVOS }
     steps:
       - name: Checkout addon
         uses: actions/checkout@v5
@@ -486,7 +489,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           repository: xbmc/xbmc
-          ref: ${{ env.kodi_piers_ref }}
+          ref: ${{ env.kodi_master_ref }}
           path: xbmc
           sparse-checkout: |
             version.txt
