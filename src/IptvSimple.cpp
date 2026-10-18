@@ -461,11 +461,10 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       channelInputstream = m_currentChannel.GetProperty("inputstream");
     const int inputStream = m_settings->GetInputStream();
 
-    // Catchup: if direct play + ffmpegdirect + channel supports catchup,
-    // use catchup mode instead of plain timeshift.
-    // CatchupController is persistent — if GetEPGTagStreamProperties was called
-    // first, it stored the programme times and ProcessChannelForPlayback will
-    // use them (same pattern as pvr.iptvsimple).
+    // Catchup: a timeshifted EPG programme (play as live) on a direct-play
+    // ffmpegdirect channel plays in catchup mode. CatchupController is
+    // persistent — GetEPGTagStreamProperties stored the programme times and
+    // ProcessChannelForPlayback uses them (same pattern as pvr.iptvsimple).
     bool useFfmpegDirect = !channelInputstream.empty()
       ? channelInputstream == "inputstream.ffmpegdirect"
       : inputStream == 0;
@@ -480,7 +479,13 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       useAdaptive = false;
     }
 
-    if (isDirectPlay && useFfmpegDirect && m_currentChannel.IsCatchupSupported())
+    // Live tuning takes the timeshift buffer even on a catchup channel. Catchup
+    // as live reopens a bounded stream on every resume (a seek, or the pause a
+    // SyncPlay join imposes) with timestamps of its own, so it has no presentation
+    // clock that players tuned at different times can share, and the reopened
+    // stream runs out. The timeshift stream is one continuous stream, with the
+    // buffer for pause and skip.
+    if (isDirectPlay && useFfmpegDirect && pendingTimeshiftedCatchup)
     {
       // Update channel's stream URL to the actual tuner URL
       m_currentChannel.SetStreamURL(streamURL);
