@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "Додаток InputStream"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
 msgstr "Додаток InputStream, що використовується для відтворення. FFmpeg Direct підтримує зсув у часі з локальним буфером на пристрої. Adaptive підтримує зсув у часі з буфером на боці сервера. FFmpeg (вбудований у Kodi) не підтримує зсув у часі."
 
 msgctxt "#30663"
@@ -709,22 +709,6 @@ msgstr "%s містить шлях, який це доповнення не мо
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s не відповів — вказана ним адреса тут може не працювати"
-
-msgctxt "#30853"
-msgid "Catchup inputstream"
-msgstr "Inputstream для catchup"
-
-msgctxt "#30854"
-msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
-msgstr "Який inputstream-аддон відтворює catchup і програми EPG. Tempo — це FFmpeg Direct плюс регулювання швидкості SyncPlay."
-
-msgctxt "#30855"
-msgid "Tempo"
-msgstr "Tempo"
-
-msgctxt "#30856"
-msgid "Tempo settings..."
-msgstr "Параметри Tempo..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"

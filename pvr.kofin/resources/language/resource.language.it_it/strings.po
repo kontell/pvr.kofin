@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "Add-on InputStream"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
 msgstr "L'add-on InputStream da usare per la riproduzione. FFmpeg Direct supporta il timeshift con un buffer locale sul dispositivo. Adaptive supporta il timeshift con un buffer lato server. FFmpeg (interno di Kodi) non supporta il timeshift."
 
 msgctxt "#30663"
@@ -709,22 +709,6 @@ msgstr "%s include un percorso che questo add-on non può usare — inserisci l'
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s non ha risposto — l'indirizzo fornito potrebbe non funzionare qui"
-
-msgctxt "#30853"
-msgid "Catchup inputstream"
-msgstr "Inputstream catchup"
-
-msgctxt "#30854"
-msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
-msgstr "Quale add-on inputstream riproduce il catchup e i programmi EPG. Tempo è FFmpeg Direct più il controllo di velocità SyncPlay."
-
-msgctxt "#30855"
-msgid "Tempo"
-msgstr "Tempo"
-
-msgctxt "#30856"
-msgid "Tempo settings..."
-msgstr "Impostazioni Tempo..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
