@@ -1,6 +1,8 @@
 v23.18.1
 - Remove the Tempo inputstream option and dependency
-- Settings that chose Tempo play through FFmpeg Direct
+- Settings and playlists that chose Tempo play through FFmpeg Direct
+- Live TV tunes through the timeshift buffer on catchup channels too
+- SyncPlay fine sync waits for Kofin to use Kodi's own tempo
 
 v23.18.0
 - First build for Kodi 23, as a pre-release

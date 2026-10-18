@@ -26,6 +26,7 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <utility>
 #include <vector>
 
 using namespace iptvsimple;
@@ -38,6 +39,21 @@ namespace
 // Cap for m_epgUidToJellyfinProgramId — generous for legitimate use (hundreds
 // of channels × a full EPG window) while bounding the otherwise-permanent growth.
 constexpr size_t EPG_UID_MAP_MAX_ENTRIES = 250000;
+
+// inputstream.tempo was a fork of inputstream.ffmpegdirect that read the same
+// properties under its own namespace. It is no longer used, so a playlist entry
+// written for it plays through FFmpeg Direct as written.
+std::pair<std::string, std::string> TempoToFfmpegDirect(const std::string& key,
+                                                        const std::string& value)
+{
+  static const std::string tempo = "inputstream.tempo";
+  static const std::string ffmpegDirect = "inputstream.ffmpegdirect";
+  if ((key == PVR_STREAM_PROPERTY_INPUTSTREAM || key == "inputstream") && value == tempo)
+    return {key, ffmpegDirect};
+  if (key.compare(0, tempo.size() + 1, tempo + ".") == 0)
+    return {ffmpegDirect + key.substr(tempo.size()), value};
+  return {key, value};
+}
 
 // HLS will copy only these. A remux TranscodingProfile that lists anything
 // else either gets it stripped (no fallback restored) or, if the source
@@ -308,7 +324,10 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
 
         // KodiProps (inputstream.*, mimetype, http-*)
         for (const auto& kv : info->kodiProps)
-          channel.AddProperty(kv.first, kv.second);
+        {
+          const auto prop = TempoToFfmpegDirect(kv.first, kv.second);
+          channel.AddProperty(prop.first, prop.second);
+        }
 
         // KofinProps (kofin-*) — stored on the channel; consumed by ChannelOverrides::FromChannel
         for (const auto& kv : info->kofinProps)
