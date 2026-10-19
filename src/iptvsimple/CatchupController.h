@@ -43,19 +43,10 @@ public:
   // consumed once ProcessChannelForPlayback runs.
   bool IsPendingTimeshiftedEpgPlayback() const { return m_fromTimeshiftedEpgTagCall; }
 
-  void ResetCatchupState()
-  {
-    // Don't reset if we just processed a timeshifted EPG tag — the state
-    // needs to carry over to ProcessChannelForPlayback.
-    if (!m_fromTimeshiftedEpgTagCall)
-      m_resetCatchupState = true;
-  }
-
 private:
   void SetCatchupInputStreamProperties(bool playbackAsLive, const data::Channel& channel, std::map<std::string, std::string>& catchupProperties);
 
   void UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag);
-  void ClearProgramme();
 
   int GetTimezoneShift(const data::Channel& channel) const;
 
@@ -64,7 +55,6 @@ private:
   time_t m_catchupEndTime = 0;
   time_t m_timeshiftBufferStartTime = 0;
   long long m_timeshiftBufferOffset = 0;
-  bool m_resetCatchupState = true;
   bool m_playbackIsVideo = false;
   bool m_fromTimeshiftedEpgTagCall = false;
 

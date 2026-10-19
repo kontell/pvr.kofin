@@ -491,13 +491,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       m_currentChannel.SetStreamURL(streamURL);
       m_currentChannel.ConfigureCatchupMode();
 
-      if (!m_catchupController)
-        m_catchupController = std::make_unique<CatchupController>(m_settings);
-
-      // Reset catchup state for live channel switch. Has no effect if we just
-      // came from GetEPGTagStreamProperties (timeshifted EPG tag playback).
-      m_catchupController->ResetCatchupState();
-
+      // pendingTimeshiftedCatchup is the controller's own flag, so it exists.
       std::map<std::string, std::string> catchupProperties;
       m_catchupController->ProcessChannelForPlayback(m_currentChannel, catchupProperties);
 
@@ -746,7 +740,6 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   }
   else
   {
-    m_catchupController->ResetCatchupState();
     m_catchupController->ProcessEPGTagForVideoPlayback(tag, channel, catchupProperties);
   }
 
