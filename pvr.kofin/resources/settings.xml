@@ -365,10 +365,7 @@
           <default>true</default>
           <dependencies>
             <dependency type="visible">
-              <or>
-                <condition operator="is" setting="inputStream">0</condition>
-                <condition operator="is" setting="inputStream">3</condition>
-              </or>
+              <condition operator="is" setting="inputStream">0</condition>
             </dependency>
           </dependencies>
           <control type="toggle" />
