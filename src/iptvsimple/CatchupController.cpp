@@ -392,14 +392,13 @@ std::string CatchupController::ProcessStreamUrl(const Channel& channel) const
   return processedUrl;
 }
 
+std::string CatchupController::FormatLiveUrl(const std::string& url, const Channel& channel)
+{
+  return FormatDateTimeNowOnly(url, channel.GetCatchupCorrectionSecs());
+}
+
 void CatchupController::UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag)
 {
   m_programmeStartTime = epgTag.GetStartTime();
   m_programmeEndTime = epgTag.GetEndTime();
-}
-
-void CatchupController::ClearProgramme()
-{
-  m_programmeStartTime = 0;
-  m_programmeEndTime = 0;
 }
