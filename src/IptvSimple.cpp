@@ -20,7 +20,6 @@
 #include <ctime>
 #include <memory>
 
-#include <kodi/Filesystem.h>
 #include <kodi/General.h>
 #include <kodi/tools/StringUtils.h>
 
@@ -33,35 +32,12 @@ namespace
 {
 
 // Append the stream URL, MIME type, inputstream and manifest_type for a catchup
-// stream played via inputstream.tempo. MIME and manifest_type are derived
+// stream played via inputstream.ffmpegdirect. MIME and manifest_type are derived
 // from the resolved catchup URL (and the channel's catchup-TS flag) rather than
 // assuming HLS: TS catchup sources — Xtream-codes, Flussonic "mpegts", and
 // shift/append on a .ts base — must NOT be labelled HLS, or the ffmpeg open path
 // tries to parse raw MPEG-TS as an HLS playlist and fails. GetMimeType()/
 // GetManifestType() return "" for TS/unknown types, matching pvr.iptvsimple.
-//
-// The catchup inputstream is a setting (default ffmpegdirect, so an install
-// without inputstream.tempo keeps working): tempo is the ffmpegdirect fork
-// that keeps the whole catchup engine (same properties under its own
-// namespace) and adds the rate control a kofin-hosted SyncPlay group pulses
-// for fine sync (plugin.video.kofin docs/syncplay-pvr-plan.md, P3).
-// The tempo file this add-on's streams poll: the fine-sync actuator a kofin
-// SyncPlay engine writes to (the provider contract's tempo route — the
-// reporter claims the same path). inputstream.tempo arms its pipeline, and
-// writes the state line the engine reads its clock from, only for a stream
-// that names a file; the path is stamped translated because the add-on takes
-// it as a plain path.
-void AppendTempoProperties(std::vector<kodi::addon::PVRStreamProperty>& properties,
-                           const std::string& inputstreamAddon)
-{
-  if (inputstreamAddon != "inputstream.tempo")
-    return;
-
-  properties.emplace_back("inputstream.tempo.tempo", "1.0");
-  properties.emplace_back("inputstream.tempo.tempo_file",
-                          kodi::vfs::TranslateSpecialProtocol("special://temp/inputstream_tempo.pvr.kofin"));
-}
-
 void AppendCatchupInputstreamProperties(std::vector<kodi::addon::PVRStreamProperty>& properties,
                                         const std::string& streamURL, bool isCatchupTSStream,
                                         const std::string& inputstreamAddon)
@@ -76,7 +52,6 @@ void AppendCatchupInputstreamProperties(std::vector<kodi::addon::PVRStreamProper
   properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, inputstreamAddon);
   if (!manifestType.empty())
     properties.emplace_back(inputstreamAddon + ".manifest_type", manifestType);
-  AppendTempoProperties(properties, inputstreamAddon);
 }
 
 } // unnamed namespace
@@ -447,7 +422,6 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
         case 0: overrides.inputstream = "inputstream.ffmpegdirect"; break;
         case 1: overrides.inputstream = "inputstream.adaptive"; break;
         case 2: overrides.inputstream = "inputstream.ffmpeg"; break;
-        case 3: overrides.inputstream = "inputstream.tempo"; break;
       }
     }
     std::string streamURL;
@@ -465,6 +439,18 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
 
     // Check if this is a direct play URL (tuner URL, not a Jellyfin transcode URL)
     const bool isDirectPlay = streamURL.find(m_settings->GetJellyfinBaseUrl()) != 0;
+
+    // A provider URL plays as the playlist line wrote it, so give it here what
+    // the catchup path gets from the controller: the line's {lutc}, ${now} and
+    // ${timestamp} expanded against the clock, and its #EXTVLCOPT
+    // http-user-agent / http-referrer folded into the URL as protocol options.
+    // FFmpeg Direct reads headers from the URL, not from stream properties, and
+    // its timeshift mode expands nothing.
+    if (isDirectPlay && !pendingTimeshiftedCatchup)
+    {
+      m_currentChannel.SetStreamURL(streamURL);
+      streamURL = CatchupController::FormatLiveUrl(m_currentChannel.GetStreamURL(), m_currentChannel);
+    }
 
     // Detect stream type: transcoded URLs are always Jellyfin HLS; direct play
     // URLs come straight from the tuner and could be HLS, DASH, TS, etc.
@@ -487,18 +473,13 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       channelInputstream = m_currentChannel.GetProperty("inputstream");
     const int inputStream = m_settings->GetInputStream();
 
-    // Catchup: if direct play + ffmpegdirect + channel supports catchup,
-    // use catchup mode instead of plain timeshift.
-    // CatchupController is persistent — if GetEPGTagStreamProperties was called
-    // first, it stored the programme times and ProcessChannelForPlayback will
-    // use them (same pattern as pvr.iptvsimple).
-    // The FFmpeg Direct family: ffmpegdirect, or tempo (its fork with the
-    // same timeshift/catchup engine plus SyncPlay's rate control).
+    // Catchup: a timeshifted EPG programme (play as live) on a direct-play
+    // ffmpegdirect channel plays in catchup mode. CatchupController is
+    // persistent — GetEPGTagStreamProperties stored the programme times and
+    // ProcessChannelForPlayback uses them (same pattern as pvr.iptvsimple).
     bool useFfmpegDirect = !channelInputstream.empty()
-      ? (channelInputstream == "inputstream.ffmpegdirect" || channelInputstream == "inputstream.tempo")
-      : m_settings->IsFfmpegDirectFamily(inputStream);
-    const std::string liveInputstream = !channelInputstream.empty()
-      ? channelInputstream : m_settings->GetLiveInputstream();
+      ? channelInputstream == "inputstream.ffmpegdirect"
+      : inputStream == 0;
     bool useAdaptive = !channelInputstream.empty()
       ? channelInputstream == "inputstream.adaptive"
       : inputStream == 1;
@@ -510,28 +491,19 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       useAdaptive = false;
     }
 
-    // Through Tempo a live channel takes the timeshift buffer, not catchup as
-    // live: the catchup class reopens a bounded catchup stream on every resume
-    // (a seek, or the pause a SyncPlay join imposes), whose timestamps are its
-    // own — so the source clock the group converges on breaks at the first
-    // pause, and the reopened stream then runs out. The timeshift class keeps
-    // one continuous stream and the buffer for pause and skip. EPG programmes
-    // keep the catchup pipeline (GetEPGTagStreamProperties).
-    const bool catchupAsLive = m_currentChannel.IsCatchupSupported() &&
-                               liveInputstream != "inputstream.tempo";
-    if (isDirectPlay && useFfmpegDirect && catchupAsLive)
+    // Live tuning takes the timeshift buffer even on a catchup channel. Catchup
+    // as live reopens a bounded stream on every resume (a seek, or the pause a
+    // SyncPlay join imposes) with timestamps of its own, so it has no presentation
+    // clock that players tuned at different times can share, and the reopened
+    // stream runs out. The timeshift stream is one continuous stream, with the
+    // buffer for pause and skip.
+    if (isDirectPlay && useFfmpegDirect && pendingTimeshiftedCatchup)
     {
       // Update channel's stream URL to the actual tuner URL
       m_currentChannel.SetStreamURL(streamURL);
       m_currentChannel.ConfigureCatchupMode();
 
-      if (!m_catchupController)
-        m_catchupController = std::make_unique<CatchupController>(m_settings);
-
-      // Reset catchup state for live channel switch. Has no effect if we just
-      // came from GetEPGTagStreamProperties (timeshifted EPG tag playback).
-      m_catchupController->ResetCatchupState();
-
+      // pendingTimeshiftedCatchup is the controller's own flag, so it exists.
       std::map<std::string, std::string> catchupProperties;
       m_catchupController->ProcessChannelForPlayback(m_currentChannel, catchupProperties);
 
@@ -560,13 +532,12 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     }
     else if (useFfmpegDirect)
     {
-      properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, liveInputstream);
+      properties.emplace_back(PVR_STREAM_PROPERTY_INPUTSTREAM, "inputstream.ffmpegdirect");
       if (!manifestType.empty())
-        properties.emplace_back(liveInputstream + ".manifest_type", manifestType);
-      properties.emplace_back(liveInputstream + ".is_realtime_stream", "true");
+        properties.emplace_back("inputstream.ffmpegdirect.manifest_type", manifestType);
+      properties.emplace_back("inputstream.ffmpegdirect.is_realtime_stream", "true");
       if (m_settings->GetTimeshiftEnabled())
-        properties.emplace_back(liveInputstream + ".stream_mode", "timeshift");
-      AppendTempoProperties(properties, liveInputstream);
+        properties.emplace_back("inputstream.ffmpegdirect.stream_mode", "timeshift");
     }
     else if (useAdaptive)
     {
@@ -781,7 +752,6 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   }
   else
   {
-    m_catchupController->ResetCatchupState();
     m_catchupController->ProcessEPGTagForVideoPlayback(tag, channel, catchupProperties);
   }
 

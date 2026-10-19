@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "InputStream-kiegészítő"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
 msgstr "A lejátszáshoz használt InputStream-kiegészítő. Az FFmpeg Direct támogatja az időeltolást helyi pufferrel az eszközön. Az Adaptive támogatja az időeltolást kiszolgálóoldali pufferrel. Az FFmpeg (Kodi belső) nem támogatja az időeltolást."
 
 msgctxt "#30663"
@@ -709,22 +709,6 @@ msgstr "A(z) %s elérési utat tartalmaz, amelyet ez a kiegészítő nem tud has
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s nem válaszolt — a megadott cím itt nem feltétlenül működik"
-
-msgctxt "#30853"
-msgid "Catchup inputstream"
-msgstr "Catchup-inputstream"
-
-msgctxt "#30854"
-msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
-msgstr "Melyik inputstream-kiegészítő játssza a catchupot és az EPG-műsorokat. A Tempo az FFmpeg Direct plusz a SyncPlay sebességszabályozása."
-
-msgctxt "#30855"
-msgid "Tempo"
-msgstr "Tempo"
-
-msgctxt "#30856"
-msgid "Tempo settings..."
-msgstr "Tempo beállítások..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"

@@ -236,50 +236,21 @@ std::string BuildEpgTagUrl(time_t startTime, time_t duration, const Channel& cha
 
 void CatchupController::ProcessChannelForPlayback(const Channel& channel, std::map<std::string, std::string>& catchupProperties)
 {
-  // Matching pvr.iptvsimple's flow:
-  // - From a normal channel switch: reset state, set up fresh catchup window
-  // - From a timeshifted EPG tag: preserve the programme times and offset
-
+  // The consumer of a timeshifted EPG-tag call. GetEPGTagStreamProperties
+  // stored the programme and a buffer reaching back to it, and answered
+  // EPGPLAYBACKASLIVE; Kodi then opens the channel and lands here. A channel
+  // switch never enters — live tuning takes the timeshift buffer in
+  // GetChannelStreamProperties — so there is no fresh catchup window to open
+  // and no channel-switch state to reset. pvr.iptvsimple's catchup-as-live
+  // half of this function went with that mode.
   m_playbackIsVideo = false;
   m_controlsLiveStream = channel.IsCatchupSupported() && channel.CatchupSupportsTimeshifting();
-
-  if (!m_fromTimeshiftedEpgTagCall)
-  {
-    // Normal channel switch — clear programme state
-    ClearProgramme();
-    m_programmeCatchupId.clear();
-    m_catchupStartTime = 0;
-    m_catchupEndTime = 0;
-  }
+  m_fromTimeshiftedEpgTagCall = false;
 
   if (m_controlsLiveStream)
   {
-    if (m_resetCatchupState)
-    {
-      m_resetCatchupState = false;
-      m_programmeCatchupId.clear();
-      if (channel.IsCatchupSupported())
-      {
-        m_timeshiftBufferOffset = channel.GetCatchupDaysInSeconds();
-        m_timeshiftBufferStartTime = std::time(nullptr) - channel.GetCatchupDaysInSeconds();
-      }
-      else
-      {
-        m_timeshiftBufferOffset = 0;
-        m_timeshiftBufferStartTime = 0;
-      }
-    }
-
-    // We no longer need to know if this originated from an EPG tag
-    m_fromTimeshiftedEpgTagCall = false;
-
     m_catchupStartTime = m_timeshiftBufferStartTime;
-
     SetCatchupInputStreamProperties(true, channel, catchupProperties);
-  }
-  else
-  {
-    m_fromTimeshiftedEpgTagCall = false;
   }
 }
 
@@ -302,7 +273,6 @@ void CatchupController::ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::P
     m_catchupEndTime = timeNow;
     m_timeshiftBufferOffset = timeshiftBufferDuration - programmeOffset;
 
-    m_resetCatchupState = false;
     SetCatchupInputStreamProperties(true, channel, catchupProperties);
   }
   else
@@ -338,7 +308,6 @@ void CatchupController::ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGT
     m_catchupEndTime += endBuffer;
     m_timeshiftBufferOffset = beginBuffer;
 
-    m_resetCatchupState = false;
     SetCatchupInputStreamProperties(false, channel, catchupProperties);
   }
   else
@@ -423,14 +392,13 @@ std::string CatchupController::ProcessStreamUrl(const Channel& channel) const
   return processedUrl;
 }
 
+std::string CatchupController::FormatLiveUrl(const std::string& url, const Channel& channel)
+{
+  return FormatDateTimeNowOnly(url, channel.GetCatchupCorrectionSecs());
+}
+
 void CatchupController::UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag)
 {
   m_programmeStartTime = epgTag.GetStartTime();
   m_programmeEndTime = epgTag.GetEndTime();
-}
-
-void CatchupController::ClearProgramme()
-{
-  m_programmeStartTime = 0;
-  m_programmeEndTime = 0;
 }

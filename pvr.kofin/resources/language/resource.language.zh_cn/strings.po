@@ -160,7 +160,7 @@ msgid "InputStream addon"
 msgstr "InputStream 插件"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift. Tempo is FFmpeg Direct plus SyncPlay rate control."
+msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
 msgstr "用于播放的 InputStream 插件。FFmpeg Direct 通过设备上的本地缓冲支持时移。Adaptive 通过服务器端缓冲支持时移。FFmpeg（Kodi 内置）不支持时移。"
 
 msgctxt "#30663"
@@ -709,22 +709,6 @@ msgstr "%s 包含此插件无法使用的路径 — 请手动输入地址"
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s 无响应 — 它提供的地址在此可能无法使用"
-
-msgctxt "#30853"
-msgid "Catchup inputstream"
-msgstr "回看 inputstream"
-
-msgctxt "#30854"
-msgid "Which inputstream add-on plays catchup and EPG programmes. Tempo is FFmpeg Direct plus SyncPlay rate control."
-msgstr "用于播放回看和电子节目指南节目的 inputstream 插件。Tempo 是带 SyncPlay 速率控制的 FFmpeg Direct。"
-
-msgctxt "#30855"
-msgid "Tempo"
-msgstr "Tempo"
-
-msgctxt "#30856"
-msgid "Tempo settings..."
-msgstr "Tempo 设置..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"

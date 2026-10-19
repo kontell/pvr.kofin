@@ -1,3 +1,9 @@
+v22.19.0
+- Remove the Tempo inputstream option and dependency
+- Settings and playlists that chose Tempo play through FFmpeg Direct
+- Live TV tunes through the timeshift buffer on catchup channels too
+- Drop the SyncPlay provider; Kofin groups no longer follow this add-on's playback
+
 v22.18.0
 - Fix Quick Connect login on Jellyfin 12
 - Settings buttons no longer depend on install path

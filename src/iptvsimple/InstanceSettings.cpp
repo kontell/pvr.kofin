@@ -78,7 +78,15 @@ void InstanceSettings::ReadSettings()
 
   // Input stream
   m_inputStream = kodi::addon::GetSettingInt("inputStream", 0);
-  m_catchupInputstream = kodi::addon::GetSettingInt("catchupInputstream", 0);
+  // 3 was inputstream.tempo, which is no longer offered: play through FFmpeg Direct,
+  // the engine it was a fork of. Written back once, so the stored value, the
+  // spinner and the settings that depend on it agree. Kodi 22 refuses the value
+  // at load and rewrites the file itself; this covers a Kodi that does not.
+  if (m_inputStream == 3)
+  {
+    m_inputStream = 0;
+    kodi::addon::SetSettingInt("inputStream", 0);
+  }
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
   m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 0);
 
