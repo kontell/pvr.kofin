@@ -1,3 +1,6 @@
+v23.18.2
+- Codec and HDR pickers no longer log "Unknown setting type" errors
+
 v23.18.1
 - Remove the Tempo inputstream option and dependency
 - Settings and playlists that chose Tempo play through FFmpeg Direct
