@@ -200,69 +200,37 @@
           <default>false</default>
           <control type="toggle" />
         </setting>
-        <setting id="directPlayVideoCodecs" type="list[string]" label="30781" help="30782">
+        <setting id="directPlayVideoCodecs" type="string" label="30781" help="30782">
           <level>0</level>
           <default>h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1</default>
           <constraints>
-            <options>
-              <option label="30626">h264</option>
-              <option label="30802">h264_10bit</option>
-              <option label="30627">hevc</option>
-              <option label="30803">hevc_rext</option>
-              <option label="30628">av1</option>
-              <option label="30796">mpeg2video</option>
-              <option label="30797">vp9</option>
-              <option label="30798">vc1</option>
-            </options>
-            <delimiter>,</delimiter>
+            <allowempty>true</allowempty>
           </constraints>
-          <control type="list" format="string">
-            <multiselect>true</multiselect>
+          <control type="button" format="action">
             <hidevalue>true</hidevalue>
+            <data>RunScript(pvr.kofin,pick,directPlayVideoCodecs)</data>
           </control>
         </setting>
-        <setting id="directPlayAudioCodecs" type="list[string]" label="30783" help="30784">
+        <setting id="directPlayAudioCodecs" type="string" label="30783" help="30784">
           <level>0</level>
           <default>aac,mp2,mp3,ac3,eac3,opus,flac,dts</default>
           <constraints>
-            <options>
-              <option label="30631">aac</option>
-              <option label="30799">mp2</option>
-              <option label="30633">mp3</option>
-              <option label="30632">ac3</option>
-              <option label="30800">eac3</option>
-              <option label="30715">opus</option>
-              <option label="30801">flac</option>
-              <option label="30805">dts</option>
-            </options>
-            <delimiter>,</delimiter>
+            <allowempty>true</allowempty>
           </constraints>
-          <control type="list" format="string">
-            <multiselect>true</multiselect>
+          <control type="button" format="action">
             <hidevalue>true</hidevalue>
+            <data>RunScript(pvr.kofin,pick,directPlayAudioCodecs)</data>
           </control>
         </setting>
-        <setting id="allowedHdrTypes" type="list[string]" label="30810" help="30811">
+        <setting id="allowedHdrTypes" type="string" label="30810" help="30811">
           <level>0</level>
           <default>HDR10,HLG,HDR10Plus,DOVI,DOVIWithHDR10,DOVIWithHLG,DOVIWithSDR,DOVIWithEL,DOVIWithHDR10Plus,DOVIWithELHDR10Plus</default>
           <constraints>
-            <options>
-              <option label="30812">HDR10</option>
-              <option label="30813">HLG</option>
-              <option label="30814">HDR10Plus</option>
-              <option label="30815">DOVI</option>
-              <option label="30816">DOVIWithHDR10</option>
-              <option label="30817">DOVIWithHLG</option>
-              <option label="30818">DOVIWithSDR</option>
-              <option label="30819">DOVIWithEL</option>
-              <option label="30820">DOVIWithHDR10Plus</option>
-              <option label="30821">DOVIWithELHDR10Plus</option>
-            </options>
-            <delimiter>,</delimiter>
+            <allowempty>true</allowempty>
           </constraints>
-          <control type="list" format="string">
-            <multiselect>true</multiselect>
+          <control type="button" format="action">
             <hidevalue>true</hidevalue>
+            <data>RunScript(pvr.kofin,pick,allowedHdrTypes)</data>
           </control>
         </setting>
         <setting id="preferredVideoCodec" type="integer" label="30624" help="30625">
