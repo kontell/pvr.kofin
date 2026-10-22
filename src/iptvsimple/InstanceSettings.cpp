@@ -67,9 +67,9 @@ void InstanceSettings::ReadSettings()
   // Transcoding
   m_forceTranscode = kodi::addon::GetSettingBoolean("forceTranscode", false);
   m_forceTranscoding = kodi::addon::GetSettingBoolean("forceTranscoding", false);
-  // directPlayVideoCodecs / directPlayAudioCodecs / allowedHdrTypes are list[string]
-  // settings — GetSettingString can't read them. They arrive via SetSetting
-  // (TransferSettings default case) and are captured in OnSettingChanged.
+  m_directPlayVideoCodecs = kodi::addon::GetSettingString("directPlayVideoCodecs", m_directPlayVideoCodecs);
+  m_directPlayAudioCodecs = kodi::addon::GetSettingString("directPlayAudioCodecs", m_directPlayAudioCodecs);
+  m_allowedHdrTypes = kodi::addon::GetSettingString("allowedHdrTypes", m_allowedHdrTypes);
   m_preferredVideoCodec = kodi::addon::GetSettingInt("preferredVideoCodec", 0);
   m_preferredAudioCodec = kodi::addon::GetSettingInt("preferredAudioCodec", 0);
   m_maxAudioChannels = kodi::addon::GetSettingInt("maxAudioChannels", 8);

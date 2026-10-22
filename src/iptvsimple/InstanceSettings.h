@@ -102,10 +102,7 @@ namespace iptvsimple
     bool GetForceTranscoding() const { return m_forceTranscoding; }
     const std::string& GetDirectPlayVideoCodecs() const { return m_directPlayVideoCodecs; }
     const std::string& GetDirectPlayAudioCodecs() const { return m_directPlayAudioCodecs; }
-    void SetDirectPlayVideoCodecs(const std::string& v) { m_directPlayVideoCodecs = v; }
-    void SetDirectPlayAudioCodecs(const std::string& v) { m_directPlayAudioCodecs = v; }
     const std::string& GetAllowedHdrTypes() const { return m_allowedHdrTypes; }
-    void SetAllowedHdrTypes(const std::string& v) { m_allowedHdrTypes = v; }
     int GetPreferredVideoCodec() const { return m_preferredVideoCodec; }
     int GetPreferredAudioCodec() const { return m_preferredAudioCodec; }
     int GetMaxAudioChannels() const { return m_maxAudioChannels; }

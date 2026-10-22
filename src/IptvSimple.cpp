@@ -1121,20 +1121,6 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     return;
   }
 
-  // list[string] settings can't be read by GetSettingString — capture them
-  // here where TransferSettings delivers the value as a plain string.
-  if (settingName == "directPlayVideoCodecs" || settingName == "directPlayAudioCodecs" ||
-      settingName == "allowedHdrTypes")
-  {
-    if (settingName == "directPlayVideoCodecs")
-      m_settings->SetDirectPlayVideoCodecs(settingValue.GetString());
-    else if (settingName == "directPlayAudioCodecs")
-      m_settings->SetDirectPlayAudioCodecs(settingValue.GetString());
-    else
-      m_settings->SetAllowedHdrTypes(settingValue.GetString());
-    return;
-  }
-
   // For regular settings, re-read all settings and flag for reload
   m_settings->ReadSettings();
 
