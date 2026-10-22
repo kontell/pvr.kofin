@@ -64,7 +64,6 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
   m_auth = std::make_shared<iptvsimple::jellyfin::JellyfinAuth>(m_settings);
 
   // Register PVR settings menu hook so "Client specific settings" works
-  AddMenuHook(kodi::addon::PVRMenuhook(1, 30724, PVR_MENUHOOK_SETTING));
 }
 
 IptvSimple::~IptvSimple()
@@ -1025,12 +1024,6 @@ PVR_ERROR IptvSimple::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStat
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR IptvSimple::CallSettingsMenuHook(const kodi::addon::PVRMenuhook& menuhook)
-{
-  kodi::addon::OpenSettings();
-  return PVR_ERROR_NO_ERROR;
-}
-
 /***************************************************************************
  * Stream State
  **************************************************************************/
@@ -1088,20 +1081,6 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
       settingName == "sessionPlaySessionId" || settingName == "sessionLiveStreamId" ||
       settingName == "sessionPlayMethod")
   {
-    return;
-  }
-
-  // list[string] settings can't be read by GetSettingString — capture them
-  // here where TransferSettings delivers the value as a plain string.
-  if (settingName == "directPlayVideoCodecs" || settingName == "directPlayAudioCodecs" ||
-      settingName == "allowedHdrTypes")
-  {
-    if (settingName == "directPlayVideoCodecs")
-      m_settings->SetDirectPlayVideoCodecs(settingValue.GetString());
-    else if (settingName == "directPlayAudioCodecs")
-      m_settings->SetDirectPlayAudioCodecs(settingValue.GetString());
-    else
-      m_settings->SetAllowedHdrTypes(settingValue.GetString());
     return;
   }
 

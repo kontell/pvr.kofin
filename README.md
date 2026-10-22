@@ -32,7 +32,6 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - Enter server details and logon
 - Reenter settings and restart add-on
 - Kodi PVR settings can be found in: Settings -> PVR & Live TV
-- Once connected, Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
 
 ## Catchup
 If supported by your IPTV provider catchup works by using inputstream.ffmpegdirect to play directly from the provider (transcoding settings are irrelevant for catchup playback). The matching reference-playlist entry must include a streaming URL; catchup tags alone are not enough. Refer to IPTV Simple Client for detailed catchup documentation.
