@@ -34,6 +34,13 @@ public:
   std::string GetCatchupUrl(const data::Channel& channel) const;
   std::string ProcessStreamUrl(const data::Channel& channel) const;
 
+  // A live URL as the inputstream opens it: the playlist line's {lutc}, ${now}
+  // and ${timestamp}, and their {lutc:...}/{now:...} unit forms, expanded
+  // against the clock with the channel's catchup correction applied. Live
+  // tuning in GetChannelStreamProperties uses this; catchup-as-live used to
+  // reach the same expansion through ProcessStreamUrl.
+  static std::string FormatLiveUrl(const std::string& url, const data::Channel& channel);
+
   bool ControlsLiveStream() const { return m_controlsLiveStream; }
 
   // True between a timeshifted (play-EPG-as-live) EPG-tag call and the channel
@@ -43,19 +50,10 @@ public:
   // consumed once ProcessChannelForPlayback runs.
   bool IsPendingTimeshiftedEpgPlayback() const { return m_fromTimeshiftedEpgTagCall; }
 
-  void ResetCatchupState()
-  {
-    // Don't reset if we just processed a timeshifted EPG tag — the state
-    // needs to carry over to ProcessChannelForPlayback.
-    if (!m_fromTimeshiftedEpgTagCall)
-      m_resetCatchupState = true;
-  }
-
 private:
   void SetCatchupInputStreamProperties(bool playbackAsLive, const data::Channel& channel, std::map<std::string, std::string>& catchupProperties);
 
   void UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag);
-  void ClearProgramme();
 
   int GetTimezoneShift(const data::Channel& channel) const;
 
@@ -64,7 +62,6 @@ private:
   time_t m_catchupEndTime = 0;
   time_t m_timeshiftBufferStartTime = 0;
   long long m_timeshiftBufferOffset = 0;
-  bool m_resetCatchupState = true;
   bool m_playbackIsVideo = false;
   bool m_fromTimeshiftedEpgTagCall = false;
 

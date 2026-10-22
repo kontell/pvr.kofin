@@ -440,6 +440,18 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // Check if this is a direct play URL (tuner URL, not a Jellyfin transcode URL)
     const bool isDirectPlay = streamURL.find(m_settings->GetJellyfinBaseUrl()) != 0;
 
+    // A provider URL plays as the playlist line wrote it, so give it here what
+    // the catchup path gets from the controller: the line's {lutc}, ${now} and
+    // ${timestamp} expanded against the clock, and its #EXTVLCOPT
+    // http-user-agent / http-referrer folded into the URL as protocol options.
+    // FFmpeg Direct reads headers from the URL, not from stream properties, and
+    // its timeshift mode expands nothing.
+    if (isDirectPlay && !pendingTimeshiftedCatchup)
+    {
+      m_currentChannel.SetStreamURL(streamURL);
+      streamURL = CatchupController::FormatLiveUrl(m_currentChannel.GetStreamURL(), m_currentChannel);
+    }
+
     // Detect stream type: transcoded URLs are always Jellyfin HLS; direct play
     // URLs come straight from the tuner and could be HLS, DASH, TS, etc.
     const StreamType streamType = isDirectPlay
@@ -491,13 +503,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       m_currentChannel.SetStreamURL(streamURL);
       m_currentChannel.ConfigureCatchupMode();
 
-      if (!m_catchupController)
-        m_catchupController = std::make_unique<CatchupController>(m_settings);
-
-      // Reset catchup state for live channel switch. Has no effect if we just
-      // came from GetEPGTagStreamProperties (timeshifted EPG tag playback).
-      m_catchupController->ResetCatchupState();
-
+      // pendingTimeshiftedCatchup is the controller's own flag, so it exists.
       std::map<std::string, std::string> catchupProperties;
       m_catchupController->ProcessChannelForPlayback(m_currentChannel, catchupProperties);
 
@@ -746,7 +752,6 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   }
   else
   {
-    m_catchupController->ResetCatchupState();
     m_catchupController->ProcessEPGTagForVideoPlayback(tag, channel, catchupProperties);
   }
 
