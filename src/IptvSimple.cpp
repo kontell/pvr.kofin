@@ -64,7 +64,6 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
   m_auth = std::make_shared<iptvsimple::jellyfin::JellyfinAuth>(m_settings);
 
   // Register PVR settings menu hook so "Client specific settings" works
-  AddMenuHook(kodi::addon::PVRMenuhook(1, 30724, PVR_MENUHOOK_SETTING));
 }
 
 IptvSimple::~IptvSimple()
@@ -1022,12 +1021,6 @@ PVR_ERROR IptvSimple::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStat
   signalStatus.SetAdapterName("Kofin Jellyfin PVR");
   signalStatus.SetAdapterStatus("OK");
 
-  return PVR_ERROR_NO_ERROR;
-}
-
-PVR_ERROR IptvSimple::CallSettingsMenuHook(const kodi::addon::PVRMenuhook& menuhook)
-{
-  kodi::addon::OpenSettings();
   return PVR_ERROR_NO_ERROR;
 }
 
