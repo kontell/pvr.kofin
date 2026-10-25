@@ -9,6 +9,7 @@ v22.19.0
 - Fix a race between reconnecting and requests already in flight
 - Channel changes on the server reach Kodi after a reload or reconnect
 - Retry connecting when the server answers before it can log in
+- Declare the Python dependency of the add-on's scripts
 
 v22.18.0
 - Fix Quick Connect login on Jellyfin 12
