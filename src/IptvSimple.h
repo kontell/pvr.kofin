@@ -120,6 +120,7 @@ protected:
 
 private:
   static const int PROCESS_LOOP_WAIT_SECS = 2;
+  static constexpr int TIMER_ANSWER_WAIT_SECS = 3;
 
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
 
@@ -143,9 +144,18 @@ private:
   bool m_authFailureShown = false;
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
-  // Runs a timer add/delete (network chain + model reload) on a worker thread
-  // so Kodi's main thread isn't blocked, then lets the op trigger UI updates
-  // once the reload has completed. Workers capture `this`, so they are tracked
+  // Runs a timer add/delete on a worker thread: the request to the server, then
+  // on success afterSuccess (the model reload and the UI triggers). Kodi calls
+  // these on its GUI thread and shows its own error for a failure it is told
+  // about, so the caller waits for the server's answer and returns it, but for
+  // TIMER_ANSWER_WAIT_SECS at most: stopping a recording can take the server
+  // several seconds. An answer later than that was reported to Kodi as done,
+  // and a failure among them becomes the failureToast string.
+  PVR_ERROR RunTimerOp(std::function<PVR_ERROR()> request,
+                       std::function<void()> afterSuccess,
+                       int failureToast);
+
+  // Runs op on a worker thread. Workers capture `this`, so they are tracked
   // (not detached) and joined in the destructor before members are torn down;
   // finished workers are reaped opportunistically on the next call.
   void RunTimerOpAsync(std::function<void()> op);

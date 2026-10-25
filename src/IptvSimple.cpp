@@ -17,6 +17,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <condition_variable>
 #include <ctime>
 #include <memory>
 
@@ -60,10 +61,20 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
 {
   m_channels.Clear();
   m_channelGroups.Clear();
+  // Until the first load, answer Kodi with an error rather than an empty list.
+  // Kodi deletes the stored channels of a client whose load succeeds without
+  // them, numbers, groups and hidden flags included, and keeps them for a
+  // client whose load failed (CPVRChannelGroup::RemoveDeletedGroupMembers).
+  // Kodi reads the model as soon as it is told the connection is up, which
+  // happens even when the first connect could not log in. Logged out, the
+  // empty list is the truth and stands.
+  if (m_settings->GetIsLoggedIn())
+  {
+    m_channels.ChannelsLoadFailed();
+    m_channelGroups.ChannelGroupsLoadFailed();
+  }
   connectionManager = new ConnectionManager(*this, m_settings);
   m_auth = std::make_shared<iptvsimple::jellyfin::JellyfinAuth>(m_settings);
-
-  // Register PVR settings menu hook so "Client specific settings" works
 }
 
 IptvSimple::~IptvSimple()
@@ -867,53 +878,94 @@ void IptvSimple::RunTimerOpAsync(std::function<void()> op)
   m_timerOps.push_back({std::move(worker), done});
 }
 
+PVR_ERROR IptvSimple::RunTimerOp(std::function<PVR_ERROR()> request,
+                                 std::function<void()> afterSuccess,
+                                 int failureToast)
+{
+  struct Answer
+  {
+    std::mutex mutex;
+    std::condition_variable ready;
+    bool answered = false;
+    bool abandoned = false;
+    PVR_ERROR error = PVR_ERROR_NO_ERROR;
+  };
+  auto answer = std::make_shared<Answer>();
+
+  RunTimerOpAsync([request = std::move(request), afterSuccess = std::move(afterSuccess),
+                   failureToast, answer]() {
+    const PVR_ERROR error = request();
+    bool abandoned;
+    {
+      std::lock_guard<std::mutex> lock(answer->mutex);
+      answer->answered = true;
+      answer->error = error;
+      abandoned = answer->abandoned;
+    }
+    answer->ready.notify_one();
+
+    if (error != PVR_ERROR_NO_ERROR)
+    {
+      // Kodi shows its own error for a failure it was told about. One that
+      // came too late was reported to Kodi as done, so say so here.
+      if (abandoned)
+        Toast::Error(failureToast);
+      return;
+    }
+    afterSuccess();
+  });
+
+  std::unique_lock<std::mutex> lock(answer->mutex);
+  if (answer->ready.wait_for(lock, std::chrono::seconds(TIMER_ANSWER_WAIT_SECS),
+                             [&answer] { return answer->answered; }))
+    return answer->error;
+  answer->abandoned = true;
+  return PVR_ERROR_NO_ERROR;
+}
+
 PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
 {
   if (!m_recordingManager)
     return PVR_ERROR_NOT_IMPLEMENTED;
 
-  // Run the create (program lookup + POST + model reload) off Kodi's main
-  // thread: synchronously it blocks the UI for several seconds. PVRTimer is a
-  // POD-backed value type, so capturing it by value is a safe deep copy. The
-  // triggers fire only after Reload() completes, so Kodi re-reads fresh data
-  // (the in-progress recording, EPG "play recording" entry, widgets).
-  RunTimerOpAsync([this, timer]() {
-    if (m_recordingManager->AddTimer(timer) != PVR_ERROR_NO_ERROR)
-    {
-      Toast::Error(30834);
-      return;
-    }
-
-    TriggerTimerUpdate();
-    TriggerRecordingUpdate();
-    TriggerEpgUpdate(timer.GetClientChannelUid());
-
-    // Jellyfin creates the timer synchronously but materializes the in-progress
-    // recording a few seconds later, so the reload above (run right after the
-    // POST) doesn't see it yet. If this timer is recording now, reload a few
-    // more times until the recording appears, so the recordings widgets and the
-    // EPG "play recording" entry update promptly instead of waiting for the next
-    // 60s poll. Future timers skip this (nothing to materialize yet).
-    const time_t now = std::time(nullptr);
-    const bool recordingNow = timer.GetStartTime() <= now && now < timer.GetEndTime();
-    if (recordingNow)
-    {
-      for (int attempt = 0; attempt < 5 && m_running &&
-           !m_recordingManager->HasRecordingForEpg(timer.GetEPGUid(), timer.GetClientChannelUid());
-           ++attempt)
-      {
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+  // PVRTimer is a POD-backed value type, so capturing it by value is a safe
+  // deep copy. The triggers fire only after Reload() completes, so Kodi
+  // re-reads fresh data (the in-progress recording, EPG "play recording"
+  // entry, widgets).
+  return RunTimerOp(
+      [this, timer]() { return m_recordingManager->AddTimer(timer); },
+      [this, timer]() {
         m_recordingManager->Reload();
-        // TriggerTimerUpdate too: once the recording materialises, the timer's
-        // state flips Scheduled -> Recording (see JellyfinRecordingManager::
-        // Reload), which is what turns the guide's clock icon into the red dot.
         TriggerTimerUpdate();
         TriggerRecordingUpdate();
         TriggerEpgUpdate(timer.GetClientChannelUid());
-      }
-    }
-  });
-  return PVR_ERROR_NO_ERROR;
+
+        // Jellyfin creates the timer synchronously but materializes the in-progress
+        // recording a few seconds later, so the reload above (run right after the
+        // POST) doesn't see it yet. If this timer is recording now, reload a few
+        // more times until the recording appears, so the recordings widgets and the
+        // EPG "play recording" entry update promptly instead of waiting for the next
+        // 60s poll. Future timers skip this (nothing to materialize yet).
+        const time_t now = std::time(nullptr);
+        const bool recordingNow = timer.GetStartTime() <= now && now < timer.GetEndTime();
+        if (recordingNow)
+        {
+          for (int attempt = 0; attempt < 5 && m_running &&
+               !m_recordingManager->HasRecordingForEpg(timer.GetEPGUid(), timer.GetClientChannelUid());
+               ++attempt)
+          {
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            m_recordingManager->Reload();
+            // TriggerTimerUpdate too: once the recording materialises, the timer's
+            // state flips Scheduled -> Recording (see JellyfinRecordingManager::
+            // Reload), which is what turns the guide's clock icon into the red dot.
+            TriggerTimerUpdate();
+            TriggerRecordingUpdate();
+            TriggerEpgUpdate(timer.GetClientChannelUid());
+          }
+        }
+      },
+      30834);
 }
 
 PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete)
@@ -921,23 +973,18 @@ PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool force
   if (!m_recordingManager)
     return PVR_ERROR_NOT_IMPLEMENTED;
 
-  // As with AddTimer, run the delete + reload off the main thread and trigger
-  // UI updates only after the reload completes. Previously the triggers fired
-  // before the async reload, so Kodi briefly re-read stale data (the deleted
-  // timer / still-in-progress recording).
-  RunTimerOpAsync([this, timer, forceDelete]() {
-    if (m_recordingManager->DeleteTimer(timer, forceDelete) == PVR_ERROR_NO_ERROR)
-    {
-      TriggerTimerUpdate();
-      TriggerRecordingUpdate();
-      TriggerEpgUpdate(timer.GetClientChannelUid());
-    }
-    else
-    {
-      Toast::Error(30835);
-    }
-  });
-  return PVR_ERROR_NO_ERROR;
+  // Trigger UI updates only after the reload completes. Triggers that fired
+  // before it made Kodi briefly re-read stale data (the deleted timer, the
+  // still-in-progress recording).
+  return RunTimerOp(
+      [this, timer, forceDelete]() { return m_recordingManager->DeleteTimer(timer, forceDelete); },
+      [this, timer]() {
+        m_recordingManager->Reload();
+        TriggerTimerUpdate();
+        TriggerRecordingUpdate();
+        TriggerEpgUpdate(timer.GetClientChannelUid());
+      },
+      30835);
 }
 
 PVR_ERROR IptvSimple::UpdateTimer(const kodi::addon::PVRTimer& timer)
