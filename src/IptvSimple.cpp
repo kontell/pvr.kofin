@@ -75,8 +75,6 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
   }
   connectionManager = new ConnectionManager(*this, m_settings);
   m_auth = std::make_shared<iptvsimple::jellyfin::JellyfinAuth>(m_settings);
-
-  // Register PVR settings menu hook so "Client specific settings" works
 }
 
 IptvSimple::~IptvSimple()
