@@ -60,6 +60,8 @@ public:
   // Timers
   int GetTimersAmount();
   PVR_ERROR GetTimers(kodi::addon::PVRTimersResultSet& results);
+  // Send the request and return the server's answer. Neither reloads the
+  // model: the caller does that after the answer, off Kodi's thread.
   PVR_ERROR AddTimer(const kodi::addon::PVRTimer& timer);
   PVR_ERROR DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete);
   PVR_ERROR UpdateTimer(const kodi::addon::PVRTimer& timer);
