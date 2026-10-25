@@ -86,6 +86,18 @@ IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple:
 {
   m_channels.Clear();
   m_channelGroups.Clear();
+  // Until the first load, answer Kodi with an error rather than an empty list.
+  // Kodi deletes the stored channels of a client whose load succeeds without
+  // them, numbers, groups and hidden flags included, and keeps them for a
+  // client whose load failed (CPVRChannelGroup::RemoveDeletedGroupMembers).
+  // Kodi reads the model as soon as it is told the connection is up, which
+  // happens even when the first connect could not log in. Logged out, the
+  // empty list is the truth and stands.
+  if (m_settings->GetIsLoggedIn())
+  {
+    m_channels.ChannelsLoadFailed();
+    m_channelGroups.ChannelGroupsLoadFailed();
+  }
   connectionManager = new ConnectionManager(*this, m_settings);
   m_auth = std::make_shared<iptvsimple::jellyfin::JellyfinAuth>(m_settings);
 
