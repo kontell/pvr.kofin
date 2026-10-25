@@ -115,15 +115,16 @@ void IptvSimple::ConnectionLost()
   Logger::Log(LEVEL_INFO, "%s Connection lost.", __func__);
 }
 
-void IptvSimple::ConnectionEstablished()
+bool IptvSimple::ConnectionEstablished()
 {
   m_settings->ReadSettings();
 
-  // Don't attempt auth if user hasn't logged in via the Account settings
+  // Don't attempt auth if user hasn't logged in via the Account settings.
+  // Nothing to retry: logging in asks for an add-on restart.
   if (!m_settings->GetIsLoggedIn())
   {
     Logger::Log(LEVEL_INFO, "%s - Not logged in, skipping authentication. Use addon settings to log in.", __FUNCTION__);
-    return;
+    return true;
   }
 
   // One-time warning when the connection is plain HTTP to a non-private
@@ -147,9 +148,13 @@ void IptvSimple::ConnectionEstablished()
   if (!client->Authenticate())
   {
     Logger::Log(LEVEL_ERROR, "%s - Authentication failed. Token may have expired — please log in again.", __FUNCTION__);
-    Toast::Error(30833);
-    return;
+    // The connection manager retries every check interval; say so once.
+    if (!m_authFailureShown)
+      Toast::Error(30833);
+    m_authFailureShown = true;
+    return false;
   }
+  m_authFailureShown = false;
 
   Logger::Log(LEVEL_INFO, "%s Authenticated, loading channels", __FUNCTION__);
 
@@ -202,10 +207,10 @@ void IptvSimple::ConnectionEstablished()
   m_thread = std::thread([this] { Process(); });
 
   // Kodi loads a client's channels when the client first connects, and after
-  // that only on wake or when asked, so after a reconnect it would go on
-  // showing the old model. On the first connect these do nothing: Kodi
-  // ignores triggers from a client it has not loaded yet, and loads this one
-  // once it is told the connection is up.
+  // that only on wake or when asked, so after a reconnect, or a retry of a
+  // connect that failed, it would go on showing the old model. On the first
+  // connect these do nothing: Kodi ignores triggers from a client it has not
+  // loaded yet, and loads this one once it is told the connection is up.
   if (channelsLoaded)
   {
     TriggerChannelUpdate();
@@ -215,6 +220,8 @@ void IptvSimple::ConnectionEstablished()
     TriggerTimerUpdate();
   if (recordingChanges & jellyfin::RELOAD_CHANGE_RECORDINGS)
     TriggerRecordingUpdate();
+
+  return channelsLoaded;
 }
 
 bool IptvSimple::Initialise()
