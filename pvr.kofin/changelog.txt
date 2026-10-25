@@ -13,6 +13,7 @@ v22.19.0
 - Ship the license and the JsonCpp notice in the add-on
 - Kodi reports a timer the server refused, instead of showing it as set
 - Server discovery skips malformed replies instead of stopping
+- Connecting loads the channels once, not twice
 
 v22.18.0
 - Fix Quick Connect login on Jellyfin 12
