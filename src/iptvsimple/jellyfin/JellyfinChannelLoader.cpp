@@ -226,6 +226,7 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
   {
     Logger::Log(LEVEL_ERROR, "%s - Exception parsing channel data: %s", __FUNCTION__, e.what());
     channels.ChannelsLoadFailed();
+    channelGroups.ChannelGroupsLoadFailed();
     return false;
   }
 }
@@ -238,6 +239,7 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
   if (!client)
   {
     channels.ChannelsLoadFailed();
+    channelGroups.ChannelGroupsLoadFailed();
     return false;
   }
 
@@ -250,6 +252,7 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to load channels from Jellyfin", __FUNCTION__);
     channels.ChannelsLoadFailed();
+    channelGroups.ChannelGroupsLoadFailed();
     return false;
   }
 
