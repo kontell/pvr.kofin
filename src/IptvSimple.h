@@ -127,7 +127,7 @@ private:
   iptvsimple::Channels m_channels{m_settings};
   iptvsimple::ChannelGroups m_channelGroups{m_channels, m_settings};
   iptvsimple::ConnectionManager* connectionManager;
-  std::shared_ptr<iptvsimple::jellyfin::JellyfinClient> m_jellyfinClient;
+  iptvsimple::jellyfin::SharedClient m_jellyfinClient;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinChannelLoader> m_channelLoader;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinRecordingManager> m_recordingManager;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinAuth> m_auth;
