@@ -256,7 +256,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    Reload();
     return PVR_ERROR_NO_ERROR;
   }
   else if (timer.GetTimerType() == TIMER_SERIES)
@@ -343,7 +342,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    Reload();
     return PVR_ERROR_NO_ERROR;
   }
   else if (timer.GetTimerType() == TIMER_ONCE_MANUAL)
@@ -422,7 +420,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    Reload();
     return PVR_ERROR_NO_ERROR;
   }
 
@@ -478,9 +475,8 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
   Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s", __FUNCTION__,
               isSeries ? "series " : "", jellyfinId.c_str());
 
-  // The caller runs this off Kodi's main thread; the server-side operation
-  // (stopping a recording) can take several seconds. Reload afterwards so the
-  // model reflects the deletion before the caller triggers Kodi UI updates.
+  // The server-side operation (stopping a recording) can take several
+  // seconds, so the caller runs this on a worker and reloads afterwards.
   if (!client->SendDelete(endpoint))
   {
     // Surface the failure: returning NO_ERROR here made a rejected delete
@@ -489,7 +485,6 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
                 isSeries ? "series " : "", jellyfinId.c_str());
     return PVR_ERROR_SERVER_ERROR;
   }
-  Reload();
 
   return PVR_ERROR_NO_ERROR;
 }

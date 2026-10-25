@@ -11,6 +11,7 @@ v22.19.0
 - Retry connecting when the server answers before it can log in
 - Declare the Python dependency of the add-on's scripts
 - Ship the license and the JsonCpp notice in the add-on
+- Kodi reports a timer the server refused, instead of showing it as set
 
 v22.18.0
 - Fix Quick Connect login on Jellyfin 12
