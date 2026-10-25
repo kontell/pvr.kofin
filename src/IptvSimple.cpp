@@ -168,12 +168,13 @@ void IptvSimple::ConnectionEstablished()
   // into the members raced Kodi's locked readers (GetChannels & co.), while
   // holding m_mutex across the load would freeze the UI for the duration.
   // A failed load swaps in the load-failed state, exactly like before.
+  bool channelsLoaded;
   {
     Channels channels(m_settings);
     ChannelGroups channelGroups(channels, m_settings);
     channels.Init();
     channelGroups.Init();
-    m_channelLoader->LoadChannels(channels, channelGroups);
+    channelsLoaded = m_channelLoader->LoadChannels(channels, channelGroups);
 
     std::lock_guard<std::mutex> lock(m_mutex);
     m_channels.MoveFrom(std::move(channels));
@@ -186,7 +187,7 @@ void IptvSimple::ConnectionEstablished()
   else
     m_recordingManager->SetClient(client);
   m_recordingManager->SetChannels(&m_channels);
-  m_recordingManager->Reload();
+  const int recordingChanges = m_recordingManager->Reload();
 
   kodi::Log(ADDON_LOG_INFO, "%s Starting separate client update thread...", __FUNCTION__);
 
@@ -199,6 +200,21 @@ void IptvSimple::ConnectionEstablished()
 
   m_running = true;
   m_thread = std::thread([this] { Process(); });
+
+  // Kodi loads a client's channels when the client first connects, and after
+  // that only on wake or when asked, so after a reconnect it would go on
+  // showing the old model. On the first connect these do nothing: Kodi
+  // ignores triggers from a client it has not loaded yet, and loads this one
+  // once it is told the connection is up.
+  if (channelsLoaded)
+  {
+    TriggerChannelUpdate();
+    TriggerChannelGroupsUpdate();
+  }
+  if (recordingChanges & jellyfin::RELOAD_CHANGE_TIMERS)
+    TriggerTimerUpdate();
+  if (recordingChanges & jellyfin::RELOAD_CHANGE_RECORDINGS)
+    TriggerRecordingUpdate();
 }
 
 bool IptvSimple::Initialise()
@@ -352,11 +368,22 @@ void IptvSimple::Process()
         ChannelGroups channelGroups(channels, m_settings);
         channels.Init();
         channelGroups.Init();
-        m_channelLoader->LoadChannels(channels, channelGroups);
+        const bool loaded = m_channelLoader->LoadChannels(channels, channelGroups);
 
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_channels.MoveFrom(std::move(channels));
-        m_channelGroups.MoveFrom(std::move(channelGroups));
+        {
+          std::lock_guard<std::mutex> lock(m_mutex);
+          m_channels.MoveFrom(std::move(channels));
+          m_channelGroups.MoveFrom(std::move(channelGroups));
+        }
+
+        // Kodi does not re-read a connected client's channels by itself (see
+        // ConnectionEstablished): without these a reload changed the model
+        // here and nothing on screen. A failed load has nothing new to show.
+        if (loaded)
+        {
+          TriggerChannelUpdate();
+          TriggerChannelGroupsUpdate();
+        }
       }
 
       m_reloadChannelsGroupsAndEPG = false;

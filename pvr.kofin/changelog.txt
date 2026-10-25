@@ -7,6 +7,7 @@ v22.19.0
 - Drop the settings menu hook; the add-on settings open from the add-on browser as before
 - Close live streams on the server when a tune never starts playing
 - Fix a race between reconnecting and requests already in flight
+- Channel changes on the server reach Kodi after a reload or reconnect
 
 v22.18.0
 - Fix Quick Connect login on Jellyfin 12
