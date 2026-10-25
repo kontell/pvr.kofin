@@ -35,7 +35,7 @@ public:
 
   // IConnectionListener implementation
   void ConnectionLost() override;
-  void ConnectionEstablished() override;
+  bool ConnectionEstablished() override;
 
   bool Initialise();
 
@@ -127,7 +127,7 @@ private:
   iptvsimple::Channels m_channels{m_settings};
   iptvsimple::ChannelGroups m_channelGroups{m_channels, m_settings};
   iptvsimple::ConnectionManager* connectionManager;
-  std::shared_ptr<iptvsimple::jellyfin::JellyfinClient> m_jellyfinClient;
+  iptvsimple::jellyfin::SharedClient m_jellyfinClient;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinChannelLoader> m_channelLoader;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinRecordingManager> m_recordingManager;
   std::shared_ptr<iptvsimple::jellyfin::JellyfinAuth> m_auth;
@@ -138,6 +138,9 @@ private:
   std::atomic_bool m_reloadChannelsGroupsAndEPG{false};
   std::atomic_bool m_needsRestart{false};
   std::atomic_bool m_insecureWarningShown{false};
+  // Connection-manager thread only: the session-expired toast is shown once
+  // per run of failed connects, not on every retry.
+  bool m_authFailureShown = false;
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
   // Runs a timer add/delete (network chain + model reload) on a worker thread

@@ -5,6 +5,7 @@
   name="Kofin PVR for Jellyfin"
   provider-name="Kontell">
   <requires>@ADDON_DEPENDS@
+    <import addon="xbmc.python" version="3.0.0"/>
     <import addon="inputstream.ffmpegdirect" minversion="22.0.0"/>
     <import addon="inputstream.adaptive" minversion="22.0.0"/>
   </requires>

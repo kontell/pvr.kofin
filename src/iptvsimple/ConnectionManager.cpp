@@ -70,7 +70,7 @@ void ConnectionManager::OnWake()
   m_suspended = false;
 }
 
-void ConnectionManager::SetState(PVR_CONNECTION_STATE state)
+bool ConnectionManager::SetState(PVR_CONNECTION_STATE state)
 {
   PVR_CONNECTION_STATE prevState(PVR_CONNECTION_STATE_UNKNOWN);
   PVR_CONNECTION_STATE newState(PVR_CONNECTION_STATE_UNKNOWN);
@@ -97,12 +97,14 @@ void ConnectionManager::SetState(PVR_CONNECTION_STATE state)
     }
     else if (newState == PVR_CONNECTION_STATE_CONNECTED)
     {
-      m_connectionListener.ConnectionEstablished();
+      m_establishPending = !m_connectionListener.ConnectionEstablished();
     }
 
     /* Notify connection state change (callback!) */
       m_connectionListener.ConnectionStateChange(m_settings->GetJellyfinBaseUrl(), newState, "");
   }
+
+  return prevState != newState;
 }
 
 void ConnectionManager::Disconnect()
@@ -163,7 +165,12 @@ void ConnectionManager::Process()
       continue;
     }
 
-    SetState(PVR_CONNECTION_STATE_CONNECTED);
+    // A ping only shows the server is up. Just after a restart Jellyfin
+    // answers it before its authenticated API, and while pings keep
+    // succeeding the state never changes again, so a connect that could not
+    // authenticate or load its channels is retried here, once per interval.
+    if (!SetState(PVR_CONNECTION_STATE_CONNECTED) && m_establishPending && !m_suspended)
+      m_establishPending = !m_connectionListener.ConnectionEstablished();
     m_retryAttempt = 0;
 
     SteppedSleep(intervalMs);

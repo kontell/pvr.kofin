@@ -28,7 +28,7 @@ public:
 
   // Optional live client, reused by FetchAndStoreServerName. The login flows
   // always create their own fresh clients, so this is only an optimization.
-  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
+  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client.Set(std::move(client)); }
 
   void TestConnection();
   void RunLogin();
@@ -48,7 +48,7 @@ private:
   bool LoginWithQuickConnect();
 
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
-  std::shared_ptr<JellyfinClient> m_client;
+  SharedClient m_client;
 };
 
 } // namespace jellyfin

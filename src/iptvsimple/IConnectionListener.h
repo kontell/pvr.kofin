@@ -19,6 +19,9 @@ namespace iptvsimple
     virtual ~IConnectionListener() = default;
 
     virtual void ConnectionLost() = 0;
-    virtual void ConnectionEstablished() = 0;
+    // False when the server answered the health check but the connect did not
+    // complete (authentication or the channel load failed); the connection
+    // manager then calls it again at the next successful check.
+    virtual bool ConnectionEstablished() = 0;
   };
 } // namespace iptvsimple

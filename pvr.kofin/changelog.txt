@@ -5,6 +5,12 @@ v22.19.0
 - Drop the SyncPlay provider; Kofin groups no longer follow this add-on's playback
 - Codec and HDR pickers no longer log "Unknown setting type" errors
 - Drop the settings menu hook; the add-on settings open from the add-on browser as before
+- Close live streams on the server when a tune never starts playing
+- Fix a race between reconnecting and requests already in flight
+- Channel changes on the server reach Kodi after a reload or reconnect
+- Retry connecting when the server answers before it can log in
+- Declare the Python dependency of the add-on's scripts
+- Ship the license and the JsonCpp notice in the add-on
 
 v22.18.0
 - Fix Quick Connect login on Jellyfin 12
