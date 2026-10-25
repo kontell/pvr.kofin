@@ -12,7 +12,9 @@
 #include <json/json.h>
 #include <kodi/Filesystem.h>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <utility>
 
 namespace iptvsimple
 {
@@ -78,6 +80,37 @@ private:
   std::string m_accessToken;
   std::string m_userId;
   std::string m_quickConnectSecret;
+};
+
+// The client a component sends its requests through. Every reconnect replaces
+// it from the connection-manager thread while Kodi's callback threads may be
+// mid-request on the old one. Get() returns a reference that keeps the client
+// it read alive for as long as the caller holds it, so take it once at the
+// start of an operation and use it throughout: the operation then neither
+// straddles a reconnect nor dereferences a client replaced under it. A plain
+// shared_ptr member raced the assignment instead, and the old client could be
+// freed under a request still in flight.
+class SharedClient
+{
+public:
+  SharedClient() = default;
+  explicit SharedClient(std::shared_ptr<JellyfinClient> client) : m_client(std::move(client)) {}
+
+  std::shared_ptr<JellyfinClient> Get() const
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_client;
+  }
+
+  void Set(std::shared_ptr<JellyfinClient> client)
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_client = std::move(client);
+  }
+
+private:
+  mutable std::mutex m_mutex;
+  std::shared_ptr<JellyfinClient> m_client;
 };
 
 } // namespace jellyfin

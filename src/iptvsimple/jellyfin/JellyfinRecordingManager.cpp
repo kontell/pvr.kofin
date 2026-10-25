@@ -183,6 +183,10 @@ PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
 
 PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer& timer)
 {
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   if (timer.GetTimerType() == TIMER_ONCE_EPG)
   {
     // Look up the Jellyfin program ID from the EPG broadcast UID
@@ -206,7 +210,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
           + "&MaxStartDate=" + WebUtils::UrlEncode(endIso)
           + "&Limit=1";
 
-        Json::Value response = m_client->SendGet(endpoint);
+        Json::Value response = client->SendGet(endpoint);
         if (!response.isNull() && response.isMember("Items") && !response["Items"].empty())
         {
           programId = response["Items"][0]["Id"].asString();
@@ -224,7 +228,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
     }
 
     // Get timer defaults from Jellyfin for this program
-    Json::Value defaults = m_client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
+    Json::Value defaults = client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
     if (defaults.isNull())
     {
       Logger::Log(LEVEL_ERROR, "%s - Failed to get timer defaults for program %s",
@@ -245,14 +249,13 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
     Logger::Log(LEVEL_INFO, "%s - Creating timer: %s (program %s)",
                 __FUNCTION__, timer.GetTitle().c_str(), programId.c_str());
 
-    if (!m_client->SendPostExpectSuccess("/LiveTv/Timers", bodyStr))
+    if (!client->SendPostExpectSuccess("/LiveTv/Timers", bodyStr))
     {
       Logger::Log(LEVEL_ERROR, "%s - Server rejected timer creation for program %s",
                   __FUNCTION__, programId.c_str());
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    Reload();
     return PVR_ERROR_NO_ERROR;
   }
   else if (timer.GetTimerType() == TIMER_SERIES)
@@ -275,7 +278,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
           + "&MaxStartDate=" + WebUtils::UrlEncode(endIso)
           + "&Limit=1";
 
-        Json::Value response = m_client->SendGet(endpoint);
+        Json::Value response = client->SendGet(endpoint);
         if (!response.isNull() && response.isMember("Items") && !response["Items"].empty())
         {
           programId = response["Items"][0]["Id"].asString();
@@ -293,7 +296,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
     }
 
     // Get timer defaults for this program — gives us the full template
-    Json::Value defaults = m_client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
+    Json::Value defaults = client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
     if (defaults.isNull())
     {
       Logger::Log(LEVEL_ERROR, "%s - Failed to get timer defaults for program %s",
@@ -332,14 +335,13 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
     Logger::Log(LEVEL_INFO, "%s - Creating series timer: %s (program %s)",
                 __FUNCTION__, timer.GetTitle().c_str(), programId.c_str());
 
-    if (!m_client->SendPostExpectSuccess("/LiveTv/SeriesTimers", bodyStr))
+    if (!client->SendPostExpectSuccess("/LiveTv/SeriesTimers", bodyStr))
     {
       Logger::Log(LEVEL_ERROR, "%s - Server rejected series timer creation for program %s",
                   __FUNCTION__, programId.c_str());
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    Reload();
     return PVR_ERROR_NO_ERROR;
   }
   else if (timer.GetTimerType() == TIMER_ONCE_MANUAL)
@@ -354,7 +356,7 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_INVALID_PARAMETERS;
     }
 
-    Json::Value defaults = m_client->SendGet("/LiveTv/Timers/Defaults");
+    Json::Value defaults = client->SendGet("/LiveTv/Timers/Defaults");
     if (defaults.isNull())
     {
       Logger::Log(LEVEL_ERROR, "%s - Failed to get timer defaults", __FUNCTION__);
@@ -411,14 +413,13 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
                 __FUNCTION__, defaults["Name"].asString().c_str(), channelJfId.c_str(),
                 defaults["StartDate"].asString().c_str(), defaults["EndDate"].asString().c_str());
 
-    if (!m_client->SendPostExpectSuccess("/LiveTv/Timers", bodyStr))
+    if (!client->SendPostExpectSuccess("/LiveTv/Timers", bodyStr))
     {
       Logger::Log(LEVEL_ERROR, "%s - Server rejected manual timer creation on channel %s",
                   __FUNCTION__, channelJfId.c_str());
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    Reload();
     return PVR_ERROR_NO_ERROR;
   }
 
@@ -456,6 +457,10 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
     }
   }
 
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   // Deleting a timer that is currently recording stops that recording — that is
   // exactly what "Stop recording" in Kodi does, so it must not come back as a
   // premature-stop warning. The timer only carries the name, which is also the
@@ -470,10 +475,9 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
   Logger::Log(LEVEL_INFO, "%s - Deleting %stimer %s", __FUNCTION__,
               isSeries ? "series " : "", jellyfinId.c_str());
 
-  // The caller runs this off Kodi's main thread; the server-side operation
-  // (stopping a recording) can take several seconds. Reload afterwards so the
-  // model reflects the deletion before the caller triggers Kodi UI updates.
-  if (!m_client->SendDelete(endpoint))
+  // The server-side operation (stopping a recording) can take several
+  // seconds, so the caller runs this on a worker and reloads afterwards.
+  if (!client->SendDelete(endpoint))
   {
     // Surface the failure: returning NO_ERROR here made a rejected delete
     // silently "succeed" and the timer reappear on the next poll.
@@ -481,7 +485,6 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
                 isSeries ? "series " : "", jellyfinId.c_str());
     return PVR_ERROR_SERVER_ERROR;
   }
-  Reload();
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -537,13 +540,17 @@ PVR_ERROR JellyfinRecordingManager::DeleteRecording(const kodi::addon::PVRRecord
 
   Logger::Log(LEVEL_INFO, "%s - Deleting recording %s", __FUNCTION__, recordingId.c_str());
 
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   // Deleting an in-progress recording ends it; same reasoning as DeleteTimer.
   MarkUserStopped(recordingId);
 
   // Try /Items/{id} first (more reliable), fall back to /LiveTv/Recordings/{id}
-  if (!m_client->SendDelete("/Items/" + recordingId))
+  if (!client->SendDelete("/Items/" + recordingId))
   {
-    if (!m_client->SendDelete("/LiveTv/Recordings/" + recordingId))
+    if (!client->SendDelete("/LiveTv/Recordings/" + recordingId))
       return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -773,8 +780,12 @@ PVR_ERROR JellyfinRecordingManager::LoadTimers()
 
 PVR_ERROR JellyfinRecordingManager::LoadTimersInternal()
 {
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   const std::string endpoint = "/LiveTv/Timers";
-  Json::Value response = m_client->SendGet(endpoint);
+  Json::Value response = client->SendGet(endpoint);
 
   std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -832,7 +843,7 @@ PVR_ERROR JellyfinRecordingManager::LoadTimersInternal()
       if (m_channelLoader)
       {
         channelUid = GenerateChannelUid(item.get("ChannelName", "").asString(),
-                                        m_client->GetBaseUrl(), channelJfId);
+                                        client->GetBaseUrl(), channelJfId);
       }
       timer.SetClientChannelUid(channelUid);
     }
@@ -915,8 +926,12 @@ PVR_ERROR JellyfinRecordingManager::LoadSeriesTimers()
 
 PVR_ERROR JellyfinRecordingManager::LoadSeriesTimersInternal()
 {
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   const std::string endpoint = "/LiveTv/SeriesTimers";
-  Json::Value response = m_client->SendGet(endpoint);
+  Json::Value response = client->SendGet(endpoint);
 
   std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -951,7 +966,7 @@ PVR_ERROR JellyfinRecordingManager::LoadSeriesTimersInternal()
       const std::string channelJfId = item["ChannelId"].asString();
       // Shared channel-UID recipe — see utilities::GenerateChannelUid.
       const int channelUid = GenerateChannelUid(item.get("ChannelName", "").asString(),
-                                                m_client->GetBaseUrl(), channelJfId);
+                                                client->GetBaseUrl(), channelJfId);
       timer.SetClientChannelUid(channelUid);
     }
     else
@@ -1013,14 +1028,18 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordings()
 
 PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
 {
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   // Fetch before locking: the HTTP call can stall up to the connection
   // timeout, and Kodi's UI-path callbacks (GetTimers, GetRecordings,
   // HasRecordingForEpg, ...) block on m_mutex — holding it across the network
   // round-trip froze the UI whenever the server was slow. Same fetch-then-lock
   // structure as LoadTimers/LoadSeriesTimers; parsing below is pure CPU.
-  const std::string endpoint = "/LiveTv/Recordings?UserId=" + m_client->GetUserId()
+  const std::string endpoint = "/LiveTv/Recordings?UserId=" + client->GetUserId()
     + "&EnableImages=true&Fields=Overview,ChannelInfo,ProgramId,DateCreated";
-  Json::Value response = m_client->SendGet(endpoint);
+  Json::Value response = client->SendGet(endpoint);
 
   std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -1174,8 +1193,8 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
 
     // Image
     if (item.isMember("ImageTags") && item["ImageTags"].isMember("Primary"))
-      recording.SetIconPath(m_client->BuildImageUrl(jellyfinId,
-                                                     item["ImageTags"]["Primary"].asString()));
+      recording.SetIconPath(client->BuildImageUrl(jellyfinId,
+                                                  item["ImageTags"]["Primary"].asString()));
 
     // Season/Episode
     if (item.isMember("IndexNumber"))
@@ -1288,10 +1307,14 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
 {
   const std::string recordingId = recording.GetRecordingId();
 
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   // The played flag has its own endpoint, so say it outright instead of
   // deferring to whatever position write Kodi happens to send next.
   const std::string endpoint = "/UserPlayedItems/" + recordingId
-    + "?userId=" + m_client->GetUserId();
+    + "?userId=" + client->GetUserId();
 
   if (count > 0)
   {
@@ -1300,13 +1323,13 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingPlayCount(const kodi::addon::PVR
     // no body, so this object is ignored — but it cannot be empty: a request
     // through Kodi's VFS is only a POST because it carries postdata, and an
     // empty body would issue a GET.
-    if (!m_client->SendPostExpectSuccess(endpoint, "{}"))
+    if (!client->SendPostExpectSuccess(endpoint, "{}"))
       return PVR_ERROR_SERVER_ERROR;
   }
   else
   {
     Logger::Log(LEVEL_INFO, "%s - Marking unwatched: %s", __FUNCTION__, recordingId.c_str());
-    if (!m_client->SendDelete(endpoint))
+    if (!client->SendDelete(endpoint))
       return PVR_ERROR_SERVER_ERROR;
   }
 
@@ -1317,6 +1340,10 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
 {
   const std::string recordingId = recording.GetRecordingId();
 
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   if (lastplayedposition < 0)
     lastplayedposition = 0;
 
@@ -1326,7 +1353,7 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
   // position is how "reset resume position" is expressed — Jellyfin has no
   // separate endpoint for clearing one.
   const std::string endpoint = "/UserItems/" + recordingId + "/UserData"
-    + "?userId=" + m_client->GetUserId();
+    + "?userId=" + client->GetUserId();
 
   Json::Value body;
   body["PlaybackPositionTicks"] =
@@ -1338,7 +1365,7 @@ PVR_ERROR JellyfinRecordingManager::SetRecordingLastPlayedPosition(const kodi::a
   Logger::Log(LEVEL_DEBUG, "%s - Setting resume position %ds for %s",
               __FUNCTION__, lastplayedposition, recordingId.c_str());
 
-  if (!m_client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
+  if (!client->SendPostExpectSuccess(endpoint, Json::writeString(writer, body)))
     return PVR_ERROR_SERVER_ERROR;
 
   return PVR_ERROR_NO_ERROR;
@@ -1369,27 +1396,28 @@ bool JellyfinRecordingManager::OpenRecordedStream(const kodi::addon::PVRRecordin
   CloseRecordedStream();
 
   const std::string recordingId = recording.GetRecordingId();
-  if (!m_client)
+  const auto client = m_client.Get();
+  if (!client)
     return false;
 
   // Token in the Authorization header, not the URL: unlike the inputstream
   // URLs (where a query param is unavoidable), this request is made by the
   // addon itself, so the token can stay out of server/proxy access logs.
-  const std::string streamUrl = m_client->GetBaseUrl()
+  const std::string streamUrl = client->GetBaseUrl()
     + "/Videos/" + recordingId + "/stream?static=true";
 
   Logger::Log(LEVEL_INFO, "%s - Opening recording stream for %s", __FUNCTION__, recordingId.c_str());
 
   if (!m_recordingStream.CURLCreate(streamUrl) ||
       !m_recordingStream.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Authorization",
-                                       m_client->BuildAuthHeader()))
+                                       client->BuildAuthHeader()))
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to open recording stream: %s", __FUNCTION__, recordingId.c_str());
     m_recordingStream.Close();
     return false;
   }
 
-  m_client->ApplyTlsOptions(m_recordingStream);
+  client->ApplyTlsOptions(m_recordingStream);
 
   if (!m_recordingStream.CURLOpen(ADDON_READ_NO_CACHE))
   {

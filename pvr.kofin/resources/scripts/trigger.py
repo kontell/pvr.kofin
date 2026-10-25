@@ -15,7 +15,8 @@ import xbmcaddon
 # A button action round-trips into the C++ addon's SetSetting callback (see the
 # settings.xml button definitions). Only the four known button IDs may be
 # poked: RunScript is callable by any addon or skin, so arbitrary setting names
-# must not be writable through here.
+# must not be writable through here. The pickers keep their own table of the
+# settings they may write, for the same reason.
 ALLOWED_BUTTONS = ('loginButton', 'logoutButton', 'testConnection', 'restartAddon')
 
 action = sys.argv[1] if len(sys.argv) > 1 else ''
@@ -25,3 +26,6 @@ if action in ALLOWED_BUTTONS:
 elif action == 'discover':
     import discover
     discover.run()
+elif action == 'pick':
+    import pick
+    pick.run(sys.argv[2] if len(sys.argv) > 2 else '')

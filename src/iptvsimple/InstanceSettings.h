@@ -51,8 +51,15 @@ namespace iptvsimple
     // and the token would travel unencrypted over a non-private network.
     bool IsInsecureRemoteConnection() const;
 
+    // Each setter writes only on a change. A write makes Kodi save the settings
+    // and pass every one of them back through SetSetting (CAddonDll::
+    // SaveSettings -> TransferSettings), which re-reads them and queues a
+    // channel reload, so rewriting the server name on each connect cost a
+    // second full channel load every time.
     void SetJellyfinServerAddress(const std::string& address)
     {
+      if (address == m_jellyfinServerAddress)
+        return;
       m_jellyfinServerAddress = address;
       kodi::addon::SetSettingString("jellyfinServerAddress", address);
     }
@@ -61,6 +68,8 @@ namespace iptvsimple
     bool GetIsLoggedIn() const { return m_isLoggedIn; }
     void SetIsLoggedIn(bool loggedIn)
     {
+      if (loggedIn == m_isLoggedIn)
+        return;
       m_isLoggedIn = loggedIn;
       kodi::addon::SetSettingBoolean("isLoggedIn", loggedIn);
     }
@@ -68,6 +77,8 @@ namespace iptvsimple
     const std::string& GetJellyfinServerName() const { return m_jellyfinServerName; }
     void SetJellyfinServerName(const std::string& name)
     {
+      if (name == m_jellyfinServerName)
+        return;
       m_jellyfinServerName = name;
       kodi::addon::SetSettingString("jellyfinServerName", name);
     }
@@ -75,6 +86,8 @@ namespace iptvsimple
     const std::string& GetJellyfinDisplayUsername() const { return m_jellyfinDisplayUsername; }
     void SetJellyfinDisplayUsername(const std::string& username)
     {
+      if (username == m_jellyfinDisplayUsername)
+        return;
       m_jellyfinDisplayUsername = username;
       kodi::addon::SetSettingString("jellyfinDisplayUsername", username);
     }
@@ -88,11 +101,15 @@ namespace iptvsimple
 
     void SetJellyfinAccessToken(const std::string& token)
     {
+      if (token == m_jellyfinAccessToken)
+        return;
       m_jellyfinAccessToken = token;
       kodi::addon::SetSettingString("jellyfinAccessToken", token);
     }
     void SetJellyfinUserId(const std::string& userId)
     {
+      if (userId == m_jellyfinUserId)
+        return;
       m_jellyfinUserId = userId;
       kodi::addon::SetSettingString("jellyfinUserId", userId);
     }
@@ -102,10 +119,7 @@ namespace iptvsimple
     bool GetForceTranscoding() const { return m_forceTranscoding; }
     const std::string& GetDirectPlayVideoCodecs() const { return m_directPlayVideoCodecs; }
     const std::string& GetDirectPlayAudioCodecs() const { return m_directPlayAudioCodecs; }
-    void SetDirectPlayVideoCodecs(const std::string& v) { m_directPlayVideoCodecs = v; }
-    void SetDirectPlayAudioCodecs(const std::string& v) { m_directPlayAudioCodecs = v; }
     const std::string& GetAllowedHdrTypes() const { return m_allowedHdrTypes; }
-    void SetAllowedHdrTypes(const std::string& v) { m_allowedHdrTypes = v; }
     int GetPreferredVideoCodec() const { return m_preferredVideoCodec; }
     int GetPreferredAudioCodec() const { return m_preferredAudioCodec; }
     int GetMaxAudioChannels() const { return m_maxAudioChannels; }

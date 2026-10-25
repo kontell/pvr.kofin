@@ -34,7 +34,6 @@ Install via the [Kontell Repository](https://github.com/kontell/repository.konte
 - Enter server details and logon
 - Reenter settings and restart add-on
 - Kodi PVR settings can be found in: Settings -> PVR & Live TV
-- Once connected, Kofin settings can be accessed from: Settings -> PVR & Live TV -> General -> Client specific settings
 
 ### Server address
 
@@ -71,6 +70,10 @@ In addition to standard KodiProps, the following Kofin-specific properties can b
 | Android ARM32 | yes | yes |
 | Android ARM64 | yes | yes |
 | Windows x86_64 | yes | yes |
+| Windows x86 (32-bit) | yes | yes |
+| Windows ARM64 | no | yes |
+| macOS x86_64 (Intel) | yes | yes |
+| macOS arm64 (Apple silicon) | yes | yes |
 
 ## License
 

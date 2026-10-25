@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <set>
@@ -114,6 +115,44 @@ bool ParseBoolProp(const std::string& value)
                  [](unsigned char c) { return std::tolower(c); });
   return v == "true" || v == "1" || v == "yes" || v == "on";
 }
+
+// Write through a temporary file renamed into place, so service.py never reads
+// a half-written session: it reads session.json once per playback start and
+// does not retry. POSIX rename replaces the target atomically. Kodi's Windows
+// rename refuses an existing target, so there the old file is deleted first,
+// and for that moment a reader finds no file rather than a partial one.
+void WriteFileReplacing(const std::string& path, const std::string& data)
+{
+  const std::string tmpPath = path + ".tmp";
+  kodi::vfs::CFile file;
+  if (!file.OpenFileForWrite(tmpPath, true))
+    return;
+  const bool written = file.Write(data.c_str(), data.size()) == static_cast<ssize_t>(data.size());
+  file.Close();
+
+  if (written)
+  {
+    if (kodi::vfs::RenameFile(tmpPath, path))
+      return;
+    kodi::vfs::DeleteFile(path);
+    if (kodi::vfs::RenameFile(tmpPath, path))
+      return;
+  }
+  kodi::vfs::DeleteFile(tmpPath);
+}
+
+// A PlaySessionId is a hex GUID; anything else is mapped so it cannot leave
+// the pending directory.
+std::string PendingFileName(const std::string& playSessionId)
+{
+  std::string name = playSessionId;
+  for (char& c : name)
+  {
+    if (!std::isalnum(static_cast<unsigned char>(c)) && c != '-')
+      c = '_';
+  }
+  return name + ".json";
+}
 } // unnamed namespace
 
 ChannelOverrides ChannelOverrides::FromChannel(const Channel& channel)
@@ -171,6 +210,7 @@ bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& chan
   {
     Logger::Log(LEVEL_ERROR, "%s - Exception parsing channel data: %s", __FUNCTION__, e.what());
     channels.ChannelsLoadFailed();
+    channelGroups.ChannelGroupsLoadFailed();
     return false;
   }
 }
@@ -179,15 +219,24 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
 {
   Logger::Log(LEVEL_INFO, "%s - Loading channels from Jellyfin", __FUNCTION__);
 
-  const std::string endpoint = "/LiveTv/Channels?UserId=" + m_client->GetUserId()
+  const auto client = m_client.Get();
+  if (!client)
+  {
+    channels.ChannelsLoadFailed();
+    channelGroups.ChannelGroupsLoadFailed();
+    return false;
+  }
+
+  const std::string endpoint = "/LiveTv/Channels?UserId=" + client->GetUserId()
     + "&EnableImages=true&SortBy=SortName&Limit=10000";
 
-  Json::Value response = m_client->SendGet(endpoint);
+  Json::Value response = client->SendGet(endpoint);
 
   if (response.isNull() || !response.isMember("Items"))
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to load channels from Jellyfin", __FUNCTION__);
     channels.ChannelsLoadFailed();
+    channelGroups.ChannelGroupsLoadFailed();
     return false;
   }
 
@@ -272,13 +321,13 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
 
     // Channel icon from Jellyfin
     if (item.isMember("ImageTags") && item["ImageTags"].isMember("Primary"))
-      channel.SetIconPath(m_client->BuildImageUrl(jellyfinId, item["ImageTags"]["Primary"].asString()));
+      channel.SetIconPath(client->BuildImageUrl(jellyfinId, item["ImageTags"]["Primary"].asString()));
 
     // Stream URL placeholder - actual URL resolved via PlaybackInfo in
     // GetChannelStreamProperties. NOTE: this string feeds the channel UID
     // hash in Channels::AddChannel — keep in sync with
     // utilities::GenerateChannelUid, which reconstructs the same UID.
-    channel.SetStreamURL(m_client->GetBaseUrl() + "/LiveTv/Channels/" + jellyfinId);
+    channel.SetStreamURL(client->GetBaseUrl() + "/LiveTv/Channels/" + jellyfinId);
 
     // Always-include the "Jellyfin" group; M3U groups are added per-match.
     std::vector<int> groupIdList = {jellyfinGroupId};
@@ -386,9 +435,13 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
     jellyfinId = it->second;
   }
 
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
   // Use MaxStartDate (not MaxEndDate) - Jellyfin API returns programmes that start before this time
   const std::string endpoint = "/LiveTv/Programs?ChannelIds=" + jellyfinId
-    + "&UserId=" + m_client->GetUserId()
+    + "&UserId=" + client->GetUserId()
     + "&MinStartDate=" + WebUtils::UrlEncode(FormatIso8601(start))
     + "&MaxStartDate=" + WebUtils::UrlEncode(FormatIso8601(end))
     + "&Fields=Overview,ChannelInfo"
@@ -396,7 +449,7 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
     + "&SortBy=StartDate"
     + "&Limit=500";
 
-  Json::Value response = m_client->SendGet(endpoint);
+  Json::Value response = client->SendGet(endpoint);
 
   if (response.isNull() || !response.isMember("Items"))
   {
@@ -454,8 +507,8 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
 
     // Image
     if (item.isMember("ImageTags") && item["ImageTags"].isMember("Primary"))
-      tag.SetIconPath(m_client->BuildImageUrl(item["Id"].asString(),
-                                               item["ImageTags"]["Primary"].asString()));
+      tag.SetIconPath(client->BuildImageUrl(item["Id"].asString(),
+                                            item["ImageTags"]["Primary"].asString()));
 
     // Season/Episode
     if (item.isMember("IndexNumber"))
@@ -877,10 +930,14 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
   // Close previous live stream if any
   CloseLiveStream();
 
+  const auto client = m_client.Get();
+  if (!client)
+    return "";
+
   const std::string endpoint = "/Items/" + recordingId + "/PlaybackInfo";
 
   Json::Value body;
-  body["UserId"] = m_client->GetUserId();
+  body["UserId"] = client->GetUserId();
   ChannelOverrides effectiveOverrides = overrides;
   if (inProgress)
   {
@@ -908,7 +965,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
 
   Logger::Log(LEVEL_DEBUG, "%s - PlaybackInfo request body: %s", __FUNCTION__, bodyStr.c_str());
 
-  Json::Value response = m_client->SendPost(endpoint, bodyStr);
+  Json::Value response = client->SendPost(endpoint, bodyStr);
 
   if (response.isNull() || !response.isMember("MediaSources") || response["MediaSources"].empty())
   {
@@ -941,23 +998,23 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
   if (hasTranscodingUrl)
   {
     const bool forceRemuxActive = effectiveOverrides.forceRemux.value_or(m_settings->GetForceTranscode());
-    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), true, forceTranscodeActive,
-                                          forceRemuxActive);
+    streamUrl = PostProcessTranscodingUrl(client->GetBaseUrl(), source["TranscodingUrl"].asString(),
+                                          true, forceTranscodeActive, forceRemuxActive);
   }
   else
   {
-    streamUrl = m_client->GetBaseUrl() + "/Videos/" + recordingId
-      + "/stream?static=true&ApiKey=" + m_client->GetAccessToken();
+    streamUrl = client->GetBaseUrl() + "/Videos/" + recordingId
+      + "/stream?static=true&ApiKey=" + client->GetAccessToken();
   }
 
   RewriteLocalhost(streamUrl);
 
-  const std::string baseUrl = m_client->GetBaseUrl();
+  const std::string baseUrl = client->GetBaseUrl();
   if (streamUrl.find(baseUrl) == 0 &&
       streamUrl.find("ApiKey=") == std::string::npos)
   {
     streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
-    streamUrl += "ApiKey=" + m_client->GetAccessToken();
+    streamUrl += "ApiKey=" + client->GetAccessToken();
   }
 
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
@@ -970,7 +1027,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
 
 void JellyfinChannelLoader::WriteSessionFile()
 {
-  const std::string path = m_settings->GetUserPath() + "session.json";
+  const std::string userPath = m_settings->GetUserPath();
   Json::Value session;
   session["ItemId"] = m_activeItemId;
   session["MediaSourceId"] = m_activeMediaSourceId;
@@ -979,14 +1036,30 @@ void JellyfinChannelLoader::WriteSessionFile()
   session["PlayMethod"] = m_activePlayMethod;
   // Consumed by service.py to ignore stale files (e.g. crash leftovers).
   session["WrittenAt"] = static_cast<Json::Int64>(std::time(nullptr));
+  // Orders the pending records below against the session service.py adopts.
+  // Whole seconds cannot: a zap writes two sessions within the same second.
+  session["WrittenAtMs"] = static_cast<Json::Int64>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch())
+          .count());
+  // The server the stream was opened on: service.py may close it after the
+  // settings have moved to another.
+  session["BaseUrl"] = m_settings->GetJellyfinBaseUrl();
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
   const std::string data = Json::writeString(writer, session);
-  kodi::vfs::CFile file;
-  if (file.OpenFileForWrite(path, true))
+  WriteFileReplacing(userPath + "session.json", data);
+
+  // service.py closes a server-side live stream only once its playback has
+  // started. A tune that fails, or is zapped away from before it starts, never
+  // gets there, and the next tune overwrites session.json. So each opened
+  // stream also leaves a record of its own, which service.py deletes when it
+  // adopts the session and otherwise uses to close the stream.
+  if (!m_activeLiveStreamId.empty() && !m_activePlaySessionId.empty())
   {
-    file.Write(data.c_str(), data.size());
-    file.Close();
+    const std::string pendingDir = userPath + "pending/";
+    if (kodi::vfs::DirectoryExists(pendingDir) || kodi::vfs::CreateDirectory(pendingDir))
+      WriteFileReplacing(pendingDir + PendingFileName(m_activePlaySessionId), data);
   }
 }
 
@@ -1029,7 +1102,8 @@ std::string JellyfinChannelLoader::GetPlayingItemId() const
 }
 
 std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
-    const std::string& transcodingUrl, bool keepMaster, bool forceTranscode, bool forceRemux)
+    const std::string& baseUrl, const std::string& transcodingUrl, bool keepMaster,
+    bool forceTranscode, bool forceRemux)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
   // - For ffmpegdirect/internal: replace "stream"/"master" with "live" so we
@@ -1046,7 +1120,7 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
   auto qPos = transcodingUrl.find('?');
   if (qPos == std::string::npos)
-    return m_client->GetBaseUrl() + transcodingUrl;
+    return baseUrl + transcodingUrl;
 
   std::string base = transcodingUrl.substr(0, qPos);
   std::string paramStr = transcodingUrl.substr(qPos + 1);
@@ -1138,7 +1212,7 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
       base.replace(pos, search.length(), "live");
   }
 
-  return m_client->GetBaseUrl() + base + "?" + newParams;
+  return baseUrl + base + "?" + newParams;
 }
 
 void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
@@ -1257,10 +1331,14 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   CloseLiveStream();
 
   // POST to PlaybackInfo — all params in body, matching jellyfin-kodi
+  const auto client = m_client.Get();
+  if (!client)
+    return "";
+
   const std::string endpoint = "/Items/" + itemId + "/PlaybackInfo";
 
   Json::Value body;
-  body["UserId"] = m_client->GetUserId();
+  body["UserId"] = client->GetUserId();
   body["DeviceProfile"] = BuildDeviceProfile(overrides);
   body["AutoOpenLiveStream"] = true;
   // Stash the override bitrate for PostProcessTranscodingUrl, which the server
@@ -1273,7 +1351,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
 
   Logger::Log(LEVEL_DEBUG, "%s - PlaybackInfo request body: %s", __FUNCTION__, bodyStr.c_str());
 
-  Json::Value response = m_client->SendPost(endpoint, bodyStr);
+  Json::Value response = client->SendPost(endpoint, bodyStr);
 
   if (response.isNull() || !response.isMember("MediaSources") || response["MediaSources"].empty())
   {
@@ -1311,8 +1389,8 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   {
     const bool keepMaster = overrides.inputstream.value_or("") == "inputstream.adaptive";
     const bool forceRemuxActive = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
-    streamUrl = PostProcessTranscodingUrl(source["TranscodingUrl"].asString(), keepMaster, forceTranscodeActive,
-                                          forceRemuxActive);
+    streamUrl = PostProcessTranscodingUrl(client->GetBaseUrl(), source["TranscodingUrl"].asString(),
+                                          keepMaster, forceTranscodeActive, forceRemuxActive);
   }
   else if (source.isMember("Path") && !source["Path"].asString().empty())
   {
@@ -1323,21 +1401,21 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   if (streamUrl.empty())
   {
     const std::string mediaSourceId = source.get("Id", "").asString();
-    streamUrl = m_client->GetBaseUrl() + "/Videos/" + itemId + "/live.m3u8"
+    streamUrl = client->GetBaseUrl() + "/Videos/" + itemId + "/live.m3u8"
       + "?LiveStreamId=" + WebUtils::UrlEncode(m_activeLiveStreamId)
       + "&MediaSourceId=" + WebUtils::UrlEncode(mediaSourceId)
-      + "&ApiKey=" + m_client->GetAccessToken();
+      + "&ApiKey=" + client->GetAccessToken();
   }
 
   // Fix localhost/127.0.0.1 references from tuner providers
   RewriteLocalhost(streamUrl);
 
-  const std::string baseUrl = m_client->GetBaseUrl();
+  const std::string baseUrl = client->GetBaseUrl();
   if (streamUrl.find(baseUrl) == 0 &&
       streamUrl.find("ApiKey=") == std::string::npos)
   {
     streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
-    streamUrl += "ApiKey=" + m_client->GetAccessToken();
+    streamUrl += "ApiKey=" + client->GetAccessToken();
   }
 
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,

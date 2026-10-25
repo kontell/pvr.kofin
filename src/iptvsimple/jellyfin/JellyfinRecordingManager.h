@@ -60,6 +60,8 @@ public:
   // Timers
   int GetTimersAmount();
   PVR_ERROR GetTimers(kodi::addon::PVRTimersResultSet& results);
+  // Send the request and return the server's answer. Neither reloads the
+  // model: the caller does that after the answer, off Kodi's thread.
   PVR_ERROR AddTimer(const kodi::addon::PVRTimer& timer);
   PVR_ERROR DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete);
   PVR_ERROR UpdateTimer(const kodi::addon::PVRTimer& timer);
@@ -82,7 +84,7 @@ public:
   int64_t SeekRecordedStream(int64_t position, int whence);
   int64_t LengthRecordedStream();
 
-  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
+  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client.Set(std::move(client)); }
   void SetChannels(iptvsimple::Channels* channels) { m_channels = channels; }
 
   // EPG-recording linkage: check if a recording exists for a given EPG entry
@@ -171,7 +173,7 @@ private:
 
   mutable std::mutex m_mutex;
 
-  std::shared_ptr<JellyfinClient> m_client;
+  SharedClient m_client;
   std::shared_ptr<JellyfinChannelLoader> m_channelLoader;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
   iptvsimple::Channels* m_channels{nullptr};

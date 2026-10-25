@@ -1,3 +1,17 @@
+v21.19.0
+- Codec and HDR pickers no longer log "Unknown setting type" errors
+- Drop the settings menu hook; the add-on settings open from the add-on browser as before
+- Close live streams on the server when a tune never starts playing
+- Fix a race between reconnecting and requests already in flight
+- Channel changes on the server reach Kodi after a reload or reconnect
+- Retry connecting when the server answers before it can log in
+- Declare the Python dependency of the add-on's scripts
+- Ship the license and the JsonCpp notice in the add-on
+- Kodi reports a timer the server refused, instead of showing it as set
+- Server discovery skips malformed replies instead of stopping
+- Connecting loads the channels once, not twice
+- Kodi keeps its channels and their settings when the first connect fails
+
 v21.18.0
 - Fix Quick Connect login on Jellyfin 12
 - Settings buttons no longer depend on install path
