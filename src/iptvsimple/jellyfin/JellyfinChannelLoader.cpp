@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <chrono>
 #include <cmath>
 #include <cstdlib>
 #include <set>
@@ -129,6 +130,44 @@ bool ParseBoolProp(const std::string& value)
   std::transform(v.begin(), v.end(), v.begin(),
                  [](unsigned char c) { return std::tolower(c); });
   return v == "true" || v == "1" || v == "yes" || v == "on";
+}
+
+// Write through a temporary file renamed into place, so service.py never reads
+// a half-written session: it reads session.json once per playback start and
+// does not retry. POSIX rename replaces the target atomically. Kodi's Windows
+// rename refuses an existing target, so there the old file is deleted first,
+// and for that moment a reader finds no file rather than a partial one.
+void WriteFileReplacing(const std::string& path, const std::string& data)
+{
+  const std::string tmpPath = path + ".tmp";
+  kodi::vfs::CFile file;
+  if (!file.OpenFileForWrite(tmpPath, true))
+    return;
+  const bool written = file.Write(data.c_str(), data.size()) == static_cast<ssize_t>(data.size());
+  file.Close();
+
+  if (written)
+  {
+    if (kodi::vfs::RenameFile(tmpPath, path))
+      return;
+    kodi::vfs::DeleteFile(path);
+    if (kodi::vfs::RenameFile(tmpPath, path))
+      return;
+  }
+  kodi::vfs::DeleteFile(tmpPath);
+}
+
+// A PlaySessionId is a hex GUID; anything else is mapped so it cannot leave
+// the pending directory.
+std::string PendingFileName(const std::string& playSessionId)
+{
+  std::string name = playSessionId;
+  for (char& c : name)
+  {
+    if (!std::isalnum(static_cast<unsigned char>(c)) && c != '-')
+      c = '_';
+  }
+  return name + ".json";
 }
 } // unnamed namespace
 
@@ -989,7 +1028,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
 
 void JellyfinChannelLoader::WriteSessionFile()
 {
-  const std::string path = m_settings->GetUserPath() + "session.json";
+  const std::string userPath = m_settings->GetUserPath();
   Json::Value session;
   session["ItemId"] = m_activeItemId;
   session["MediaSourceId"] = m_activeMediaSourceId;
@@ -998,14 +1037,30 @@ void JellyfinChannelLoader::WriteSessionFile()
   session["PlayMethod"] = m_activePlayMethod;
   // Consumed by service.py to ignore stale files (e.g. crash leftovers).
   session["WrittenAt"] = static_cast<Json::Int64>(std::time(nullptr));
+  // Orders the pending records below against the session service.py adopts.
+  // Whole seconds cannot: a zap writes two sessions within the same second.
+  session["WrittenAtMs"] = static_cast<Json::Int64>(
+      std::chrono::duration_cast<std::chrono::milliseconds>(
+          std::chrono::system_clock::now().time_since_epoch())
+          .count());
+  // The server the stream was opened on: service.py may close it after the
+  // settings have moved to another.
+  session["BaseUrl"] = m_settings->GetJellyfinBaseUrl();
   Json::StreamWriterBuilder writer;
   writer["indentation"] = "";
   const std::string data = Json::writeString(writer, session);
-  kodi::vfs::CFile file;
-  if (file.OpenFileForWrite(path, true))
+  WriteFileReplacing(userPath + "session.json", data);
+
+  // service.py closes a server-side live stream only once its playback has
+  // started. A tune that fails, or is zapped away from before it starts, never
+  // gets there, and the next tune overwrites session.json. So each opened
+  // stream also leaves a record of its own, which service.py deletes when it
+  // adopts the session and otherwise uses to close the stream.
+  if (!m_activeLiveStreamId.empty() && !m_activePlaySessionId.empty())
   {
-    file.Write(data.c_str(), data.size());
-    file.Close();
+    const std::string pendingDir = userPath + "pending/";
+    if (kodi::vfs::DirectoryExists(pendingDir) || kodi::vfs::CreateDirectory(pendingDir))
+      WriteFileReplacing(pendingDir + PendingFileName(m_activePlaySessionId), data);
   }
 }
 

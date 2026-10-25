@@ -58,6 +58,23 @@ ADDON_VERSION = _addon.getAddonInfo('version') if _addon else ''
 _profile = _addon.getAddonInfo('profile') if _addon else ''
 SESSION_PATH = (os.path.join(xbmcvfs.translatePath(_profile), 'session.json')
                 if _profile else '')
+# One record per live stream the C++ addon opened that no playback has adopted
+# yet. The addon only writes them; this script deletes each once it has
+# adopted or closed that stream.
+PENDING_DIR = (os.path.join(xbmcvfs.translatePath(_profile), 'pending')
+               if _profile else '')
+# How long a pending stream may sit with the player idle before it is closed.
+# isPlaying() is already true while Kodi is still opening a stream, so an idle
+# player this long after the tune means the open failed or was abandoned.
+PENDING_IDLE_SECS = 30
+# A close the server did not accept leaves the record for a retry, first after
+# a minute and then at doubling intervals up to an hour. Jellyfin answers 204
+# for a stream it no longer holds, so once the server is back any retry
+# clears the record. A day on, it is dropped: the server is gone for good, or
+# the credentials no longer reach it.
+PENDING_RETRY_SECS = 60
+PENDING_RETRY_MAX_SECS = 3600
+PENDING_GIVE_UP_SECS = 24 * 3600
 
 
 def get_device_name():
@@ -126,10 +143,11 @@ def ssl_context():
 
 
 def post_json(base_url, endpoint, body, token, device_id):
-    """POST JSON to Jellyfin. Fire-and-forget — errors are logged, not raised."""
+    """POST JSON to Jellyfin. Errors are logged, not raised; returns whether
+    the server accepted the request."""
     base = normalize_base_url(base_url)
     if not base:
-        return
+        return False
     url = base + endpoint
     data = json.dumps(body).encode('utf-8')
     headers = {
@@ -142,8 +160,40 @@ def post_json(base_url, endpoint, body, token, device_id):
     try:
         with urllib.request.urlopen(req, timeout=5, context=ssl_context()) as resp:
             resp.read()
+        return True
     except (urllib.error.URLError, OSError) as e:
         xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGWARNING)
+        return False
+
+
+def remove_file(path):
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+
+def pending_sessions():
+    """The pending stream records, as (path, session) pairs."""
+    if not PENDING_DIR:
+        return []
+    try:
+        names = os.listdir(PENDING_DIR)
+    except OSError:
+        return []
+    found = []
+    for name in names:
+        # The addon writes each record under a .tmp name and renames it into
+        # place, so a .json file is always complete.
+        if not name.endswith('.json'):
+            continue
+        path = os.path.join(PENDING_DIR, name)
+        try:
+            with open(path, 'r') as f:
+                found.append((path, json.load(f)))
+        except (OSError, json.JSONDecodeError):
+            continue
+    return found
 
 
 class PlaybackReporter(xbmc.Player):
@@ -154,6 +204,8 @@ class PlaybackReporter(xbmc.Player):
         self.start_time = None
         self.is_recording = False
         self.last_position_ticks = 0
+        # Pending records whose close failed: path -> (retry at, last delay).
+        self.pending_retry = {}
 
     def onAVStarted(self):
         """Stream is up — read session data written by C++ addon and report start."""
@@ -191,10 +243,8 @@ class PlaybackReporter(xbmc.Player):
         # A new playback can replace ours without any stop event (seamless
         # channel zap) — finalize the outgoing session first, or its live
         # stream is never closed on the server. Same PlaySessionId means a
-        # duplicate start event for the current stream: keep it. (Residual
-        # gap: a stream whose playback never reaches onAVStarted can still
-        # leak — its LiveStreamId only ever lived in session.json, which the
-        # C++ addon has since overwritten.)
+        # duplicate start event for the current stream: keep it. A stream
+        # whose playback never got this far is left to the pending records.
         if self.session:
             new_psid = session_data.get('PlaySessionId', '') if session_data else None
             if new_psid != self.session['PlaySessionId']:
@@ -228,6 +278,70 @@ class PlaybackReporter(xbmc.Player):
         xbmc.log(f'pvr.kofin reporter: playback started ({content})', xbmc.LOGDEBUG)
 
         self._send('/Sessions/Playing', self._build_body())
+        self._settle_pending(session_data)
+
+    def _settle_pending(self, adopted):
+        """Take the adopted stream off the pending list, and close the streams
+        it replaced. The player plays one stream at a time, so one opened before
+        the stream now playing was zapped away from before it started. Those
+        opened after it are left alone: the next tune may already be under way.
+        """
+        adopted_psid = adopted.get('PlaySessionId', '')
+        adopted_at = adopted.get('WrittenAtMs', 0)
+        for path, pending in pending_sessions():
+            if pending.get('PlaySessionId', '') == adopted_psid:
+                remove_file(path)
+            elif pending.get('WrittenAtMs', 0) < adopted_at:
+                self._close_pending(path, pending)
+
+    def sweep_pending(self):
+        """Close the pending streams whose playback never started. Only while
+        the player is idle: while something plays, it may be a kofin stream
+        this script did not recognise (one Kodi started before the service
+        did, say), and closing its stream would cut it off."""
+        if self.isPlaying():
+            return
+        now = time.time()
+        for path, pending in pending_sessions():
+            if now * 1000 - pending.get('WrittenAtMs', 0) <= PENDING_IDLE_SECS * 1000:
+                continue
+            if now < self.pending_retry.get(path, (0, 0))[0]:
+                continue
+            self._close_pending(path, pending)
+
+    def close_all_pending(self):
+        """At shutdown nothing pending can still start. A close that fails
+        keeps its record for the next run."""
+        for path, pending in pending_sessions():
+            self._close_pending(path, pending)
+
+    def _close_pending(self, path, pending):
+        """Close one pending stream. The record is the only trace that the
+        stream still needs closing, since session.json has moved on, so it is
+        deleted only once the server has accepted the close."""
+        xbmc.log('pvr.kofin reporter: closing a stream that never started playing',
+                 xbmc.LOGDEBUG)
+        # The server the stream was opened on, which the settings may no longer
+        # name. Records from before it was stored fall back to the setting.
+        closed = self._close_live_stream({
+            'LiveStreamId': pending.get('LiveStreamId', ''),
+            'BaseUrl': pending.get('BaseUrl') or get_setting('jellyfinServerAddress'),
+            'Token': get_setting('jellyfinAccessToken'),
+            'DeviceId': get_setting('deviceId'),
+        })
+        if closed:
+            remove_file(path)
+            self.pending_retry.pop(path, None)
+            return
+        if time.time() * 1000 - pending.get('WrittenAtMs', 0) > PENDING_GIVE_UP_SECS * 1000:
+            xbmc.log('pvr.kofin reporter: giving up on closing a stream opened a day ago',
+                     xbmc.LOGWARNING)
+            remove_file(path)
+            self.pending_retry.pop(path, None)
+            return
+        previous = self.pending_retry.get(path)
+        delay = min(previous[1] * 2, PENDING_RETRY_MAX_SECS) if previous else PENDING_RETRY_SECS
+        self.pending_retry[path] = (time.time() + delay, delay)
 
     def onPlayBackStopped(self):
         self._stop()
@@ -290,18 +404,22 @@ class PlaybackReporter(xbmc.Player):
             # off the wall-clock elapsed value seen in /Progress events.
             stopped_body['PositionTicks'] = position_ticks
         self._send_with(session, '/Sessions/Playing/Stopped', stopped_body)
+        self._close_live_stream(session)
 
-        # Close the live stream if one was opened. liveStreamId MUST ride as
-        # a query parameter: Jellyfin's LiveStreams/Close binds it from the
-        # query string only and answers a JSON/form body with HTTP 400 — the
-        # stream then stays open and the tuner's consumer count never drops.
+    def _close_live_stream(self, session):
+        """Close the live stream if one was opened. liveStreamId MUST ride as
+        a query parameter: Jellyfin's LiveStreams/Close binds it from the
+        query string only and answers a JSON/form body with HTTP 400 — the
+        stream then stays open and the tuner's consumer count never drops.
+        Returns whether there was nothing to close or the server accepted it."""
         live_stream_id = session.get('LiveStreamId', '')
-        if live_stream_id:
-            self._send_with(
-                session,
-                '/LiveStreams/Close?liveStreamId='
-                + urllib.parse.quote(live_stream_id, safe=''),
-                {})
+        if not live_stream_id:
+            return True
+        return self._send_with(
+            session,
+            '/LiveStreams/Close?liveStreamId='
+            + urllib.parse.quote(live_stream_id, safe=''),
+            {})
 
     def report_progress(self):
         """Called from main loop. Sends progress if session is active."""
@@ -354,8 +472,8 @@ class PlaybackReporter(xbmc.Player):
         token = session.get('Token', '')
         device_id = session.get('DeviceId', '')
         if not base_url or not token:
-            return
-        post_json(base_url, endpoint, body, token, device_id)
+            return False
+        return post_json(base_url, endpoint, body, token, device_id)
 
 
 if __name__ == '__main__':
@@ -367,9 +485,11 @@ if __name__ == '__main__':
         if monitor.waitForAbort(REPORT_INTERVAL):
             break
         player.report_progress()
+        player.sweep_pending()
 
     # Clean up on exit — report stopped if still playing
     if player.session:
         player._stop()
+    player.close_all_pending()
 
     xbmc.log('pvr.kofin reporter: stopped', xbmc.LOGDEBUG)
