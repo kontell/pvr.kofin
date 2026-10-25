@@ -246,7 +246,7 @@ void JellyfinAuth::RunLogout()
     // the local credential clearing below must always run.
     try
     {
-      auto client = m_client;
+      auto client = m_client.Get();
       if (!client)
         client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
       client->Logout();
@@ -283,7 +283,7 @@ void JellyfinAuth::FetchAndStoreServerName()
 
 void JellyfinAuth::FetchAndStoreServerNameInternal()
 {
-  auto client = m_client;
+  auto client = m_client.Get();
   if (!client)
     client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
 
