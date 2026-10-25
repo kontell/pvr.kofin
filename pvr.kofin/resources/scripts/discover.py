@@ -109,6 +109,21 @@ def ssl_context():
     return context
 
 
+def usable_address(address):
+    """An http or https URL with a host and, if any, a valid port.
+
+    Checked once here: fallback_address and the path check in main both call
+    urlsplit, and urlsplit and .port raise ValueError on a malformed URL or
+    port.
+    """
+    try:
+        parts = urlsplit(address)
+        parts.port  # raises ValueError for a malformed or out-of-range port
+    except ValueError:
+        return False
+    return parts.scheme in ('http', 'https') and bool(parts.hostname)
+
+
 def parse(data, source_host):
     """One datagram -> (server_id, name, address, source_host), or None."""
     try:
@@ -120,8 +135,13 @@ def parse(data, source_host):
         return None
     if not isinstance(payload, dict):
         return None
-    address = (payload.get('Address') or '').strip().rstrip('/')
-    if not address:
+    address = payload.get('Address')
+    address = address.strip().rstrip('/') if isinstance(address, str) else ''
+    if not usable_address(address):
+        # Anything can answer on 7359, and a reply that is valid JSON can still
+        # carry a number, a list or a broken URL here. Skip it and keep
+        # listening: the rest of the window may hold a real server.
+        log('unusable address in the reply from %s' % source_host, xbmc.LOGWARNING)
         return None
     return {
         'id': str(payload.get('Id') or ''),

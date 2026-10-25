@@ -38,7 +38,8 @@ namespace iptvsimple
 
   private:
     void Process();
-    void SetState(PVR_CONNECTION_STATE state);
+    // True when the state changed and the listener and Kodi were told.
+    bool SetState(PVR_CONNECTION_STATE state);
     void SteppedSleep(int intervalMs);
 
     IConnectionListener& m_connectionListener;
@@ -50,6 +51,8 @@ namespace iptvsimple
     std::atomic<bool> m_suspended;
     PVR_CONNECTION_STATE m_state;
     unsigned int m_retryAttempt = 0;
+    // Process thread only: the last ConnectionEstablished did not complete.
+    bool m_establishPending = false;
 
     std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
   };
