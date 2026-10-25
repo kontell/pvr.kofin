@@ -71,7 +71,7 @@ public:
                                      const ChannelOverrides& overrides = {});
   void CloseLiveStream();
 
-  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client = client; }
+  void SetClient(std::shared_ptr<JellyfinClient> client) { m_client.Set(std::move(client)); }
 
   // Return by value (not const ref): callers may hold the result across a
   // subsequent network call, during which the worker thread can rebuild the
@@ -104,8 +104,8 @@ private:
   static std::string FormatIso8601(time_t time);
   static time_t ParseIso8601(const std::string& dateStr);
   Json::Value BuildDeviceProfile(const ChannelOverrides& overrides);
-  std::string PostProcessTranscodingUrl(const std::string& transcodingUrl, bool keepMaster,
-                                        bool forceTranscode, bool forceRemux);
+  std::string PostProcessTranscodingUrl(const std::string& baseUrl, const std::string& transcodingUrl,
+                                        bool keepMaster, bool forceTranscode, bool forceRemux);
   void WriteSessionFile();
   void WritePlaylistSessionFile(const std::string& itemId);
   void RewriteLocalhost(std::string& url);
@@ -133,7 +133,7 @@ private:
   int m_activeMaxBitrateBps{0};            // bitrate ceiling used for current session (override-aware)
   int m_activeSourceBitrateBps{0};         // source stream bitrate from PlaybackInfo
 
-  std::shared_ptr<JellyfinClient> m_client;
+  SharedClient m_client;
   std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
 };
 

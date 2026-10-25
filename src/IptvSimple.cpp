@@ -161,14 +161,15 @@ void IptvSimple::ConnectionEstablished()
   }
 
   // Create Jellyfin client
-  m_jellyfinClient = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
-  m_auth->SetClient(m_jellyfinClient);
+  const auto client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
+  m_jellyfinClient.Set(client);
+  m_auth->SetClient(client);
 
   Logger::Log(LEVEL_INFO, "%s Connecting to Jellyfin at %s", __FUNCTION__,
-              m_jellyfinClient->GetBaseUrl().c_str());
+              client->GetBaseUrl().c_str());
 
   // Validate stored token
-  if (!m_jellyfinClient->Authenticate())
+  if (!client->Authenticate())
   {
     Logger::Log(LEVEL_ERROR, "%s - Authentication failed. Token may have expired — please log in again.", __FUNCTION__);
     Toast::Error(30833);
@@ -182,9 +183,9 @@ void IptvSimple::ConnectionEstablished()
 
   // Reuse existing loader/manager to preserve EPG program ID mappings across reconnects
   if (!m_channelLoader)
-    m_channelLoader = std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(m_jellyfinClient, m_settings);
+    m_channelLoader = std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(client, m_settings);
   else
-    m_channelLoader->SetClient(m_jellyfinClient);
+    m_channelLoader->SetClient(client);
   // Build the new channel/group model into local snapshots off-lock, then
   // swap the data in under m_mutex. This runs on the connection-manager
   // thread on every (re)connect and LoadChannels is seconds of network I/O
@@ -206,9 +207,9 @@ void IptvSimple::ConnectionEstablished()
 
   if (!m_recordingManager)
     m_recordingManager = std::make_shared<iptvsimple::jellyfin::JellyfinRecordingManager>(
-        m_jellyfinClient, m_channelLoader, m_settings);
+        client, m_channelLoader, m_settings);
   else
-    m_recordingManager->SetClient(m_jellyfinClient);
+    m_recordingManager->SetClient(client);
   m_recordingManager->SetChannels(&m_channels);
   m_recordingManager->Reload();
 
@@ -291,12 +292,13 @@ PVR_ERROR IptvSimple::GetDriveSpace(uint64_t& total, uint64_t& used)
   // Return NOT_IMPLEMENTED (which Kodi swallows silently) rather than
   // SERVER_ERROR (which Kodi logs as an error), and skip the doomed
   // /System/Info/Storage request that would fail while logged out.
-  if (!m_jellyfinClient || m_settings->GetJellyfinAccessToken().empty())
+  const auto client = m_jellyfinClient.Get();
+  if (!client || m_settings->GetJellyfinAccessToken().empty())
     return PVR_ERROR_NOT_IMPLEMENTED;
 
   uint64_t totalBytes = 0;
   uint64_t usedBytes = 0;
-  if (!m_jellyfinClient->GetStorageInfo(totalBytes, usedBytes))
+  if (!client->GetStorageInfo(totalBytes, usedBytes))
     return PVR_ERROR_NOT_IMPLEMENTED;
 
   total = totalBytes / 1024;
