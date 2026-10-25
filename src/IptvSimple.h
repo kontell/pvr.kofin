@@ -35,7 +35,7 @@ public:
 
   // IConnectionListener implementation
   void ConnectionLost() override;
-  void ConnectionEstablished() override;
+  bool ConnectionEstablished() override;
 
   bool Initialise();
 
@@ -138,6 +138,9 @@ private:
   std::atomic_bool m_reloadChannelsGroupsAndEPG{false};
   std::atomic_bool m_needsRestart{false};
   std::atomic_bool m_insecureWarningShown{false};
+  // Connection-manager thread only: the session-expired toast is shown once
+  // per run of failed connects, not on every retry.
+  bool m_authFailureShown = false;
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
   // Runs a timer add/delete (network chain + model reload) on a worker thread
