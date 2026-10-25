@@ -14,6 +14,7 @@ v22.19.0
 - Kodi reports a timer the server refused, instead of showing it as set
 - Server discovery skips malformed replies instead of stopping
 - Connecting loads the channels once, not twice
+- Kodi keeps its channels and their settings when the first connect fails
 
 v22.18.0
 - Fix Quick Connect login on Jellyfin 12

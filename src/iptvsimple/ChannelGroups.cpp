@@ -63,6 +63,12 @@ PVR_ERROR ChannelGroups::GetChannelGroups(kodi::addon::PVRChannelGroupsResultSet
 
 PVR_ERROR ChannelGroups::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group, kodi::addon::PVRChannelGroupMembersResultSet& results)
 {
+  // Kodi asks for the members of every group it has stored, including after
+  // GetChannelGroups failed, and deletes the stored members of a group whose
+  // answer comes back empty without an error.
+  if (m_channelGroupsLoadFailed)
+    return PVR_ERROR_SERVER_ERROR;
+
   const ChannelGroup* myGroup = FindChannelGroup(group.GetGroupName());
   if (myGroup)
   {
