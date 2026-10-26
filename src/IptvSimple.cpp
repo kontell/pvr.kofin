@@ -616,10 +616,26 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // fires on every channel play — keep resolved stream URLs out of routine logs.
     Logger::Log(LogLevel::LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__, WebUtils::RedactUrl(streamURL).c_str());
 
+    TagStreamSession(properties);
     return PVR_ERROR_NO_ERROR;
   }
 
   return PVR_ERROR_SERVER_ERROR;
+}
+
+// Kodi copies every stream property onto the item it plays
+// (CPVRPlaybackState::OnPreparePlayback), and nothing else on that item says
+// which add-on or which tune it came from. Without this, another PVR add-on's
+// playback, or a kofin tune that never played, passes for the session in
+// session.json. Inputstreams read only the properties under their own ID, so
+// this one reaches nothing but the item.
+void IptvSimple::TagStreamSession(std::vector<kodi::addon::PVRStreamProperty>& properties) const
+{
+  if (!m_channelLoader)
+    return;
+  const std::string playSessionId = m_channelLoader->GetActivePlaySessionId();
+  if (!playSessionId.empty())
+    properties.emplace_back("pvr.kofin.playsessionid", playSessionId);
 }
 
 bool IptvSimple::OpenLiveStream(const kodi::addon::PVRChannel& channel)
@@ -757,7 +773,10 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
                   __FUNCTION__, recordingId.c_str(), tag.GetTitle().c_str());
       kodi::addon::PVRRecording rec;
       rec.SetRecordingId(recordingId);
-      return m_recordingManager->GetRecordingStreamProperties(rec, properties);
+      const PVR_ERROR error = m_recordingManager->GetRecordingStreamProperties(rec, properties);
+      if (error == PVR_ERROR_NO_ERROR)
+        TagStreamSession(properties);
+      return error;
     }
   }
 
@@ -822,6 +841,7 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
     return PVR_ERROR_FAILED;
   }
 
+  TagStreamSession(properties);
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1042,9 +1062,12 @@ PVR_ERROR IptvSimple::DeleteRecording(const kodi::addon::PVRRecording& recording
 
 PVR_ERROR IptvSimple::GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
-  if (m_recordingManager)
-    return m_recordingManager->GetRecordingStreamProperties(recording, properties);
-  return PVR_ERROR_NOT_IMPLEMENTED;
+  if (!m_recordingManager)
+    return PVR_ERROR_NOT_IMPLEMENTED;
+  const PVR_ERROR error = m_recordingManager->GetRecordingStreamProperties(recording, properties);
+  if (error == PVR_ERROR_NO_ERROR)
+    TagStreamSession(properties);
+  return error;
 }
 
 PVR_ERROR IptvSimple::SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count)
