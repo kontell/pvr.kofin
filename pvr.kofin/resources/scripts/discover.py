@@ -131,7 +131,7 @@ def parse(data, source_host):
     except (UnicodeDecodeError, ValueError):
         # Something else is sitting on 7359, or the datagram was truncated.
         # Not fatal: the rest of the window belongs to whatever else answers.
-        log('undecodable datagram from %s' % source_host, xbmc.LOGWARNING)
+        log('undecodable datagram from %s' % source_host)
         return None
     if not isinstance(payload, dict):
         return None
@@ -141,7 +141,7 @@ def parse(data, source_host):
         # Anything can answer on 7359, and a reply that is valid JSON can still
         # carry a number, a list or a broken URL here. Skip it and keep
         # listening: the rest of the window may hold a real server.
-        log('unusable address in the reply from %s' % source_host, xbmc.LOGWARNING)
+        log('unusable address in the reply from %s' % source_host)
         return None
     return {
         'id': str(payload.get('Id') or ''),
@@ -175,7 +175,7 @@ def scan(progress):
                     # No route to the broadcast address: an interface that is
                     # down. The window continues -- a later probe may land, and
                     # "nothing found" is the same answer to the user either way.
-                    log('probe failed: %s' % error, xbmc.LOGWARNING)
+                    log('probe failed: %s' % error)
                 probes += 1
             progress.update(int(elapsed * 100 / SCAN_SECONDS), text(30847))
             sock.settimeout(min(READ_SLICE_SECONDS, SCAN_SECONDS - elapsed))
@@ -184,7 +184,7 @@ def scan(progress):
             except socket.timeout:
                 continue
             except OSError as error:
-                log('read failed: %s' % error, xbmc.LOGWARNING)
+                log('read failed: %s' % error)
                 break
             entry = parse(data, addr[0])
             if entry is None:

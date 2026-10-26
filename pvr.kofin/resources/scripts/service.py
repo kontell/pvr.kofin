@@ -183,7 +183,7 @@ def post_json(base_url, endpoint, body, token, device_id):
             resp.read()
         return True
     except (urllib.error.URLError, OSError) as e:
-        xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGWARNING)
+        xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGDEBUG)
         return False
 
 
@@ -362,7 +362,7 @@ class PlaybackReporter(xbmc.Player):
             return
         if time.time() * 1000 - pending.get('WrittenAtMs', 0) > PENDING_GIVE_UP_SECS * 1000:
             xbmc.log('pvr.kofin reporter: giving up on closing a stream opened a day ago',
-                     xbmc.LOGWARNING)
+                     xbmc.LOGDEBUG)
             remove_file(path)
             self.pending_retry.pop(path, None)
             return
@@ -681,7 +681,7 @@ def _resolve_local_channel(channel_guid):
         pass
     if not name:
         xbmc.log('pvr.kofin reporter: sync start channel %s not found'
-                 % channel_guid, xbmc.LOGWARNING)
+                 % channel_guid, xbmc.LOGDEBUG)
         return None, None
 
     channels = rpc('PVR.GetChannels',
@@ -689,7 +689,7 @@ def _resolve_local_channel(channel_guid):
     channel = next((c for c in channels if c.get('label') == name), None)
     if not channel:
         xbmc.log('pvr.kofin reporter: no local channel named %r' % name,
-                 xbmc.LOGWARNING)
+                 xbmc.LOGDEBUG)
         return None, name
     return channel, name
 
@@ -727,7 +727,7 @@ def execute_sync_start(key):
                                   time.gmtime(int(start_raw)))
     except ValueError:
         xbmc.log('pvr.kofin reporter: bad sync start key %r' % key,
-                 xbmc.LOGWARNING)
+                 xbmc.LOGDEBUG)
         return
 
     channel, name = _resolve_local_channel(channel_guid)
@@ -741,7 +741,7 @@ def execute_sync_start(key):
                       if b.get('starttime') == start_utc), None)
     if not broadcast:
         xbmc.log('pvr.kofin reporter: no broadcast at %s on %r'
-                 % (start_utc, name), xbmc.LOGWARNING)
+                 % (start_utc, name), xbmc.LOGDEBUG)
         return
 
     xbmc.log('pvr.kofin reporter: sync start -> broadcast %s (%r at %s)'
