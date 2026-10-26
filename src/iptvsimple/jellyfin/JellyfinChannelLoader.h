@@ -90,6 +90,9 @@ public:
    */
   std::string GetPlayingItemId() const;
 
+  //! The PlaySessionId of the stream resolved last, which session.json names.
+  std::string GetActivePlaySessionId() const { return m_activePlaySessionId; }
+
 private:
   // *Internal carry the parsing logic; the public methods wrap them in an
   // exception firewall so jsoncpp errors never cross the Kodi ABI.

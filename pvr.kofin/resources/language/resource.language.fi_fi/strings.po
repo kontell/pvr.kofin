@@ -712,8 +712,8 @@ msgstr "%s ei vastannut — sen antama osoite ei ehkä toimi täältä"
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
-msgid "Enter this code in an already logged in client (browser, phone, etc):"
-msgstr "Syötä tämä koodi jo sisäänkirjautuneeseen asiakasohjelmaan (selain, puhelin jne.):"
+msgid "Enter this code in an already logged in client:"
+msgstr "Syötä tämä koodi jo sisäänkirjautuneeseen asiakasohjelmaan:"
 
 #: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"

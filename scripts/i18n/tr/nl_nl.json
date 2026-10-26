@@ -121,7 +121,7 @@
   "#30845": "Zoekt naar Jellyfin-servers op dit netwerk en toont de servers die antwoorden. De server die je kiest wordt ingevuld bij het serveradres hierboven.",
   "#30848": "Servers controleren…",
   "#30851": "%s bevat een pad dat deze add-on niet kan gebruiken — voer het adres handmatig in",
-  "#30857": "Voer deze code in op een client die al is aangemeld (browser, telefoon, enz.):",
+  "#30857": "Voer deze code in op een client die al is aangemeld:",
   "#30858": "Code: %s",
   "#30859": "Wachten op autorisatie…",
   "#30860": "Handmatige opname",

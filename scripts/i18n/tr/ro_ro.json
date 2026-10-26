@@ -121,7 +121,7 @@
   "#30845": "Caută servere Jellyfin în această rețea și le afișează pe cele care răspund. Cel ales este completat în adresa serverului de mai sus.",
   "#30848": "Se verifică serverele…",
   "#30851": "%s include o cale pe care acest supliment nu o poate folosi — introduceți adresa manual",
-  "#30857": "Introduceți acest cod într-un client deja autentificat (browser, telefon etc.):",
+  "#30857": "Introduceți acest cod într-un client deja autentificat:",
   "#30858": "Cod: %s",
   "#30859": "Se așteaptă autorizarea…",
   "#30860": "Înregistrare manuală",
