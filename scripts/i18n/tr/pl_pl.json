@@ -121,7 +121,7 @@
   "#30845": "Wyszukuje serwery Jellyfin w tej sieci i wyświetla te, które odpowiedzą. Wybrany zostanie wpisany w adres serwera powyżej.",
   "#30848": "Sprawdzanie serwerów…",
   "#30851": "%s zawiera ścieżkę, której ten dodatek nie może użyć — wpisz adres ręcznie",
-  "#30857": "Wpisz ten kod w już zalogowanym kliencie (przeglądarka, telefon itp.):",
+  "#30857": "Wpisz ten kod w już zalogowanym kliencie:",
   "#30858": "Kod: %s",
   "#30859": "Oczekiwanie na autoryzację…",
   "#30860": "Nagrywanie ręczne",

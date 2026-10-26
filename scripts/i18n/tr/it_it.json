@@ -121,7 +121,7 @@
   "#30845": "Cerca i server Jellyfin su questa rete ed elenca quelli che rispondono. Quello scelto viene inserito nell'indirizzo del server qui sopra.",
   "#30848": "Verifica dei server…",
   "#30851": "%s include un percorso che questo add-on non può usare — inserisci l'indirizzo manualmente",
-  "#30857": "Inserisci questo codice in un client già connesso (browser, telefono, ecc.):",
+  "#30857": "Inserisci questo codice in un client già connesso:",
   "#30858": "Codice: %s",
   "#30859": "In attesa di autorizzazione…",
   "#30860": "Registrazione manuale",
