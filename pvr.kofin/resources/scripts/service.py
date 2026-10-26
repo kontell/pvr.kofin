@@ -555,8 +555,8 @@ class PlaybackReporter(xbmc.Player):
         # Recordings: ask the player for the real playhead. Wall-clock elapsed
         # drifts off the actual position after seeks/skips, and the server
         # uses /Progress and /Stopped position to decide watched state. Live
-        # TV has no per-channel watched state — keep wall-clock elapsed there
-        # so live-TV reporting is byte-for-byte unchanged.
+        # TV has no per-channel watched state, so wall-clock elapsed is enough
+        # there.
         if self.is_recording:
             self._capture_position()
             return self.last_position_ticks

@@ -41,9 +41,8 @@ namespace
 // of channels × a full EPG window) while bounding the otherwise-permanent growth.
 constexpr size_t EPG_UID_MAP_MAX_ENTRIES = 250000;
 
-// inputstream.tempo was a fork of inputstream.ffmpegdirect that read the same
-// properties under its own namespace. It is no longer used, so a playlist entry
-// written for it plays through FFmpeg Direct as written.
+// Playlist entries written for inputstream.tempo, a fork of FFmpeg Direct that
+// read the same properties under its own namespace, play through FFmpeg Direct.
 std::pair<std::string, std::string> TempoToFfmpegDirect(const std::string& key,
                                                         const std::string& value)
 {
@@ -58,7 +57,7 @@ std::pair<std::string, std::string> TempoToFfmpegDirect(const std::string& key,
 
 // HLS will copy only these. A remux TranscodingProfile that lists anything
 // else either gets it stripped (no fallback restored) or, if the source
-// matches, pinned as the encode target — which is how E-AC3 400'd.
+// matches, pinned as the encode target.
 const std::set<std::string> kHlsTsAudio = {"aac", "ac3", "eac3", "mp3"};
 const std::set<std::string> kHlsMp4Audio = {
     "aac", "ac3", "eac3", "mp3", "alac", "flac", "opus", "dts", "truehd"};
@@ -276,7 +275,6 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
   if (m_settings->ReferencePlaylistEnabled() && !m_settings->GetReferencePlaylistPath().empty())
     m3uLoaded = m3uParser.Parse();
 
-  // Always create the "Jellyfin" all-channels group.
   ChannelGroup allGroup;
   allGroup.SetGroupName("Jellyfin");
   allGroup.SetRadio(false);
@@ -335,7 +333,6 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
     // Store Jellyfin ID for EPG and stream lookups
     channel.SetTvgId(jellyfinId);
 
-    // Channel icon from Jellyfin
     if (item.isMember("ImageTags") && item["ImageTags"].isMember("Primary"))
       channel.SetIconPath(client->BuildImageUrl(jellyfinId, item["ImageTags"]["Primary"].asString()));
 
@@ -348,7 +345,6 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
     // Always-include the "Jellyfin" group; M3U groups are added per-match.
     std::vector<int> groupIdList = {jellyfinGroupId};
 
-    // Apply reference-playlist data
     if (m3uLoaded)
     {
       const M3UChannelInfo* info = m3uParser.GetChannelInfo(name);
@@ -382,7 +378,6 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
         for (const auto& kv : info->kofinProps)
           channel.AddProperty(kv.first, kv.second);
 
-        // Logo override
         if (!info->tvgLogo.empty())
           channel.SetIconPath(info->tvgLogo);
 
@@ -426,8 +421,7 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
 PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t end,
                                           kodi::addon::PVREPGTagsResultSet& results)
 {
-  // Exception firewall: called directly from Kodi's GetEPGForChannel — a
-  // jsoncpp type error must not cross the C ABI.
+  // Exception firewall — see LoadChannels.
   try
   {
     return LoadEpgInternal(channelUid, start, end, results);
@@ -491,8 +485,7 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
     const unsigned int broadcastUid = static_cast<unsigned int>(GenerateUid(jellyfinProgramId));
     {
       std::lock_guard<std::mutex> lock(m_dataMutex);
-      // Bound the map: it only ever gained entries (~100 bytes/programme,
-      // a slow permanent leak on an always-on box). A wholesale clear at the
+      // Bound the map, which only ever gains entries. A wholesale clear at the
       // cap is safe — AddTimer falls back to a channel+time server query when
       // an EPG UID is missing from the map.
       if (m_epgUidToJellyfinProgramId.size() >= EPG_UID_MAP_MAX_ENTRIES)
@@ -601,9 +594,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
 
   // TranscodingProfiles.AudioCodec is a copy-candidate list *and* the encode
   // target. StreamBuilder pins to the source codec if it appears anywhere
-  // (`audioCodecs = [audioStream.Codec]`), then a later bitrate rewrite that
-  // sits below the source refuses the copy and 10.11 tries to *encode* E-AC3
-  // for live TV — HTTP 400, no ffmpeg (e02129d).
+  // (`audioCodecs = [audioStream.Codec]`), and a bitrate rewrite that sits
+  // below the source then refuses the copy and encodes instead, which the
+  // server rejects for E-AC3 on live TV.
   //
   // Force remux is HLS + codec-copy: list every HLS-legal allowed codec so a
   // matching source copies, and ignore the bitrate / channel caps so that
@@ -627,7 +620,6 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // conditions below rather than adding separate codec entries.
   const std::string& rawVideoCodecs = m_settings->GetDirectPlayVideoCodecs();
 
-  // Parse comma-delimited tokens into a set for exact matching.
   std::set<std::string> videoTokens;
   {
     std::string::size_type s = 0;
@@ -823,7 +815,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // server tone-maps/transcodes formats the user didn't select; SDR is always
   // allowed. These are separate CodecProfiles (Jellyfin ANDs them with the
   // bit-depth/profile ones above). When every type is selected (the default),
-  // nothing is emitted — identical to prior behavior.
+  // nothing is emitted.
   if (!forceDirectPlay)
   {
     static const std::set<std::string> kAllHdr = {
@@ -904,7 +896,6 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   }
   profile["CodecProfiles"] = codecProfiles;
 
-  // Subtitle profiles
   Json::Value subtitleProfiles(Json::arrayValue);
   for (const char* fmt : {"srt", "ass", "sub", "ssa", "smi", "pgssub", "dvdsub", "pgs"})
   {
@@ -928,7 +919,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
     const std::string& recordingId, bool inProgress,
     const ChannelOverrides& overrides)
 {
-  // Exception firewall: reached from Kodi's GetRecordingStreamProperties.
+  // Exception firewall — see LoadChannels.
   try
   {
     return GetRecordingStreamUrlInternal(recordingId, inProgress, overrides);
@@ -946,7 +937,6 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
 {
   Logger::Log(LEVEL_DEBUG, "%s - Getting recording stream URL for %s", __FUNCTION__, recordingId.c_str());
 
-  // Close previous live stream if any
   CloseLiveStream();
 
   const auto client = m_client.Get();
@@ -966,12 +956,9 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
   Json::Value deviceProfile = BuildDeviceProfile(effectiveOverrides);
   if (inProgress)
     deviceProfile["DirectPlayProfiles"] = Json::Value(Json::arrayValue);
-  // Recordings play via inputstream.adaptive which needs MinSegments >= 3.
-  // Set it on every profile: the server picks the transcoding profile by
-  // codec-copy compatibility with the source (order is only a tie-break), so
-  // bumping [0] alone missed e.g. an AV1-source recording on an
-  // h264-preferred profile order. MinSegments on the unselected profile is
-  // inert, so this costs nothing.
+  // Recordings play via inputstream.adaptive, which needs MinSegments >= 3.
+  // The server picks the transcoding profile by codec-copy compatibility with
+  // the source (order is only a tie-break), so set it on every profile.
   for (Json::Value& transcodingProfile : deviceProfile["TranscodingProfiles"])
     transcodingProfile["MinSegments"] = "3";
   body["DeviceProfile"] = deviceProfile;
@@ -1131,8 +1118,8 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   //   construct codec extradata before opening segments.
   // - Recalculate audio/video bitrates when the user set an explicit limit;
   //   when unlimited, preserve the server's original values. Force remux
-  //   ignores the cap: lowering AudioBitrate below the source is what
-  //   turned an E-AC3 copy into an encode 400.
+  //   ignores the cap, since an AudioBitrate below the source turns a copy
+  //   into an encode.
   // - State outright that a forced transcode may not stream-copy video or audio.
 
   auto qPos = transcodingUrl.find('?');
@@ -1186,17 +1173,14 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   if (!remuxCopy && !bitrateUnlimited)
   {
     // Split the bitrate budget between audio and video, scaling the audio
-    // reservation for small budgets: audio = min(384k, budget/10). The old
-    // fixed 384 kbps reservation pushed VideoBitrate negative whenever the
-    // budget was below it — e.g. kofin-bitrate-limit=300 — and the server
-    // rejects a negative bitrate. Video always gets a positive >= 9/10 share;
-    // budgets >= 3.84 Mbps get the flat 384 kbps. The tenth matches
-    // plugin.video.kofin (core/deviceprofile.py, audio_bitrate_bps).
+    // reservation for small budgets: audio = min(384k, budget/10), so video
+    // always gets a positive >= 9/10 share (the server rejects a negative
+    // bitrate) and budgets >= 3.84 Mbps get the flat 384 kbps. The tenth
+    // matches plugin.video.kofin (core/deviceprofile.py, audio_bitrate_bps).
     //
     // The budget is the ceiling the user asked for, and nothing caps it
-    // against the source: sizing a forced transcode down to just under the
-    // source bitrate was only ever a way to provoke a re-encode, which
-    // allowVideoStreamCopy below now states outright.
+    // against the source: a forced re-encode is requested through
+    // allowVideoStreamCopy below.
     const int audioBitrate = std::min(384000, maxBitrateBps / 10);
     const int videoBitrate = maxBitrateBps - audioBitrate;
     appendParam("VideoBitrate=" + std::to_string(videoBitrate));
@@ -1207,11 +1191,7 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
   {
     // No bitrate can force a re-encode on its own: Jellyfin permits the copy
     // whenever the requested VideoBitrate is at or above the source's, so any
-    // budget worth asking for also permits a copy. plugin.video.kofin measured
-    // this on a ~2.0 Mbps HEVC source (plugin/play.py, deny_video_stream_copy):
-    // the server answered "-codec:v:0 copy" and re-encoded the audio instead,
-    // so which stream got re-encoded turned on the source's audio share rather
-    // than on anything the user asked for.
+    // budget worth asking for also permits a copy.
     //
     // Force transcode denies both copies. Remux leaves them on, and ignores
     // the bitrate split above, so a listed E-AC3 source stays a copy.
@@ -1236,10 +1216,9 @@ void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
 {
   // Jellyfin sometimes returns 127.0.0.1 or localhost in stream URLs when the
   // tuner provider reports local addresses. Replace with the actual server
-  // hostname so Kodi can reach it. Only the URL authority's host is rewritten
-  // (exact match): the old blind substring replace also mangled
-  // query-parameter values and hosts that merely contain the pattern, like
-  // "localhost.example.com".
+  // hostname so Kodi can reach it. Only the URL authority's host is rewritten,
+  // and only on an exact match, so query-parameter values and hosts that
+  // merely contain the pattern, like "localhost.example.com", are left alone.
   const std::string serverHost = m_settings->GetJellyfinHost();
   if (serverHost.empty())
     return;
@@ -1327,7 +1306,7 @@ std::string JellyfinChannelLoader::GetLiveStreamUrl(const std::string& channelId
 std::string JellyfinChannelLoader::GetItemStreamUrl(const std::string& itemId,
                                                     const ChannelOverrides& overrides)
 {
-  // Exception firewall: reached from Kodi's GetChannelStreamProperties.
+  // Exception firewall — see LoadChannels.
   try
   {
     return GetItemStreamUrlInternal(itemId, overrides);
@@ -1344,7 +1323,6 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
 {
   Logger::Log(LEVEL_DEBUG, "%s - Getting stream URL for item %s", __FUNCTION__, itemId.c_str());
 
-  // Close previous live stream if any
   CloseLiveStream();
 
   // POST to PlaybackInfo — all params in body, matching jellyfin-kodi
@@ -1424,7 +1402,6 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
       + "&ApiKey=" + client->GetAccessToken();
   }
 
-  // Fix localhost/127.0.0.1 references from tuner providers
   RewriteLocalhost(streamUrl);
 
   const std::string baseUrl = client->GetBaseUrl();

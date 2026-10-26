@@ -24,12 +24,12 @@ Jellyfin's client discovery is one plaintext datagram broadcast to
 255.255.255.255:7359; every server whose AutoDiscovery is on -- the default --
 replies **unicast** to our ephemeral port with a small JSON object naming
 itself. Server-side that is receive, serialise three strings, send: no
-database, no disk. A reply measured 3 ms on a wired workstation and 22 ms over
-Wi-Fi on an Android tablet, so one not seen within a few tens of milliseconds
-was *lost* rather than delayed. Waiting longer recovers nothing; another probe
-does, and the fragile half is our own broadcast -- an access point sends it at
-the lowest basic rate, unacknowledged. Hence three probes a second apart
-closing at three seconds, rather than one probe and a longer listen.
+database, no disk. A reply arrives within a few tens of milliseconds or not at
+all, so one not seen by then was *lost* rather than delayed. Waiting longer
+recovers nothing; another probe does, and the fragile half is our own
+broadcast -- an access point sends it at the lowest basic rate,
+unacknowledged. Hence three probes a second apart closing at three seconds,
+rather than one probe and a longer listen.
 
 Several classes of server never answer at any timeout, which is what the
 "nothing found" wording has to account for: AutoDiscovery switched off, Docker
@@ -332,7 +332,5 @@ def run():
     main()
     # Kodi warns "left several classes in memory that we couldn't clean up" when
     # an xbmcaddon.Addon outlives the script, so drop the module-level reference
-    # here rather than constructing one per call: a handful of lookups is not
-    # worth ~3 ms of Addon construction each, and the warning is noise in every
-    # log.
+    # here.
     del ADDON
