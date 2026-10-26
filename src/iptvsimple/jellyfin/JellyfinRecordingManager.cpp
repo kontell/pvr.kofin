@@ -388,7 +388,9 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
 
     defaults["StartDate"] = FormatIso8601(startTime);
     defaults["EndDate"] = FormatIso8601(endTime);
-    defaults["Name"] = timer.GetTitle().empty() ? "Manual Recording" : timer.GetTitle();
+    // Kodi's own "New timer", the title Kodi itself gives an untitled timer.
+    defaults["Name"] = timer.GetTitle().empty() ? kodi::addon::GetLocalizedString(19056)
+                                                : timer.GetTitle();
     defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
     defaults["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
     defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
