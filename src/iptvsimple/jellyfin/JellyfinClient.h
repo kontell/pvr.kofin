@@ -87,9 +87,7 @@ private:
 // mid-request on the old one. Get() returns a reference that keeps the client
 // it read alive for as long as the caller holds it, so take it once at the
 // start of an operation and use it throughout: the operation then neither
-// straddles a reconnect nor dereferences a client replaced under it. A plain
-// shared_ptr member raced the assignment instead, and the old client could be
-// freed under a request still in flight.
+// straddles a reconnect nor dereferences a client replaced under it.
 class SharedClient
 {
 public:

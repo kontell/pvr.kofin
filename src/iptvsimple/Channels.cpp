@@ -43,7 +43,7 @@ PVR_ERROR Channels::GetChannels(kodi::addon::PVRChannelsResultSet& results, bool
 
   // We set a channel order here that applies to the 'Any channels' group in kodi-pvr
   // This allows the users to use the 'Backend Order' sort option in the left to
-  // have the same order as the backend (regardles of the channel numbering used)
+  // have the same order as the backend (regardless of the channel numbering used)
   int channelOrder = 1;
   for (const auto& channel : m_channels)
   {

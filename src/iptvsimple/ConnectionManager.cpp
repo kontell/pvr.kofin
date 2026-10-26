@@ -144,10 +144,8 @@ void ConnectionManager::Process()
       continue;
     }
 
-    /* Connect. Ping on every iteration: the old (firstRun || !m_onStartupOnly)
-     * gate with m_onStartupOnly hardcoded true stopped health-checking after
-     * the first success, so outages were never detected and the addon never
-     * reconnected/reloaded after a server restart. IptvSimple's
+    /* Ping on every iteration, so an outage is noticed and the addon
+     * reconnects and reloads after a server restart. IptvSimple's
      * ConnectionEstablished is written to be re-entered on reconnects. */
     if (!WebUtils::Check(url, tcpTimeout, isLocalPath, m_settings->GetSslVerify()))
     {

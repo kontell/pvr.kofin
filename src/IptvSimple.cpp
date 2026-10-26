@@ -106,7 +106,6 @@ IptvSimple::~IptvSimple()
     m_timerOps.clear();
   }
 
-  // Close any active live stream before teardown
   if (m_channelLoader)
     m_channelLoader->CloseLiveStream();
 
@@ -147,7 +146,6 @@ bool IptvSimple::ConnectionEstablished()
     Toast::Warning(30727);
   }
 
-  // Create Jellyfin client
   const auto client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
   m_jellyfinClient.Set(client);
   m_auth->SetClient(client);
@@ -155,7 +153,6 @@ bool IptvSimple::ConnectionEstablished()
   Logger::Log(LEVEL_INFO, "%s Connecting to Jellyfin at %s", __FUNCTION__,
               client->GetBaseUrl().c_str());
 
-  // Validate stored token
   if (!client->Authenticate())
   {
     Logger::Log(LEVEL_ERROR, "%s - Authentication failed. Token may have expired — please log in again.", __FUNCTION__);
@@ -169,7 +166,6 @@ bool IptvSimple::ConnectionEstablished()
 
   Logger::Log(LEVEL_INFO, "%s Authenticated, loading channels", __FUNCTION__);
 
-  // Fetch/update server name
   m_auth->FetchAndStoreServerName();
 
   // Reuse existing loader/manager to preserve EPG program ID mappings across reconnects
@@ -177,13 +173,9 @@ bool IptvSimple::ConnectionEstablished()
     m_channelLoader = std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(client, m_settings);
   else
     m_channelLoader->SetClient(client);
-  // Build the new channel/group model into local snapshots off-lock, then
-  // swap the data in under m_mutex. This runs on the connection-manager
-  // thread on every (re)connect and LoadChannels is seconds of network I/O
-  // (channels fetch + optional remote reference playlist): loading straight
-  // into the members raced Kodi's locked readers (GetChannels & co.), while
-  // holding m_mutex across the load would freeze the UI for the duration.
-  // A failed load swaps in the load-failed state, exactly like before.
+  // Kodi's callbacks read the models under m_mutex and LoadChannels is
+  // seconds of network I/O, so build the new model off-lock and swap it in.
+  // A failed load swaps in the load-failed state.
   bool channelsLoaded;
   {
     Channels channels(m_settings);
@@ -262,8 +254,7 @@ PVR_ERROR IptvSimple::GetCapabilities(kodi::addon::PVRCapabilities& capabilities
   capabilities.SetSupportsTV(true);
   capabilities.SetSupportsRadio(false);
   capabilities.SetSupportsChannelGroups(true);
-  // No provider concept for a single-server Jellyfin backend — the fork never
-  // populated the provider list it inherited from pvr.iptvsimple.
+  // A single Jellyfin server has no provider concept.
   capabilities.SetSupportsProviders(false);
   capabilities.SetSupportsTimers(true);
   capabilities.SetSupportsRecordings(true);
@@ -345,13 +336,8 @@ void IptvSimple::Process()
     // Poll timers/recordings so Kodi learns about new/changed recordings
     // without a restart (EPG recording indicators, widgets, etc.). The
     // cadence is a setting (Advanced, clamped in ReadSettings), re-read
-    // every pass so a change applies without an addon restart.
-    //
-    // Refresh only what the poll actually changed: a Trigger*Update makes Kodi
-    // re-read the model and re-render the Live TV widgets, so firing both every
-    // pass flickered the UI on a fixed cadence even when the server had nothing
-    // new. Reload() diffs the rebuilt model against the previous one and most
-    // polls now come back RELOAD_CHANGE_NONE.
+    // every pass so a change applies without an addon restart. Only what
+    // the poll changed is refreshed; see ReloadChange.
     if (m_running && loggedIn && m_recordingManager &&
         timerRecordingPollTimer >= static_cast<unsigned int>(m_settings->GetTimerRecordingPollSecs()))
     {
@@ -376,10 +362,7 @@ void IptvSimple::Process()
 
       m_settings->ReadSettings();
 
-      // Reload channels from Jellyfin — build off-lock, swap under m_mutex
-      // (same pattern as ConnectionEstablished): holding m_mutex across the
-      // network round-trip blocked GetChannels/GetChannelStreamProperties,
-      // freezing zapping and the channels window for the duration.
+      // Build off-lock and swap under m_mutex, as ConnectionEstablished does.
       if (m_channelLoader)
       {
         Channels channels(m_settings);
@@ -506,7 +489,6 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     const std::string mimeType = StreamUtils::GetMimeType(streamType);
     const std::string manifestType = StreamUtils::GetManifestType(streamType);
 
-    // Set stream properties
     properties.emplace_back(PVR_STREAM_PROPERTY_STREAMURL, streamURL);
     if (!mimeType.empty())
       properties.emplace_back(PVR_STREAM_PROPERTY_MIMETYPE, mimeType);
@@ -519,10 +501,6 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       channelInputstream = m_currentChannel.GetProperty("inputstream");
     const int inputStream = m_settings->GetInputStream();
 
-    // Catchup: a timeshifted EPG programme (play as live) on a direct-play
-    // ffmpegdirect channel plays in catchup mode. CatchupController is
-    // persistent — GetEPGTagStreamProperties stored the programme times and
-    // ProcessChannelForPlayback uses them (same pattern as pvr.iptvsimple).
     bool useFfmpegDirect = !channelInputstream.empty()
       ? channelInputstream == "inputstream.ffmpegdirect"
       : inputStream == 0;
@@ -545,7 +523,6 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // buffer for pause and skip.
     if (isDirectPlay && useFfmpegDirect && pendingTimeshiftedCatchup)
     {
-      // Update channel's stream URL to the actual tuner URL
       m_currentChannel.SetStreamURL(streamURL);
       m_currentChannel.ConfigureCatchupMode();
 
@@ -561,9 +538,7 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
       else
         streamURL = m_catchupController->ProcessStreamUrl(m_currentChannel);
 
-      // Update the stream URL property (was set to raw tuner URL earlier).
-      // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
-      // sources aren't mislabelled as HLS (see AppendCatchupInputstreamProperties).
+      // Replace the live stream properties with the catchup ones.
       properties.clear();
       AppendCatchupInputstreamProperties(properties, streamURL, m_currentChannel.IsCatchupTSStream(),
                                          m_settings->GetCatchupInputstream());
@@ -799,7 +774,6 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (streamURL.empty())
     return PVR_ERROR_FAILED;
 
-  // Update channel stream URL to the provider URL and regenerate catchup source
   channel.SetStreamURL(streamURL);
   channel.ConfigureCatchupMode();
 
@@ -823,8 +797,6 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   const std::string catchupUrl = m_catchupController->GetCatchupUrl(channel);
   if (!catchupUrl.empty())
   {
-    // Derive MIME + manifest_type from the resolved catchup URL so TS catchup
-    // sources aren't mislabelled as HLS (see AppendCatchupInputstreamProperties).
     AppendCatchupInputstreamProperties(properties, catchupUrl, channel.IsCatchupTSStream(),
                                        m_settings->GetCatchupInputstream());
 
@@ -993,9 +965,8 @@ PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool force
   if (!m_recordingManager)
     return PVR_ERROR_NOT_IMPLEMENTED;
 
-  // Trigger UI updates only after the reload completes. Triggers that fired
-  // before it made Kodi briefly re-read stale data (the deleted timer, the
-  // still-in-progress recording).
+  // The triggers fire after the reload, so Kodi does not re-read the deleted
+  // timer.
   return RunTimerOp(
       [this, timer, forceDelete]() { return m_recordingManager->DeleteTimer(timer, forceDelete); },
       [this, timer]() {
@@ -1092,10 +1063,11 @@ PVR_ERROR IptvSimple::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecor
 }
 
 /***************************************************************************
- * Recording Byte-Stream (Recordings section playback path)
+ * Recording Byte-Stream
  *
- * Kodi's PVR Recordings window does NOT call GetRecordingStreamProperties.
- * It goes directly to OpenRecordedStream / ReadRecordedStream.
+ * Kodi takes this path when GetRecordingStreamProperties returns no
+ * properties, and when a recording plays from a playlist (autoplay-next on,
+ * or a recordings folder).
  **************************************************************************/
 
 // The byte-stream itself lives in JellyfinRecordingManager; these overrides
@@ -1129,10 +1101,6 @@ PVR_ERROR IptvSimple::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStat
 
   return PVR_ERROR_NO_ERROR;
 }
-
-/***************************************************************************
- * Stream State
- **************************************************************************/
 
 /***************************************************************************
  * InstanceSettings
@@ -1190,7 +1158,6 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
     return;
   }
 
-  // For regular settings, re-read all settings and flag for reload
   m_settings->ReadSettings();
 
   if (!m_reloadChannelsGroupsAndEPG)

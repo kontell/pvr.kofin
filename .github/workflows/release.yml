@@ -1,10 +1,8 @@
 # Tag release: build every platform for both Kodi versions, then draft a GitHub
 # release with the zips attached.
 #
-# `pull_request` is deliberately absent. This workflow used to run on every PR to
-# main, so a PR cost a full 12-way cross-compile and its checks were labelled
-# "Linux aarch64 / Kodi 21" under a workflow called "Release". PR coverage is
-# ci.yml's job.
+# `pull_request` is deliberately absent: PR coverage is ci.yml's job, and a
+# release build is the full cross-compile matrix.
 name: Release
 
 on:
@@ -132,8 +130,7 @@ jobs:
           path: artifacts/*.zip
           # Not the default (warn): a job that produces no zip would otherwise
           # report success and the asset would be silently missing from the
-          # release. That is exactly how inputstream.tempo v0.3.11 shipped 10
-          # assets from 12 green jobs.
+          # release.
           if-no-files-found: error
 
   # ---------------------------------------------------------------------- Windows
@@ -324,11 +321,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          # The guard the Python add-ons have always had and this one never did.
-          # notes/release-workflow-summary.md documents the cost: a tag on a
-          # pre-bump commit yields a release tagged v0.9.1, titled "pvr.kofin
-          # 0.9.0", containing 0.9.0 zips — every name derived from the tagged
-          # tree, none of them cross-checked against the tag.
+          # Every name in the release (title, zip names, body) is derived from
+          # the tagged tree, so a tag on a pre-bump commit would otherwise yield
+          # a complete, consistently mislabelled release.
           version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
           tag="${GITHUB_REF_NAME#v}"
           echo "addon.xml.in version=$version  tag=$tag"
@@ -363,11 +358,8 @@ jobs:
         run: |
           set -euo pipefail
           # The release body and the repository's <news> are both derived from the
-          # tree, and neither was ever checked against the version. That is not
-          # hypothetical: inputstream.tempo's changelog.txt sat at v0.3.5 while
-          # 0.3.6 through 0.3.11 shipped, so every draft body since was wrong and
-          # had to be rewritten by hand at publish time — and v0.3.6's went out
-          # still headed v0.3.5.
+          # tree, so a changelog that was not bumped with the version would ship a
+          # stale body under the new tag.
           version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
           top="$(awk -v RS= 'NR==1' ${app_id}/changelog.txt | head -1 | tr -d '\r')"
           if [[ "$top" != "v$version" ]]; then
@@ -448,9 +440,6 @@ jobs:
           body: ${{ steps.version.outputs.changes }}
           draft: true
           files: artifacts/*.zip
-          # Explicit, though the action defaults to github.token anyway. A
-          # v21.3.11 release 403'd here while a bare `gh api` POST from the
-          # same job, same branch, same tag, succeeded — so the default
-          # resolution was the one thing not ruled out. Naming the secret
-          # removes it from the list.
+          # Explicit, though the action defaults to github.token anyway, so the
+          # token in use is never in question when an upload fails.
           token: ${{ secrets.GITHUB_TOKEN }}
