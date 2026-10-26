@@ -168,8 +168,8 @@ PVR_ERROR JellyfinRecordingManager::GetTimers(kodi::addon::PVRTimersResultSet& r
 
 PVR_ERROR JellyfinRecordingManager::AddTimer(const kodi::addon::PVRTimer& timer)
 {
-  // Exception firewall: AddTimer runs on a detached worker thread, where an
-  // escaped jsoncpp exception means std::terminate for the whole process.
+  // Exception firewall: AddTimer runs on a worker thread, where an escaped
+  // jsoncpp exception means std::terminate for the whole process.
   try
   {
     return AddTimerInternal(timer);
@@ -189,7 +189,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
 
   if (timer.GetTimerType() == TIMER_ONCE_EPG)
   {
-    // Look up the Jellyfin program ID from the EPG broadcast UID
     std::string programId = m_channelLoader->GetJellyfinProgramId(timer.GetEPGUid());
 
     // Fallback: if the map is empty (Kodi used cached EPG after restart),
@@ -227,7 +226,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_INVALID_PARAMETERS;
     }
 
-    // Get timer defaults from Jellyfin for this program
     Json::Value defaults = client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
     if (defaults.isNull())
     {
@@ -236,7 +234,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    // Apply user padding
     defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
     defaults["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
     defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
@@ -260,7 +257,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
   }
   else if (timer.GetTimerType() == TIMER_SERIES)
   {
-    // Look up Jellyfin program ID from EPG — same as single timers
     std::string programId = m_channelLoader->GetJellyfinProgramId(timer.GetEPGUid());
 
     if (programId.empty() && timer.GetStartTime() > 0)
@@ -295,7 +291,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_INVALID_PARAMETERS;
     }
 
-    // Get timer defaults for this program — gives us the full template
     Json::Value defaults = client->SendGet("/LiveTv/Timers/Defaults?programId=" + programId);
     if (defaults.isNull())
     {
@@ -304,12 +299,10 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
       return PVR_ERROR_SERVER_ERROR;
     }
 
-    // Override with series-specific settings
     defaults["RecordAnyTime"] = true;
     defaults["RecordAnyChannel"] = (timer.GetClientChannelUid() == PVR_TIMER_ANY_CHANNEL);
     defaults["RecordNewOnly"] = timer.GetPreventDuplicateEpisodes() > 0;
 
-    // Weekdays
     Json::Value days(Json::arrayValue);
     unsigned int weekdays = timer.GetWeekdays();
     if (weekdays & PVR_WEEKDAY_MONDAY) days.append("Monday");
@@ -322,7 +315,6 @@ PVR_ERROR JellyfinRecordingManager::AddTimerInternal(const kodi::addon::PVRTimer
     if (!days.empty())
       defaults["Days"] = days;
 
-    // Padding
     defaults["PrePaddingSeconds"] = static_cast<int>(timer.GetMarginStart()) * 60;
     defaults["IsPrePaddingRequired"] = timer.GetMarginStart() > 0;
     defaults["PostPaddingSeconds"] = static_cast<int>(timer.GetMarginEnd()) * 60;
@@ -479,8 +471,8 @@ PVR_ERROR JellyfinRecordingManager::DeleteTimer(const kodi::addon::PVRTimer& tim
   // seconds, so the caller runs this on a worker and reloads afterwards.
   if (!client->SendDelete(endpoint))
   {
-    // Surface the failure: returning NO_ERROR here made a rejected delete
-    // silently "succeed" and the timer reappear on the next poll.
+    // A rejected delete reported as success would leave the timer to reappear
+    // on the next poll.
     Logger::Log(LEVEL_ERROR, "%s - Failed to delete %stimer %s", __FUNCTION__,
                 isSeries ? "series " : "", jellyfinId.c_str());
     return PVR_ERROR_SERVER_ERROR;
@@ -564,9 +556,8 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
 {
   const std::string recordingId = recording.GetRecordingId();
 
-  // m_inProgressRecordingIds and m_recordings are cleared/rebuilt under
-  // m_mutex by the 60 s Reload() poll — read both under the same lock
-  // (the count() was previously unlocked: UB during a concurrent rebuild).
+  // m_inProgressRecordingIds and m_recordings are rebuilt under m_mutex by
+  // the Reload() poll, so read both under the same lock.
   bool inProgress = false;
   int channelUid = 0;
   {
@@ -609,7 +600,6 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     return PVR_ERROR_SERVER_ERROR;
   }
 
-  // DEBUG, not INFO: keep resolved stream URLs out of default kodi.log output.
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL (id=%s, inProgress=%d): %s",
               __FUNCTION__, recordingId.c_str(), inProgress ? 1 : 0,
               WebUtils::RedactUrl(streamUrl).c_str());
@@ -791,8 +781,7 @@ PVR_ERROR JellyfinRecordingManager::LoadTimersInternal()
 
   // Keep the previous model on a failed fetch, as LoadRecordings does: a server
   // with no timers still answers with an empty Items array, so a missing Items
-  // means the request failed, and blanking the list on a transient blip made
-  // every timer vanish from the UI until the next poll.
+  // means the request failed.
   if (response.isNull() || !response.isMember("Items"))
   {
     Logger::Log(LEVEL_WARNING, "%s - Failed to load timers, keeping previous data", __FUNCTION__);
@@ -1034,9 +1023,8 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
 
   // Fetch before locking: the HTTP call can stall up to the connection
   // timeout, and Kodi's UI-path callbacks (GetTimers, GetRecordings,
-  // HasRecordingForEpg, ...) block on m_mutex — holding it across the network
-  // round-trip froze the UI whenever the server was slow. Same fetch-then-lock
-  // structure as LoadTimers/LoadSeriesTimers; parsing below is pure CPU.
+  // HasRecordingForEpg, ...) block on m_mutex. Same fetch-then-lock structure
+  // as LoadTimers/LoadSeriesTimers; parsing below is pure CPU.
   const std::string endpoint = "/LiveTv/Recordings?UserId=" + client->GetUserId()
     + "&EnableImages=true&Fields=Overview,ChannelInfo,ProgramId,DateCreated";
   Json::Value response = client->SendGet(endpoint);
@@ -1060,12 +1048,12 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
   m_recordings.clear();
   m_inProgressRecordingIds.clear();
 
-  // Collect Jellyfin items from multiple sources, de-duplicated by ID
+  // /LiveTv/Recordings is the only source: items the library scan files under
+  // the Recordings folder would otherwise show up as phantom recordings. The
+  // Status field on each item tells whether it is still recording.
   std::set<std::string> seenIds;
   Json::Value allItems(Json::arrayValue);
 
-  // 1. All recordings from /LiveTv/Recordings (includes in-progress ones)
-  //    The Status field on each item tells us if it's still recording.
   {
     if (!response.isNull() && response.isMember("Items"))
     {
@@ -1089,11 +1077,7 @@ PVR_ERROR JellyfinRecordingManager::LoadRecordingsInternal()
     }
   }
 
-  // Note: library view query removed — after Jellyfin library scans,
-  // non-recording items get indexed into the Recordings folder and appear
-  // as phantom recordings in Kodi. /LiveTv/Recordings is authoritative.
-
-  // 3. Build PVRRecording objects from merged items
+  // Build the PVRRecording objects.
   for (const auto& item : allItems)
   {
     const std::string jellyfinId = item["Id"].asString();
@@ -1381,14 +1365,14 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingLastPlayedPosition(const kodi::a
 }
 
 /***************************************************************************
- * Recorded-stream byte path (Recordings window playback)
+ * Recorded-stream byte path
  *
  * Streams the raw recording file via /Videos/{id}/stream?static=true using
- * kodi::vfs::CFile. Used by the PVR Recordings section, which opens recordings
- * directly rather than via GetRecordingStreamProperties. Only one recording
- * plays at a time and Kodi drives Open/Read/Seek/Close on a single playback
- * thread, so this state is independent of the data model and not guarded by
- * m_mutex.
+ * kodi::vfs::CFile. Kodi takes this path when GetRecordingStreamProperties
+ * returns no properties, and when a recording plays from a playlist. Only one
+ * recording plays at a time and Kodi drives Open/Read/Seek/Close on a single
+ * playback thread, so this state is independent of the data model and not
+ * guarded by m_mutex.
  **************************************************************************/
 
 bool JellyfinRecordingManager::OpenRecordedStream(const kodi::addon::PVRRecording& recording)

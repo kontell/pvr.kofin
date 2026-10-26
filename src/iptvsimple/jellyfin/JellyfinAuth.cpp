@@ -35,10 +35,7 @@ JellyfinAuth::JellyfinAuth(std::shared_ptr<iptvsimple::InstanceSettings> setting
 
 void JellyfinAuth::TestConnection()
 {
-  // Exception firewall: reached from Kodi's SetSetting callback. The flow
-  // parses server-controlled JSON, and "user typed a wrong address that
-  // points at something hostile" is exactly this flow's threat model — a
-  // jsoncpp type error must not unwind across the C ABI.
+  // Exception firewall (see JellyfinAuth.h).
   try
   {
     TestConnectionInternal();
@@ -76,9 +73,7 @@ void JellyfinAuth::TestConnectionInternal()
 
 void JellyfinAuth::RunLogin()
 {
-  // Exception firewall — see TestConnection. Covers the password and Quick
-  // Connect flows, whose response parsing (SetAuthFromResponse,
-  // StartQuickConnect, CheckQuickConnect) converts server-controlled values.
+  // Exception firewall (see JellyfinAuth.h).
   try
   {
     RunLoginInternal();
@@ -269,8 +264,7 @@ void JellyfinAuth::RunLogout()
 
 void JellyfinAuth::FetchAndStoreServerName()
 {
-  // Exception firewall — also called directly from the connection-manager
-  // thread, where an escaped exception means std::terminate.
+  // Exception firewall (see JellyfinAuth.h).
   try
   {
     FetchAndStoreServerNameInternal();

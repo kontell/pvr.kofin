@@ -241,8 +241,7 @@ void CatchupController::ProcessChannelForPlayback(const Channel& channel, std::m
   // EPGPLAYBACKASLIVE; Kodi then opens the channel and lands here. A channel
   // switch never enters — live tuning takes the timeshift buffer in
   // GetChannelStreamProperties — so there is no fresh catchup window to open
-  // and no channel-switch state to reset. pvr.iptvsimple's catchup-as-live
-  // half of this function went with that mode.
+  // and no channel-switch state to reset.
   m_playbackIsVideo = false;
   m_controlsLiveStream = channel.IsCatchupSupported() && channel.CatchupSupportsTimeshifting();
   m_fromTimeshiftedEpgTagCall = false;

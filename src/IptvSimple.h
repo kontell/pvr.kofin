@@ -144,8 +144,7 @@ private:
   bool m_authFailureShown = false;
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
-  // Appends the resolved stream's PlaySessionId, which service.py matches
-  // against session.json to know the playing item is this tune.
+  // Appends the PlaySessionId that service.py matches against session.json.
   void TagStreamSession(std::vector<kodi::addon::PVRStreamProperty>& properties) const;
 
   // Runs a timer add/delete on a worker thread: the request to the server, then

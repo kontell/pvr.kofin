@@ -115,9 +115,6 @@ void Channel::SetStreamURL(const std::string& url)
     TryToAddPropertyAsHeader("http-referrer", "referer"); // spelling differences are correct
   }
 
-  // Multicast transform removed - Jellyfin streams are always HTTP/HLS
-  // Default inputstream/mimetype removed - handled by StreamUtils at playback time
-
   m_inputStreamName = GetProperty(PVR_STREAM_PROPERTY_INPUTSTREAM);
 }
 
@@ -235,9 +232,6 @@ void Channel::ConfigureCatchupMode()
     url = sourceUrl.substr(0, found);
     protocolOptions = sourceUrl.substr(found, sourceUrl.length());
   }
-
-  // Catchup override settings removed - Jellyfin does not use M3U catchup
-  // Just process the catchup mode as-is from the channel data
 
   switch (m_catchupMode)
   {

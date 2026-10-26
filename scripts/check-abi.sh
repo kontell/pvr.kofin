@@ -3,10 +3,9 @@
 #
 # Usage: scripts/check-abi.sh <artifacts-dir> [max-glibc]
 #
-# Two things are checked, and both are assertions rather than printouts. The
-# previous version of this logic printed the maximum required glibc symbol
-# version, which is only ever read by someone who is already suspicious — the
-# whole point is to catch the floor rising when nobody is looking.
+# Two things are checked, and both are assertions rather than printouts: a
+# printed maximum is only ever read by someone who is already suspicious, and
+# the point is to catch the floor rising when nobody is looking.
 #
 #  1. libstdc++ and libgcc_s must NOT be dynamic dependencies. Kodi targets ship
 #     wildly different libstdc++ versions and a GLIBCXX_3.4.x the box does not

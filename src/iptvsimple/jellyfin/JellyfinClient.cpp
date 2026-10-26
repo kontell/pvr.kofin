@@ -39,7 +39,6 @@ std::string SanitizeHeaderValue(std::string value)
 JellyfinClient::JellyfinClient(std::shared_ptr<iptvsimple::InstanceSettings> settings)
   : m_settings(settings)
 {
-  // Restore persisted credentials
   m_accessToken = m_settings->GetJellyfinAccessToken();
   m_userId = m_settings->GetJellyfinUserId();
 }
@@ -63,8 +62,7 @@ bool JellyfinClient::Authenticate()
 {
   // Exception firewall: runs on the connection-manager thread (and from the
   // settings Test Connection flow) — an escaped jsoncpp type error would
-  // std::terminate or cross the C ABI. ValidateToken parses only presence
-  // today, but this pins the entry point against future drift.
+  // std::terminate or cross the C ABI.
   try
   {
     return AuthenticateInternal();
@@ -104,11 +102,10 @@ bool JellyfinClient::AuthenticateInternal()
   // Do NOT wipe the stored credentials here. Kodi's curl layer reports an
   // unreachable server and an HTTP 401 identically (CURLOpen fails, with no
   // status code exposed), so a transient network/startup blip is
-  // indistinguishable from a genuinely expired token. Wiping on the former
-  // spuriously logged the user out — and persisted it to the next session — on
-  // every flaky reconnect. Keep the token: the connection manager keeps
-  // health-checking and re-enters this path, and a truly expired token simply
-  // yields no data until the user logs in again from the Account settings.
+  // indistinguishable from a genuinely expired token. Keep the token: the
+  // connection manager keeps health-checking and re-enters this path, and a
+  // truly expired token simply yields no data until the user logs in again
+  // from the Account settings.
   Logger::Log(LEVEL_WARNING,
               "%s - Could not validate stored token after %d attempts (server not "
               "ready or token expired); keeping credentials for retry",
@@ -120,9 +117,8 @@ bool JellyfinClient::AuthenticateByPassword(const std::string& username, const s
 {
   Logger::Log(LEVEL_INFO, "%s - Authenticating user '%s'", __FUNCTION__, username.c_str());
 
-  // Build the body with jsoncpp so quotes/backslashes in credentials are
-  // escaped properly (string concatenation broke logins for passwords
-  // containing '"' or '\'). Field order does not matter to the server.
+  // Build the body with jsoncpp so quotes and backslashes in credentials are
+  // escaped. Field order does not matter to the server.
   Json::Value authBody;
   authBody["Username"] = username;
   authBody["Pw"] = password;
@@ -149,7 +145,7 @@ bool JellyfinClient::IsQuickConnectEnabled()
   // CURLOpen on HTTP >= 400 and exposes no status code, so a transport failure
   // is indistinguishable from a refusal -- both arrive here as a null value.
   // Only a definite false is treated as "off"; everything else keeps the login
-  // picker as it was, which is never worse than the behaviour this replaced.
+  // picker.
   Json::Value response = DoRequest(BuildUrl("/QuickConnect/Enabled"));
 
   if (response.isNull() || !response.isBool())
@@ -260,11 +256,9 @@ void JellyfinClient::SetAuthFromResponse(const Json::Value& response)
   if (response.isMember("User") && response["User"].isMember("Id"))
     m_userId = response["User"]["Id"].asString();
 
-  // Extract display username
   if (response.isMember("User") && response["User"].isMember("Name"))
     m_settings->SetJellyfinDisplayUsername(response["User"]["Name"].asString());
 
-  // Persist to settings
   m_settings->SetJellyfinAccessToken(m_accessToken);
   m_settings->SetJellyfinUserId(m_userId);
 
@@ -282,8 +276,7 @@ bool JellyfinClient::FetchServerInfo(std::string& serverName)
 
 bool JellyfinClient::GetStorageInfo(uint64_t& totalBytes, uint64_t& usedBytes)
 {
-  // Exception firewall: this runs inside Kodi's GetDriveSpace callback, and
-  // a jsoncpp type error must not cross the C ABI.
+  // Exception firewall — see Authenticate.
   try
   {
     return GetStorageInfoInternal(totalBytes, usedBytes);
@@ -480,7 +473,6 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   if (response.empty())
     return result;
 
-  // Parse JSON
   Json::CharReaderBuilder builder;
   std::string errors;
   std::istringstream stream(response);
