@@ -728,8 +728,8 @@ msgstr "Nastavenia Tempo..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
-msgid "Enter this code in an already logged in client (browser, phone, etc):"
-msgstr "Zadajte tento kód v už prihlásenom klientovi (prehliadač, telefón atď.):"
+msgid "Enter this code in an already logged in client:"
+msgstr "Zadajte tento kód v už prihlásenom klientovi:"
 
 #: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"
