@@ -121,7 +121,7 @@
   "#30845": "Busca servidores Jellyfin en esta red y muestra los que responden. El que elijas se escribe en la dirección del servidor de arriba.",
   "#30848": "Comprobando servidores…",
   "#30851": "%s incluye una ruta que este complemento no puede usar — introduce la dirección manualmente",
-  "#30857": "Introduce este código en un cliente con la sesión ya iniciada (navegador, teléfono, etc.):",
+  "#30857": "Introduce este código en un cliente con la sesión ya iniciada:",
   "#30858": "Código: %s",
   "#30859": "Esperando autorización…",
   "#30860": "Grabación manual",

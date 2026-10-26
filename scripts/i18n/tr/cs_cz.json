@@ -121,7 +121,7 @@
   "#30845": "Vyhledá servery Jellyfin v této síti a zobrazí ty, které odpoví. Vybraný se doplní do adresy serveru výše.",
   "#30848": "Kontrola serverů…",
   "#30851": "%s obsahuje cestu, kterou tento doplněk neumí použít — zadejte adresu ručně",
-  "#30857": "Zadejte tento kód v již přihlášeném klientovi (prohlížeč, telefon atd.):",
+  "#30857": "Zadejte tento kód v již přihlášeném klientovi:",
   "#30858": "Kód: %s",
   "#30859": "Čeká se na autorizaci…",
   "#30860": "Ruční nahrávání",

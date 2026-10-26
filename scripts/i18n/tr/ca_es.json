@@ -121,7 +121,7 @@
   "#30845": "Cerca servidors Jellyfin en aquesta xarxa i mostra els que responen. El que triïs s'escriu a l'adreça del servidor de dalt.",
   "#30848": "S'estan comprovant els servidors…",
   "#30851": "%s inclou un camí que aquest complement no pot fer servir — introdueix l'adreça manualment",
-  "#30857": "Introdueix aquest codi en un client amb la sessió ja iniciada (navegador, telèfon, etc.):",
+  "#30857": "Introdueix aquest codi en un client amb la sessió ja iniciada:",
   "#30858": "Codi: %s",
   "#30859": "S'està esperant l'autorització…",
   "#30860": "Enregistrament manual",
