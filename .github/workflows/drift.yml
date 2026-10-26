@@ -21,8 +21,8 @@
 # our pinned build satisfies — and builds against master as a secondary signal.
 # When it fails, re-pin forward: an alpha's earlier builds are not worth holding.
 #
-# The schedule only fires on the default branch (Piers), so on this branch the
-# check runs when dispatched: gh workflow run drift.yml --ref master
+# The schedule only fires on the default branch, which is this one, so Omega and
+# Piers run their checks when dispatched: gh workflow run drift.yml --ref Piers
 name: Upstream drift
 
 on:
