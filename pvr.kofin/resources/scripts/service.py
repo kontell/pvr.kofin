@@ -240,7 +240,7 @@ class PlaybackReporter(xbmc.Player):
                                self.last_position_ticks)
                 self.session = None
 
-        if session_data:
+        if session_data and not self.session:
             self._adopt(session_data)
 
     def adopt_playing(self):
