@@ -76,8 +76,9 @@ public:
   PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition);
   PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position);
 
-  // Recorded-stream byte path (PVR Recordings window playback; raw static
-  // stream). One playback at a time, driven on Kodi's playback thread.
+  // Recorded-stream byte path (raw static stream, for the recordings Kodi
+  // does not open through stream properties). One playback at a time, driven
+  // on Kodi's playback thread.
   bool OpenRecordedStream(const kodi::addon::PVRRecording& recording);
   void CloseRecordedStream();
   int ReadRecordedStream(unsigned char* buffer, unsigned int size);
@@ -103,7 +104,7 @@ private:
 
   // *Internal carry the parsing logic; their public/loader counterparts wrap
   // them in an exception firewall so jsoncpp errors never cross the Kodi ABI
-  // or escape the detached timer-op threads.
+  // or escape the timer-op worker threads.
   PVR_ERROR AddTimerInternal(const kodi::addon::PVRTimer& timer);
   PVR_ERROR LoadTimersInternal();
   PVR_ERROR LoadSeriesTimersInternal();

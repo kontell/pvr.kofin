@@ -37,8 +37,7 @@ public:
   // A live URL as the inputstream opens it: the playlist line's {lutc}, ${now}
   // and ${timestamp}, and their {lutc:...}/{now:...} unit forms, expanded
   // against the clock with the channel's catchup correction applied. Live
-  // tuning in GetChannelStreamProperties uses this; catchup-as-live used to
-  // reach the same expansion through ProcessStreamUrl.
+  // tuning in GetChannelStreamProperties uses this.
   static std::string FormatLiveUrl(const std::string& url, const data::Channel& channel);
 
   bool ControlsLiveStream() const { return m_controlsLiveStream; }

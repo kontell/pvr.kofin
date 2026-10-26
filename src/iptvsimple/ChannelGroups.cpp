@@ -74,7 +74,7 @@ PVR_ERROR ChannelGroups::GetChannelGroupMembers(const kodi::addon::PVRChannelGro
   {
     // We set a channel order here that applies to this group in kodi-pvr
     // This allows the users to use the 'Backend Order' sort option in the left to
-    // have the same order as the backend (regardles of the channel numbering used)
+    // have the same order as the backend (regardless of the channel numbering used)
     //
     // We don't set a channel number within this group as different channel numbers
     // per group are not supported in M3U files
@@ -104,9 +104,6 @@ PVR_ERROR ChannelGroups::GetChannelGroupMembers(const kodi::addon::PVRChannelGro
 
 int ChannelGroups::AddChannelGroup(iptvsimple::data::ChannelGroup& channelGroup)
 {
-  // (The upstream TV/radio same-name disambiguation branch was removed here:
-  // kofin never creates radio groups, and it referenced strings 30450/30451
-  // that no strings.po defines.)
   const ChannelGroup* existingChannelGroup = FindChannelGroup(channelGroup.GetGroupName());
 
   if (!existingChannelGroup)
