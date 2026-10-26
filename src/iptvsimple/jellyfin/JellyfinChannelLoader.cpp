@@ -1034,7 +1034,8 @@ void JellyfinChannelLoader::WriteSessionFile()
   session["PlaySessionId"] = m_activePlaySessionId;
   session["LiveStreamId"] = m_activeLiveStreamId;
   session["PlayMethod"] = m_activePlayMethod;
-  // Consumed by service.py to ignore stale files (e.g. crash leftovers).
+  // service.py's tempo route takes a tempo state line older than this as
+  // left by an earlier play.
   session["WrittenAt"] = static_cast<Json::Int64>(std::time(nullptr));
   // Orders the pending records below against the session service.py adopts.
   // Whole seconds cannot: a zap writes two sessions within the same second.
