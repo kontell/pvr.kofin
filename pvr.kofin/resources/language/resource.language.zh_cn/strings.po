@@ -712,8 +712,8 @@ msgstr "%s 无响应 — 它提供的地址在此可能无法使用"
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
-msgid "Enter this code in an already logged in client (browser, phone, etc):"
-msgstr "请在已登录的客户端（浏览器、手机等）中输入此代码："
+msgid "Enter this code in an already logged in client:"
+msgstr "请在已登录的客户端中输入此代码："
 
 #: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"
