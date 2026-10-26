@@ -167,7 +167,7 @@ def post_json(base_url, endpoint, body, token, device_id):
             resp.read()
         return True
     except (urllib.error.URLError, OSError) as e:
-        xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGWARNING)
+        xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGDEBUG)
         return False
 
 
@@ -344,7 +344,7 @@ class PlaybackReporter(xbmc.Player):
             return
         if time.time() * 1000 - pending.get('WrittenAtMs', 0) > PENDING_GIVE_UP_SECS * 1000:
             xbmc.log('pvr.kofin reporter: giving up on closing a stream opened a day ago',
-                     xbmc.LOGWARNING)
+                     xbmc.LOGDEBUG)
             remove_file(path)
             self.pending_retry.pop(path, None)
             return
