@@ -314,7 +314,8 @@ PVR_ERROR IptvSimple::GetBackendVersion(std::string& version)
 }
 PVR_ERROR IptvSimple::GetConnectionString(std::string& connection)
 {
-  connection = "connected";
+  // Kodi shows this as the backend's host.
+  connection = m_settings->GetJellyfinBaseUrl();
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -1155,7 +1156,7 @@ int64_t IptvSimple::LengthRecordedStream() { return m_recordingManager ? m_recor
 PVR_ERROR IptvSimple::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus)
 {
   signalStatus.SetAdapterName("Kofin Jellyfin PVR");
-  signalStatus.SetAdapterStatus("OK");
+  signalStatus.SetAdapterStatus(kodi::addon::GetLocalizedString(186)); // Kodi's "OK"
 
   return PVR_ERROR_NO_ERROR;
 }
