@@ -121,7 +121,7 @@
   "#30845": "Etsii Jellyfin-palvelimia tästä verkosta ja luettelee ne, jotka vastaavat. Valitsemasi palvelin täytetään yllä olevaan palvelimen osoitteeseen.",
   "#30848": "Tarkistetaan palvelimia…",
   "#30851": "%s sisältää polun, jota tämä lisäosa ei voi käyttää — syötä osoite käsin",
-  "#30857": "Syötä tämä koodi jo sisäänkirjautuneeseen asiakasohjelmaan (selain, puhelin jne.):",
+  "#30857": "Syötä tämä koodi jo sisäänkirjautuneeseen asiakasohjelmaan:",
   "#30858": "Koodi: %s",
   "#30859": "Odotetaan valtuutusta…",
   "#30860": "Manuaalinen tallennus",

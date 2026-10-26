@@ -121,7 +121,7 @@
   "#30845": "Procura servidores Jellyfin nesta rede e lista os que responderem. O escolhido é preenchido no endereço do servidor acima.",
   "#30848": "Verificando servidores…",
   "#30851": "%s inclui um caminho que este complemento não pode usar — informe o endereço manualmente",
-  "#30857": "Informe este código em um cliente já conectado (navegador, celular etc.):",
+  "#30857": "Informe este código em um cliente já conectado:",
   "#30858": "Código: %s",
   "#30859": "Aguardando autorização…",
   "#30860": "Gravação manual",
