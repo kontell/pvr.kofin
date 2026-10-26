@@ -91,6 +91,11 @@ PENDING_IDLE_SECS = 30
 PENDING_RETRY_SECS = 60
 PENDING_RETRY_MAX_SECS = 3600
 PENDING_GIVE_UP_SECS = 24 * 3600
+# The stream property naming the PlaySessionId of the tune a playback came
+# from. The addon sets it on every stream it hands Kodi, and Kodi copies stream
+# properties onto the item it plays, so it tells a kofin playback from another
+# PVR addon's and from a kofin tune that never played.
+SESSION_TAG = 'pvr.kofin.playsessionid'
 
 
 def get_device_name():
@@ -224,37 +229,8 @@ class PlaybackReporter(xbmc.Player):
         self.pending_retry = {}
 
     def onAVStarted(self):
-        """Stream is up — read session data written by C++ addon and report start."""
-        # Player callbacks fire for ALL playback. Only treat this as a kofin
-        # stream if PVR playback is active and a fresh session.json exists —
-        # getPlayingFile() returns the resolved stream URL (not a pvr:// URL)
-        # so we gate on the PVR playback condition instead.
-        session_data = None
-        # EPG-tag playback answers neither IsPlayingTV nor IsPlayingRecording
-        # on every path: the tempo catchup route reports PVR.IsPlayingEpgTag
-        # (measured on Piers), the ffmpegdirect route reported IsPlayingTV.
-        if (xbmc.getCondVisibility('PVR.IsPlayingTV') or
-                xbmc.getCondVisibility('PVR.IsPlayingRecording') or
-                xbmc.getCondVisibility('PVR.IsPlayingEpgTag')):
-            try:
-                with open(SESSION_PATH, 'r') as f:
-                    session_data = json.load(f)
-            except (OSError, json.JSONDecodeError):
-                session_data = None
-        if session_data:
-            # Ignore stale session files (e.g. left behind by a Kodi crash):
-            # with a second PVR addon installed, the PVR.IsPlaying* gate alone
-            # would misattribute foreign playback to this session. WrittenAt is
-            # set by the C++ addon when it resolves the stream URL, moments
-            # before playback starts; 0/absent means an older addon build —
-            # accept it.
-            written_at = session_data.get('WrittenAt', 0)
-            if written_at and time.time() - written_at > 300:
-                xbmc.log('pvr.kofin reporter: ignoring stale session.json',
-                         xbmc.LOGDEBUG)
-                session_data = None
-            elif not session_data.get('ItemId', ''):
-                session_data = None
+        """Stream is up — adopt it if it is kofin's, and report the start."""
+        session_data = self._playing_session()
 
         # A new playback can replace ours without any stop event (seamless
         # channel zap) — finalize the outgoing session first, or its live
@@ -270,9 +246,42 @@ class PlaybackReporter(xbmc.Player):
                                self.last_position_ticks)
                 self.session = None
 
-        if not session_data:
-            return
+        if session_data and not self.session:
+            self._adopt(session_data)
 
+    def adopt_playing(self):
+        """Adopt a kofin stream that was already playing when this player was
+        created, such as one Kodi resumed at startup: its onAVStarted went to
+        no one."""
+        if self.session or not self.isPlaying():
+            return
+        session_data = self._playing_session()
+        if session_data:
+            xbmc.log('pvr.kofin reporter: adopting playback already under way',
+                     xbmc.LOGDEBUG)
+            self._adopt(session_data)
+
+    def _playing_session(self):
+        """The session.json record of the item now playing, or None when that
+        item is not a kofin stream. Player callbacks fire for all playback, and
+        session.json outlives its own playback when a tune never starts, so the
+        file counts only when the playing item carries its PlaySessionId."""
+        try:
+            tag = self.getPlayingItem().getProperty(SESSION_TAG)
+        except RuntimeError:
+            return None
+        if not tag:
+            return None
+        try:
+            with open(SESSION_PATH, 'r') as f:
+                session_data = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return None
+        if session_data.get('PlaySessionId', '') != tag or not session_data.get('ItemId', ''):
+            return None
+        return session_data
+
+    def _adopt(self, session_data):
         self.is_recording = xbmc.getCondVisibility('PVR.IsPlayingRecording')
         self.last_position_ticks = 0
         self.session = {
@@ -315,8 +324,8 @@ class PlaybackReporter(xbmc.Player):
     def sweep_pending(self):
         """Close the pending streams whose playback never started. Only while
         the player is idle: while something plays, it may be a kofin stream
-        this script did not recognise (one Kodi started before the service
-        did, say), and closing its stream would cut it off."""
+        this script did not adopt (one whose session.json could not be read,
+        say), and closing its stream would cut it off."""
         if self.isPlaying():
             return
         now = time.time()
@@ -769,6 +778,7 @@ if __name__ == '__main__':
     player = PlaybackReporter()
     xbmc.log('pvr.kofin reporter: started', xbmc.LOGDEBUG)
     register_sync_provider()
+    player.adopt_playing()
 
     while not monitor.abortRequested():
         if monitor.waitForAbort(REPORT_INTERVAL):

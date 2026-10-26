@@ -728,8 +728,8 @@ msgstr "Definições Tempo..."
 
 #: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
-msgid "Enter this code in an already logged in client (browser, phone, etc):"
-msgstr "Introduza este código num cliente com sessão já iniciada (navegador, telemóvel, etc.):"
+msgid "Enter this code in an already logged in client:"
+msgstr "Introduza este código num cliente com sessão já iniciada:"
 
 #: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"
