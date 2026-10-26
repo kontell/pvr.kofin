@@ -20,7 +20,6 @@
     <source>https://github.com/kontell/pvr.kofin</source>
     <assets>
       <icon>icon.png</icon>
-      <fanart>fanart.png</fanart>
     </assets>
     <summary lang="en_GB">Kodi PVR client for Jellyfin Live TV</summary>
     <description lang="en_GB">Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server.</description>
