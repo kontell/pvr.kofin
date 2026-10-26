@@ -144,6 +144,10 @@ private:
   bool m_authFailureShown = false;
   std::unique_ptr<iptvsimple::CatchupController> m_catchupController;
 
+  // Appends the resolved stream's PlaySessionId, which service.py matches
+  // against session.json to know the playing item is this tune.
+  void TagStreamSession(std::vector<kodi::addon::PVRStreamProperty>& properties) const;
+
   // Runs a timer add/delete on a worker thread: the request to the server, then
   // on success afterSuccess (the model reload and the UI triggers). Kodi calls
   // these on its GUI thread and shows its own error for a failure it is told
