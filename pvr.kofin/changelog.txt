@@ -11,6 +11,9 @@ v21.19.0
 - Server discovery skips malformed replies instead of stopping
 - Connecting loads the channels once, not twice
 - Kodi keeps its channels and their settings when the first connect fails
+- Another PVR add-on's playback is no longer reported to Jellyfin as this add-on's
+- A channel Kodi plays at startup is reported to Jellyfin
+- The Quick Connect prompt no longer lists example clients
 
 v21.18.0
 - Fix Quick Connect login on Jellyfin 12
