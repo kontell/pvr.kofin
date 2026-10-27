@@ -20,6 +20,7 @@
 
 #include <kodi/Filesystem.h>
 #include <kodi/addon-instance/pvr/Timers.h>
+#include <kodi/addon-instance/pvr/EDL.h>
 #include <kodi/addon-instance/pvr/Recordings.h>
 
 namespace iptvsimple
@@ -75,6 +76,7 @@ public:
   PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count);
   PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition);
   PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position);
+  PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl);
 
   // Recorded-stream byte path (raw static stream, for the recordings Kodi
   // does not open through stream properties). One playback at a time, driven

@@ -552,6 +552,51 @@ PVR_ERROR JellyfinRecordingManager::DeleteRecording(const kodi::addon::PVRRecord
   return PVR_ERROR_NO_ERROR;
 }
 
+PVR_ERROR JellyfinRecordingManager::GetRecordingEdl(const kodi::addon::PVRRecording& recording,
+                                                    std::vector<kodi::addon::PVREDLEntry>& edl)
+{
+  // Kodi reads a recording's EDL once, when playback opens, and skips the
+  // COMBREAK entries itself (with its own notification and the advancedsettings
+  // autowait/autowind). Only the Auto mode hands the breaks over: in Ask mode
+  // the service script owns every break, since it prompts, and Off means
+  // nothing happens. Breaks that Comseg finds after playback opened, on a
+  // recording still being written, are the service script's in both modes.
+  if (m_settings->GetSkipCommercialMode() != 1)
+    return PVR_ERROR_NO_ERROR;
+
+  const auto client = m_client.Get();
+  if (!client)
+    return PVR_ERROR_SERVER_ERROR;
+
+  const std::string recordingId = recording.GetRecordingId();
+  const Json::Value response =
+      client->SendGet("/MediaSegments/" + recordingId + "?includeSegmentTypes=Commercial");
+  // No segments, or a server without the MediaSegments API, is not an error:
+  // the recording simply has no breaks to skip.
+  if (response.isNull() || !response.isMember("Items") || !response["Items"].isArray())
+    return PVR_ERROR_NO_ERROR;
+
+  for (const Json::Value& item : response["Items"])
+  {
+    if (item.get("Type", "").asString() != "Commercial")
+      continue;
+    // Jellyfin ticks are 100 ns; Kodi wants milliseconds.
+    const int64_t start = item.get("StartTicks", 0).asInt64() / 10000;
+    const int64_t end = item.get("EndTicks", 0).asInt64() / 10000;
+    if (end <= start)
+      continue;
+    kodi::addon::PVREDLEntry entry;
+    entry.SetStart(start);
+    entry.SetEnd(end);
+    entry.SetType(PVR_EDL_TYPE_COMBREAK);
+    edl.emplace_back(entry);
+  }
+
+  Logger::Log(LEVEL_DEBUG, "%s - %d commercial breaks for recording %s", __FUNCTION__,
+              static_cast<int>(edl.size()), recordingId.c_str());
+  return PVR_ERROR_NO_ERROR;
+}
+
 PVR_ERROR JellyfinRecordingManager::GetRecordingStreamProperties(
     const kodi::addon::PVRRecording& recording,
     std::vector<kodi::addon::PVRStreamProperty>& properties)

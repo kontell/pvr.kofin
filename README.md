@@ -21,6 +21,7 @@ For playback of movies, shows & music see the [Kofin](https://github.com/kontell
 - Optional transcoding
 - Pause live tv (local or server buffer)
 - One-shot and series recording timers
+- Skip commercial breaks in recordings, from the Jellyfin media segments the [Comseg](https://github.com/kontell/jellyfin-plugin-comseg) plugin writes: Auto (as a Kodi EDL) or Ask (a skip button), including breaks found while a recording is still being written
 
 ## Installation
 

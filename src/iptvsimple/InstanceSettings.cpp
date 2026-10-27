@@ -89,6 +89,7 @@ void InstanceSettings::ReadSettings()
   }
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
   m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 0);
+  m_skipCommercialMode = kodi::addon::GetSettingInt("skipCommercialMode", 0);
 
   // Reference playlist (with one-shot migration from legacy catchupM3U* keys)
   {

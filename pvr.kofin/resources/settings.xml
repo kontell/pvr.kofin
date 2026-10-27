@@ -472,6 +472,58 @@
     </category>
 
     <!-- Advanced -->
+    <!-- Commercial skipping in recordings, from the Commercial media segments
+         the Comseg server plugin writes. Off by default, as in Kofin: acting on
+         segments moves the picture without being asked. -->
+    <category id="skipping" label="30864" help="30865">
+      <group id="1">
+        <setting id="skipCommercialMode" type="integer" label="30866" help="30867">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30868">0</option>
+              <option label="30869">1</option>
+              <option label="30870">2</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="skipPromptHidePercent" type="integer" label="30871" help="30872">
+          <level>0</level>
+          <default>50</default>
+          <constraints>
+            <minimum>10</minimum>
+            <step>5</step>
+            <maximum>100</maximum>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="skipCommercialMode">2</condition>
+            </dependency>
+          </dependencies>
+          <control type="slider" format="percentage" />
+        </setting>
+        <setting id="commercialPollSeconds" type="integer" label="30873" help="30874">
+          <level>1</level>
+          <default>10</default>
+          <constraints>
+            <minimum>5</minimum>
+            <step>5</step>
+            <maximum>60</maximum>
+          </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <or>
+                <condition operator="is" setting="skipCommercialMode">1</condition>
+                <condition operator="is" setting="skipCommercialMode">2</condition>
+              </or>
+            </dependency>
+          </dependencies>
+          <control type="slider" format="integer" />
+        </setting>
+      </group>
+    </category>
     <category id="advanced" label="30670">
       <group id="1">
         <setting id="jellyfinUpdateIntervalHours" type="integer" label="30672" help="30673">

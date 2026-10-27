@@ -133,6 +133,7 @@ private:
   std::string m_activeMediaSourceId;
   std::string m_activePlaySessionId;
   std::string m_activePlayMethod;         // "DirectPlay" or "Transcode"
+  bool m_activeInProgress{false};         // a recording still being written
   int m_activeMaxBitrateBps{0};            // bitrate ceiling used for current session (override-aware)
   int m_activeSourceBitrateBps{0};         // source stream bitrate from PlaybackInfo
 
