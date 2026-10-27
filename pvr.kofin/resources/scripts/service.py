@@ -354,19 +354,27 @@ class PlaybackReporter(xbmc.Player):
 
     def _start_skipper(self, session_data):
         """Run the commercial-skip engine for a recording, per the Skipping
-        settings. Live TV has no segments to skip."""
+        settings. Each break has one owner: in Auto a finished recording's
+        breaks went to Kodi as an EDL when playback opened, and Kodi skips
+        them itself, so the engine runs only for a recording still being
+        written; Ask is the engine's on every recording. Live TV has no
+        segments to skip."""
         self._stop_skipper()
         if not self.is_recording:
             return
         mode = get_setting_int('skipCommercialMode', 0)
         if mode not in (segments.MODE_AUTO, segments.MODE_ASK):
             return
+        in_progress = bool(session_data.get('InProgress', False))
+        if mode == segments.MODE_AUTO and not in_progress:
+            xbmc.log('pvr.kofin reporter: finished recording, Kodi skips its breaks', xbmc.LOGDEBUG)
+            return
         session = self.session
         self.skipper = segments.CommercialSkipper(
             self, mode,
             get_setting_int('skipPromptHidePercent', 50),
             get_setting_int('commercialPollSeconds', 10),
-            bool(session_data.get('InProgress', False)),
+            in_progress,
             fetch=lambda: fetch_commercials(session),
             localized=lambda string_id: (get_addon().getLocalizedString(string_id)
                                          if get_addon() else ''),

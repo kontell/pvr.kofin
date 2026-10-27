@@ -555,20 +555,50 @@ PVR_ERROR JellyfinRecordingManager::DeleteRecording(const kodi::addon::PVRRecord
 PVR_ERROR JellyfinRecordingManager::GetRecordingEdl(const kodi::addon::PVRRecording& recording,
                                                     std::vector<kodi::addon::PVREDLEntry>& edl)
 {
+  try
+  {
+    return GetRecordingEdlInternal(recording, edl);
+  }
+  catch (const std::exception& e)
+  {
+    Logger::Log(LEVEL_ERROR, "%s - Exception reading commercial breaks: %s", __FUNCTION__, e.what());
+    edl.clear();
+    return PVR_ERROR_SERVER_ERROR;
+  }
+}
+
+PVR_ERROR JellyfinRecordingManager::GetRecordingEdlInternal(
+    const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl)
+{
   // Kodi reads a recording's EDL once, when playback opens, and skips the
   // COMBREAK entries itself (with its own notification and the advancedsettings
-  // autowait/autowind). Only the Auto mode hands the breaks over: in Ask mode
-  // the service script owns every break, since it prompts, and Off means
-  // nothing happens. Breaks that Comseg finds after playback opened, on a
-  // recording still being written, are the service script's in both modes.
+  // autowait/autowind), which suits a recording whose breaks are final. Each
+  // break has one owner: in the Auto mode a finished recording's breaks are
+  // Kodi's, through this list, and a recording still being written is the
+  // service script's, which re-fetches the breaks while the file grows and
+  // holds its seeks back from the live edge (Kodi ends playback when an EDL
+  // skip lands on the length it knows, and a break's provisional end is a
+  // normal place for that). Ask prompts, so the script owns every break
+  // there, and Off means nothing happens.
   if (m_settings->GetSkipCommercialMode() != 1)
     return PVR_ERROR_NO_ERROR;
+
+  const std::string recordingId = recording.GetRecordingId();
+  {
+    // m_inProgressRecordingIds is rebuilt under m_mutex by the Reload() poll.
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (m_inProgressRecordingIds.count(recordingId) > 0)
+    {
+      Logger::Log(LEVEL_DEBUG, "%s - recording %s is still being written: the service script skips its breaks",
+                  __FUNCTION__, recordingId.c_str());
+      return PVR_ERROR_NO_ERROR;
+    }
+  }
 
   const auto client = m_client.Get();
   if (!client)
     return PVR_ERROR_SERVER_ERROR;
 
-  const std::string recordingId = recording.GetRecordingId();
   const Json::Value response =
       client->SendGet("/MediaSegments/" + recordingId + "?includeSegmentTypes=Commercial");
   // No segments, or a server without the MediaSegments API, is not an error:
@@ -578,11 +608,23 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingEdl(const kodi::addon::PVRRecord
 
   for (const Json::Value& item : response["Items"])
   {
-    if (item.get("Type", "").asString() != "Commercial")
+    if (!item.isObject() || item.get("Type", "").asString() != "Commercial")
       continue;
-    // Jellyfin ticks are 100 ns; Kodi wants milliseconds.
-    const int64_t start = item.get("StartTicks", 0).asInt64() / 10000;
-    const int64_t end = item.get("EndTicks", 0).asInt64() / 10000;
+    int64_t start = 0;
+    int64_t end = 0;
+    try
+    {
+      // Jellyfin ticks are 100 ns; Kodi wants milliseconds.
+      start = item.get("StartTicks", 0).asInt64() / 10000;
+      end = item.get("EndTicks", 0).asInt64() / 10000;
+    }
+    catch (const std::exception& e)
+    {
+      // Third-party data: a malformed segment is skipped, the rest kept.
+      Logger::Log(LEVEL_WARNING, "%s - skipping a malformed segment of recording %s: %s",
+                  __FUNCTION__, recordingId.c_str(), e.what());
+      continue;
+    }
     if (end <= start)
       continue;
     kodi::addon::PVREDLEntry entry;

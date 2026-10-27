@@ -111,6 +111,7 @@ private:
   PVR_ERROR LoadTimersInternal();
   PVR_ERROR LoadSeriesTimersInternal();
   PVR_ERROR LoadRecordingsInternal();
+  PVR_ERROR GetRecordingEdlInternal(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl);
 
   // Same as HasRecordingForEpg but assumes m_mutex is already held.
   bool HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const;
