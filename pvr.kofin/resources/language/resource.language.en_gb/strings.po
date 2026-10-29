@@ -744,3 +744,61 @@ msgstr ""
 msgctxt "#30863"
 msgid "Record series"
 msgstr ""
+
+msgctxt "#30864"
+msgid "Skipping"
+msgstr ""
+
+msgctxt "#30865"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr ""
+
+msgctxt "#30866"
+msgid "Commercials"
+msgstr ""
+
+msgctxt "#30867"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr ""
+
+msgctxt "#30868"
+msgid "Off"
+msgstr ""
+
+msgctxt "#30869"
+msgid "Auto"
+msgstr ""
+
+msgctxt "#30870"
+msgid "Ask"
+msgstr ""
+
+msgctxt "#30871"
+msgid "Hide the skip button after"
+msgstr ""
+
+msgctxt "#30872"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr ""
+
+msgctxt "#30873"
+msgid "Check for new breaks every"
+msgstr ""
+
+msgctxt "#30874"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr ""
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30875"
+msgid "Skip Ad"
+msgstr ""
+
+msgctxt "#30876"
+msgid "Close"
+msgstr ""
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30877"
+msgid "Skipped ad"
+msgstr ""

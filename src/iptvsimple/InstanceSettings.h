@@ -151,6 +151,11 @@ namespace iptvsimple
     // In-progress recording input stream: 0 = adaptive, 1 = kodi internal
     int GetInProgressInputStream() const { return m_inProgressInputStream; }
 
+    // Commercial skipping in recordings, from Jellyfin's Commercial media segments:
+    // 0 = off, 1 = auto (Kodi skips the EDL; the service script picks up breaks found
+    // after playback opened), 2 = ask (the service script prompts for every break)
+    int GetSkipCommercialMode() const { return m_skipCommercialMode; }
+
     // Reference playlist (master toggle for the M3U layer; catchup also requires this on)
     bool ReferencePlaylistEnabled() const { return m_referencePlaylistEnabled; }
     const std::string& GetReferencePlaylistPath() const { return m_referencePlaylistPath; }
@@ -229,6 +234,7 @@ namespace iptvsimple
     int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
     bool m_timeshiftEnabled = true;
     int m_inProgressInputStream = 0;  // 0=adaptive, 1=kodi internal
+    int m_skipCommercialMode = 0;     // 0=off, 1=auto, 2=ask
 
     // Reference playlist
     bool m_referencePlaylistEnabled = false;

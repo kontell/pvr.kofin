@@ -989,6 +989,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
   m_activePlaySessionId = response.get("PlaySessionId", "").asString();
   m_activeMediaSourceId = source.get("Id", "").asString();
   m_activeItemId = recordingId;
+  m_activeInProgress = inProgress;
 
   const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
     && !source["TranscodingUrl"].asString().empty();
@@ -1040,6 +1041,8 @@ void JellyfinChannelLoader::WriteSessionFile()
   session["PlaySessionId"] = m_activePlaySessionId;
   session["LiveStreamId"] = m_activeLiveStreamId;
   session["PlayMethod"] = m_activePlayMethod;
+  // The service script polls Jellyfin for new breaks only while this is true.
+  session["InProgress"] = m_activeInProgress;
   // Orders the pending records below against the session service.py adopts.
   // Whole seconds cannot: a zap writes two sessions within the same second.
   session["WrittenAtMs"] = static_cast<Json::Int64>(
@@ -1250,6 +1253,7 @@ void JellyfinChannelLoader::WritePlaylistSessionFile(const std::string& itemId)
 {
   CloseLiveStream();
   m_activeItemId = itemId;
+  m_activeInProgress = false;
   m_activePlayMethod = "DirectPlay";
   // Unique per open so a zap between two playlist-direct channels is not
   // mistaken for a duplicate start of the same stream (service.py compares
@@ -1364,6 +1368,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   m_activePlaySessionId = response.get("PlaySessionId", "").asString();
   m_activeMediaSourceId = source.get("Id", "").asString();
   m_activeItemId = itemId;
+  m_activeInProgress = false;
 
   const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
     && !source["TranscodingUrl"].asString().empty();

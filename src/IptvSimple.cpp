@@ -263,6 +263,8 @@ PVR_ERROR IptvSimple::GetCapabilities(kodi::addon::PVRCapabilities& capabilities
   capabilities.SetSupportsRecordingsDelete(true);
   capabilities.SetSupportsRecordingPlayCount(true);
   capabilities.SetSupportsLastPlayedPosition(true);
+  // Commercial breaks from Jellyfin's media segments, as COMBREAK edits Kodi skips itself.
+  capabilities.SetSupportsRecordingEdl(true);
   capabilities.SetSupportsDescrambleInfo(false);
 
   return PVR_ERROR_NO_ERROR;
@@ -1060,6 +1062,13 @@ PVR_ERROR IptvSimple::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecor
 {
   if (m_recordingManager)
     return m_recordingManager->GetRecordingLastPlayedPosition(recording, position);
+  return PVR_ERROR_NOT_IMPLEMENTED;
+}
+
+PVR_ERROR IptvSimple::GetRecordingEdl(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl)
+{
+  if (m_recordingManager)
+    return m_recordingManager->GetRecordingEdl(recording, edl);
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 

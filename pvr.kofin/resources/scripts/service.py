@@ -20,6 +20,7 @@ import calendar
 import json
 import os
 import ssl
+import sys
 import time
 import urllib.request
 import urllib.error
@@ -27,7 +28,13 @@ import urllib.parse
 
 import xbmc
 import xbmcaddon
+import xbmcgui
 import xbmcvfs
+
+# The commercial-skip engine lives beside this script; Kodi does not put a
+# service script's own directory on sys.path.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import segments  # noqa: E402
 
 
 ADDON_ID = 'pvr.kofin'
@@ -181,6 +188,47 @@ def post_json(base_url, endpoint, body, token, device_id):
         return False
 
 
+def get_json(base_url, endpoint, token, device_id):
+    """GET JSON from Jellyfin; raises on any failure so callers can retry."""
+    base = normalize_base_url(base_url)
+    if not base:
+        raise ValueError('no server address')
+    req = urllib.request.Request(
+        base + endpoint,
+        headers={'Authorization': build_auth_header(token, device_id)})
+    with urllib.request.urlopen(req, timeout=10, context=ssl_context()) as resp:
+        return json.load(resp)
+
+
+def fetch_commercials(session):
+    """The recording's Commercial media segments, as [(start, end)] seconds."""
+    return segments.parse_commercials(get_json(
+        session['BaseUrl'],
+        '/MediaSegments/%s?includeSegmentTypes=Commercial'
+        % urllib.parse.quote(session['ItemId'], safe=''),
+        session['Token'], session['DeviceId']))
+
+
+def get_setting_int(key, default):
+    addon = get_addon()
+    if not addon:
+        return default
+    try:
+        return int(addon.getSettingInt(key))
+    except (RuntimeError, TypeError, ValueError):
+        return default
+
+
+def notify(message):
+    """A toast under the add-on's own name and icon; never raises."""
+    addon = get_addon()
+    icon = addon.getAddonInfo('icon') if addon else ''
+    try:
+        xbmcgui.Dialog().notification('Kofin PVR', message, icon or xbmcgui.NOTIFICATION_INFO, 3000, False)
+    except Exception as e:
+        xbmc.log('pvr.kofin reporter: toast failed: %s' % e, xbmc.LOGDEBUG)
+
+
 def remove_file(path):
     try:
         os.remove(path)
@@ -221,6 +269,8 @@ class PlaybackReporter(xbmc.Player):
         self.last_position_ticks = 0
         # Pending records whose close failed: path -> (retry at, last delay).
         self.pending_retry = {}
+        # The commercial-skip engine for the playing recording, if any.
+        self.skipper = None
 
     def onAVStarted(self):
         """Stream is up — adopt it if it is kofin's, and report the start."""
@@ -236,6 +286,7 @@ class PlaybackReporter(xbmc.Player):
             if new_psid != self.session['PlaySessionId']:
                 xbmc.log('pvr.kofin reporter: playback replaced without stop event',
                          xbmc.LOGDEBUG)
+                self._stop_skipper()
                 self._finalize(self.session, self.is_recording,
                                self.last_position_ticks)
                 self.session = None
@@ -299,6 +350,42 @@ class PlaybackReporter(xbmc.Player):
         self._send('/Sessions/Playing', self._build_body())
         self._send_sync_claim()
         self._settle_pending(session_data)
+        self._start_skipper(session_data)
+
+    def _start_skipper(self, session_data):
+        """Run the commercial-skip engine for a recording, per the Skipping
+        settings. Each break has one owner: in Auto a finished recording's
+        breaks went to Kodi as an EDL when playback opened, and Kodi skips
+        them itself, so the engine runs only for a recording still being
+        written; Ask is the engine's on every recording. Live TV has no
+        segments to skip."""
+        self._stop_skipper()
+        if not self.is_recording:
+            return
+        mode = get_setting_int('skipCommercialMode', 0)
+        if mode not in (segments.MODE_AUTO, segments.MODE_ASK):
+            return
+        in_progress = bool(session_data.get('InProgress', False))
+        if mode == segments.MODE_AUTO and not in_progress:
+            xbmc.log('pvr.kofin reporter: finished recording, Kodi skips its breaks', xbmc.LOGDEBUG)
+            return
+        session = self.session
+        self.skipper = segments.CommercialSkipper(
+            self, mode,
+            get_setting_int('skipPromptHidePercent', 50),
+            get_setting_int('commercialPollSeconds', 10),
+            in_progress,
+            fetch=lambda: fetch_commercials(session),
+            localized=lambda string_id: (get_addon().getLocalizedString(string_id)
+                                         if get_addon() else ''),
+            notify=notify)
+        self.skipper.start()
+
+    def _stop_skipper(self):
+        skipper = self.skipper
+        self.skipper = None
+        if skipper is not None:
+            skipper.stop()
 
     def _settle_pending(self, adopted):
         """Take the adopted stream off the pending list, and close the streams
@@ -384,8 +471,11 @@ class PlaybackReporter(xbmc.Player):
         if self.is_recording:
             # seek_time is the new playhead in ms; ticks are 100ns
             self.last_position_ticks = int(seek_time * 10_000)
+        if self.skipper is not None:
+            self.skipper.note_seek(seek_time / 1000.0)
 
     def _stop(self):
+        self._stop_skipper()
         if not self.session:
             return
         self._capture_position()
