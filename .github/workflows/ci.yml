@@ -334,6 +334,20 @@ jobs:
         run: |
           ./${app_id}/scripts/check-abi.sh ./artifacts "${{ env.max_glibc }}"
 
+      - name: Name the zip for this pull request
+        # The head commit, not github.sha: on a pull request that is GitHub's
+        # merge commit, which is on no branch and cannot be found in git log.
+        shell: bash
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          for z in artifacts/*.zip; do
+            mv "$z" "${z%.zip}-pr${PR}-${HEAD_SHA::7}.zip"
+          done
+          ls -la artifacts/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -435,6 +449,18 @@ jobs:
             exit 1
           fi
 
+      - name: Name the zip for this pull request
+        shell: bash
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          for z in artifacts/*.zip; do
+            mv "$z" "${z%.zip}-pr${PR}-${HEAD_SHA::7}.zip"
+          done
+          ls -la artifacts/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -523,6 +549,18 @@ jobs:
             echo "::error::$lib is not a ${{ matrix.platform }} binary." >&2
             exit 1
           fi
+
+      - name: Name the zip for this pull request
+        shell: bash
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          for z in artifacts/*.zip; do
+            mv "$z" "${z%.zip}-pr${PR}-${HEAD_SHA::7}.zip"
+          done
+          ls -la artifacts/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
