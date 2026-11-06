@@ -127,5 +127,7 @@
   "#30860": "Nagrywanie ręczne",
   "#30861": "Nagraj raz (EPG)",
   "#30862": "Nagraj raz (utworzone przez regułę serii)",
-  "#30863": "Nagrywaj serię"
+  "#30863": "Nagrywaj serię",
+  "#30864": "Pokazuj powiadomienia",
+  "#30865": "Wyskakujące powiadomienia o zdarzeniach w tle, takich jak zakończone nagranie lub wygasłe logowanie. Odpowiedzi na przyciski w tych ustawieniach są zawsze wyświetlane."
 }

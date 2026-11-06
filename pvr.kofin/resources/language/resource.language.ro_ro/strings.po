@@ -741,3 +741,11 @@ msgstr "Înregistrează o dată (creată de o regulă de serial)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Înregistrează serialul"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Afișează notificările"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Ferestre pop-up pentru evenimente din fundal, cum ar fi o înregistrare încheiată sau o autentificare expirată. Răspunsurile la butoanele din aceste setări sunt afișate întotdeauna."

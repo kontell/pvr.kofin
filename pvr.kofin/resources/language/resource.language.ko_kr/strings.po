@@ -741,3 +741,11 @@ msgstr "한 번 녹화(시리즈 규칙으로 생성됨)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "시리즈 녹화"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "알림 표시"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "녹화 완료, 로그인 만료 등 백그라운드 이벤트에 대한 팝업 알림입니다. 이 설정의 버튼에 대한 응답은 항상 표시됩니다."

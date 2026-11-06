@@ -741,3 +741,11 @@ msgstr "Enregistrer une fois (créé par une règle de série)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Enregistrer la série"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Afficher les notifications"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Fenêtres contextuelles pour les événements en arrière-plan, comme un enregistrement terminé ou une connexion expirée. Les réponses aux boutons de ces paramètres sont toujours affichées."

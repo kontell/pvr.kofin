@@ -741,3 +741,11 @@ msgstr "Optag én gang (oprettet af serieregel)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Optag serie"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Vis notifikationer"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Pop op-beskeder om hændelser i baggrunden, f.eks. en færdig optagelse eller et udløbet login. Svar på knapperne i disse indstillinger vises altid."

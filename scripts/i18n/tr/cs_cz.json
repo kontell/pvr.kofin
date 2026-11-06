@@ -127,5 +127,7 @@
   "#30860": "Ruční nahrávání",
   "#30861": "Nahrát jednou (EPG)",
   "#30862": "Nahrát jednou (vytvořeno pravidlem seriálu)",
-  "#30863": "Nahrávat seriál"
+  "#30863": "Nahrávat seriál",
+  "#30864": "Zobrazovat oznámení",
+  "#30865": "Vyskakovací oznámení o událostech na pozadí, například o dokončené nahrávce nebo vypršelém přihlášení. Odpovědi na tlačítka v tomto nastavení se zobrazují vždy."
 }

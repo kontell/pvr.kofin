@@ -127,5 +127,7 @@
   "#30860": "Manuell inspelning",
   "#30861": "Spela in en gång (EPG)",
   "#30862": "Spela in en gång (skapad av serieregel)",
-  "#30863": "Spela in serie"
+  "#30863": "Spela in serie",
+  "#30864": "Visa aviseringar",
+  "#30865": "Popup-meddelanden om händelser i bakgrunden, till exempel en färdig inspelning eller en utgången inloggning. Svar på knapparna i dessa inställningar visas alltid."
 }

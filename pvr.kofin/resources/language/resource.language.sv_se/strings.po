@@ -741,3 +741,11 @@ msgstr "Spela in en gång (skapad av serieregel)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Spela in serie"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Visa aviseringar"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Popup-meddelanden om händelser i bakgrunden, till exempel en färdig inspelning eller en utgången inloggning. Svar på knapparna i dessa inställningar visas alltid."

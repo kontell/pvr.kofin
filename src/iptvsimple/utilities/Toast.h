@@ -37,6 +37,10 @@ namespace iptvsimple
      * (addons/interfaces/General.cpp). QUEUE_OWN_STYLE is the only route that
      * accepts an image — which is also how the adverse levels keep Kodi's
      * glyph while still choosing their own duration and silence.
+     *
+     * Info, Warning and Error show nothing while the showNotifications setting
+     * is off. Reply is exempt: it answers a button the user just pressed in
+     * these settings, and without it the button would appear to do nothing.
      */
     class Toast
     {
@@ -49,6 +53,14 @@ namespace iptvsimple
       static void Info(int localizedStringId);
       static void Warning(int localizedStringId);
       static void Error(int localizedStringId);
+
+      class Reply
+      {
+      public:
+        static void Info(int localizedStringId);
+        static void Warning(int localizedStringId);
+        static void Error(int localizedStringId);
+      };
     };
   } // namespace utilities
 } // namespace iptvsimple

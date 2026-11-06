@@ -741,3 +741,11 @@ msgstr "錄製一次（由影集規則建立）"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "錄製影集"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "顯示通知"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "針對背景事件跳出通知，例如錄製完成或登入逾期。對這些設定中按鈕的回應一律會顯示。"
