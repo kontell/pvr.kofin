@@ -129,5 +129,6 @@
   "#30862": "Registra una volta (creata da una regola di serie)",
   "#30863": "Registra serie",
   "#30864": "Mostra notifiche",
-  "#30865": "Popup per gli eventi in background, come una registrazione terminata o un accesso scaduto. Le risposte ai pulsanti di queste impostazioni vengono sempre mostrate."
+  "#30865": "Popup per gli eventi in background, come una registrazione terminata o un accesso scaduto. Le risposte ai pulsanti di queste impostazioni vengono sempre mostrate.",
+  "#30866": "Il catchup richiede inputstream.ffmpegdirect installato e attivato"
 }

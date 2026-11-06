@@ -129,5 +129,6 @@
   "#30862": "Einmal aufnehmen (von Serienregel erstellt)",
   "#30863": "Serie aufnehmen",
   "#30864": "Benachrichtigungen anzeigen",
-  "#30865": "Pop-ups für Hintergrundereignisse, etwa eine beendete Aufnahme oder eine abgelaufene Anmeldung. Antworten auf die Schaltflächen in diesen Einstellungen werden immer angezeigt."
+  "#30865": "Pop-ups für Hintergrundereignisse, etwa eine beendete Aufnahme oder eine abgelaufene Anmeldung. Antworten auf die Schaltflächen in diesen Einstellungen werden immer angezeigt.",
+  "#30866": "Catchup erfordert, dass inputstream.ffmpegdirect installiert und aktiviert ist"
 }

@@ -749,3 +749,7 @@ msgstr "显示通知"
 msgctxt "#30865"
 msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
 msgstr "为后台事件弹出通知，例如录制完成或登录过期。对这些设置中按钮的响应始终会显示。"
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "回看需要安装并启用 inputstream.ffmpegdirect"

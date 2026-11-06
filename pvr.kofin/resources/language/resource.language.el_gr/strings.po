@@ -749,3 +749,7 @@ msgstr "Εμφάνιση ειδοποιήσεων"
 msgctxt "#30865"
 msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
 msgstr "Αναδυόμενα μηνύματα για συμβάντα στο παρασκήνιο, όπως μια εγγραφή που ολοκληρώθηκε ή μια σύνδεση που έληξε. Οι απαντήσεις στα κουμπιά αυτών των ρυθμίσεων εμφανίζονται πάντα."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "Το catchup απαιτεί το inputstream.ffmpegdirect εγκατεστημένο και ενεργοποιημένο"

@@ -129,5 +129,6 @@
   "#30862": "Grabar una vez (creada por una regla de serie)",
   "#30863": "Grabar serie",
   "#30864": "Mostrar notificaciones",
-  "#30865": "Avisos emergentes de eventos en segundo plano, como una grabación finalizada o una sesión caducada. Las respuestas a los botones de estos ajustes se muestran siempre."
+  "#30865": "Avisos emergentes de eventos en segundo plano, como una grabación finalizada o una sesión caducada. Las respuestas a los botones de estos ajustes se muestran siempre.",
+  "#30866": "El catchup necesita inputstream.ffmpegdirect instalado y activado"
 }

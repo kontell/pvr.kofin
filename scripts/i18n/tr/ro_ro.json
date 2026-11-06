@@ -129,5 +129,6 @@
   "#30862": "Înregistrează o dată (creată de o regulă de serial)",
   "#30863": "Înregistrează serialul",
   "#30864": "Afișează notificările",
-  "#30865": "Ferestre pop-up pentru evenimente din fundal, cum ar fi o înregistrare încheiată sau o autentificare expirată. Răspunsurile la butoanele din aceste setări sunt afișate întotdeauna."
+  "#30865": "Ferestre pop-up pentru evenimente din fundal, cum ar fi o înregistrare încheiată sau o autentificare expirată. Răspunsurile la butoanele din aceste setări sunt afișate întotdeauna.",
+  "#30866": "Catchup necesită inputstream.ffmpegdirect instalat și activat"
 }

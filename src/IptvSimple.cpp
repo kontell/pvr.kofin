@@ -55,6 +55,13 @@ void AppendCatchupInputstreamProperties(std::vector<kodi::addon::PVRStreamProper
     properties.emplace_back(inputstreamAddon + ".manifest_type", manifestType);
 }
 
+bool IsAddonEnabled(const std::string& id)
+{
+  std::string version;
+  bool enabled = false;
+  return kodi::IsAddonAvailable(id, version, enabled) && enabled;
+}
+
 } // unnamed namespace
 
 IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple::IConnectionListener(instance), m_settings(new InstanceSettings())
@@ -760,6 +767,18 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (!GetChannel(tag.GetUniqueChannelId(), channel) || !channel.IsCatchupSupported())
     return PVR_ERROR_FAILED;
 
+  // Kodi passes over an inputstream that is not installed and enabled without
+  // a word, and plays the URL through its own demuxer, which drops the catchup
+  // properties. Play-as-live catchup also starts here, so this covers both.
+  const std::string catchupInputstream = m_settings->GetCatchupInputstream();
+  if (!IsAddonEnabled(catchupInputstream))
+  {
+    Logger::Log(LogLevel::LEVEL_ERROR, "%s - Catchup needs %s installed and enabled",
+                __FUNCTION__, catchupInputstream.c_str());
+    Toast::Error(30866);
+    return PVR_ERROR_FAILED;
+  }
+
   // Catchup only works over the provider URL from the reference playlist
   // (the catchup-source template shifts that URL into the past). Remux /
   // transcode settings keep applying to live-channel playback.
@@ -767,7 +786,7 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   epgOverrides.forceRemux = false;
   epgOverrides.forceTranscode = false;
   epgOverrides.bitrateBps = 1000000000; // unlimited sentinel matching GetMaxBitrateBps()
-  epgOverrides.inputstream = m_settings->GetCatchupInputstream();
+  epgOverrides.inputstream = catchupInputstream;
   std::string streamURL;
   if (m_channelLoader)
     streamURL = m_channelLoader->ResolveLivePlayback(channel, epgOverrides, true).url;
@@ -799,7 +818,7 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   if (!catchupUrl.empty())
   {
     AppendCatchupInputstreamProperties(properties, catchupUrl, channel.IsCatchupTSStream(),
-                                       m_settings->GetCatchupInputstream());
+                                       catchupInputstream);
 
     for (const auto& prop : catchupProperties)
       properties.emplace_back(prop.first, prop.second);

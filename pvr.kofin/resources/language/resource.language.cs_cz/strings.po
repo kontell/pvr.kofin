@@ -749,3 +749,7 @@ msgstr "Zobrazovat oznámení"
 msgctxt "#30865"
 msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
 msgstr "Vyskakovací oznámení o událostech na pozadí, například o dokončené nahrávce nebo vypršelém přihlášení. Odpovědi na tlačítka v tomto nastavení se zobrazují vždy."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "Catchup vyžaduje nainstalovaný a povolený inputstream.ffmpegdirect"

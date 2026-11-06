@@ -749,3 +749,7 @@ msgstr "Mostra les notificacions"
 msgctxt "#30865"
 msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
 msgstr "Finestres emergents per a esdeveniments en segon pla, com ara un enregistrament acabat o una sessió caducada. Les respostes als botons d'aquesta configuració sempre es mostren."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "El catchup necessita inputstream.ffmpegdirect instal·lat i activat"

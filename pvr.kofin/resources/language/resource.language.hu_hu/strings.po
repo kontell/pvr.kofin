@@ -749,3 +749,7 @@ msgstr "Értesítések megjelenítése"
 msgctxt "#30865"
 msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
 msgstr "Felugró értesítések háttéreseményekről, például befejezett felvételről vagy lejárt bejelentkezésről. A beállítások gombjaira adott válaszok mindig megjelennek."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges"
