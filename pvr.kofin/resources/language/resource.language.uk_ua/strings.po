@@ -160,8 +160,8 @@ msgid "InputStream addon"
 msgstr "Додаток InputStream"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
-msgstr "Додаток InputStream, що використовується для відтворення. FFmpeg Direct підтримує зсув у часі з локальним буфером на пристрої. Adaptive підтримує зсув у часі з буфером на боці сервера. FFmpeg (вбудований у Kodi) не підтримує зсув у часі."
+msgid "InputStream for live TV. FFmpeg (Kodi internal) and Adaptive skip within the server's HLS buffer. FFmpeg Direct timeshifts with a local buffer. FFmpeg Direct and Adaptive need their add-on installed."
+msgstr "InputStream для прямого ефіру. FFmpeg (вбудований у Kodi) та Adaptive дозволяють перемотувати в межах HLS-буфера сервера. FFmpeg Direct виконує зсув у часі з локальним буфером. Для FFmpeg Direct та Adaptive має бути встановлено відповідний додаток."
 
 msgctxt "#30663"
 msgid "FFmpeg Direct"
@@ -188,8 +188,8 @@ msgid "In-progress recording InputStream"
 msgstr "InputStream для поточного запису"
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
-msgstr "InputStream, що використовується для відтворення поточних записів. Adaptive може перемотувати вперед у поточному записі. FFmpeg не може перемотувати вперед, але може бути надійнішим."
+msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
+msgstr "InputStream для поточних записів. Для Adaptive має бути встановлено відповідний додаток."
 
 #: Advanced category
 msgctxt "#30670"
@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Увімкнути catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Вмикає телеархів/catchup, якщо його підтримує ваш постачальник. Відтворення catchup завжди виконується через inputstream.ffmpegdirect у режимі прямого відтворення. Потрібен еталонний файл M3U (див. розділ «Додатково»), який відповідає назвам ваших каналів Jellyfin і містить теги catchup, що їх Jellyfin пропускає."
+msgid "Enable catchup/ archive if supported by your provider. Catchup always plays direct via inputstream.ffmpegdirect, which must be installed. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Вмикає телеархів/catchup, якщо його підтримує ваш постачальник. Відтворення catchup завжди виконується безпосередньо через inputstream.ffmpegdirect, який має бути встановлено. Потрібен еталонний файл M3U (див. розділ «Додатково»), який відповідає назвам ваших каналів Jellyfin і містить теги catchup, що їх Jellyfin пропускає."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -741,3 +741,15 @@ msgstr "Записати один раз (створено правилом се
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Записувати серіал"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Показувати сповіщення"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Спливні сповіщення про фонові події, наприклад про завершений запис або прострочений вхід. Відповіді на кнопки в цих налаштуваннях показуються завжди."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "Для catchup потрібен встановлений і ввімкнений inputstream.ffmpegdirect"

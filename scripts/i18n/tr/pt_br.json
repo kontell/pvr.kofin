@@ -13,12 +13,12 @@
   "#30651": "Ilimitado",
   "#30660": "InputStream",
   "#30661": "Add-on InputStream",
-  "#30662": "O add-on InputStream a usar para a reprodução. O FFmpeg Direct suporta timeshift com um buffer local no dispositivo. O Adaptive suporta timeshift com um buffer no lado do servidor. O FFmpeg (interno do Kodi) não suporta timeshift.",
+  "#30662": "InputStream para TV ao vivo. O FFmpeg (interno do Kodi) e o Adaptive permitem pular dentro do buffer HLS do servidor. O FFmpeg Direct faz timeshift com um buffer local. O FFmpeg Direct e o Adaptive precisam do respectivo add-on instalado.",
   "#30665": "FFmpeg (interno do Kodi)",
   "#30666": "Ativar timeshift",
   "#30667": "Coloca em buffer a transmissão ao vivo a partir do momento em que a reprodução começou. O buffer é criado no cliente; o tamanho máximo é controlado pelas configurações do inputstream.ffmpegdirect.",
   "#30668": "InputStream para gravação em andamento",
-  "#30669": "O InputStream a usar para a reprodução de gravações em andamento. O Adaptive pode avançar em uma gravação em andamento. O FFmpeg não pode avançar, mas pode ser mais robusto.",
+  "#30669": "InputStream para gravações em andamento. O Adaptive precisa do respectivo add-on instalado.",
   "#30670": "Avançado",
   "#30672": "Intervalo de recarregamento de canais (horas)",
   "#30673": "Com que frequência recarregar os dados de canais do Jellyfin.",
@@ -49,7 +49,7 @@
   "#30727": "A conexão com o servidor usa HTTP não criptografado em uma rede não privada. HTTPS é recomendado.",
   "#30730": "Catchup",
   "#30731": "Ativar catchup (IPTV)",
-  "#30732": "Ativa o catchup/arquivo se o seu provedor oferecer suporte. A reprodução do catchup sempre ocorre via inputstream.ffmpegdirect com reprodução direta. Requer um arquivo M3U de referência (consulte a seção Avançado) que corresponda aos nomes dos seus canais do Jellyfin e contenha as tags de catchup omitidas pelo Jellyfin.",
+  "#30732": "Ativa o catchup/arquivo se o seu provedor oferecer suporte. A reprodução do catchup sempre ocorre diretamente via inputstream.ffmpegdirect, que precisa estar instalado. Requer um arquivo M3U de referência (consulte a seção Avançado) que corresponda aos nomes dos seus canais do Jellyfin e contenha as tags de catchup omitidas pelo Jellyfin.",
   "#30739": "Cadeia de formato da consulta",
   "#30740": "Uma cadeia de formato dependente do provedor para as URLs de catchup. Usada como padrão quando os canais não especificam o seu próprio catchup-source. Ex.: &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Janela de catchup (dias)",
@@ -127,5 +127,8 @@
   "#30860": "Gravação manual",
   "#30861": "Gravar uma vez (EPG)",
   "#30862": "Gravar uma vez (criada por regra de série)",
-  "#30863": "Gravar série"
+  "#30863": "Gravar série",
+  "#30864": "Mostrar notificações",
+  "#30865": "Pop-ups para eventos em segundo plano, como uma gravação concluída ou um login expirado. As respostas aos botões destas configurações são sempre exibidas.",
+  "#30866": "O catchup precisa do inputstream.ffmpegdirect instalado e ativado"
 }
