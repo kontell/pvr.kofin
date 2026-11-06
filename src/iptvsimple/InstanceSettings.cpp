@@ -77,7 +77,7 @@ void InstanceSettings::ReadSettings()
   m_maxResolution = kodi::addon::GetSettingInt("maxResolution", 5);
 
   // Input stream
-  m_inputStream = kodi::addon::GetSettingInt("inputStream", 0);
+  m_inputStream = kodi::addon::GetSettingInt("inputStream", 2);
   // 3 was inputstream.tempo, which is no longer offered: play through FFmpeg Direct,
   // the engine it was a fork of. Written back once, so the stored value, the
   // spinner and the settings that depend on it agree. Kodi 22 refuses the value
@@ -88,7 +88,7 @@ void InstanceSettings::ReadSettings()
     kodi::addon::SetSettingInt("inputStream", 0);
   }
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
-  m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 0);
+  m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 1);
 
   // Reference playlist (with one-shot migration from legacy catchupM3U* keys)
   {

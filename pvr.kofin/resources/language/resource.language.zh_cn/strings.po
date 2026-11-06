@@ -160,8 +160,8 @@ msgid "InputStream addon"
 msgstr "InputStream 插件"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
-msgstr "用于播放的 InputStream 插件。FFmpeg Direct 通过设备上的本地缓冲支持时移。Adaptive 通过服务器端缓冲支持时移。FFmpeg（Kodi 内置）不支持时移。"
+msgid "InputStream for live TV. FFmpeg (Kodi internal) and Adaptive skip within the server's HLS buffer. FFmpeg Direct timeshifts with a local buffer. FFmpeg Direct and Adaptive need their add-on installed."
+msgstr "用于直播电视的 InputStream。FFmpeg（Kodi 内置）和 Adaptive 可在服务器的 HLS 缓冲范围内跳转。FFmpeg Direct 通过本地缓冲实现时移。FFmpeg Direct 和 Adaptive 需要安装各自的插件。"
 
 msgctxt "#30663"
 msgid "FFmpeg Direct"
@@ -188,8 +188,8 @@ msgid "In-progress recording InputStream"
 msgstr "进行中录制的 InputStream"
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
-msgstr "用于播放进行中录制的 InputStream。Adaptive 可以在进行中的录制中向前快进。FFmpeg 无法向前快进，但可能更稳定。"
+msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
+msgstr "用于进行中录制的 InputStream。Adaptive 需要安装其插件。"
 
 #: Advanced category
 msgctxt "#30670"
@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "启用回看（IPTV）"
 
 msgctxt "#30732"
-msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "如果您的提供商支持，则启用回看/存档。回看播放始终通过 inputstream.ffmpegdirect 以直接播放方式进行。需要一个参考 M3U 文件（参见“高级”部分），该文件与您的 Jellyfin 频道名称匹配，并包含 Jellyfin 未提供的回看标签。"
+msgid "Enable catchup/ archive if supported by your provider. Catchup always plays direct via inputstream.ffmpegdirect, which must be installed. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "如果您的提供商支持，则启用回看/存档。回看始终通过 inputstream.ffmpegdirect 直接播放，需要安装该插件。需要一个参考 M3U 文件（参见“高级”部分），该文件与您的 Jellyfin 频道名称匹配，并包含 Jellyfin 未提供的回看标签。"
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -741,3 +741,15 @@ msgstr "录制一次（由剧集规则创建）"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "录制剧集"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "显示通知"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "为后台事件弹出通知，例如录制完成或登录过期。对这些设置中按钮的响应始终会显示。"
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "回看需要安装并启用 inputstream.ffmpegdirect"

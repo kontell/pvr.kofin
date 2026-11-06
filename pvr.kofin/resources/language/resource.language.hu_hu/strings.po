@@ -160,8 +160,8 @@ msgid "InputStream addon"
 msgstr "InputStream-kiegészítő"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
-msgstr "A lejátszáshoz használt InputStream-kiegészítő. Az FFmpeg Direct támogatja az időeltolást helyi pufferrel az eszközön. Az Adaptive támogatja az időeltolást kiszolgálóoldali pufferrel. Az FFmpeg (Kodi belső) nem támogatja az időeltolást."
+msgid "InputStream for live TV. FFmpeg (Kodi internal) and Adaptive skip within the server's HLS buffer. FFmpeg Direct timeshifts with a local buffer. FFmpeg Direct and Adaptive need their add-on installed."
+msgstr "InputStream az élő TV-hez. Az FFmpeg (Kodi belső) és az Adaptive a kiszolgáló HLS-pufferén belül tud ugrani. Az FFmpeg Direct helyi pufferrel végzi az időeltolást. Az FFmpeg Direct és az Adaptive használatához telepíteni kell a saját kiegészítőjüket."
 
 msgctxt "#30663"
 msgid "FFmpeg Direct"
@@ -188,8 +188,8 @@ msgid "In-progress recording InputStream"
 msgstr "InputStream folyamatban lévő felvételhez"
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
-msgstr "A folyamatban lévő felvételek lejátszásához használt InputStream. Az Adaptive előre tud tekerni a folyamatban lévő felvételben. Az FFmpeg nem tud előre tekerni, de megbízhatóbb lehet."
+msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
+msgstr "InputStream a folyamatban lévő felvételekhez. Az Adaptive használatához telepíteni kell a kiegészítőjét."
 
 #: Advanced category
 msgctxt "#30670"
@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Catchup engedélyezése (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Engedélyezi a catchupot/archívumot, ha a szolgáltatója támogatja. A catchup lejátszása mindig az inputstream.ffmpegdirect használatával, közvetlen lejátszással történik. Szükséges hozzá egy referencia M3U-fájl (lásd a Speciális szakaszt), amely megegyezik a Jellyfin-csatornanevekkel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket."
+msgid "Enable catchup/ archive if supported by your provider. Catchup always plays direct via inputstream.ffmpegdirect, which must be installed. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Engedélyezi a catchupot/archívumot, ha a szolgáltatója támogatja. A catchup lejátszása mindig közvetlenül az inputstream.ffmpegdirect használatával történik, amelynek telepítve kell lennie. Szükséges hozzá egy referencia M3U-fájl (lásd a Speciális szakaszt), amely megegyezik a Jellyfin-csatornanevekkel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket."
 
 msgctxt "#30739"
 msgid "Query format string"
@@ -741,3 +741,15 @@ msgstr "Felvétel egyszer (sorozatszabály hozta létre)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Sorozat felvétele"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Értesítések megjelenítése"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Felugró értesítések háttéreseményekről, például befejezett felvételről vagy lejárt bejelentkezésről. A beállítások gombjaira adott válaszok mindig megjelennek."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges"

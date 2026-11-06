@@ -13,12 +13,12 @@
   "#30651": "Rajoittamaton",
   "#30660": "InputStream",
   "#30661": "InputStream-lisäosa",
-  "#30662": "Toistoon käytettävä InputStream-lisäosa. FFmpeg Direct tukee ajansiirtoa paikallisella puskurilla laitteessa. Adaptive tukee ajansiirtoa palvelinpuolen puskurilla. FFmpeg (Kodin sisäinen) ei tue ajansiirtoa.",
+  "#30662": "InputStream suoraa TV:tä varten. FFmpeg (Kodin sisäinen) ja Adaptive voivat hypätä palvelimen HLS-puskurin sisällä. FFmpeg Direct käyttää ajansiirtoon paikallista puskuria. FFmpeg Direct ja Adaptive vaativat, että niiden lisäosa on asennettu.",
   "#30665": "FFmpeg (Kodin sisäinen)",
   "#30666": "Ota ajansiirto käyttöön",
   "#30667": "Puskuroi live-lähetystä siitä hetkestä, kun toisto alkoi. Puskuri luodaan asiakkaalle; hallitse enimmäiskokoa inputstream.ffmpegdirect-asetuksilla.",
   "#30668": "InputStream käynnissä olevalle tallennukselle",
-  "#30669": "Käynnissä olevien tallenteiden toistoon käytettävä InputStream. Adaptive voi kelata eteenpäin käynnissä olevassa tallenteessa. FFmpeg ei voi kelata eteenpäin, mutta voi olla vakaampi.",
+  "#30669": "InputStream käynnissä oleville tallenteille. Adaptive vaatii, että sen lisäosa on asennettu.",
   "#30670": "Lisäasetukset",
   "#30672": "Kanavien uudelleenlatausväli (tunnit)",
   "#30673": "Kuinka usein kanavatiedot ladataan uudelleen Jellyfinistä.",
@@ -49,7 +49,7 @@
   "#30727": "Palvelinyhteys käyttää salaamatonta HTTP:tä ei-yksityisessä verkossa. HTTPS on suositeltava.",
   "#30730": "Catchup",
   "#30731": "Ota catchup käyttöön (IPTV)",
-  "#30732": "Ottaa catchupin/arkiston käyttöön, jos palveluntarjoajasi tukee sitä. Catchup-toisto tapahtuu aina inputstream.ffmpegdirectin kautta suoralla toistolla. Vaatii M3U-viitetiedoston (katso Lisäasetukset-osio), joka vastaa Jellyfin-kanaviesi nimiä ja sisältää catchup-tunnisteet, jotka Jellyfin jättää pois.",
+  "#30732": "Ottaa catchupin/arkiston käyttöön, jos palveluntarjoajasi tukee sitä. Catchup toistetaan aina suoraan inputstream.ffmpegdirectin kautta, jonka on oltava asennettuna. Vaatii M3U-viitetiedoston (katso Lisäasetukset-osio), joka vastaa Jellyfin-kanaviesi nimiä ja sisältää catchup-tunnisteet, jotka Jellyfin jättää pois.",
   "#30739": "Kyselyn muotomerkkijono",
   "#30740": "Palveluntarjoajakohtainen muotomerkkijono catchup-URL-osoitteille. Käytetään oletuksena, kun kanavat eivät määritä omaa catchup-source-arvoaan. Esim. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catchup-ikkuna (päivät)",
@@ -127,5 +127,8 @@
   "#30860": "Manuaalinen tallennus",
   "#30861": "Tallenna kerran (EPG)",
   "#30862": "Tallenna kerran (sarjasäännön luoma)",
-  "#30863": "Tallenna sarja"
+  "#30863": "Tallenna sarja",
+  "#30864": "Näytä ilmoitukset",
+  "#30865": "Ponnahdusilmoitukset taustatapahtumista, kuten valmistuneesta tallenteesta tai vanhentuneesta kirjautumisesta. Näiden asetusten painikkeiden vastaukset näytetään aina.",
+  "#30866": "Catchup vaatii, että inputstream.ffmpegdirect on asennettu ja käytössä"
 }

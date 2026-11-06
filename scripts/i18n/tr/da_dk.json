@@ -13,12 +13,12 @@
   "#30651": "Ubegrænset",
   "#30660": "InputStream",
   "#30661": "InputStream-tilføjelse",
-  "#30662": "Den InputStream-tilføjelse, der skal bruges til afspilning. FFmpeg Direct understøtter tidsforskydning med en lokal buffer på enheden. Adaptive understøtter tidsforskydning med en buffer på serversiden. FFmpeg (intern i Kodi) understøtter ikke tidsforskydning.",
+  "#30662": "InputStream til live-tv. FFmpeg (intern i Kodi) og Adaptive kan springe inden for serverens HLS-buffer. FFmpeg Direct tidsforskyder med en lokal buffer. FFmpeg Direct og Adaptive kræver, at deres tilføjelse er installeret.",
   "#30665": "FFmpeg (intern i Kodi)",
   "#30666": "Aktivér tidsforskydning",
   "#30667": "Buffrer live-streamen fra det punkt, hvor afspilningen begyndte. Bufferen oprettes på klienten; styr den maksimale størrelse via indstillingerne for inputstream.ffmpegdirect.",
   "#30668": "InputStream til igangværende optagelse",
-  "#30669": "Den InputStream, der skal bruges til afspilning af igangværende optagelser. Adaptive kan spole frem i en igangværende optagelse. FFmpeg kan ikke spole frem, men er muligvis mere robust.",
+  "#30669": "InputStream til igangværende optagelser. Adaptive kræver, at dens tilføjelse er installeret.",
   "#30670": "Avanceret",
   "#30672": "Interval for genindlæsning af kanaler (timer)",
   "#30673": "Hvor ofte kanaldata genindlæses fra Jellyfin.",
@@ -49,7 +49,7 @@
   "#30727": "Serverforbindelsen bruger ukrypteret HTTP over et ikke-privat netværk. HTTPS anbefales.",
   "#30730": "Catchup",
   "#30731": "Aktivér catchup (IPTV)",
-  "#30732": "Aktiverer catchup/arkiv, hvis din udbyder understøtter det. Catchup-afspilning sker altid via inputstream.ffmpegdirect med direkte afspilning. Kræver en reference-M3U-fil (se afsnittet Avanceret), der matcher dine Jellyfin-kanalnavne og indeholder catchup-tags, som Jellyfin udelader.",
+  "#30732": "Aktiverer catchup/arkiv, hvis din udbyder understøtter det. Catchup afspilles altid direkte via inputstream.ffmpegdirect, som skal være installeret. Kræver en reference-M3U-fil (se afsnittet Avanceret), der matcher dine Jellyfin-kanalnavne og indeholder catchup-tags, som Jellyfin udelader.",
   "#30739": "Formatstreng til forespørgsel",
   "#30740": "En udbyderafhængig formatstreng til catchup-URL'er. Bruges som standard, når kanaler ikke angiver deres egen catchup-source. F.eks. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catchup-vindue (dage)",
@@ -127,5 +127,8 @@
   "#30860": "Manuel optagelse",
   "#30861": "Optag én gang (EPG)",
   "#30862": "Optag én gang (oprettet af serieregel)",
-  "#30863": "Optag serie"
+  "#30863": "Optag serie",
+  "#30864": "Vis notifikationer",
+  "#30865": "Pop op-beskeder om hændelser i baggrunden, f.eks. en færdig optagelse eller et udløbet login. Svar på knapperne i disse indstillinger vises altid.",
+  "#30866": "Catchup kræver, at inputstream.ffmpegdirect er installeret og aktiveret"
 }
