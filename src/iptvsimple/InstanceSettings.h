@@ -226,9 +226,9 @@ namespace iptvsimple
     int m_maxResolution = 5;        // index into MAX_WIDTH_TABLE (5=unlimited)
 
     // Input stream
-    int m_inputStream = 0;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
+    int m_inputStream = 2;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
     bool m_timeshiftEnabled = true;
-    int m_inProgressInputStream = 0;  // 0=adaptive, 1=kodi internal
+    int m_inProgressInputStream = 1;  // 0=adaptive, 1=kodi internal
 
     // Reference playlist
     bool m_referencePlaylistEnabled = false;
