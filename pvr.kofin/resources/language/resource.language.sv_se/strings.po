@@ -749,3 +749,7 @@ msgstr "Visa aviseringar"
 msgctxt "#30865"
 msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
 msgstr "Popup-meddelanden om händelser i bakgrunden, till exempel en färdig inspelning eller en utgången inloggning. Svar på knapparna i dessa inställningar visas alltid."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "Catchup kräver att inputstream.ffmpegdirect är installerat och aktiverat"

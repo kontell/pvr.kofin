@@ -129,5 +129,6 @@
   "#30862": "Gravar uma vez (criada por regra de série)",
   "#30863": "Gravar série",
   "#30864": "Mostrar notificações",
-  "#30865": "Pop-ups para eventos em segundo plano, como uma gravação concluída ou um login expirado. As respostas aos botões destas configurações são sempre exibidas."
+  "#30865": "Pop-ups para eventos em segundo plano, como uma gravação concluída ou um login expirado. As respostas aos botões destas configurações são sempre exibidas.",
+  "#30866": "O catchup precisa do inputstream.ffmpegdirect instalado e ativado"
 }

@@ -129,5 +129,6 @@
   "#30862": "Eenmalig opnemen (aangemaakt door serieregel)",
   "#30863": "Serie opnemen",
   "#30864": "Meldingen tonen",
-  "#30865": "Pop-ups voor gebeurtenissen op de achtergrond, zoals een voltooide opname of een verlopen aanmelding. Antwoorden op de knoppen in deze instellingen worden altijd getoond."
+  "#30865": "Pop-ups voor gebeurtenissen op de achtergrond, zoals een voltooide opname of een verlopen aanmelding. Antwoorden op de knoppen in deze instellingen worden altijd getoond.",
+  "#30866": "Catch-up vereist dat inputstream.ffmpegdirect geïnstalleerd en ingeschakeld is"
 }

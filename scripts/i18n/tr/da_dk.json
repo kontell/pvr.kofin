@@ -129,5 +129,6 @@
   "#30862": "Optag én gang (oprettet af serieregel)",
   "#30863": "Optag serie",
   "#30864": "Vis notifikationer",
-  "#30865": "Pop op-beskeder om hændelser i baggrunden, f.eks. en færdig optagelse eller et udløbet login. Svar på knapperne i disse indstillinger vises altid."
+  "#30865": "Pop op-beskeder om hændelser i baggrunden, f.eks. en færdig optagelse eller et udløbet login. Svar på knapperne i disse indstillinger vises altid.",
+  "#30866": "Catchup kræver, at inputstream.ffmpegdirect er installeret og aktiveret"
 }

@@ -129,5 +129,6 @@
   "#30862": "Felvétel egyszer (sorozatszabály hozta létre)",
   "#30863": "Sorozat felvétele",
   "#30864": "Értesítések megjelenítése",
-  "#30865": "Felugró értesítések háttéreseményekről, például befejezett felvételről vagy lejárt bejelentkezésről. A beállítások gombjaira adott válaszok mindig megjelennek."
+  "#30865": "Felugró értesítések háttéreseményekről, például befejezett felvételről vagy lejárt bejelentkezésről. A beállítások gombjaira adott válaszok mindig megjelennek.",
+  "#30866": "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges"
 }

@@ -129,5 +129,6 @@
   "#30862": "Ta opp én gang (opprettet av serieregel)",
   "#30863": "Ta opp serie",
   "#30864": "Vis varsler",
-  "#30865": "Hurtigvarsler om hendelser i bakgrunnen, for eksempel et fullført opptak eller en utløpt innlogging. Svar på knappene i disse innstillingene vises alltid."
+  "#30865": "Hurtigvarsler om hendelser i bakgrunnen, for eksempel et fullført opptak eller en utløpt innlogging. Svar på knappene i disse innstillingene vises alltid.",
+  "#30866": "Catchup krever at inputstream.ffmpegdirect er installert og aktivert"
 }

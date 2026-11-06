@@ -129,5 +129,6 @@
   "#30862": "Spela in en gång (skapad av serieregel)",
   "#30863": "Spela in serie",
   "#30864": "Visa aviseringar",
-  "#30865": "Popup-meddelanden om händelser i bakgrunden, till exempel en färdig inspelning eller en utgången inloggning. Svar på knapparna i dessa inställningar visas alltid."
+  "#30865": "Popup-meddelanden om händelser i bakgrunden, till exempel en färdig inspelning eller en utgången inloggning. Svar på knapparna i dessa inställningar visas alltid.",
+  "#30866": "Catchup kräver att inputstream.ffmpegdirect är installerat och aktiverat"
 }

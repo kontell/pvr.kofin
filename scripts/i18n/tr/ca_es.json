@@ -129,5 +129,6 @@
   "#30862": "Enregistra una vegada (creat per una regla de sèrie)",
   "#30863": "Enregistra la sèrie",
   "#30864": "Mostra les notificacions",
-  "#30865": "Finestres emergents per a esdeveniments en segon pla, com ara un enregistrament acabat o una sessió caducada. Les respostes als botons d'aquesta configuració sempre es mostren."
+  "#30865": "Finestres emergents per a esdeveniments en segon pla, com ara un enregistrament acabat o una sessió caducada. Les respostes als botons d'aquesta configuració sempre es mostren.",
+  "#30866": "El catchup necessita inputstream.ffmpegdirect instal·lat i activat"
 }

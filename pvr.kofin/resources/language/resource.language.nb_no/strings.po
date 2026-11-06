@@ -749,3 +749,7 @@ msgstr "Vis varsler"
 msgctxt "#30865"
 msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
 msgstr "Hurtigvarsler om hendelser i bakgrunnen, for eksempel et fullført opptak eller en utløpt innlogging. Svar på knappene i disse innstillingene vises alltid."
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr "Catchup krever at inputstream.ffmpegdirect er installert og aktivert"

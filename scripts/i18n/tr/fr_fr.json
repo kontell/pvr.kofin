@@ -129,5 +129,6 @@
   "#30862": "Enregistrer une fois (créé par une règle de série)",
   "#30863": "Enregistrer la série",
   "#30864": "Afficher les notifications",
-  "#30865": "Fenêtres contextuelles pour les événements en arrière-plan, comme un enregistrement terminé ou une connexion expirée. Les réponses aux boutons de ces paramètres sont toujours affichées."
+  "#30865": "Fenêtres contextuelles pour les événements en arrière-plan, comme un enregistrement terminé ou une connexion expirée. Les réponses aux boutons de ces paramètres sont toujours affichées.",
+  "#30866": "Le rattrapage nécessite inputstream.ffmpegdirect installé et activé"
 }
