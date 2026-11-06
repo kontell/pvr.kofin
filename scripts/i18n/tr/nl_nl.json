@@ -127,5 +127,7 @@
   "#30860": "Handmatige opname",
   "#30861": "Eenmalig opnemen (EPG)",
   "#30862": "Eenmalig opnemen (aangemaakt door serieregel)",
-  "#30863": "Serie opnemen"
+  "#30863": "Serie opnemen",
+  "#30864": "Meldingen tonen",
+  "#30865": "Pop-ups voor gebeurtenissen op de achtergrond, zoals een voltooide opname of een verlopen aanmelding. Antwoorden op de knoppen in deze instellingen worden altijd getoond."
 }

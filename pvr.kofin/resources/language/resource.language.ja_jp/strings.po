@@ -741,3 +741,11 @@ msgstr "1 回録画（シリーズルールにより作成）"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "シリーズ録画"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "通知を表示"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "録画の完了やログインの期限切れなど、バックグラウンドのイベントをポップアップで通知します。この設定のボタンへの応答は常に表示されます。"

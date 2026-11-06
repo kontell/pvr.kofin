@@ -741,3 +741,11 @@ msgstr "Registra una volta (creata da una regola di serie)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Registra serie"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Mostra notifiche"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Popup per gli eventi in background, come una registrazione terminata o un accesso scaduto. Le risposte ai pulsanti di queste impostazioni vengono sempre mostrate."

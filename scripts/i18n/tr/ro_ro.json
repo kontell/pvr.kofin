@@ -127,5 +127,7 @@
   "#30860": "Înregistrare manuală",
   "#30861": "Înregistrează o dată (EPG)",
   "#30862": "Înregistrează o dată (creată de o regulă de serial)",
-  "#30863": "Înregistrează serialul"
+  "#30863": "Înregistrează serialul",
+  "#30864": "Afișează notificările",
+  "#30865": "Ferestre pop-up pentru evenimente din fundal, cum ar fi o înregistrare încheiată sau o autentificare expirată. Răspunsurile la butoanele din aceste setări sunt afișate întotdeauna."
 }

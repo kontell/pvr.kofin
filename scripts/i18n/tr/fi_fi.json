@@ -127,5 +127,7 @@
   "#30860": "Manuaalinen tallennus",
   "#30861": "Tallenna kerran (EPG)",
   "#30862": "Tallenna kerran (sarjasäännön luoma)",
-  "#30863": "Tallenna sarja"
+  "#30863": "Tallenna sarja",
+  "#30864": "Näytä ilmoitukset",
+  "#30865": "Ponnahdusilmoitukset taustatapahtumista, kuten valmistuneesta tallenteesta tai vanhentuneesta kirjautumisesta. Näiden asetusten painikkeiden vastaukset näytetään aina."
 }

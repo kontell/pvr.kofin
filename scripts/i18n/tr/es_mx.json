@@ -127,5 +127,7 @@
   "#30860": "Grabación manual",
   "#30861": "Grabar una vez (EPG)",
   "#30862": "Grabar una vez (creada por una regla de serie)",
-  "#30863": "Grabar serie"
+  "#30863": "Grabar serie",
+  "#30864": "Mostrar notificaciones",
+  "#30865": "Avisos emergentes de eventos en segundo plano, como una grabación terminada o una sesión expirada. Las respuestas a los botones de esta configuración se muestran siempre."
 }

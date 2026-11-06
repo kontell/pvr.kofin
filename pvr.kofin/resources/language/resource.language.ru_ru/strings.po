@@ -741,3 +741,11 @@ msgstr "Записать один раз (создано правилом сер
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Записывать сериал"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Показывать уведомления"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Всплывающие уведомления о фоновых событиях, например о завершённой записи или истёкшем входе. Ответы на кнопки в этих настройках показываются всегда."

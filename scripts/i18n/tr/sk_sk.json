@@ -127,5 +127,7 @@
   "#30860": "Manuálne nahrávanie",
   "#30861": "Nahrať raz (EPG)",
   "#30862": "Nahrať raz (vytvorené pravidlom seriálu)",
-  "#30863": "Nahrávať seriál"
+  "#30863": "Nahrávať seriál",
+  "#30864": "Zobrazovať oznámenia",
+  "#30865": "Vyskakovacie oznámenia o udalostiach na pozadí, napríklad o dokončenej nahrávke alebo vypršanom prihlásení. Odpovede na tlačidlá v týchto nastaveniach sa zobrazujú vždy."
 }

@@ -741,3 +741,11 @@ msgstr "Nahrať raz (vytvorené pravidlom seriálu)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Nahrávať seriál"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Zobrazovať oznámenia"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Vyskakovacie oznámenia o udalostiach na pozadí, napríklad o dokončenej nahrávke alebo vypršanom prihlásení. Odpovede na tlačidlá v týchto nastaveniach sa zobrazujú vždy."

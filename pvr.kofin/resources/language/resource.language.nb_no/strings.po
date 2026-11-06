@@ -741,3 +741,11 @@ msgstr "Ta opp én gang (opprettet av serieregel)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Ta opp serie"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Vis varsler"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Hurtigvarsler om hendelser i bakgrunnen, for eksempel et fullført opptak eller en utløpt innlogging. Svar på knappene i disse innstillingene vises alltid."

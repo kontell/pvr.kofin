@@ -35,9 +35,15 @@ void ShowWithIcon(const std::string& message, const std::string& icon)
   kodi::QueueNotification(QUEUE_OWN_STYLE, HEADING, message, icon, DISPLAY_TIME_MS, false,
                           MESSAGE_TIME_MS);
 }
-} // unnamed namespace
 
-void Toast::Info(const std::string& message)
+// Read on every toast rather than at settings load, so the switch takes
+// effect without restarting the add-on.
+bool Enabled()
+{
+  return kodi::addon::GetSettingBoolean("showNotifications", true);
+}
+
+void ShowInfo(const std::string& message)
 {
   const std::string icon = kodi::addon::GetAddonPath("icon.png");
   if (icon.empty())
@@ -50,15 +56,24 @@ void Toast::Info(const std::string& message)
 
   ShowWithIcon(message, icon);
 }
+} // unnamed namespace
+
+void Toast::Info(const std::string& message)
+{
+  if (Enabled())
+    ShowInfo(message);
+}
 
 void Toast::Warning(const std::string& message)
 {
-  ShowWithIcon(message, ICON_WARNING);
+  if (Enabled())
+    ShowWithIcon(message, ICON_WARNING);
 }
 
 void Toast::Error(const std::string& message)
 {
-  ShowWithIcon(message, ICON_ERROR);
+  if (Enabled())
+    ShowWithIcon(message, ICON_ERROR);
 }
 
 void Toast::Info(int localizedStringId)
@@ -74,4 +89,19 @@ void Toast::Warning(int localizedStringId)
 void Toast::Error(int localizedStringId)
 {
   Error(kodi::addon::GetLocalizedString(localizedStringId));
+}
+
+void Toast::Reply::Info(int localizedStringId)
+{
+  ShowInfo(kodi::addon::GetLocalizedString(localizedStringId));
+}
+
+void Toast::Reply::Warning(int localizedStringId)
+{
+  ShowWithIcon(kodi::addon::GetLocalizedString(localizedStringId), ICON_WARNING);
+}
+
+void Toast::Reply::Error(int localizedStringId)
+{
+  ShowWithIcon(kodi::addon::GetLocalizedString(localizedStringId), ICON_ERROR);
 }

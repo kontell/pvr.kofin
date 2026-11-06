@@ -744,3 +744,11 @@ msgstr ""
 msgctxt "#30863"
 msgid "Record series"
 msgstr ""
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr ""
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr ""

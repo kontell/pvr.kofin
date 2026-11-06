@@ -741,3 +741,11 @@ msgstr "Enregistra una vegada (creat per una regla de sèrie)"
 msgctxt "#30863"
 msgid "Record series"
 msgstr "Enregistra la sèrie"
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr "Mostra les notificacions"
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr "Finestres emergents per a esdeveniments en segon pla, com ara un enregistrament acabat o una sessió caducada. Les respostes als botons d'aquesta configuració sempre es mostren."
