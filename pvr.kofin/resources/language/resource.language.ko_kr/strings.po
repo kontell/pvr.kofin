@@ -160,8 +160,8 @@ msgid "InputStream addon"
 msgstr "InputStream 애드온"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
-msgstr "재생에 사용할 InputStream 애드온. FFmpeg Direct는 기기의 로컬 버퍼로 타임시프트를 지원합니다. Adaptive는 서버 측 버퍼로 타임시프트를 지원합니다. FFmpeg(Kodi 내장)는 타임시프트를 지원하지 않습니다."
+msgid "InputStream for live TV. FFmpeg (Kodi internal) and Adaptive skip within the server's HLS buffer. FFmpeg Direct timeshifts with a local buffer. FFmpeg Direct and Adaptive need their add-on installed."
+msgstr "라이브 TV에 사용할 InputStream. FFmpeg(Kodi 내장)와 Adaptive는 서버의 HLS 버퍼 안에서 건너뛸 수 있습니다. FFmpeg Direct는 로컬 버퍼로 타임시프트합니다. FFmpeg Direct와 Adaptive는 해당 애드온이 설치되어 있어야 합니다."
 
 msgctxt "#30663"
 msgid "FFmpeg Direct"
@@ -188,8 +188,8 @@ msgid "In-progress recording InputStream"
 msgstr "진행 중인 녹화용 InputStream"
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
-msgstr "진행 중인 녹화 재생에 사용할 InputStream. Adaptive는 진행 중인 녹화에서 앞으로 건너뛸 수 있습니다. FFmpeg는 앞으로 건너뛸 수 없지만 더 안정적일 수 있습니다."
+msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
+msgstr "진행 중인 녹화에 사용할 InputStream. Adaptive는 해당 애드온이 설치되어 있어야 합니다."
 
 #: Advanced category
 msgctxt "#30670"
@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "다시보기 활성화(IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "제공업체가 지원하는 경우 다시보기/아카이브를 활성화합니다. 다시보기 재생은 항상 inputstream.ffmpegdirect와 직접 재생으로 이루어집니다. Jellyfin 채널 이름과 일치하고 Jellyfin이 생략하는 다시보기 태그가 포함된 참조 M3U 파일(고급 섹션 참조)이 필요합니다."
+msgid "Enable catchup/ archive if supported by your provider. Catchup always plays direct via inputstream.ffmpegdirect, which must be installed. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "제공업체가 지원하는 경우 다시보기/아카이브를 활성화합니다. 다시보기는 항상 inputstream.ffmpegdirect로 직접 재생되며, 이 애드온이 설치되어 있어야 합니다. Jellyfin 채널 이름과 일치하고 Jellyfin이 생략하는 다시보기 태그가 포함된 참조 M3U 파일(고급 섹션 참조)이 필요합니다."
 
 msgctxt "#30739"
 msgid "Query format string"

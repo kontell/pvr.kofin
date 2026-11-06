@@ -160,8 +160,8 @@ msgid "InputStream addon"
 msgstr "Add-on InputStream"
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
-msgstr "O add-on InputStream a usar para a reprodução. O FFmpeg Direct suporta timeshift com um buffer local no dispositivo. O Adaptive suporta timeshift com um buffer no lado do servidor. O FFmpeg (interno do Kodi) não suporta timeshift."
+msgid "InputStream for live TV. FFmpeg (Kodi internal) and Adaptive skip within the server's HLS buffer. FFmpeg Direct timeshifts with a local buffer. FFmpeg Direct and Adaptive need their add-on installed."
+msgstr "InputStream para TV ao vivo. O FFmpeg (interno do Kodi) e o Adaptive permitem pular dentro do buffer HLS do servidor. O FFmpeg Direct faz timeshift com um buffer local. O FFmpeg Direct e o Adaptive precisam do respectivo add-on instalado."
 
 msgctxt "#30663"
 msgid "FFmpeg Direct"
@@ -188,8 +188,8 @@ msgid "In-progress recording InputStream"
 msgstr "InputStream para gravação em andamento"
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
-msgstr "O InputStream a usar para a reprodução de gravações em andamento. O Adaptive pode avançar em uma gravação em andamento. O FFmpeg não pode avançar, mas pode ser mais robusto."
+msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
+msgstr "InputStream para gravações em andamento. O Adaptive precisa do respectivo add-on instalado."
 
 #: Advanced category
 msgctxt "#30670"
@@ -319,8 +319,8 @@ msgid "Enable catchup (IPTV)"
 msgstr "Ativar catchup (IPTV)"
 
 msgctxt "#30732"
-msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
-msgstr "Ativa o catchup/arquivo se o seu provedor oferecer suporte. A reprodução do catchup sempre ocorre via inputstream.ffmpegdirect com reprodução direta. Requer um arquivo M3U de referência (consulte a seção Avançado) que corresponda aos nomes dos seus canais do Jellyfin e contenha as tags de catchup omitidas pelo Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup always plays direct via inputstream.ffmpegdirect, which must be installed. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr "Ativa o catchup/arquivo se o seu provedor oferecer suporte. A reprodução do catchup sempre ocorre diretamente via inputstream.ffmpegdirect, que precisa estar instalado. Requer um arquivo M3U de referência (consulte a seção Avançado) que corresponda aos nomes dos seus canais do Jellyfin e contenha as tags de catchup omitidas pelo Jellyfin."
 
 msgctxt "#30739"
 msgid "Query format string"
