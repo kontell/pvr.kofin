@@ -10,6 +10,7 @@
 #include "FileUtils.h"
 #include "Logger.h"
 
+#include <algorithm>
 #include <cctype>
 #include <iomanip>
 #include <regex>
@@ -21,6 +22,96 @@
 using namespace kodi::tools;
 using namespace iptvsimple;
 using namespace iptvsimple::utilities;
+
+namespace
+{
+// Four decimal octets, each 0-255, the first 127. Shorthands such as 127.1
+// are not dotted quads and do not match.
+bool IsLoopbackDottedQuad(const std::string& host)
+{
+  int octets = 0;
+  int first = -1;
+  size_t pos = 0;
+  while (true)
+  {
+    const size_t dot = host.find('.', pos);
+    const std::string part = host.substr(pos, dot == std::string::npos ? std::string::npos : dot - pos);
+    if (part.empty() || part.size() > 3 ||
+        !std::all_of(part.begin(), part.end(), [](unsigned char c) { return std::isdigit(c); }))
+      return false;
+    const int value = std::stoi(part);
+    if (value > 255)
+      return false;
+    if (octets == 0)
+      first = value;
+    ++octets;
+    if (dot == std::string::npos)
+      break;
+    pos = dot + 1;
+  }
+  return octets == 4 && first == 127;
+}
+} // namespace
+
+bool WebUtils::SplitAuthority(const std::string& url, UrlAuthority& authority)
+{
+  const size_t schemeEnd = url.find("://");
+  if (schemeEnd == std::string::npos)
+    return false;
+
+  const size_t start = schemeEnd + 3;
+  size_t end = url.find_first_of("/?#", start);
+  if (end == std::string::npos)
+    end = url.length();
+
+  size_t hostStart = start;
+  const size_t at = url.find('@', start);
+  if (at != std::string::npos && at < end)
+    hostStart = at + 1;
+
+  size_t hostEnd;
+  if (hostStart < end && url[hostStart] == '[')
+  {
+    hostEnd = url.find(']', hostStart);
+    if (hostEnd == std::string::npos || hostEnd >= end)
+      return false;
+    ++hostEnd;
+  }
+  else
+  {
+    hostEnd = url.find(':', hostStart);
+    if (hostEnd == std::string::npos || hostEnd > end)
+      hostEnd = end;
+  }
+
+  authority.hostStart = hostStart;
+  authority.hostEnd = hostEnd;
+  authority.end = end;
+  return true;
+}
+
+bool WebUtils::IsLoopbackHost(const std::string& rawHost)
+{
+  std::string host = rawHost;
+  std::transform(host.begin(), host.end(), host.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+  if (host == "localhost")
+    return true;
+
+  if (host.size() >= 2 && host.front() == '[' && host.back() == ']')
+  {
+    host = host.substr(1, host.size() - 2);
+    const size_t zone = host.find('%');
+    if (zone != std::string::npos)
+      host.erase(zone);
+    if (host == "::1" || host == "0:0:0:0:0:0:0:1")
+      return true;
+    static const std::string mapped = "::ffff:";
+    return host.rfind(mapped, 0) == 0 && IsLoopbackDottedQuad(host.substr(mapped.size()));
+  }
+
+  return IsLoopbackDottedQuad(host);
+}
 
 // http://stackoverflow.com/a/17708801
 const std::string WebUtils::UrlEncode(const std::string& value)
