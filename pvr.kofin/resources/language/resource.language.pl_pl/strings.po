@@ -753,3 +753,61 @@ msgstr "Wyskakujące powiadomienia o zdarzeniach w tle, takich jak zakończone n
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup wymaga zainstalowanego i włączonego inputstream.ffmpegdirect"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Pomijanie"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Pomija przerwy reklamowe w nagraniach, o których wie Jellyfin."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklamy"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Wyłączone ignoruje segmenty reklam, Automatycznie je pomija, Pytaj pokazuje przycisk pominięcia. Przerwy znalezione, gdy nagranie wciąż trwa, są uwzględniane podczas odtwarzania."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Wyłączone"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatycznie"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Pytaj"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Ukryj przycisk pominięcia po"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Po jakiej części przerwy znika przycisk pominięcia, aby po decyzji o jego nienaciśnięciu przestał zasłaniać obraz. 100% utrzymuje go przez całą przerwę."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Sprawdzaj nowe przerwy co"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Liczba sekund między sprawdzeniami przerw znalezionych od rozpoczęcia odtwarzania, w trwającym nagraniu."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Pomiń reklamę"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Zamknij"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Pominięto reklamę"

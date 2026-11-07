@@ -753,3 +753,61 @@ msgstr "録画の完了やログインの期限切れなど、バックグラウ
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "キャッチアップには inputstream.ffmpegdirect のインストールと有効化が必要です"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "スキップ"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Jellyfin が把握している録画内の CM をスキップします。"
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "CM"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "「オフ」は CM を無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。録画の進行中に見つかった CM は再生中に反映されます。"
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "オフ"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "自動"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "確認"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "スキップボタンを消すタイミング"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "CM のどこまで進んだらスキップボタンを消すか。押さないと決めた後は画面を覆わなくなります。100% にすると、CM の間ずっと表示します。"
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "新しい CM の確認間隔（秒）"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "進行中の録画で、再生開始後に見つかった CM を確認する間隔（秒）。"
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "CM をスキップ"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "閉じる"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "CM をスキップしました"

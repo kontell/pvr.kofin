@@ -130,5 +130,19 @@
   "#30863": "Enregistrer la série",
   "#30864": "Afficher les notifications",
   "#30865": "Fenêtres contextuelles pour les événements en arrière-plan, comme un enregistrement terminé ou une connexion expirée. Les réponses aux boutons de ces paramètres sont toujours affichées.",
-  "#30866": "Le rattrapage nécessite inputstream.ffmpegdirect installé et activé"
+  "#30866": "Le rattrapage nécessite inputstream.ffmpegdirect installé et activé",
+  "#30867": "Passages",
+  "#30868": "Passer les coupures publicitaires des enregistrements que Jellyfin connaît.",
+  "#30869": "Publicités",
+  "#30870": "Désactivé ignore les segments publicitaires, Auto les saute, Demander affiche un bouton de saut. Les coupures trouvées pendant qu'un enregistrement est encore en cours sont prises en compte pendant la lecture.",
+  "#30871": "Désactivé",
+  "#30872": "Auto",
+  "#30873": "Demander",
+  "#30874": "Masquer le bouton de saut après",
+  "#30875": "À quel point de la coupure le bouton de saut disparaît, pour ne plus masquer l'image une fois que vous avez décidé de ne pas l'utiliser. 100% le laisse affiché pendant toute la coupure.",
+  "#30876": "Rechercher de nouvelles coupures toutes les",
+  "#30877": "Secondes entre deux recherches de coupures trouvées depuis le début de la lecture, sur un enregistrement en cours.",
+  "#30878": "Passer la pub",
+  "#30879": "Fermer",
+  "#30880": "Pub passée"
 }

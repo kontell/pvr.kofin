@@ -753,3 +753,61 @@ msgstr "Vyskakovacie oznámenia o udalostiach na pozadí, napríklad o dokončen
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup vyžaduje nainštalovaný a povolený inputstream.ffmpegdirect"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Preskakovanie"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Preskakovať reklamné prestávky v nahrávkach, o ktorých Jellyfin vie."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklamy"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Vypnuté ignoruje reklamné segmenty, Automaticky ich preskočí, Opýtať sa zobrazí tlačidlo na preskočenie. Prestávky nájdené počas toho, ako nahrávka ešte prebieha, sa načítajú počas prehrávania."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Vypnuté"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automaticky"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Opýtať sa"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Skryť tlačidlo preskočenia po"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Ako ďaleko v prestávke tlačidlo preskočenia zmizne, aby po vašom rozhodnutí ho nestlačiť prestalo zakrývať obraz. 100% ho ponechá počas celej prestávky."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Hľadať nové prestávky každých"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Počet sekúnd medzi hľadaniami prestávok nájdených od začiatku prehrávania pri prebiehajúcej nahrávke."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Preskočiť reklamu"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Zavrieť"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Reklama preskočená"

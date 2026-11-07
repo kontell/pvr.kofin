@@ -130,5 +130,19 @@
   "#30863": "Optag serie",
   "#30864": "Vis notifikationer",
   "#30865": "Pop op-beskeder om hændelser i baggrunden, f.eks. en færdig optagelse eller et udløbet login. Svar på knapperne i disse indstillinger vises altid.",
-  "#30866": "Catchup kræver, at inputstream.ffmpegdirect er installeret og aktiveret"
+  "#30866": "Catchup kræver, at inputstream.ffmpegdirect er installeret og aktiveret",
+  "#30867": "Overspring",
+  "#30868": "Spring de reklamepauser over i optagelser, som Jellyfin kender til.",
+  "#30869": "Reklamer",
+  "#30870": "Fra ignorerer reklamesegmenter, Auto springer forbi dem, Spørg viser en spring over-knap. Pauser, der findes, mens en optagelse stadig er i gang, opfanges under afspilningen.",
+  "#30871": "Fra",
+  "#30872": "Auto",
+  "#30873": "Spørg",
+  "#30874": "Skjul spring over-knappen efter",
+  "#30875": "Hvor langt inde i en pause spring over-knappen forsvinder, så den holder op med at dække billedet, når du har besluttet ikke at trykke på den. 100% lader den blive hele pausen.",
+  "#30876": "Interval for søgning efter nye pauser",
+  "#30877": "Sekunder mellem søgninger efter pauser fundet siden afspilningen startede, på en igangværende optagelse.",
+  "#30878": "Spring reklame over",
+  "#30879": "Luk",
+  "#30880": "Reklame sprunget over"
 }

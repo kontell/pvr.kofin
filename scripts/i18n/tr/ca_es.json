@@ -130,5 +130,19 @@
   "#30863": "Enregistra la sèrie",
   "#30864": "Mostra les notificacions",
   "#30865": "Finestres emergents per a esdeveniments en segon pla, com ara un enregistrament acabat o una sessió caducada. Les respostes als botons d'aquesta configuració sempre es mostren.",
-  "#30866": "El catchup necessita inputstream.ffmpegdirect instal·lat i activat"
+  "#30866": "El catchup necessita inputstream.ffmpegdirect instal·lat i activat",
+  "#30867": "Omissió",
+  "#30868": "Omet les pauses publicitàries que Jellyfin coneix als enregistraments.",
+  "#30869": "Anuncis",
+  "#30870": "Desactivat ignora els segments d'anuncis, Automàtic els omet i Pregunta mostra un botó per ometre'ls. Les pauses que es troben mentre un enregistrament encara està en curs s'incorporen durant la reproducció.",
+  "#30871": "Desactivat",
+  "#30872": "Automàtic",
+  "#30873": "Pregunta",
+  "#30874": "Amaga el botó d'ometre després de",
+  "#30875": "Fins on dins d'una pausa desapareix el botó d'ometre, perquè deixi de tapar la imatge un cop has decidit no prémer-lo. Amb 100% es manté durant tota la pausa.",
+  "#30876": "Cerca pauses noves cada",
+  "#30877": "Segons entre cerques de pauses trobades des que va començar la reproducció, en un enregistrament en curs.",
+  "#30878": "Omet l'anunci",
+  "#30879": "Tanca",
+  "#30880": "S'ha omès l'anunci"
 }

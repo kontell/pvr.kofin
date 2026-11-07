@@ -130,5 +130,19 @@
   "#30863": "Serie opnemen",
   "#30864": "Meldingen tonen",
   "#30865": "Pop-ups voor gebeurtenissen op de achtergrond, zoals een voltooide opname of een verlopen aanmelding. Antwoorden op de knoppen in deze instellingen worden altijd getoond.",
-  "#30866": "Catch-up vereist dat inputstream.ffmpegdirect geïnstalleerd en ingeschakeld is"
+  "#30866": "Catch-up vereist dat inputstream.ffmpegdirect geïnstalleerd en ingeschakeld is",
+  "#30867": "Overslaan",
+  "#30868": "Sla de reclameblokken in opnames over die Jellyfin kent.",
+  "#30869": "Reclames",
+  "#30870": "Uit negeert reclamesegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan. Blokken die worden gevonden terwijl een opname nog loopt, worden tijdens het afspelen opgepikt.",
+  "#30871": "Uit",
+  "#30872": "Automatisch",
+  "#30873": "Vragen",
+  "#30874": "Overslaan-knop verbergen na",
+  "#30875": "Hoe ver in een reclameblok de overslaan-knop verdwijnt, zodat hij het beeld niet meer bedekt als je hebt besloten er niet op te drukken. 100% houdt de knop het hele blok zichtbaar.",
+  "#30876": "Zoeken naar nieuwe blokken elke",
+  "#30877": "Seconden tussen zoekacties naar reclameblokken die sinds het begin van het afspelen zijn gevonden, bij een lopende opname.",
+  "#30878": "Reclame overslaan",
+  "#30879": "Sluiten",
+  "#30880": "Reclame overgeslagen"
 }

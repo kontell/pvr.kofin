@@ -130,5 +130,19 @@
   "#30863": "Gravar série",
   "#30864": "Mostrar notificações",
   "#30865": "Pop-ups para eventos em segundo plano, como uma gravação concluída ou uma sessão expirada. As respostas aos botões destas definições são sempre mostradas.",
-  "#30866": "O catchup precisa do inputstream.ffmpegdirect instalado e ativado"
+  "#30866": "O catchup precisa do inputstream.ffmpegdirect instalado e ativado",
+  "#30867": "Saltar",
+  "#30868": "Salta os intervalos publicitários das gravações que o Jellyfin conhece.",
+  "#30869": "Publicidade",
+  "#30870": "Desativado ignora os segmentos de publicidade, Automático salta-os e Perguntar mostra um botão para saltar. Os intervalos encontrados enquanto uma gravação ainda está em curso são incorporados durante a reprodução.",
+  "#30871": "Desativado",
+  "#30872": "Automático",
+  "#30873": "Perguntar",
+  "#30874": "Ocultar o botão de saltar após",
+  "#30875": "Até que ponto do intervalo o botão de saltar desaparece, para deixar de tapar a imagem depois de decidir não o premir. 100% mantém-no durante todo o intervalo.",
+  "#30876": "Procurar novos intervalos a cada",
+  "#30877": "Segundos entre as procuras de intervalos encontrados desde o início da reprodução, numa gravação em curso.",
+  "#30878": "Saltar publicidade",
+  "#30879": "Fechar",
+  "#30880": "Publicidade saltada"
 }

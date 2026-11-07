@@ -130,5 +130,19 @@
   "#30863": "Sorozat felvétele",
   "#30864": "Értesítések megjelenítése",
   "#30865": "Felugró értesítések háttéreseményekről, például befejezett felvételről vagy lejárt bejelentkezésről. A beállítások gombjaira adott válaszok mindig megjelennek.",
-  "#30866": "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges"
+  "#30866": "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges",
+  "#30867": "Kihagyás",
+  "#30868": "A Jellyfin által ismert reklámszünetek kihagyása a felvételekben.",
+  "#30869": "Reklámok",
+  "#30870": "A Ki figyelmen kívül hagyja a reklámszakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg. A még folyamatban lévő felvétel közben talált szüneteket a lejátszás során figyelembe veszi.",
+  "#30871": "Ki",
+  "#30872": "Automatikus",
+  "#30873": "Rákérdezés",
+  "#30874": "A kihagyás gomb elrejtése ennyi után",
+  "#30875": "A szünet mekkora részéig látszik a kihagyás gomb, hogy ne takarja tovább a képet, miután úgy döntött, nem nyomja meg. A 100% a teljes szünet alatt fenntartja.",
+  "#30876": "Új szünetek keresésének gyakorisága",
+  "#30877": "Két keresés között eltelt másodpercek a lejátszás kezdete óta talált szünetekhez, folyamatban lévő felvételnél.",
+  "#30878": "Reklám átugrása",
+  "#30879": "Bezárás",
+  "#30880": "Reklám átugorva"
 }

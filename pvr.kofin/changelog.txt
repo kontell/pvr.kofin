@@ -1,3 +1,7 @@
+v23.19.0
+- Skip commercial breaks in recordings, from the Jellyfin Commercial media segments the Comseg plugin writes: Auto hands them to Kodi as an EDL, Ask shows a skip button
+- Breaks found while a recording is still being written are picked up during playback
+
 v23.18.3
 - Close live streams on the server when a tune never starts playing
 - Fix a race between reconnecting and requests already in flight
