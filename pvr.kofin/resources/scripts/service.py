@@ -283,6 +283,7 @@ class PlaybackReporter(xbmc.Player):
             'MediaSourceId': session_data.get('MediaSourceId', ''),
             'PlaySessionId': session_data.get('PlaySessionId', ''),
             'LiveStreamId': session_data.get('LiveStreamId', ''),
+            'WrittenAtMs': session_data.get('WrittenAtMs', 0),
             'PlayMethod': session_data.get('PlayMethod', ''),
             'BaseUrl': get_setting('jellyfinServerAddress'),
             'Token': get_setting('jellyfinAccessToken'),
@@ -305,13 +306,56 @@ class PlaybackReporter(xbmc.Player):
         it replaced. The player plays one stream at a time, so one opened before
         the stream now playing was zapped away from before it started. Those
         opened after it are left alone: the next tune may already be under way.
+        One the stream now playing holds waits for that stream's own close.
         """
         adopted_psid = adopted.get('PlaySessionId', '')
         adopted_at = adopted.get('WrittenAtMs', 0)
-        for path, pending in pending_sessions():
+        records = pending_sessions()
+        for path, pending in records:
             if pending.get('PlaySessionId', '') == adopted_psid:
                 remove_file(path)
-            elif pending.get('WrittenAtMs', 0) < adopted_at:
+            elif (pending.get('WrittenAtMs', 0) < adopted_at
+                  and not self._held(pending, records, self.session)):
+                self._close_pending(path, pending)
+
+    def _held(self, pending, records, playing):
+        """Whether a pending record names a stream that the playing session,
+        or a tune opened after the record, may be using too.
+
+        Jellyfin gives a channel the same LiveStreamId on every open, and an
+        open of a stream it still holds is counted on that stream. The record's
+        close is then right while the server still holds the older open, taking
+        that open back, and wrong once the server has dropped it, after a
+        restart say: it takes back the newer open, and the server closes the
+        stream under the player. The two cannot be told apart from here, so the
+        close waits until no stream of ours names that id. It comes due when
+        the playing stream's own close has gone (_close_released), or when a
+        tune under way has been adopted and played out.
+        """
+        live_stream_id = pending.get('LiveStreamId', '')
+        if not live_stream_id:
+            return False
+        if playing and playing.get('LiveStreamId', '') == live_stream_id:
+            return True
+        written = pending.get('WrittenAtMs', 0)
+        return any(other.get('LiveStreamId', '') == live_stream_id
+                   and other.get('WrittenAtMs', 0) > written
+                   for _, other in records)
+
+    def _close_released(self, session):
+        """Close the pending records _settle_pending held back for a session
+        whose own close has just been sent: those opened before it on its
+        LiveStreamId. Following that close, the count they take the server to
+        is right whether or not it still held the older opens."""
+        live_stream_id = session.get('LiveStreamId', '')
+        if not live_stream_id:
+            return
+        started = session.get('WrittenAtMs', 0)
+        records = pending_sessions()
+        for path, pending in records:
+            if (pending.get('LiveStreamId', '') == live_stream_id
+                    and pending.get('WrittenAtMs', 0) < started
+                    and not self._held(pending, records, None)):
                 self._close_pending(path, pending)
 
     def sweep_pending(self):
@@ -322,10 +366,13 @@ class PlaybackReporter(xbmc.Player):
         if self.isPlaying():
             return
         now = time.time()
-        for path, pending in pending_sessions():
+        records = pending_sessions()
+        for path, pending in records:
             if now * 1000 - pending.get('WrittenAtMs', 0) <= PENDING_IDLE_SECS * 1000:
                 continue
             if now < self.pending_retry.get(path, (0, 0))[0]:
+                continue
+            if self._held(pending, records, self.session):
                 continue
             self._close_pending(path, pending)
 
@@ -425,6 +472,7 @@ class PlaybackReporter(xbmc.Player):
             stopped_body['PositionTicks'] = position_ticks
         self._send_with(session, '/Sessions/Playing/Stopped', stopped_body)
         self._close_live_stream(session)
+        self._close_released(session)
 
     def _close_live_stream(self, session):
         """Close the live stream if one was opened. liveStreamId MUST ride as
