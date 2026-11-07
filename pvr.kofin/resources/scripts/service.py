@@ -170,6 +170,10 @@ def post_json(base_url, endpoint, body, token, device_id):
         # Non-deprecated header form, matching the C++ client — Jellyfin v12
         # drops X-Emby-Authorization support.
         'Authorization': build_auth_header(token, device_id),
+        # Kodi's own, which the C++ client's requests already carry. urllib's
+        # default, Python-urllib/3.x, is refused by proxies that screen user
+        # agents, such as Cloudflare's Browser Integrity Check, on by default.
+        'User-Agent': xbmc.getUserAgent(),
     }
     req = urllib.request.Request(url, data=data, headers=headers, method='POST')
     try:
@@ -624,7 +628,9 @@ def _resolve_local_channel(channel_guid):
     try:
         req = urllib.request.Request(
             base + '/LiveTv/Channels?userId=' + user_id,
-            headers={'Authorization': build_auth_header(token, device_id)})
+            headers={'Authorization': build_auth_header(token, device_id),
+                     # Kodi's own, for the reason given in post_json.
+                     'User-Agent': xbmc.getUserAgent()})
         with urllib.request.urlopen(req, timeout=10,
                                     context=ssl_context()) as resp:
             doc = json.load(resp)
