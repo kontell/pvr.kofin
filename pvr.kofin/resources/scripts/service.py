@@ -113,6 +113,25 @@ def build_auth_header(token, device_id):
     return header
 
 
+# Kodi's own, which the C++ client's requests already carry. urllib's default,
+# Python-urllib/3.x, is refused by proxies that screen user agents, such as
+# Cloudflare's Browser Integrity Check, on by default. It rides on each
+# request rather than on an installed opener: urlopen() builds a fresh opener
+# whenever it is given an SSL context, which is every request with sslVerify
+# off.
+USER_AGENT = xbmc.getUserAgent()
+
+
+def jellyfin_headers(token, device_id):
+    """The headers every request to Jellyfin carries. The Authorization form
+    is the non-deprecated one, matching the C++ client: Jellyfin v12 drops
+    X-Emby-Authorization support."""
+    return {
+        'Authorization': build_auth_header(token, device_id),
+        'User-Agent': USER_AGENT,
+    }
+
+
 def normalize_base_url(address):
     """Mirror InstanceSettings::GetJellyfinBaseUrl: default scheme http,
     default port 8096 (http) / 443 (https), strip any path. The raw setting
@@ -165,16 +184,8 @@ def post_json(base_url, endpoint, body, token, device_id):
         return False
     url = base + endpoint
     data = json.dumps(body).encode('utf-8')
-    headers = {
-        'Content-Type': 'application/json',
-        # Non-deprecated header form, matching the C++ client — Jellyfin v12
-        # drops X-Emby-Authorization support.
-        'Authorization': build_auth_header(token, device_id),
-        # Kodi's own, which the C++ client's requests already carry. urllib's
-        # default, Python-urllib/3.x, is refused by proxies that screen user
-        # agents, such as Cloudflare's Browser Integrity Check, on by default.
-        'User-Agent': xbmc.getUserAgent(),
-    }
+    headers = jellyfin_headers(token, device_id)
+    headers['Content-Type'] = 'application/json'
     req = urllib.request.Request(url, data=data, headers=headers, method='POST')
     try:
         with urllib.request.urlopen(req, timeout=5, context=ssl_context()) as resp:
@@ -628,9 +639,7 @@ def _resolve_local_channel(channel_guid):
     try:
         req = urllib.request.Request(
             base + '/LiveTv/Channels?userId=' + user_id,
-            headers={'Authorization': build_auth_header(token, device_id),
-                     # Kodi's own, for the reason given in post_json.
-                     'User-Agent': xbmc.getUserAgent()})
+            headers=jellyfin_headers(token, device_id))
         with urllib.request.urlopen(req, timeout=10,
                                     context=ssl_context()) as resp:
             doc = json.load(resp)
