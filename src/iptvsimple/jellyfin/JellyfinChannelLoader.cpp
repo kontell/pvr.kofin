@@ -1214,11 +1214,12 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
 void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
 {
-  // Jellyfin sometimes returns 127.0.0.1 or localhost in stream URLs when the
-  // tuner provider reports local addresses. Replace with the actual server
-  // hostname so Kodi can reach it. Only the URL authority's host is rewritten,
-  // and only on an exact match, so query-parameter values and hosts that
-  // merely contain the pattern, like "localhost.example.com", are left alone.
+  // Jellyfin sometimes returns 127.0.0.1, localhost or [::1] in stream URLs
+  // when the tuner provider reports local addresses. Replace with the actual
+  // server hostname so Kodi can reach it. Only the URL authority's host is
+  // rewritten, and only on an exact match, so query-parameter values and hosts
+  // that merely contain the pattern, like "localhost.example.com", are left
+  // alone.
   const std::string serverHost = m_settings->GetJellyfinHost();
   if (serverHost.empty())
     return;
@@ -1232,17 +1233,29 @@ void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
   if (authorityEnd == std::string::npos)
     authorityEnd = url.length();
 
-  // Host runs from after any userinfo to before any port.
+  // Host runs from after any userinfo to before any port. An IPv6 literal
+  // holds colons of its own, so it runs to its closing bracket instead.
   size_t hostStart = authorityStart;
   const size_t atPos = url.find('@', authorityStart);
   if (atPos != std::string::npos && atPos < authorityEnd)
     hostStart = atPos + 1;
-  size_t hostEnd = url.find(':', hostStart);
-  if (hostEnd == std::string::npos || hostEnd > authorityEnd)
-    hostEnd = authorityEnd;
+  size_t hostEnd;
+  if (hostStart < authorityEnd && url[hostStart] == '[')
+  {
+    hostEnd = url.find(']', hostStart);
+    if (hostEnd == std::string::npos || hostEnd >= authorityEnd)
+      return;
+    ++hostEnd;
+  }
+  else
+  {
+    hostEnd = url.find(':', hostStart);
+    if (hostEnd == std::string::npos || hostEnd > authorityEnd)
+      hostEnd = authorityEnd;
+  }
 
   const std::string host = url.substr(hostStart, hostEnd - hostStart);
-  if (host == "127.0.0.1" || host == "localhost")
+  if (host == "127.0.0.1" || host == "localhost" || host == "[::1]")
     url.replace(hostStart, hostEnd - hostStart, serverHost);
 }
 
