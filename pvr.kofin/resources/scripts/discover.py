@@ -205,8 +205,13 @@ def scan(progress):
 
 def public_info(address):
     """/System/Info/Public, or None if this box cannot reach that address."""
+    # Kodi's User-Agent, not urllib's Python-urllib/3.x: a server can publish
+    # an address behind a proxy that refuses the latter, such as Cloudflare's
+    # Browser Integrity Check, and the probe would then mark a server that
+    # works as one that did not answer.
     request = Request(address + '/System/Info/Public',
-                      headers={'Accept': 'application/json'})
+                      headers={'Accept': 'application/json',
+                               'User-Agent': xbmc.getUserAgent()})
     try:
         context = ssl_context()
         if context is None:
