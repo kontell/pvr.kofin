@@ -43,7 +43,7 @@ void JellyfinAuth::TestConnection()
   catch (const std::exception& e)
   {
     Logger::Log(LEVEL_ERROR, "%s - Exception during connection test: %s", __FUNCTION__, e.what());
-    Toast::Error(30836);
+    Toast::Reply::Error(30836);
   }
 }
 
@@ -53,7 +53,7 @@ void JellyfinAuth::TestConnectionInternal()
 
   if (m_settings->GetJellyfinServerAddress().empty())
   {
-    Toast::Warning(30714);
+    Toast::Reply::Warning(30714);
     return;
   }
 
@@ -61,12 +61,12 @@ void JellyfinAuth::TestConnectionInternal()
 
   if (testClient->Authenticate())
   {
-    Toast::Info(30837);
+    Toast::Reply::Info(30837);
     Logger::Log(LEVEL_INFO, "%s - Test connection successful", __FUNCTION__);
   }
   else
   {
-    Toast::Error(30836);
+    Toast::Reply::Error(30836);
     Logger::Log(LEVEL_ERROR, "%s - Test connection failed", __FUNCTION__);
   }
 }
@@ -81,7 +81,7 @@ void JellyfinAuth::RunLogin()
   catch (const std::exception& e)
   {
     Logger::Log(LEVEL_ERROR, "%s - Exception during login: %s", __FUNCTION__, e.what());
-    Toast::Error(30713);
+    Toast::Reply::Error(30713);
   }
 }
 
@@ -91,7 +91,7 @@ void JellyfinAuth::RunLoginInternal()
 
   if (m_settings->GetJellyfinServerAddress().empty())
   {
-    Toast::Warning(30714);
+    Toast::Reply::Warning(30714);
     return;
   }
 
@@ -138,7 +138,7 @@ void JellyfinAuth::RunLoginInternal()
   {
     FetchAndStoreServerName();
     m_settings->SetIsLoggedIn(true);
-    Toast::Info(30711);
+    Toast::Reply::Info(30711);
   }
 }
 
@@ -161,7 +161,7 @@ bool JellyfinAuth::LoginWithPassword()
 
   if (!client->AuthenticateByPassword(username, password))
   {
-    Toast::Error(30713);
+    Toast::Reply::Error(30713);
     return false;
   }
 
@@ -177,7 +177,7 @@ bool JellyfinAuth::LoginWithQuickConnect()
   if (!qcClient->StartQuickConnect(code))
   {
     Logger::Log(LEVEL_ERROR, "%s - Failed to initiate Quick Connect", __FUNCTION__);
-    Toast::Error(30838);
+    Toast::Reply::Error(30838);
     return false;
   }
 
@@ -225,7 +225,7 @@ bool JellyfinAuth::LoginWithQuickConnect()
 
   progress.reset();
   Logger::Log(LEVEL_ERROR, "%s - Quick Connect timed out", __FUNCTION__);
-  Toast::Warning(30839);
+  Toast::Reply::Warning(30839);
   return false;
 }
 
@@ -258,7 +258,7 @@ void JellyfinAuth::RunLogout()
   m_settings->SetJellyfinDisplayUsername("");
   m_settings->SetIsLoggedIn(false);
 
-  Toast::Info(30712);
+  Toast::Reply::Info(30712);
   Logger::Log(LEVEL_INFO, "%s - User logged out", __FUNCTION__);
 }
 

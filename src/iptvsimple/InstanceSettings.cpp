@@ -7,6 +7,8 @@
 
 #include "InstanceSettings.h"
 
+#include "utilities/WebUtils.h"
+
 #include <algorithm>
 #include <cctype>
 #include <cstdio>
@@ -77,7 +79,7 @@ void InstanceSettings::ReadSettings()
   m_maxResolution = kodi::addon::GetSettingInt("maxResolution", 5);
 
   // Input stream
-  m_inputStream = kodi::addon::GetSettingInt("inputStream", 0);
+  m_inputStream = kodi::addon::GetSettingInt("inputStream", 2);
   // 3 was inputstream.tempo, which is no longer offered: play through FFmpeg Direct,
   // the engine it was a fork of. Written back once, so the stored value, the
   // spinner and the settings that depend on it agree. Kodi 22 refuses the value
@@ -88,7 +90,7 @@ void InstanceSettings::ReadSettings()
     kodi::addon::SetSettingInt("inputStream", 0);
   }
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
-  m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 0);
+  m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 1);
   m_skipCommercialMode = kodi::addon::GetSettingInt("skipCommercialMode", 0);
 
   // Reference playlist (with one-shot migration from legacy catchupM3U* keys)
@@ -180,19 +182,12 @@ std::string InstanceSettings::GetJellyfinBaseUrl() const
   if (slashPos != std::string::npos)
     remainder = remainder.substr(0, slashPos);
 
-  // Check if port is present
-  // Handle IPv6 bracket notation [::1]:port
-  bool hasPort = false;
-  if (!remainder.empty() && remainder[0] == '[')
-  {
-    auto bracketEnd = remainder.find(']');
-    if (bracketEnd != std::string::npos && bracketEnd + 1 < remainder.size() && remainder[bracketEnd + 1] == ':')
-      hasPort = true;
-  }
-  else
-  {
-    hasPort = remainder.find(':') != std::string::npos;
-  }
+  // A host without a port gets the default one. SplitAuthority tells an IPv6
+  // literal's colons from a port's.
+  const std::string candidate = scheme + "://" + remainder;
+  utilities::WebUtils::UrlAuthority authority;
+  const bool hasPort = utilities::WebUtils::SplitAuthority(candidate, authority) &&
+                       authority.hostEnd < authority.end && candidate[authority.hostEnd] == ':';
 
   if (!hasPort)
   {
@@ -216,7 +211,7 @@ bool InstanceSettings::IsInsecureRemoteConnection() const
                  [](unsigned char c) { return std::tolower(c); });
 
   // Loopback, mDNS, and undotted LAN hostnames are considered private.
-  if (host == "localhost" || host == "[::1]" || host.rfind("127.", 0) == 0)
+  if (utilities::WebUtils::IsLoopbackHost(host))
     return false;
   if (host.size() > 6 && host.compare(host.size() - 6, 6, ".local") == 0)
     return false;
@@ -252,28 +247,9 @@ bool InstanceSettings::IsInsecureRemoteConnection() const
 
 std::string InstanceSettings::GetJellyfinHost() const
 {
-  std::string baseUrl = GetJellyfinBaseUrl();
-  if (baseUrl.empty())
+  const std::string baseUrl = GetJellyfinBaseUrl();
+  utilities::WebUtils::UrlAuthority authority;
+  if (!utilities::WebUtils::SplitAuthority(baseUrl, authority))
     return "";
-
-  // Strip scheme
-  auto pos = baseUrl.find("://");
-  if (pos == std::string::npos)
-    return baseUrl;
-  std::string hostPort = baseUrl.substr(pos + 3);
-
-  // Strip port
-  // Handle IPv6 bracket notation
-  if (!hostPort.empty() && hostPort[0] == '[')
-  {
-    auto bracketEnd = hostPort.find(']');
-    if (bracketEnd != std::string::npos)
-      return hostPort.substr(0, bracketEnd + 1);
-  }
-
-  auto colonPos = hostPort.rfind(':');
-  if (colonPos != std::string::npos)
-    return hostPort.substr(0, colonPos);
-
-  return hostPort;
+  return baseUrl.substr(authority.hostStart, authority.hostEnd - authority.hostStart);
 }

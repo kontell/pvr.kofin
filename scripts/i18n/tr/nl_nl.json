@@ -13,12 +13,12 @@
   "#30651": "Onbeperkt",
   "#30660": "InputStream",
   "#30661": "InputStream-add-on",
-  "#30662": "De InputStream-add-on die voor het afspelen wordt gebruikt. FFmpeg Direct ondersteunt timeshift met een lokale buffer op het apparaat. Adaptive ondersteunt timeshift met een buffer aan de serverzijde. FFmpeg (intern in Kodi) ondersteunt geen timeshift.",
+  "#30662": "InputStream voor live-tv. FFmpeg (intern in Kodi) en Adaptive kunnen springen binnen de HLS-buffer van de server. FFmpeg Direct doet timeshift met een lokale buffer. FFmpeg Direct en Adaptive vereisen dat hun add-on geïnstalleerd is.",
   "#30665": "FFmpeg (intern in Kodi)",
   "#30666": "Timeshift inschakelen",
   "#30667": "Buffert de livestream vanaf het punt waarop het afspelen begon. De buffer wordt op de client aangemaakt; bepaal de maximale grootte via de instellingen van inputstream.ffmpegdirect.",
   "#30668": "InputStream voor lopende opname",
-  "#30669": "De InputStream die voor het afspelen van lopende opnamen wordt gebruikt. Adaptive kan vooruitspoelen in een lopende opname. FFmpeg kan niet vooruitspoelen, maar is mogelijk robuuster.",
+  "#30669": "InputStream voor lopende opnamen. Adaptive vereist dat de add-on geïnstalleerd is.",
   "#30670": "Geavanceerd",
   "#30672": "Interval voor herladen van kanalen (uren)",
   "#30673": "Hoe vaak de kanaalgegevens uit Jellyfin opnieuw worden geladen.",
@@ -49,7 +49,7 @@
   "#30727": "De serververbinding gebruikt onversleuteld HTTP via een niet-privénetwerk. HTTPS wordt aanbevolen.",
   "#30730": "Catch-up",
   "#30731": "Catch-up inschakelen (IPTV)",
-  "#30732": "Schakelt catch-up/archief in als je provider dit ondersteunt. Catch-up-weergave verloopt altijd via inputstream.ffmpegdirect met direct afspelen. Vereist een referentie-M3U-bestand (zie de sectie Geavanceerd) dat overeenkomt met je Jellyfin-kanaalnamen en catch-up-tags bevat die Jellyfin weglaat.",
+  "#30732": "Schakelt catch-up/archief in als je provider dit ondersteunt. Catch-up wordt altijd direct afgespeeld via inputstream.ffmpegdirect, dat geïnstalleerd moet zijn. Vereist een referentie-M3U-bestand (zie de sectie Geavanceerd) dat overeenkomt met je Jellyfin-kanaalnamen en catch-up-tags bevat die Jellyfin weglaat.",
   "#30739": "Opmaakreeks voor query",
   "#30740": "Een providerafhankelijke opmaakreeks voor catch-up-URL's. Wordt als standaard gebruikt wanneer kanalen geen eigen catchup-source opgeven. Bijv. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catch-up-venster (dagen)",
@@ -127,5 +127,8 @@
   "#30860": "Handmatige opname",
   "#30861": "Eenmalig opnemen (EPG)",
   "#30862": "Eenmalig opnemen (aangemaakt door serieregel)",
-  "#30863": "Serie opnemen"
+  "#30863": "Serie opnemen",
+  "#30864": "Meldingen tonen",
+  "#30865": "Pop-ups voor gebeurtenissen op de achtergrond, zoals een voltooide opname of een verlopen aanmelding. Antwoorden op de knoppen in deze instellingen worden altijd getoond.",
+  "#30866": "Catch-up vereist dat inputstream.ffmpegdirect geïnstalleerd en ingeschakeld is"
 }

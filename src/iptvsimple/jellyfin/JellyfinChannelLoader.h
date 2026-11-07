@@ -112,6 +112,7 @@ private:
   void WriteSessionFile();
   void WritePlaylistSessionFile(const std::string& itemId);
   void RewriteLocalhost(std::string& url);
+  static void RebaseLoopbackStreamFile(std::string& url, const std::string& baseUrl);
 
   // Guards the three lookup maps below. They are rebuilt on the worker thread
   // (LoadChannels, via Process()/ConnectionEstablished) and read/written from

@@ -159,7 +159,7 @@ msgid "InputStream addon"
 msgstr ""
 
 msgctxt "#30662"
-msgid "The InputStream addon to use for playback. FFmpeg Direct supports timeshift with a local device buffer. Adaptive supports timeshift with a server-side buffer. FFmpeg (Kodi internal) does not support timeshift."
+msgid "InputStream for live TV. FFmpeg (Kodi internal) and Adaptive skip within the server's HLS buffer. FFmpeg Direct timeshifts with a local buffer. FFmpeg Direct and Adaptive need their add-on installed."
 msgstr ""
 
 msgctxt "#30663"
@@ -187,7 +187,7 @@ msgid "In-progress recording InputStream"
 msgstr ""
 
 msgctxt "#30669"
-msgid "The InputStream to use for in-progress recording playback. Adaptive can skip forward through an in-progress recording. FFmpeg cannot skip ahead but may be more robust."
+msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
 msgstr ""
 
 #: Advanced category
@@ -318,7 +318,7 @@ msgid "Enable catchup (IPTV)"
 msgstr ""
 
 msgctxt "#30732"
-msgid "Enable catchup/ archive if supported by your provider. Catchup playback is always via inputstream.ffmpegdirect & direct play. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgid "Enable catchup/ archive if supported by your provider. Catchup always plays direct via inputstream.ffmpegdirect, which must be installed. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
 msgstr ""
 
 msgctxt "#30739"
@@ -743,6 +743,18 @@ msgstr ""
 
 msgctxt "#30863"
 msgid "Record series"
+msgstr ""
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr ""
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr ""
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr ""
 
 msgctxt "#30867"

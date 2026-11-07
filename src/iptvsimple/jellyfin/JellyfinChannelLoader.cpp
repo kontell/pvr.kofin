@@ -1217,36 +1217,42 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
 
 void JellyfinChannelLoader::RewriteLocalhost(std::string& url)
 {
-  // Jellyfin sometimes returns 127.0.0.1 or localhost in stream URLs when the
-  // tuner provider reports local addresses. Replace with the actual server
-  // hostname so Kodi can reach it. Only the URL authority's host is rewritten,
-  // and only on an exact match, so query-parameter values and hosts that
-  // merely contain the pattern, like "localhost.example.com", are left alone.
+  // A stream URL can name the server machine by a loopback host, when a tuner
+  // or a reference playlist line points at a service running beside Jellyfin.
+  // Replace the host with the server's so Kodi can reach it. Only the host is
+  // rewritten: the scheme and port are that service's, not Jellyfin's. Query
+  // values and hosts that merely contain a loopback name, like
+  // "localhost.example.com", are left alone.
   const std::string serverHost = m_settings->GetJellyfinHost();
   if (serverHost.empty())
     return;
 
-  const size_t schemeEnd = url.find("://");
-  if (schemeEnd == std::string::npos)
+  WebUtils::UrlAuthority authority;
+  if (!WebUtils::SplitAuthority(url, authority))
     return;
 
-  const size_t authorityStart = schemeEnd + 3;
-  size_t authorityEnd = url.find_first_of("/?#", authorityStart);
-  if (authorityEnd == std::string::npos)
-    authorityEnd = url.length();
+  const size_t hostLength = authority.hostEnd - authority.hostStart;
+  if (WebUtils::IsLoopbackHost(url.substr(authority.hostStart, hostLength)))
+    url.replace(authority.hostStart, hostLength, serverHost);
+}
 
-  // Host runs from after any userinfo to before any port.
-  size_t hostStart = authorityStart;
-  const size_t atPos = url.find('@', authorityStart);
-  if (atPos != std::string::npos && atPos < authorityEnd)
-    hostStart = atPos + 1;
-  size_t hostEnd = url.find(':', hostStart);
-  if (hostEnd == std::string::npos || hostEnd > authorityEnd)
-    hostEnd = authorityEnd;
-
-  const std::string host = url.substr(hostStart, hostEnd - hostStart);
-  if (host == "127.0.0.1" || host == "localhost")
-    url.replace(hostStart, hostEnd - hostStart, serverHost);
+void JellyfinChannelLoader::RebaseLoopbackStreamFile(std::string& url, const std::string& baseUrl)
+{
+  // Jellyfin's own buffer of a shared tuner stream, which it addresses by its
+  // local API URL. On a loopback host the scheme and port are the server's
+  // local ones too, which a client that reaches it through a proxy cannot use,
+  // so the whole origin becomes the configured one. The API path is the same
+  // on both.
+  static const std::string streamFiles = "/LiveTv/LiveStreamFiles/";
+  WebUtils::UrlAuthority authority;
+  if (baseUrl.empty() || !WebUtils::SplitAuthority(url, authority))
+    return;
+  if (!WebUtils::IsLoopbackHost(
+          url.substr(authority.hostStart, authority.hostEnd - authority.hostStart)))
+    return;
+  if (url.compare(authority.end, streamFiles.size(), streamFiles) != 0)
+    return;
+  url = baseUrl + url.substr(authority.end);
 }
 
 void JellyfinChannelLoader::WritePlaylistSessionFile(const std::string& itemId)
@@ -1395,6 +1401,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   else if (source.isMember("Path") && !source["Path"].asString().empty())
   {
     streamUrl = source["Path"].asString();
+    RebaseLoopbackStreamFile(streamUrl, client->GetBaseUrl());
   }
 
   // Fallback: construct URL from LiveStreamId/MediaSourceId

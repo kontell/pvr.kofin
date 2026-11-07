@@ -13,12 +13,12 @@
   "#30651": "Korlátlan",
   "#30660": "InputStream",
   "#30661": "InputStream-kiegészítő",
-  "#30662": "A lejátszáshoz használt InputStream-kiegészítő. Az FFmpeg Direct támogatja az időeltolást helyi pufferrel az eszközön. Az Adaptive támogatja az időeltolást kiszolgálóoldali pufferrel. Az FFmpeg (Kodi belső) nem támogatja az időeltolást.",
+  "#30662": "InputStream az élő TV-hez. Az FFmpeg (Kodi belső) és az Adaptive a kiszolgáló HLS-pufferén belül tud ugrani. Az FFmpeg Direct helyi pufferrel végzi az időeltolást. Az FFmpeg Direct és az Adaptive használatához telepíteni kell a saját kiegészítőjüket.",
   "#30665": "FFmpeg (Kodi belső)",
   "#30666": "Időeltolás engedélyezése",
   "#30667": "Puffereli az élő adatfolyamot attól a ponttól, ahol a lejátszás megkezdődött. A puffer a kliensen jön létre; a maximális méretet az inputstream.ffmpegdirect beállításaiban szabályozhatja.",
   "#30668": "InputStream folyamatban lévő felvételhez",
-  "#30669": "A folyamatban lévő felvételek lejátszásához használt InputStream. Az Adaptive előre tud tekerni a folyamatban lévő felvételben. Az FFmpeg nem tud előre tekerni, de megbízhatóbb lehet.",
+  "#30669": "InputStream a folyamatban lévő felvételekhez. Az Adaptive használatához telepíteni kell a kiegészítőjét.",
   "#30670": "Speciális",
   "#30672": "Csatornák újratöltési időköze (óra)",
   "#30673": "Milyen gyakran töltődnek be újra a csatornaadatok a Jellyfinből.",
@@ -49,7 +49,7 @@
   "#30727": "A kiszolgálókapcsolat titkosítatlan HTTP-t használ nem privát hálózaton. HTTPS ajánlott.",
   "#30730": "Catchup",
   "#30731": "Catchup engedélyezése (IPTV)",
-  "#30732": "Engedélyezi a catchupot/archívumot, ha a szolgáltatója támogatja. A catchup lejátszása mindig az inputstream.ffmpegdirect használatával, közvetlen lejátszással történik. Szükséges hozzá egy referencia M3U-fájl (lásd a Speciális szakaszt), amely megegyezik a Jellyfin-csatornanevekkel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket.",
+  "#30732": "Engedélyezi a catchupot/archívumot, ha a szolgáltatója támogatja. A catchup lejátszása mindig közvetlenül az inputstream.ffmpegdirect használatával történik, amelynek telepítve kell lennie. Szükséges hozzá egy referencia M3U-fájl (lásd a Speciális szakaszt), amely megegyezik a Jellyfin-csatornanevekkel, és tartalmazza a Jellyfin által kihagyott catchup-címkéket.",
   "#30739": "Lekérdezési formátumkarakterlánc",
   "#30740": "Szolgáltatófüggő formátumkarakterlánc a catchup-URL-ekhez. Alapértelmezettként használatos, ha a csatornák nem adják meg saját catchup-source-ukat. Pl. &cutv={Y}-{m}-{d}T{H}:{M}:{S}",
   "#30741": "Catchup-ablak (nap)",
@@ -127,5 +127,8 @@
   "#30860": "Kézi felvétel",
   "#30861": "Felvétel egyszer (EPG)",
   "#30862": "Felvétel egyszer (sorozatszabály hozta létre)",
-  "#30863": "Sorozat felvétele"
+  "#30863": "Sorozat felvétele",
+  "#30864": "Értesítések megjelenítése",
+  "#30865": "Felugró értesítések háttéreseményekről, például befejezett felvételről vagy lejárt bejelentkezésről. A beállítások gombjaira adott válaszok mindig megjelennek.",
+  "#30866": "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges"
 }
