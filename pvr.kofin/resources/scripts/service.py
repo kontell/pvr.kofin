@@ -208,9 +208,8 @@ def get_json(base_url, endpoint, token, device_id):
     base = normalize_base_url(base_url)
     if not base:
         raise ValueError('no server address')
-    req = urllib.request.Request(
-        base + endpoint,
-        headers={'Authorization': build_auth_header(token, device_id)})
+    req = urllib.request.Request(base + endpoint,
+                                 headers=jellyfin_headers(token, device_id))
     with urllib.request.urlopen(req, timeout=10, context=ssl_context()) as resp:
         return json.load(resp)
 
