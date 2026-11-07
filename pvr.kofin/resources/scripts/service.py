@@ -160,6 +160,10 @@ def post_json(base_url, endpoint, body, token, device_id):
         # Non-deprecated header form, matching the C++ client — Jellyfin v12
         # drops X-Emby-Authorization support.
         'Authorization': build_auth_header(token, device_id),
+        # Kodi's own, which the C++ client's requests already carry. urllib's
+        # default, Python-urllib/3.x, is refused by proxies that screen user
+        # agents, such as Cloudflare's Browser Integrity Check, on by default.
+        'User-Agent': xbmc.getUserAgent(),
     }
     req = urllib.request.Request(url, data=data, headers=headers, method='POST')
     try:
