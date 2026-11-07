@@ -258,7 +258,7 @@ class PlaybackReporter(xbmc.Player):
                 xbmc.log('pvr.kofin reporter: playback replaced without stop event',
                          xbmc.LOGDEBUG)
                 self._finalize(self.session, self.is_recording,
-                               self.last_position_ticks)
+                               self.last_position_ticks, incoming=session_data)
                 self.session = None
 
         if session_data and not self.session:
@@ -332,13 +332,27 @@ class PlaybackReporter(xbmc.Player):
         """
         adopted_psid = adopted.get('PlaySessionId', '')
         adopted_at = adopted.get('WrittenAtMs', 0)
-        records = pending_sessions()
-        for path, pending in records:
+        records = []
+        for path, pending in pending_sessions():
             if pending.get('PlaySessionId', '') == adopted_psid:
                 remove_file(path)
-            elif (pending.get('WrittenAtMs', 0) < adopted_at
-                  and not self._held(pending, records, self.session)):
-                self._close_pending(path, pending)
+            else:
+                records.append((path, pending))
+        older = [record for record in records
+                 if record[1].get('WrittenAtMs', 0) < adopted_at]
+        self._close_unheld(older, records, self.session)
+
+    def _close_unheld(self, candidates, records, playing, escalate=True):
+        """Close each candidate record that _held does not hold, newest first.
+        A record closed here no longer holds the older ones on its id, so a
+        run of them on one id goes in one call."""
+        holders = list(records)
+        for path, pending in sorted(candidates, reverse=True,
+                                    key=lambda record: record[1].get('WrittenAtMs', 0)):
+            if self._held(pending, holders, playing):
+                continue
+            if self._close_pending(path, pending, escalate):
+                holders = [record for record in holders if record[0] != path]
 
     def _held(self, pending, records, playing):
         """Whether a pending record names a stream that the playing session,
@@ -364,39 +378,41 @@ class PlaybackReporter(xbmc.Player):
                    and other.get('WrittenAtMs', 0) > written
                    for _, other in records)
 
-    def _close_released(self, session):
+    def _close_released(self, session, playing):
         """Close the pending records _settle_pending held back for a session
         whose own close has just been sent: those opened before it on its
         LiveStreamId. Following that close, the count they take the server to
-        is right whether or not it still held the older opens."""
+        is right whether or not it still held the older opens.
+
+        ``playing`` is the stream that replaced the session on a seamless zap,
+        or None. It holds its id itself, because its pending record may never
+        have been written. These closes come out of turn for their retry
+        schedule, so a failure here does not stretch it."""
         live_stream_id = session.get('LiveStreamId', '')
         if not live_stream_id:
             return
         started = session.get('WrittenAtMs', 0)
         records = pending_sessions()
-        for path, pending in records:
-            if (pending.get('LiveStreamId', '') == live_stream_id
-                    and pending.get('WrittenAtMs', 0) < started
-                    and not self._held(pending, records, None)):
-                self._close_pending(path, pending)
+        older = [record for record in records
+                 if record[1].get('LiveStreamId', '') == live_stream_id
+                 and record[1].get('WrittenAtMs', 0) < started]
+        self._close_unheld(older, records, playing, escalate=False)
 
     def sweep_pending(self):
         """Close the pending streams whose playback never started. Only while
         the player is idle: while something plays, it may be a kofin stream
         this script did not adopt (one whose session.json could not be read,
-        say), and closing its stream would cut it off."""
+        say), and closing its stream would cut it off. With nothing playing,
+        only a newer record holds an id: a session Kodi ended without a stop
+        event does not."""
         if self.isPlaying():
             return
         now = time.time()
         records = pending_sessions()
-        for path, pending in records:
-            if now * 1000 - pending.get('WrittenAtMs', 0) <= PENDING_IDLE_SECS * 1000:
-                continue
-            if now < self.pending_retry.get(path, (0, 0))[0]:
-                continue
-            if self._held(pending, records, self.session):
-                continue
-            self._close_pending(path, pending)
+        due = [record for record in records
+               if now * 1000 - record[1].get('WrittenAtMs', 0) > PENDING_IDLE_SECS * 1000
+               and now >= self.pending_retry.get(record[0], (0, 0))[0]]
+        self._close_unheld(due, records, None)
 
     def close_all_pending(self):
         """At shutdown nothing pending can still start. A close that fails
@@ -404,10 +420,12 @@ class PlaybackReporter(xbmc.Player):
         for path, pending in pending_sessions():
             self._close_pending(path, pending)
 
-    def _close_pending(self, path, pending):
+    def _close_pending(self, path, pending, escalate=True):
         """Close one pending stream. The record is the only trace that the
         stream still needs closing, since session.json has moved on, so it is
-        deleted only once the server has accepted the close."""
+        deleted only once the server has accepted the close. Returns whether
+        the record is gone. A failure lengthens the retry delay unless
+        ``escalate`` is off and a delay is already set."""
         xbmc.log('pvr.kofin reporter: closing a stream that never started playing',
                  xbmc.LOGDEBUG)
         # The server the stream was opened on, which the settings may no longer
@@ -421,16 +439,19 @@ class PlaybackReporter(xbmc.Player):
         if closed:
             remove_file(path)
             self.pending_retry.pop(path, None)
-            return
+            return True
         if time.time() * 1000 - pending.get('WrittenAtMs', 0) > PENDING_GIVE_UP_SECS * 1000:
             xbmc.log('pvr.kofin reporter: giving up on closing a stream opened a day ago',
                      xbmc.LOGDEBUG)
             remove_file(path)
             self.pending_retry.pop(path, None)
-            return
+            return True
         previous = self.pending_retry.get(path)
+        if previous and not escalate:
+            return False
         delay = min(previous[1] * 2, PENDING_RETRY_MAX_SECS) if previous else PENDING_RETRY_SECS
         self.pending_retry[path] = (time.time() + delay, delay)
+        return False
 
     def onPlayBackStopped(self):
         self._stop()
@@ -480,8 +501,9 @@ class PlaybackReporter(xbmc.Player):
         xbmc.log('pvr.kofin reporter: playback stopped', xbmc.LOGDEBUG)
         self._finalize(session, is_recording, final_position_ticks)
 
-    def _finalize(self, session, is_recording, position_ticks):
-        """Report Stopped and close the live stream for a finished session."""
+    def _finalize(self, session, is_recording, position_ticks, incoming=None):
+        """Report Stopped and close the live stream for a finished session.
+        ``incoming`` is the stream replacing it on a seamless zap, if any."""
         stopped_body = {
             'ItemId': session['ItemId'],
             'MediaSourceId': session['MediaSourceId'],
@@ -493,8 +515,32 @@ class PlaybackReporter(xbmc.Player):
             # off the wall-clock elapsed value seen in /Progress events.
             stopped_body['PositionTicks'] = position_ticks
         self._send_with(session, '/Sessions/Playing/Stopped', stopped_body)
-        self._close_live_stream(session)
-        self._close_released(session)
+        if not self._close_live_stream(session):
+            self._retain(session)
+        self._close_released(session, incoming)
+
+    def _retain(self, session):
+        """Keep a session whose own close the server did not accept as a
+        pending record, so the sweep retries it like any other. Its record was
+        removed at adoption. Until it is closed, it also holds the older
+        records on its id. Written the way the add-on writes them: under a .tmp
+        name, then renamed into place, named as PendingFileName names them."""
+        if not PENDING_DIR or not session.get('LiveStreamId'):
+            return
+        record = {key: session.get(key) for key in (
+            'ItemId', 'MediaSourceId', 'PlaySessionId', 'LiveStreamId',
+            'WrittenAtMs', 'PlayMethod', 'BaseUrl')}
+        name = ''.join(c if (c.isascii() and c.isalnum()) or c == '-' else '_'
+                       for c in session.get('PlaySessionId', ''))
+        path = os.path.join(PENDING_DIR, name + '.json')
+        try:
+            os.makedirs(PENDING_DIR, exist_ok=True)
+            with open(path + '.tmp', 'w') as f:
+                json.dump(record, f)
+            os.replace(path + '.tmp', path)
+        except OSError as error:
+            xbmc.log(f'pvr.kofin reporter: could not keep a failed close for a retry: '
+                     f'{error}', xbmc.LOGDEBUG)
 
     def _close_live_stream(self, session):
         """Close the live stream if one was opened. liveStreamId MUST ride as
