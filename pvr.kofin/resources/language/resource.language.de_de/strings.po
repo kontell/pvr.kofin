@@ -753,3 +753,61 @@ msgstr "Pop-ups für Hintergrundereignisse, etwa eine beendete Aufnahme oder ein
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup erfordert, dass inputstream.ffmpegdirect installiert und aktiviert ist"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Überspringen"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Überspringt Werbepausen in Aufnahmen, die Jellyfin kennt."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Werbung"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Aus ignoriert Werbesegmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen. Pausen, die gefunden werden, während eine Aufnahme noch läuft, werden während der Wiedergabe übernommen."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Aus"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatisch"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Nachfragen"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Schaltfläche zum Überspringen ausblenden nach"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Wie weit in eine Pause hinein die Schaltfläche zum Überspringen verschwindet, damit sie das Bild nicht mehr verdeckt, wenn du dich entschieden hast, sie nicht zu drücken. 100% zeigt sie während der gesamten Pause."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Nach neuen Pausen suchen alle"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Sekunden zwischen den Suchen nach Pausen, die seit Beginn der Wiedergabe hinzugekommen sind, bei einer laufenden Aufnahme."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Werbung überspringen"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Schließen"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Werbung übersprungen"

@@ -130,5 +130,19 @@
   "#30863": "Înregistrează serialul",
   "#30864": "Afișează notificările",
   "#30865": "Ferestre pop-up pentru evenimente din fundal, cum ar fi o înregistrare încheiată sau o autentificare expirată. Răspunsurile la butoanele din aceste setări sunt afișate întotdeauna.",
-  "#30866": "Catchup necesită inputstream.ffmpegdirect instalat și activat"
+  "#30866": "Catchup necesită inputstream.ffmpegdirect instalat și activat",
+  "#30867": "Omitere",
+  "#30868": "Omite pauzele publicitare din înregistrări pe care Jellyfin le cunoaște.",
+  "#30869": "Reclame",
+  "#30870": "Dezactivat ignoră segmentele de reclamă, Auto trece peste ele, Întreabă afișează un buton de omitere. Pauzele găsite în timp ce o înregistrare este încă în curs sunt preluate în timpul redării.",
+  "#30871": "Dezactivat",
+  "#30872": "Auto",
+  "#30873": "Întreabă",
+  "#30874": "Ascunde butonul de omitere după",
+  "#30875": "Cât de departe în pauză dispare butonul de omitere, ca să nu mai acopere imaginea după ce ați decis să nu îl apăsați. 100% îl păstrează pe toată pauza.",
+  "#30876": "Caută pauze noi la fiecare",
+  "#30877": "Secunde între căutările de pauze găsite de la începutul redării, într-o înregistrare în curs.",
+  "#30878": "Omite reclama",
+  "#30879": "Închide",
+  "#30880": "Reclamă omisă"
 }

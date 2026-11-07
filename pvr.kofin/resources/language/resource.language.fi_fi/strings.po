@@ -753,3 +753,61 @@ msgstr "Ponnahdusilmoitukset taustatapahtumista, kuten valmistuneesta tallentees
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup vaatii, että inputstream.ffmpegdirect on asennettu ja käytössä"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Ohitukset"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Ohittaa tallennusten mainoskatkot, joista Jellyfin tietää."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Mainokset"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Pois jättää mainossegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen. Mainoskatkot, jotka löytyvät tallennuksen ollessa vielä käynnissä, otetaan mukaan toiston aikana."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Pois"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automaattinen"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Kysy"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Piilota ohituspainike kohdassa"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Kuinka pitkälle mainoskatkoon edettäessä ohituspainike katoaa, jotta se ei enää peitä kuvaa, kun olet päättänyt olla painamatta sitä. 100% pitää sen näkyvissä koko katkon ajan."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Uusien mainoskatkojen tarkistusväli"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Sekuntien määrä tarkistusten välillä, kun käynnissä olevasta tallennuksesta haetaan toiston alkamisen jälkeen löytyneitä mainoskatkoja."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Ohita mainos"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Sulje"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Mainos ohitettu"

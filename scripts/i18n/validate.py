@@ -24,6 +24,8 @@ OK_IDENTICAL = {
     "#30700",  # Account (standard loanword in it/nl/de-adjacent UIs)
     "#30761",  # Default (kept in some languages)
     "#30858",  # Code: %s ("Code" is the same word in de/nl)
+    "#30871",  # Off (kept as "Off" in it, matching plugin.video.kofin)
+    "#30872",  # Auto (same word in da/fr/it/nb/ro/sv, matching plugin.video.kofin)
 }
 
 

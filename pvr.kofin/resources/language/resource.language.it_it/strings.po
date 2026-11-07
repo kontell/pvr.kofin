@@ -753,3 +753,61 @@ msgstr "Popup per gli eventi in background, come una registrazione terminata o u
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Il catchup richiede inputstream.ffmpegdirect installato e attivato"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Salti"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Salta le pause pubblicitarie delle registrazioni note a Jellyfin."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Pubblicità"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Off ignora i segmenti pubblicitari, Auto li salta, Chiedi mostra un pulsante di salto. Le pause trovate mentre una registrazione è ancora in corso vengono recepite durante la riproduzione."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Off"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Auto"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Chiedi"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Nascondi il pulsante di salto dopo"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Quanto avanti nella pausa il pulsante di salto scompare, così da non coprire più l'immagine quando hai deciso di non premerlo. 100% lo mantiene per tutta la pausa."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Cerca nuove pause ogni"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Secondi tra le ricerche di pause trovate dall'inizio della riproduzione, su una registrazione in corso."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Salta la pubblicità"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Chiudi"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Pubblicità saltata"

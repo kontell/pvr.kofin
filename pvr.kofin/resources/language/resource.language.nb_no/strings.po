@@ -753,3 +753,61 @@ msgstr "Hurtigvarsler om hendelser i bakgrunnen, for eksempel et fullført oppta
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup krever at inputstream.ffmpegdirect er installert og aktivert"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Hopping"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Hopp over reklamepausene i opptak som Jellyfin kjenner til."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklame"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Av ignorerer reklamesegmenter, Auto hopper over dem, Spør viser en hopp over-knapp. Pauser som blir funnet mens et opptak fortsatt pågår, fanges opp under avspillingen."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Av"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Auto"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Spør"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Skjul hopp over-knappen etter"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Hvor langt inn i en pause hopp over-knappen forsvinner, slik at den slutter å dekke bildet når du har bestemt deg for ikke å trykke på den. 100 % lar den stå hele pausen."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Intervall for å se etter nye pauser"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Sekunder mellom søk etter pauser funnet siden avspillingen startet, på et pågående opptak."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Hopp over reklame"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Lukk"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Hoppet over reklame"

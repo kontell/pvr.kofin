@@ -130,5 +130,19 @@
   "#30863": "Registra serie",
   "#30864": "Mostra notifiche",
   "#30865": "Popup per gli eventi in background, come una registrazione terminata o un accesso scaduto. Le risposte ai pulsanti di queste impostazioni vengono sempre mostrate.",
-  "#30866": "Il catchup richiede inputstream.ffmpegdirect installato e attivato"
+  "#30866": "Il catchup richiede inputstream.ffmpegdirect installato e attivato",
+  "#30867": "Salti",
+  "#30868": "Salta le pause pubblicitarie delle registrazioni note a Jellyfin.",
+  "#30869": "Pubblicità",
+  "#30870": "Off ignora i segmenti pubblicitari, Auto li salta, Chiedi mostra un pulsante di salto. Le pause trovate mentre una registrazione è ancora in corso vengono recepite durante la riproduzione.",
+  "#30871": "Off",
+  "#30872": "Auto",
+  "#30873": "Chiedi",
+  "#30874": "Nascondi il pulsante di salto dopo",
+  "#30875": "Quanto avanti nella pausa il pulsante di salto scompare, così da non coprire più l'immagine quando hai deciso di non premerlo. 100% lo mantiene per tutta la pausa.",
+  "#30876": "Cerca nuove pause ogni",
+  "#30877": "Secondi tra le ricerche di pause trovate dall'inizio della riproduzione, su una registrazione in corso.",
+  "#30878": "Salta la pubblicità",
+  "#30879": "Chiudi",
+  "#30880": "Pubblicità saltata"
 }

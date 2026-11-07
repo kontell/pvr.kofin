@@ -753,3 +753,61 @@ msgstr "針對背景事件跳出通知，例如錄製完成或登入逾期。對
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "回看需要安裝並啟用 inputstream.ffmpegdirect"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "略過"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "略過錄製中 Jellyfin 已知的廣告插播。"
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "廣告"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "「關閉」忽略廣告片段，「自動」直接跳過，「詢問」顯示略過按鈕。錄製仍在進行時發現的廣告插播會在播放期間納入。"
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "關閉"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "自動"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "詢問"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "略過按鈕在此之後隱藏"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "略過按鈕在廣告插播進行到多少比例時消失，以免在決定不按之後繼續遮擋畫面。設為 100% 則整個插播期間都會顯示。"
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "新廣告檢查間隔（秒）"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "對於進行中的錄製，檢查自播放開始以來發現的廣告插播的間隔秒數。"
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "略過廣告"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "關閉"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "已略過廣告"

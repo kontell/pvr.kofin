@@ -753,3 +753,61 @@ msgstr "Pop-ups voor gebeurtenissen op de achtergrond, zoals een voltooide opnam
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catch-up vereist dat inputstream.ffmpegdirect geïnstalleerd en ingeschakeld is"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Overslaan"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "Sla de reclameblokken in opnames over die Jellyfin kent."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reclames"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Uit negeert reclamesegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan. Blokken die worden gevonden terwijl een opname nog loopt, worden tijdens het afspelen opgepikt."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Uit"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatisch"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Vragen"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Overslaan-knop verbergen na"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Hoe ver in een reclameblok de overslaan-knop verdwijnt, zodat hij het beeld niet meer bedekt als je hebt besloten er niet op te drukken. 100% houdt de knop het hele blok zichtbaar."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Zoeken naar nieuwe blokken elke"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Seconden tussen zoekacties naar reclameblokken die sinds het begin van het afspelen zijn gevonden, bij een lopende opname."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Reclame overslaan"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Sluiten"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Reclame overgeslagen"

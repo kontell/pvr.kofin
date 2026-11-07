@@ -130,5 +130,19 @@
   "#30863": "Nagrywaj serię",
   "#30864": "Pokazuj powiadomienia",
   "#30865": "Wyskakujące powiadomienia o zdarzeniach w tle, takich jak zakończone nagranie lub wygasłe logowanie. Odpowiedzi na przyciski w tych ustawieniach są zawsze wyświetlane.",
-  "#30866": "Catchup wymaga zainstalowanego i włączonego inputstream.ffmpegdirect"
+  "#30866": "Catchup wymaga zainstalowanego i włączonego inputstream.ffmpegdirect",
+  "#30867": "Pomijanie",
+  "#30868": "Pomija przerwy reklamowe w nagraniach, o których wie Jellyfin.",
+  "#30869": "Reklamy",
+  "#30870": "Wyłączone ignoruje segmenty reklam, Automatycznie je pomija, Pytaj pokazuje przycisk pominięcia. Przerwy znalezione, gdy nagranie wciąż trwa, są uwzględniane podczas odtwarzania.",
+  "#30871": "Wyłączone",
+  "#30872": "Automatycznie",
+  "#30873": "Pytaj",
+  "#30874": "Ukryj przycisk pominięcia po",
+  "#30875": "Po jakiej części przerwy znika przycisk pominięcia, aby po decyzji o jego nienaciśnięciu przestał zasłaniać obraz. 100% utrzymuje go przez całą przerwę.",
+  "#30876": "Sprawdzaj nowe przerwy co",
+  "#30877": "Liczba sekund między sprawdzeniami przerw znalezionych od rozpoczęcia odtwarzania, w trwającym nagraniu.",
+  "#30878": "Pomiń reklamę",
+  "#30879": "Zamknij",
+  "#30880": "Pominięto reklamę"
 }

@@ -753,3 +753,61 @@ msgstr "Felugró értesítések háttéreseményekről, például befejezett fel
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Kihagyás"
+
+msgctxt "#30868"
+msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgstr "A Jellyfin által ismert reklámszünetek kihagyása a felvételekben."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklámok"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "A Ki figyelmen kívül hagyja a reklámszakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg. A még folyamatban lévő felvétel közben talált szüneteket a lejátszás során figyelembe veszi."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Ki"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatikus"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Rákérdezés"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "A kihagyás gomb elrejtése ennyi után"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "A szünet mekkora részéig látszik a kihagyás gomb, hogy ne takarja tovább a képet, miután úgy döntött, nem nyomja meg. A 100% a teljes szünet alatt fenntartja."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Új szünetek keresésének gyakorisága"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Két keresés között eltelt másodpercek a lejátszás kezdete óta talált szünetekhez, folyamatban lévő felvételnél."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Reklám átugrása"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Bezárás"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Reklám átugorva"

@@ -130,5 +130,19 @@
   "#30863": "Ta opp serie",
   "#30864": "Vis varsler",
   "#30865": "Hurtigvarsler om hendelser i bakgrunnen, for eksempel et fullført opptak eller en utløpt innlogging. Svar på knappene i disse innstillingene vises alltid.",
-  "#30866": "Catchup krever at inputstream.ffmpegdirect er installert og aktivert"
+  "#30866": "Catchup krever at inputstream.ffmpegdirect er installert og aktivert",
+  "#30867": "Hopping",
+  "#30868": "Hopp over reklamepausene i opptak som Jellyfin kjenner til.",
+  "#30869": "Reklame",
+  "#30870": "Av ignorerer reklamesegmenter, Auto hopper over dem, Spør viser en hopp over-knapp. Pauser som blir funnet mens et opptak fortsatt pågår, fanges opp under avspillingen.",
+  "#30871": "Av",
+  "#30872": "Auto",
+  "#30873": "Spør",
+  "#30874": "Skjul hopp over-knappen etter",
+  "#30875": "Hvor langt inn i en pause hopp over-knappen forsvinner, slik at den slutter å dekke bildet når du har bestemt deg for ikke å trykke på den. 100 % lar den stå hele pausen.",
+  "#30876": "Intervall for å se etter nye pauser",
+  "#30877": "Sekunder mellom søk etter pauser funnet siden avspillingen startet, på et pågående opptak.",
+  "#30878": "Hopp over reklame",
+  "#30879": "Lukk",
+  "#30880": "Hoppet over reklame"
 }

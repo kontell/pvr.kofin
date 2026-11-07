@@ -130,5 +130,19 @@
   "#30863": "Gravar série",
   "#30864": "Mostrar notificações",
   "#30865": "Pop-ups para eventos em segundo plano, como uma gravação concluída ou um login expirado. As respostas aos botões destas configurações são sempre exibidas.",
-  "#30866": "O catchup precisa do inputstream.ffmpegdirect instalado e ativado"
+  "#30866": "O catchup precisa do inputstream.ffmpegdirect instalado e ativado",
+  "#30867": "Pular",
+  "#30868": "Pula os intervalos comerciais das gravações que o Jellyfin conhece.",
+  "#30869": "Comerciais",
+  "#30870": "Desativado ignora os segmentos de comercial, Automático pula por cima deles e Perguntar mostra um botão para pular. Intervalos encontrados enquanto uma gravação ainda está em andamento são captados durante a reprodução.",
+  "#30871": "Desativado",
+  "#30872": "Automático",
+  "#30873": "Perguntar",
+  "#30874": "Ocultar o botão de pular após",
+  "#30875": "Até que ponto do intervalo o botão de pular desaparece, para parar de cobrir a imagem depois que você decidiu não apertá-lo. 100% mantém o botão durante todo o intervalo.",
+  "#30876": "Procurar novos intervalos a cada",
+  "#30877": "Segundos entre as buscas por intervalos encontrados desde o início da reprodução, em uma gravação em andamento.",
+  "#30878": "Pular anúncio",
+  "#30879": "Fechar",
+  "#30880": "Anúncio pulado"
 }
