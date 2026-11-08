@@ -48,7 +48,6 @@ dialog.
 
 import json
 import socket
-import ssl
 import time
 from urllib.error import URLError
 from urllib.parse import urlsplit
@@ -94,19 +93,6 @@ def text(string_id):
 
 def log(message, level=xbmc.LOGDEBUG):
     xbmc.log('pvr.kofin discover: %s' % message, level)
-
-
-def ssl_context():
-    """An unverified SSL context when the user turned sslVerify off, else None.
-
-    Mirrors service.py: None means urlopen's default, a fully verifying one.
-    """
-    if ADDON.getSetting('sslVerify') != 'false':
-        return None
-    context = ssl.create_default_context()
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-    return context
 
 
 def usable_address(address):
@@ -213,13 +199,7 @@ def public_info(address):
                       headers={'Accept': 'application/json',
                                'User-Agent': xbmc.getUserAgent()})
     try:
-        context = ssl_context()
-        if context is None:
-            handle = urlopen(request, timeout=PROBE_TIMEOUT_SECONDS)
-        else:
-            handle = urlopen(request, timeout=PROBE_TIMEOUT_SECONDS,
-                             context=context)
-        with handle:
+        with urlopen(request, timeout=PROBE_TIMEOUT_SECONDS) as handle:
             body = json.loads(handle.read(65536).decode('utf-8'))
         return body if isinstance(body, dict) else None
     except (URLError, OSError, ValueError) as error:
