@@ -1,6 +1,5 @@
 v23.19.0
-- Skip Jellyfin media segments in recordings, behind a switch that is off by default, with Off, Auto or Ask for each type: intros, credits, recaps and previews (Off by default), and the commercial breaks the Comseg plugin writes (Ask by default; in Auto, Kodi skips a finished recording's breaks as an EDL)
-- Breaks found while a recording is still being written are picked up during playback
+- Skip media segments in recordings
 - Default to Kodi's own FFmpeg; FFmpeg Direct and Adaptive are optional
 - Setting to turn off notifications
 - Catchup reports a missing FFmpeg Direct
