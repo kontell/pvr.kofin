@@ -1,3 +1,15 @@
+v23.19.0
+- Skip media segments in recordings (intros, credits, recaps, previews, commercials)
+- Default to Kodi's own FFmpeg; FFmpeg Direct and Adaptive are optional
+- Setting to turn off notifications
+- Catchup reports a missing FFmpeg Direct
+- Remove the "Verify SSL certificate" setting
+- Fix playback reports with a non-ASCII device name
+- Fix playback with an IPv6 loopback stream URL
+- Send Kodi's User-Agent with playback reports and discovery
+- Fix an old stream's close ending the new stream on the same channel
+- Don't log the user name at sign-in
+
 v23.18.3
 - Close live streams on the server when a tune never starts playing
 - Fix a race between reconnecting and requests already in flight
