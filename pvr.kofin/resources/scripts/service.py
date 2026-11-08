@@ -19,7 +19,6 @@ script. HTTP uses urllib directly, independent of Kodi's HTTP stack.
 import calendar
 import json
 import os
-import ssl
 import time
 import traceback
 import urllib.request
@@ -124,10 +123,7 @@ def build_auth_header(token, device_id):
 
 # Kodi's own, which the C++ client's requests already carry. urllib's default,
 # Python-urllib/3.x, is refused by proxies that screen user agents, such as
-# Cloudflare's Browser Integrity Check, on by default. It rides on each
-# request rather than on an installed opener: urlopen() builds a fresh opener
-# whenever it is given an SSL context, which is every request with sslVerify
-# off.
+# Cloudflare's Browser Integrity Check, on by default.
 USER_AGENT = xbmc.getUserAgent()
 
 
@@ -170,21 +166,6 @@ def normalize_base_url(address):
     return f'{scheme}://{remainder}'
 
 
-def ssl_context():
-    """An unverified SSL context when the user turned sslVerify off, else None.
-
-    Read live rather than cached: the setting can change while the reporter is
-    running, same as the token and server address. None means "urlopen's
-    default", which is a fully verifying context.
-    """
-    if get_setting('sslVerify') != 'false':
-        return None
-    context = ssl.create_default_context()
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-    return context
-
-
 def post_json(base_url, endpoint, body, token, device_id):
     """POST JSON to Jellyfin. Errors are logged, not raised; returns whether
     the server accepted the request."""
@@ -197,7 +178,7 @@ def post_json(base_url, endpoint, body, token, device_id):
     headers['Content-Type'] = 'application/json'
     req = urllib.request.Request(url, data=data, headers=headers, method='POST')
     try:
-        with urllib.request.urlopen(req, timeout=5, context=ssl_context()) as resp:
+        with urllib.request.urlopen(req, timeout=5) as resp:
             resp.read()
         return True
     except (urllib.error.URLError, OSError) as e:
@@ -743,8 +724,7 @@ def _resolve_local_channel(channel_guid):
         req = urllib.request.Request(
             base + '/LiveTv/Channels?userId=' + user_id,
             headers=jellyfin_headers(token, device_id))
-        with urllib.request.urlopen(req, timeout=10,
-                                    context=ssl_context()) as resp:
+        with urllib.request.urlopen(req, timeout=10) as resp:
             doc = json.load(resp)
         name = next((c.get('Name') for c in doc.get('Items', [])
                      if c.get('Id') == channel_guid), None)
