@@ -115,8 +115,6 @@ bool JellyfinClient::AuthenticateInternal()
 
 bool JellyfinClient::AuthenticateByPassword(const std::string& username, const std::string& password)
 {
-  Logger::Log(LEVEL_INFO, "%s - Authenticating user '%s'", __FUNCTION__, username.c_str());
-
   // Build the body with jsoncpp so quotes and backslashes in credentials are
   // escaped. Field order does not matter to the server.
   Json::Value authBody;
