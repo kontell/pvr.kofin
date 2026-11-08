@@ -660,14 +660,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr ""
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr ""
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr ""
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -755,4 +747,132 @@ msgstr ""
 
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr ""
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr ""
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr ""
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr ""
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr ""
+
+msgctxt "#30871"
+msgid "Off"
+msgstr ""
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr ""
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr ""
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr ""
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr ""
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr ""
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr ""
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr ""
+
+msgctxt "#30879"
+msgid "Close"
+msgstr ""
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr ""
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr ""
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr ""
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr ""
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr ""
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr ""
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr ""
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr ""
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr ""
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr ""
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr ""
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr ""
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr ""
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr ""
+
+msgctxt "#30897"
+msgid "Skip media segments"
 msgstr ""

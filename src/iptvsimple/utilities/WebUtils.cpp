@@ -177,8 +177,7 @@ std::string WebUtils::RedactUrl(const std::string& url)
   return redactedUrl;
 }
 
-bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool isLocalPath,
-                     bool verifyPeer)
+bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool isLocalPath)
 {
   // For local paths we only need to check existence of the file
   if ((isLocalPath || IsSpecialUrl(strURL)) && FileUtils::FileExists(strURL))
@@ -194,12 +193,6 @@ bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool 
 
   if (!IsNfsUrl(strURL))
     fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", std::to_string(connectionTimeoutSecs));
-
-  // See JellyfinClient::ApplyTlsOptions — the health probe hits the same
-  // server as every API call, so a self-signed certificate must not make the
-  // addon report the connection as lost.
-  if (!verifyPeer)
-    fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "verifypeer", "false");
 
   if (!fileHandle.CURLOpen(ADDON_READ_NO_CACHE))
   {

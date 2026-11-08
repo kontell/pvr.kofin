@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "A felvétel befejeződött"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "SSL-tanúsítvány ellenőrzése"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "Csak saját aláírású tanúsítvánnyal rendelkező kiszolgálóknál kapcsolja ki. A kiegészítő saját kéréseire vonatkozik (bejelentkezés, műsorújság, időzítők, felvételek); a videolejátszást a Kodi és az inputstream kiegészítők végzik, és ezt nem érinti."
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "Felugró értesítések háttéreseményekről, például befejezett fel
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "A catchuphoz telepített és engedélyezett inputstream.ffmpegdirect szükséges"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Kihagyás"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "A Jellyfin médiaszakaszainak (főcím, stáblista, összefoglaló, előzetes, reklám) lekérése lejátszás közben, és típusonkénti kezelése."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklámok"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "A Ki figyelmen kívül hagyja a reklámszakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg. A még folyamatban lévő felvétel közben talált szüneteket a lejátszás során figyelembe veszi."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Ki"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatikus"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Rákérdezés"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "A kihagyás gomb elrejtése ennyi után"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "A szünet mekkora részéig látszik a kihagyás gomb, hogy ne takarja tovább a képet, miután úgy döntött, nem nyomja meg. A 100% a teljes szünet alatt fenntartja."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Új szünetek keresésének gyakorisága"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Két keresés között eltelt másodpercek a lejátszás kezdete óta talált szünetekhez, folyamatban lévő felvételnél."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Reklám átugrása"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Bezárás"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Reklám átugorva"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Főcímek"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "A Ki figyelmen kívül hagyja a főcímszakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Stáblista"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "A Ki figyelmen kívül hagyja a stáblistát, az Automatikus átteker rajta, a Rákérdezés felkínálja a Stáblista átugrása lehetőséget."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Összefoglalók"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "A Ki figyelmen kívül hagyja az összefoglaló szakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Előzetesek"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "A Ki figyelmen kívül hagyja az előzetes szakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Főcím átugrása"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Stáblista átugrása"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Összefoglaló átugrása"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Előzetes átugrása"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Főcím átugorva"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Stáblista átugorva"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Összefoglaló átugorva"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Előzetes átugorva"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Médiaszakaszok átugrása"

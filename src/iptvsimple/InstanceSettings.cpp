@@ -91,6 +91,8 @@ void InstanceSettings::ReadSettings()
   }
   m_timeshiftEnabled = kodi::addon::GetSettingBoolean("timeshiftEnabled", true);
   m_inProgressInputStream = kodi::addon::GetSettingInt("inProgressInputStream", 1);
+  m_mediaSegmentsEnabled = kodi::addon::GetSettingBoolean("mediaSegmentsEnabled", false);
+  m_skipCommercialMode = kodi::addon::GetSettingInt("skipCommercialMode", 2);
 
   // Reference playlist (with one-shot migration from legacy catchupM3U* keys)
   {
@@ -144,7 +146,6 @@ void InstanceSettings::ReadSettings()
   // to curl and stalls the connection checker indefinitely.
   m_connectioncCheckTimeoutSecs = std::max(1, kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS));
   m_connectioncCheckIntervalSecs = std::max(5, kodi::addon::GetSettingInt("connectioncheckinterval", 60));
-  m_sslVerify = kodi::addon::GetSettingBoolean("sslVerify", true);
 }
 
 std::string InstanceSettings::GetJellyfinBaseUrl() const

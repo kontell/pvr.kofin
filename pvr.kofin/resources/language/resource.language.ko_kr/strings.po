@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "녹화가 완료되었습니다"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "SSL 인증서 확인"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "자체 서명 인증서를 사용하는 서버에서만 끄세요. 애드온 자체 요청(로그인, 편성표, 타이머, 녹화)에 적용됩니다. 동영상 재생은 Kodi와 inputstream 애드온이 처리하므로 영향을 받지 않습니다."
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "녹화 완료, 로그인 만료 등 백그라운드 이벤트에 대한 
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "다시보기를 사용하려면 inputstream.ffmpegdirect를 설치하고 활성화해야 합니다"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "건너뛰기"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "재생 중 Jellyfin 미디어 구간(인트로, 크레딧, 지난 이야기, 예고, 광고)을 가져와 유형별로 처리합니다."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "광고"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "끔은 광고 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다. 녹화가 아직 진행 중일 때 발견된 광고 구간은 재생 중에 반영됩니다."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "끔"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "자동"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "묻기"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "건너뛰기 버튼 숨김 시점"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "광고 구간의 어느 지점에서 건너뛰기 버튼을 감출지 정합니다. 누르지 않기로 한 뒤에는 화면을 가리지 않습니다. 100%면 구간 내내 표시합니다."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "새 광고 확인 간격(초)"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "진행 중인 녹화에서 재생 시작 후 발견된 광고 구간을 확인하는 간격(초)입니다."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "광고 건너뛰기"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "닫기"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "광고 건너뜀"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "인트로"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "끔은 인트로 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "크레딧"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "끔은 크레딧을 무시하고, 자동은 지나쳐 이동하며, 묻기는 엔딩 건너뛰기를 제시합니다."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "지난 이야기"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "끔은 지난 이야기 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "예고"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "끔은 예고 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "인트로 건너뛰기"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "엔딩 건너뛰기"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "지난 이야기 건너뛰기"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "예고 건너뛰기"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "인트로 건너뜀"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "엔딩 건너뜀"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "지난 이야기 건너뜀"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "예고 건너뜀"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "미디어 구간 건너뛰기"

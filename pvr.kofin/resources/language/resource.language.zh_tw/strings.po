@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "錄製已完成"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "驗證 SSL 憑證"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "僅在伺服器使用自我簽署憑證時關閉。適用於外掛自身的請求（登入、節目表、計時器、錄製）；影片播放由 Kodi 與 inputstream 外掛處理，不受影響。"
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "針對背景事件跳出通知，例如錄製完成或登入逾期。對
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "回看需要安裝並啟用 inputstream.ffmpegdirect"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "略過"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "播放時取得 Jellyfin 的媒體片段（片頭、片尾、前情提要、預告、廣告），並依類型分別處理。"
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "廣告"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "「關閉」忽略廣告片段，「自動」直接跳過，「詢問」顯示略過按鈕。錄製仍在進行時發現的廣告插播會在播放期間納入。"
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "關閉"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "自動"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "詢問"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "略過按鈕在此之後隱藏"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "略過按鈕在廣告插播進行到多少比例時消失，以免在決定不按之後繼續遮擋畫面。設為 100% 則整個插播期間都會顯示。"
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "新廣告檢查間隔（秒）"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "對於進行中的錄製，檢查自播放開始以來發現的廣告插播的間隔秒數。"
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "略過廣告"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "關閉"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "已略過廣告"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "片頭"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "「關閉」忽略片頭片段，「自動」直接跳過，「詢問」顯示略過按鈕。"
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "片尾"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "「關閉」忽略片尾，「自動」直接跳過，「詢問」顯示「略過片尾」。"
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "前情提要"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "「關閉」忽略前情提要片段，「自動」直接跳過，「詢問」顯示略過按鈕。"
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "預告"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "「關閉」忽略預告片段，「自動」直接跳過，「詢問」顯示略過按鈕。"
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "略過片頭"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "略過片尾"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "略過前情提要"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "略過預告"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "已略過片頭"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "已略過片尾"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "已略過前情提要"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "已略過預告"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "略過媒體片段"

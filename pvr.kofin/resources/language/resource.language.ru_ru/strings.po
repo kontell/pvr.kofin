@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Запись завершена"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "Проверять SSL-сертификат"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "Отключайте только для серверов с самоподписанными сертификатами. Применяется к собственным запросам дополнения (вход, телепрограмма, таймеры, записи); воспроизведение видео выполняют Kodi и дополнения inputstream, и оно не затрагивается."
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "Всплывающие уведомления о фоновых собы
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Для catchup требуется установленное и включённое inputstream.ffmpegdirect"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Пропуск"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Получать медиасегменты Jellyfin (заставка, титры, краткое содержание, анонс, реклама) во время воспроизведения и действовать по типу сегмента."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Реклама"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "«Выкл.» — игнорировать рекламные сегменты, «Авто» — пропускать их, «Спрашивать» — показывать кнопку пропуска. Паузы, найденные, пока запись ещё идёт, учитываются во время воспроизведения."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Выкл."
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Авто"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Спрашивать"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Скрывать кнопку пропуска после"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Насколько глубоко в паузу кнопка пропуска исчезает, чтобы перестать закрывать изображение, когда вы решили её не нажимать. 100% оставляет её на всю паузу."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Проверять новые паузы каждые"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Интервал в секундах между проверками пауз, найденных с начала воспроизведения, в текущей записи."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Пропустить рекламу"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Закрыть"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Реклама пропущена"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Заставки"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "«Выкл.» — игнорировать заставки, «Авто» — пропускать их, «Спрашивать» — показывать кнопку пропуска."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Титры"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "«Выкл.» — игнорировать титры, «Авто» — перематывать их, «Спрашивать» — предлагать «Пропустить титры»."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Краткое содержание"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "«Выкл.» — игнорировать сегменты с кратким содержанием, «Авто» — пропускать их, «Спрашивать» — показывать кнопку пропуска."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Анонсы"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "«Выкл.» — игнорировать анонсы, «Авто» — пропускать их, «Спрашивать» — показывать кнопку пропуска."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Пропустить заставку"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Пропустить титры"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Пропустить содержание"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Пропустить анонс"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Заставка пропущена"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Титры пропущены"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Краткое содержание пропущено"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Анонс пропущен"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Пропускать медиасегменты"

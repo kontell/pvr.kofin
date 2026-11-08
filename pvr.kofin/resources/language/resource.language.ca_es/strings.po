@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Enregistrament finalitzat"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "Verifica el certificat SSL"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "Desactiveu-ho només per a servidors amb certificats autofirmats. S'aplica a les peticions del mateix complement (inici de sessió, guia, temporitzadors, enregistraments); la reproducció de vídeo la gestionen Kodi i els complements inputstream i no es veu afectada."
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "Finestres emergents per a esdeveniments en segon pla, com ara un enregis
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "El catchup necessita inputstream.ffmpegdirect instal·lat i activat"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Omissió"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Recupera els segments multimèdia del Jellyfin (introducció, crèdits, resum, avanç, anunci) durant la reproducció i actua-hi segons el tipus."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Anuncis"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Desactivat ignora els segments d'anuncis, Automàtic els omet i Pregunta mostra un botó per ometre'ls. Les pauses que es troben mentre un enregistrament encara està en curs s'incorporen durant la reproducció."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Desactivat"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automàtic"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Pregunta"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Amaga el botó d'ometre després de"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Fins on dins d'una pausa desapareix el botó d'ometre, perquè deixi de tapar la imatge un cop has decidit no prémer-lo. Amb 100% es manté durant tota la pausa."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Cerca pauses noves cada"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Segons entre cerques de pauses trobades des que va començar la reproducció, en un enregistrament en curs."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Omet l'anunci"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Tanca"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "S'ha omès l'anunci"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introduccions"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivat ignora els segments d'introducció, Automàtic els omet i Pregunta mostra un botó per ometre'ls."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Crèdits"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Desactivat ignora els crèdits, Automàtic hi avança i Pregunta ofereix Omet els crèdits."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Resums"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivat ignora els segments de resum, Automàtic els omet i Pregunta mostra un botó per ometre'ls."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Avanços"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivat ignora els segments d'avanç, Automàtic els omet i Pregunta mostra un botó per ometre'ls."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Omet la introducció"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Omet els crèdits"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Omet el resum"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Omet l'avanç"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "S'ha omès la introducció"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "S'han omès els crèdits"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "S'ha omès el resum"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "S'ha omès l'avanç"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Omet els segments multimèdia"

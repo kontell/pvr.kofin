@@ -151,6 +151,14 @@ namespace iptvsimple
     // In-progress recording input stream: 0 = adaptive, 1 = kodi internal
     int GetInProgressInputStream() const { return m_inProgressInputStream; }
 
+    // Commercial skipping in recordings, from Jellyfin's Commercial media segments:
+    // 0 = off, 1 = auto (Kodi skips the EDL; the service script picks up breaks found
+    // after playback opened), 2 = ask (the service script prompts for every break).
+    // The other segment types are the service script's alone.
+    int GetSkipCommercialMode() const { return m_skipCommercialMode; }
+    // The Skipping section's switch: off, nothing is fetched or skipped, whatever the modes say.
+    bool GetMediaSegmentsEnabled() const { return m_mediaSegmentsEnabled; }
+
     // Reference playlist (master toggle for the M3U layer; catchup also requires this on)
     bool ReferencePlaylistEnabled() const { return m_referencePlaylistEnabled; }
     const std::string& GetReferencePlaylistPath() const { return m_referencePlaylistPath; }
@@ -171,9 +179,6 @@ namespace iptvsimple
     int GetTimerRecordingPollSecs() const { return m_timerRecordingPollSecs; }
     int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
     int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
-    // Applies to the addon's own HTTP only. Stream URLs are handed to
-    // inputstream.ffmpegdirect/adaptive, which make their own connections.
-    bool GetSslVerify() const { return m_sslVerify; }
 
     // Codec name helpers for device profile
     std::string GetPreferredVideoCodecName() const
@@ -229,6 +234,8 @@ namespace iptvsimple
     int m_inputStream = 2;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
     bool m_timeshiftEnabled = true;
     int m_inProgressInputStream = 1;  // 0=adaptive, 1=kodi internal
+    bool m_mediaSegmentsEnabled = false;
+    int m_skipCommercialMode = 2;     // 0=off, 1=auto, 2=ask
 
     // Reference playlist
     bool m_referencePlaylistEnabled = false;
@@ -249,6 +256,5 @@ namespace iptvsimple
     int m_timerRecordingPollSecs = 60;
     int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
     int m_connectioncCheckIntervalSecs = 60;
-    bool m_sslVerify = true;
   };
 } //namespace iptvsimple

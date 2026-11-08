@@ -19,15 +19,22 @@ script. HTTP uses urllib directly, independent of Kodi's HTTP stack.
 import calendar
 import json
 import os
-import ssl
+import sys
 import time
+import traceback
 import urllib.request
 import urllib.error
 import urllib.parse
 
 import xbmc
 import xbmcaddon
+import xbmcgui
 import xbmcvfs
+
+# The segment-skip engine lives beside this script; Kodi does not put a
+# service script's own directory on sys.path.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import segments  # noqa: E402
 
 
 ADDON_ID = 'pvr.kofin'
@@ -102,7 +109,15 @@ def get_device_name():
 
 
 def build_auth_header(token, device_id):
-    device = get_device_name().replace('"', '')
+    # http.client sends header values as Latin-1, and the server refuses a
+    # value that is not UTF-8 with a 400: a name such as "Küche" reaches it as
+    # Latin-1 bytes, and one Latin-1 cannot carry, such as "Гостиная" or a
+    # typographic apostrophe, raises UnicodeEncodeError before the request
+    # leaves. Jellyfin URL-decodes every value of this header, so the name is
+    # percent-encoded as encodeURIComponent encodes it, the way Jellyfin's web
+    # client sends it, and the server records it as typed. That also covers
+    # the quote and comma the header's own syntax would split on.
+    device = urllib.parse.quote(get_device_name(), safe="!~*'()")
     header = (
         f'MediaBrowser Client="Kofin PVR", Device="{device}"'
         f', DeviceId="{device_id}"'
@@ -115,10 +130,7 @@ def build_auth_header(token, device_id):
 
 # Kodi's own, which the C++ client's requests already carry. urllib's default,
 # Python-urllib/3.x, is refused by proxies that screen user agents, such as
-# Cloudflare's Browser Integrity Check, on by default. It rides on each
-# request rather than on an installed opener: urlopen() builds a fresh opener
-# whenever it is given an SSL context, which is every request with sslVerify
-# off.
+# Cloudflare's Browser Integrity Check, on by default.
 USER_AGENT = xbmc.getUserAgent()
 
 
@@ -161,21 +173,6 @@ def normalize_base_url(address):
     return f'{scheme}://{remainder}'
 
 
-def ssl_context():
-    """An unverified SSL context when the user turned sslVerify off, else None.
-
-    Read live rather than cached: the setting can change while the reporter is
-    running, same as the token and server address. None means "urlopen's
-    default", which is a fully verifying context.
-    """
-    if get_setting('sslVerify') != 'false':
-        return None
-    context = ssl.create_default_context()
-    context.check_hostname = False
-    context.verify_mode = ssl.CERT_NONE
-    return context
-
-
 def post_json(base_url, endpoint, body, token, device_id):
     """POST JSON to Jellyfin. Errors are logged, not raised; returns whether
     the server accepted the request."""
@@ -188,12 +185,54 @@ def post_json(base_url, endpoint, body, token, device_id):
     headers['Content-Type'] = 'application/json'
     req = urllib.request.Request(url, data=data, headers=headers, method='POST')
     try:
-        with urllib.request.urlopen(req, timeout=5, context=ssl_context()) as resp:
+        with urllib.request.urlopen(req, timeout=5) as resp:
             resp.read()
         return True
     except (urllib.error.URLError, OSError) as e:
         xbmc.log(f'pvr.kofin reporter: POST {endpoint} failed: {e}', xbmc.LOGDEBUG)
         return False
+
+
+def get_json(base_url, endpoint, token, device_id):
+    """GET JSON from Jellyfin; raises on any failure so callers can retry."""
+    base = normalize_base_url(base_url)
+    if not base:
+        raise ValueError('no server address')
+    req = urllib.request.Request(base + endpoint,
+                                 headers=jellyfin_headers(token, device_id))
+    with urllib.request.urlopen(req, timeout=10) as resp:
+        return json.load(resp)
+
+
+def fetch_segments(session, types):
+    """The recording's media segments of the given types, as
+    [(start, end, type)] seconds."""
+    return segments.parse_segments(get_json(
+        session['BaseUrl'],
+        '/MediaSegments/%s?%s' % (
+            urllib.parse.quote(session['ItemId'], safe=''),
+            '&'.join('includeSegmentTypes=%s' % t for t in sorted(types))),
+        session['Token'], session['DeviceId']), types)
+
+
+def get_setting_int(key, default):
+    addon = get_addon()
+    if not addon:
+        return default
+    try:
+        return int(addon.getSettingInt(key))
+    except (RuntimeError, TypeError, ValueError):
+        return default
+
+
+def notify(message):
+    """A toast under the add-on's own name and icon; never raises."""
+    addon = get_addon()
+    icon = addon.getAddonInfo('icon') if addon else ''
+    try:
+        xbmcgui.Dialog().notification('Kofin PVR', message, icon or xbmcgui.NOTIFICATION_INFO, 3000, False)
+    except Exception as e:
+        xbmc.log('pvr.kofin reporter: toast failed: %s' % e, xbmc.LOGDEBUG)
 
 
 def remove_file(path):
@@ -236,6 +275,8 @@ class PlaybackReporter(xbmc.Player):
         self.last_position_ticks = 0
         # Pending records whose close failed: path -> (retry at, last delay).
         self.pending_retry = {}
+        # The segment-skip engine for the playing recording, if any.
+        self.skipper = None
 
     def onAVStarted(self):
         """Stream is up — adopt it if it is kofin's, and report the start."""
@@ -251,6 +292,7 @@ class PlaybackReporter(xbmc.Player):
             if new_psid != self.session['PlaySessionId']:
                 xbmc.log('pvr.kofin reporter: playback replaced without stop event',
                          xbmc.LOGDEBUG)
+                self._stop_skipper()
                 self._finalize(self.session, self.is_recording,
                                self.last_position_ticks, incoming=session_data)
                 self.session = None
@@ -315,6 +357,49 @@ class PlaybackReporter(xbmc.Player):
         self._send('/Sessions/Playing', self._build_body())
         self._send_sync_claim()
         self._settle_pending(session_data)
+        self._start_skipper(session_data)
+
+    def _start_skipper(self, session_data):
+        """Run the segment-skip engine for a recording, per the Skipping
+        settings: a switch for the section, then a mode for each segment
+        type. Each segment has one owner:
+        in Auto a finished recording's commercial breaks went to Kodi as an
+        EDL when playback opened, and Kodi skips them itself, so the engine
+        leaves those alone; every other Auto segment, and every Ask one, is
+        the engine's. Live TV has no segments to skip."""
+        self._stop_skipper()
+        if not self.is_recording or get_setting(segments.ENABLED_SETTING) != 'true':
+            return
+        in_progress = bool(session_data.get('InProgress', False))
+        modes = {}
+        for kind, (setting, default) in segments.MODE_SETTINGS.items():
+            mode = get_setting_int(setting, default)
+            if kind == 'Commercial' and mode == segments.MODE_AUTO and not in_progress:
+                xbmc.log('pvr.kofin reporter: finished recording, Kodi skips its breaks',
+                         xbmc.LOGDEBUG)
+                continue
+            if mode in (segments.MODE_AUTO, segments.MODE_ASK):
+                modes[kind] = mode
+        if not modes:
+            return
+        session = self.session
+        types = frozenset(modes)
+        self.skipper = segments.SegmentSkipper(
+            self, modes,
+            get_setting_int('skipPromptHidePercent', 50),
+            get_setting_int('commercialPollSeconds', 10),
+            in_progress,
+            fetch=lambda: fetch_segments(session, types),
+            localized=lambda string_id: (get_addon().getLocalizedString(string_id)
+                                         if get_addon() else ''),
+            notify=notify)
+        self.skipper.start()
+
+    def _stop_skipper(self):
+        skipper = self.skipper
+        self.skipper = None
+        if skipper is not None:
+            skipper.stop()
 
     def _settle_pending(self, adopted):
         """Take the adopted stream off the pending list, and close the streams
@@ -467,8 +552,11 @@ class PlaybackReporter(xbmc.Player):
         if self.is_recording:
             # seek_time is the new playhead in ms; ticks are 100ns
             self.last_position_ticks = int(seek_time * 10_000)
+        if self.skipper is not None:
+            self.skipper.note_seek(seek_time / 1000.0)
 
     def _stop(self):
+        self._stop_skipper()
         if not self.session:
             return
         self._capture_position()
@@ -734,8 +822,7 @@ def _resolve_local_channel(channel_guid):
         req = urllib.request.Request(
             base + '/LiveTv/Channels?userId=' + user_id,
             headers=jellyfin_headers(token, device_id))
-        with urllib.request.urlopen(req, timeout=10,
-                                    context=ssl_context()) as resp:
+        with urllib.request.urlopen(req, timeout=10) as resp:
             doc = json.load(resp)
         name = next((c.get('Name') for c in doc.get('Items', [])
                      if c.get('Id') == channel_guid), None)
@@ -835,22 +922,52 @@ class SyncMonitor(xbmc.Monitor):
             execute_sync_start(str(payload.get('key') or ''))
 
 
+class StepGuard:
+    """Runs one step of the service, logging what it raises instead of letting
+    it end the service. Kodi does not start a service script again once it has
+    ended, and this one is the only thing that closes the live streams the
+    add-on opens, so an exception left to end it would leave every later
+    stream open on the server until Kodi restarts. A step that keeps failing is
+    logged in full the first time and in one line after that: its name and
+    message, not its repr, which for a UnicodeEncodeError of a header carries
+    the whole header, the token included."""
+
+    def __init__(self):
+        self.failing = set()
+
+    def run(self, step):
+        name = step.__name__
+        try:
+            step()
+        except Exception as error:
+            if name in self.failing:
+                xbmc.log(f'pvr.kofin reporter: {name} failed again: '
+                         f'{type(error).__name__}: {error}', xbmc.LOGDEBUG)
+            else:
+                self.failing.add(name)
+                xbmc.log(f'pvr.kofin reporter: {name} failed:\n'
+                         f'{traceback.format_exc()}', xbmc.LOGERROR)
+            return
+        self.failing.discard(name)
+
+
 if __name__ == '__main__':
     monitor = SyncMonitor()
     player = PlaybackReporter()
+    guard = StepGuard()
     xbmc.log('pvr.kofin reporter: started', xbmc.LOGDEBUG)
     register_sync_provider()
-    player.adopt_playing()
+    guard.run(player.adopt_playing)
 
     while not monitor.abortRequested():
         if monitor.waitForAbort(REPORT_INTERVAL):
             break
-        player.report_progress()
-        player.sweep_pending()
+        guard.run(player.report_progress)
+        guard.run(player.sweep_pending)
 
-    # Clean up on exit — report stopped if still playing
-    if player.session:
-        player._stop()
-    player.close_all_pending()
+    # Clean up on exit: report stopped if still playing (_stop does nothing
+    # otherwise), then close what never started.
+    guard.run(player._stop)
+    guard.run(player.close_all_pending)
 
     xbmc.log('pvr.kofin reporter: stopped', xbmc.LOGDEBUG)

@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "録画が終了しました"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "SSL 証明書を検証する"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "自己署名証明書のサーバーの場合のみ無効にしてください。アドオン自身のリクエスト（ログイン、番組表、タイマー、録画）に適用されます。動画の再生は Kodi と inputstream アドオンが処理するため、影響はありません。"
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "録画の完了やログインの期限切れなど、バックグラウ
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "キャッチアップには inputstream.ffmpegdirect のインストールと有効化が必要です"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "スキップ"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "再生中に Jellyfin のメディアセグメント（イントロ、エンドクレジット、あらすじ、予告、CM）を取得し、種類ごとに処理します。"
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "CM"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "「オフ」は CM を無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。録画の進行中に見つかった CM は再生中に反映されます。"
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "オフ"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "自動"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "確認"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "スキップボタンを消すタイミング"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "CM のどこまで進んだらスキップボタンを消すか。押さないと決めた後は画面を覆わなくなります。100% にすると、CM の間ずっと表示します。"
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "新しい CM の確認間隔（秒）"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "進行中の録画で、再生開始後に見つかった CM を確認する間隔（秒）。"
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "CM をスキップ"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "閉じる"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "CM をスキップしました"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "イントロ"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "「オフ」はイントロを無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。"
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "エンドクレジット"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "「オフ」はエンドクレジットを無視し、「自動」はスキップし、「確認」は「アウトロをスキップ」を表示します。"
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "あらすじ"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "「オフ」はあらすじを無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。"
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "予告"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "「オフ」は予告を無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。"
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "イントロをスキップ"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "アウトロをスキップ"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "あらすじをスキップ"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "予告をスキップ"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "イントロをスキップしました"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "アウトロをスキップしました"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "あらすじをスキップしました"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "予告をスキップしました"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "メディアセグメントをスキップ"

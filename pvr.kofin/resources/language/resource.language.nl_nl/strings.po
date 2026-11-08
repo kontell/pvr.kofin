@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Opname voltooid"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "SSL-certificaat verifiëren"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "Schakel dit alleen uit voor servers met een zelfondertekend certificaat. Geldt voor de eigen aanvragen van de add-on (aanmelden, gids, timers, opnamen); videoweergave wordt door Kodi en de inputstream-add-ons afgehandeld en verandert niet."
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "Pop-ups voor gebeurtenissen op de achtergrond, zoals een voltooide opnam
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catch-up vereist dat inputstream.ffmpegdirect geïnstalleerd en ingeschakeld is"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Overslaan"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Haal Jellyfin-mediasegmenten (intro, aftiteling, samenvatting, voorvertoning, reclame) op tijdens het afspelen en reageer er per type op."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reclames"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Uit negeert reclamesegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan. Blokken die worden gevonden terwijl een opname nog loopt, worden tijdens het afspelen opgepikt."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Uit"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatisch"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Vragen"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Overslaan-knop verbergen na"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Hoe ver in een reclameblok de overslaan-knop verdwijnt, zodat hij het beeld niet meer bedekt als je hebt besloten er niet op te drukken. 100% houdt de knop het hele blok zichtbaar."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Zoeken naar nieuwe blokken elke"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Seconden tussen zoekacties naar reclameblokken die sinds het begin van het afspelen zijn gevonden, bij een lopende opname."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Reclame overslaan"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Sluiten"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Reclame overgeslagen"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Intro's"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Uit negeert introsegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Aftiteling"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Uit negeert de aftiteling, Automatisch spoelt eroverheen, Vragen biedt 'Aftiteling overslaan'."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Samenvattingen"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Uit negeert samenvattingssegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Voorvertoningen"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Uit negeert voorvertoningssegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Intro overslaan"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Aftiteling overslaan"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Samenvatting overslaan"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Voorvertoning overslaan"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro overgeslagen"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Aftiteling overgeslagen"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Samenvatting overgeslagen"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Voorvertoning overgeslagen"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Mediasegmenten overslaan"

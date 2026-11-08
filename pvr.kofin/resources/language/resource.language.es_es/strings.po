@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Grabación finalizada"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "Verificar el certificado SSL"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "Desactívalo solo para servidores con certificados autofirmados. Se aplica a las peticiones del propio complemento (inicio de sesión, guía, temporizadores, grabaciones); la reproducción de vídeo la gestionan Kodi y los complementos inputstream y no se ve afectada."
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "Avisos emergentes de eventos en segundo plano, como una grabación final
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "El catchup necesita inputstream.ffmpegdirect instalado y activado"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Saltos"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Obtiene los segmentos multimedia de Jellyfin (intro, créditos, resumen, avance, publicidad) durante la reproducción y actúa según su tipo."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Publicidad"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Desactivado ignora los segmentos publicitarios, Automático los salta y Preguntar muestra un botón para saltarlos. Las pausas que se detectan mientras una grabación sigue en curso se incorporan durante la reproducción."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Desactivado"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automático"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Preguntar"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Ocultar el botón de salto después de"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Hasta qué punto de la pausa desaparece el botón de salto, para que deje de tapar la imagen una vez que has decidido no pulsarlo. Con 100% se mantiene durante toda la pausa."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Buscar pausas nuevas cada"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Segundos entre búsquedas de pausas detectadas desde que empezó la reproducción, en una grabación en curso."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Saltar anuncio"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Cerrar"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Anuncio saltado"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introducciones"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivado ignora los segmentos de intro, Automático los salta y Preguntar muestra un botón para saltarlos."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Créditos"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Desactivado ignora los créditos, Automático avanza más allá de ellos y Preguntar ofrece Saltar créditos."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Resúmenes"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivado ignora los segmentos de resumen, Automático los salta y Preguntar muestra un botón para saltarlos."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Avances"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivado ignora los segmentos de avance, Automático los salta y Preguntar muestra un botón para saltarlos."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Saltar intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Saltar créditos"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Saltar resumen"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Saltar avance"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro saltada"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Créditos saltados"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Resumen saltado"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Avance saltado"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Saltar segmentos multimedia"

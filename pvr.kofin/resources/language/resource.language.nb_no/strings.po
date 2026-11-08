@@ -661,14 +661,6 @@ msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Opptaket er ferdig"
 
-msgctxt "#30842"
-msgid "Verify SSL certificate"
-msgstr "Verifiser SSL-sertifikat"
-
-msgctxt "#30843"
-msgid "Disable only for servers with self-signed certificates. Applies to the add-on's own requests (login, guide, timers, recordings); video playback is handled by Kodi and the inputstream add-ons and is not affected."
-msgstr "Slå av bare for servere med selvsignerte sertifikater. Gjelder tilleggets egne forespørsler (innlogging, guide, timere, opptak); videoavspilling håndteres av Kodi og inputstream-tilleggene og påvirkes ikke."
-
 #: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
@@ -753,3 +745,131 @@ msgstr "Hurtigvarsler om hendelser i bakgrunnen, for eksempel et fullført oppta
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup krever at inputstream.ffmpegdirect er installert og aktivert"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Hopping"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Hent Jellyfins mediesegmenter (intro, rulletekst, oppsummering, forhåndsvisning, reklame) under avspilling og reager på dem per type."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklame"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Av ignorerer reklamesegmenter, Auto hopper over dem, Spør viser en hopp over-knapp. Pauser som blir funnet mens et opptak fortsatt pågår, fanges opp under avspillingen."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Av"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Auto"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Spør"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Skjul hopp over-knappen etter"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Hvor langt inn i en pause hopp over-knappen forsvinner, slik at den slutter å dekke bildet når du har bestemt deg for ikke å trykke på den. 100 % lar den stå hele pausen."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Intervall for å se etter nye pauser"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Sekunder mellom søk etter pauser funnet siden avspillingen startet, på et pågående opptak."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Hopp over reklame"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Lukk"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Hoppet over reklame"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introer"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Av ignorerer introsegmenter, Auto hopper over dem, Spør viser en hopp over-knapp."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Rulletekst"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Av ignorerer rulletekst, Auto spoler forbi den, Spør tilbyr Hopp over rulletekst."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Oppsummeringer"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Av ignorerer oppsummeringssegmenter, Auto hopper over dem, Spør viser en hopp over-knapp."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Forhåndsvisninger"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Av ignorerer forhåndsvisningssegmenter, Auto hopper over dem, Spør viser en hopp over-knapp."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Hopp over intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Hopp over rulletekst"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Hopp over oppsummering"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Hopp over forhåndsvisning"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Hoppet over intro"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Hoppet over rulletekst"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Hoppet over oppsummering"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Hoppet over forhåndsvisning"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Hopp over mediesegmenter"
