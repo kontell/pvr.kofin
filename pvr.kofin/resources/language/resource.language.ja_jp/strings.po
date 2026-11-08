@@ -877,3 +877,7 @@ msgstr "あらすじをスキップしました"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "予告をスキップしました"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "メディアセグメントをスキップ"

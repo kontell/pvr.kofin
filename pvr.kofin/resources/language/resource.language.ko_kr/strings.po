@@ -877,3 +877,7 @@ msgstr "지난 이야기 건너뜀"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "예고 건너뜀"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "미디어 구간 건너뛰기"

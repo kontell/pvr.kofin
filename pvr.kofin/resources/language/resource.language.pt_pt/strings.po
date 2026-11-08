@@ -877,3 +877,7 @@ msgstr "Resumo saltado"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Antevisão saltada"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Saltar segmentos de media"

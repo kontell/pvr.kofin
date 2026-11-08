@@ -877,3 +877,7 @@ msgstr "Resumé sprunget over"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Forhåndsvisning sprunget over"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Spring mediesegmenter over"

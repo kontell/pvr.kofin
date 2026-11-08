@@ -877,3 +877,7 @@ msgstr "Pominięto streszczenie"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Pominięto zapowiedź"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Pomijaj segmenty multimediów"

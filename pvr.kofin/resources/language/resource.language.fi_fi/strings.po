@@ -877,3 +877,7 @@ msgstr "Kertaus ohitettu"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Ennakko ohitettu"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Ohita mediasegmentit"

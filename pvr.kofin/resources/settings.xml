@@ -472,12 +472,18 @@
     </category>
 
     <!-- Advanced -->
-    <!-- Segment skipping in recordings, from Jellyfin's media segments: a mode
-         per type, as in Kofin. Commercial breaks come from the Comseg server
-         plugin and default to Ask; the other types default to Off, since
-         acting on them moves the picture without being asked. -->
+    <!-- Segment skipping in recordings, from Jellyfin's media segments: one
+         switch, then a mode per type, as in Kofin. The switch is off by
+         default: acting on segments moves the picture without being asked.
+         Behind it, Commercials (breaks from the Comseg server plugin) default
+         to Ask and the other types to Off. -->
     <category id="skipping" label="30867" help="30868">
       <group id="1">
+        <setting id="mediaSegmentsEnabled" type="boolean" label="30897" help="30868">
+          <level>0</level>
+          <default>false</default>
+          <control type="toggle" />
+        </setting>
         <setting id="skipIntroductionMode" type="integer" label="30881" help="30882">
           <level>0</level>
           <default>0</default>
@@ -488,6 +494,11 @@
               <option label="30873">2</option>
             </options>
           </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="mediaSegmentsEnabled">true</condition>
+            </dependency>
+          </dependencies>
           <control type="spinner" format="string" />
         </setting>
         <setting id="skipCreditsMode" type="integer" label="30883" help="30884">
@@ -500,6 +511,11 @@
               <option label="30873">2</option>
             </options>
           </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="mediaSegmentsEnabled">true</condition>
+            </dependency>
+          </dependencies>
           <control type="spinner" format="string" />
         </setting>
         <setting id="skipRecapMode" type="integer" label="30885" help="30886">
@@ -512,6 +528,11 @@
               <option label="30873">2</option>
             </options>
           </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="mediaSegmentsEnabled">true</condition>
+            </dependency>
+          </dependencies>
           <control type="spinner" format="string" />
         </setting>
         <setting id="skipPreviewMode" type="integer" label="30887" help="30888">
@@ -524,6 +545,11 @@
               <option label="30873">2</option>
             </options>
           </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="mediaSegmentsEnabled">true</condition>
+            </dependency>
+          </dependencies>
           <control type="spinner" format="string" />
         </setting>
         <setting id="skipCommercialMode" type="integer" label="30869" help="30870">
@@ -536,6 +562,11 @@
               <option label="30873">2</option>
             </options>
           </constraints>
+          <dependencies>
+            <dependency type="visible">
+              <condition operator="is" setting="mediaSegmentsEnabled">true</condition>
+            </dependency>
+          </dependencies>
           <control type="spinner" format="string" />
         </setting>
         <setting id="skipPromptHidePercent" type="integer" label="30874" help="30875">
@@ -548,13 +579,16 @@
           </constraints>
           <dependencies>
             <dependency type="visible">
-              <or>
-                <condition operator="is" setting="skipIntroductionMode">2</condition>
-                <condition operator="is" setting="skipCreditsMode">2</condition>
-                <condition operator="is" setting="skipRecapMode">2</condition>
-                <condition operator="is" setting="skipPreviewMode">2</condition>
-                <condition operator="is" setting="skipCommercialMode">2</condition>
-              </or>
+              <and>
+                <condition operator="is" setting="mediaSegmentsEnabled">true</condition>
+                <or>
+                  <condition operator="is" setting="skipIntroductionMode">2</condition>
+                  <condition operator="is" setting="skipCreditsMode">2</condition>
+                  <condition operator="is" setting="skipRecapMode">2</condition>
+                  <condition operator="is" setting="skipPreviewMode">2</condition>
+                  <condition operator="is" setting="skipCommercialMode">2</condition>
+                </or>
+              </and>
             </dependency>
           </dependencies>
           <control type="slider" format="percentage" />
@@ -569,13 +603,16 @@
           </constraints>
           <dependencies>
             <dependency type="visible">
-              <or>
-                <condition operator="!is" setting="skipIntroductionMode">0</condition>
-                <condition operator="!is" setting="skipCreditsMode">0</condition>
-                <condition operator="!is" setting="skipRecapMode">0</condition>
-                <condition operator="!is" setting="skipPreviewMode">0</condition>
-                <condition operator="!is" setting="skipCommercialMode">0</condition>
-              </or>
+              <and>
+                <condition operator="is" setting="mediaSegmentsEnabled">true</condition>
+                <or>
+                  <condition operator="!is" setting="skipIntroductionMode">0</condition>
+                  <condition operator="!is" setting="skipCreditsMode">0</condition>
+                  <condition operator="!is" setting="skipRecapMode">0</condition>
+                  <condition operator="!is" setting="skipPreviewMode">0</condition>
+                  <condition operator="!is" setting="skipCommercialMode">0</condition>
+                </or>
+              </and>
             </dependency>
           </dependencies>
           <control type="slider" format="integer" />

@@ -877,3 +877,7 @@ msgstr "Resumo pulado"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Prévia pulada"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Pular segmentos de mídia"

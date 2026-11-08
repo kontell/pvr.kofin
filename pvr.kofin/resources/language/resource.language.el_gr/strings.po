@@ -877,3 +877,7 @@ msgstr "Η ανακεφαλαίωση παραλείφθηκε"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Η προεπισκόπηση παραλείφθηκε"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Παράλειψη τμημάτων μέσων"

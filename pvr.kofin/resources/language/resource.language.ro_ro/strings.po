@@ -877,3 +877,7 @@ msgstr "Rezumat omis"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Previzualizare omisă"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Omite segmentele media"

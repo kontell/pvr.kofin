@@ -877,3 +877,7 @@ msgstr "已跳过前情提要"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "已跳过预告"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "跳过媒体片段"

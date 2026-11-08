@@ -877,3 +877,7 @@ msgstr "Rückblick übersprungen"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Vorschau übersprungen"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Mediensegmente überspringen"

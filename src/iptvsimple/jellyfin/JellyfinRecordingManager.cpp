@@ -579,8 +579,8 @@ PVR_ERROR JellyfinRecordingManager::GetRecordingEdlInternal(
   // holds its seeks back from the live edge (Kodi ends playback when an EDL
   // skip lands on the length it knows, and a break's provisional end is a
   // normal place for that). Ask prompts, so the script owns every break
-  // there, and Off means nothing happens.
-  if (m_settings->GetSkipCommercialMode() != 1)
+  // there, and Off, or the Skipping switch off, means nothing happens.
+  if (!m_settings->GetMediaSegmentsEnabled() || m_settings->GetSkipCommercialMode() != 1)
     return PVR_ERROR_NO_ERROR;
 
   const std::string recordingId = recording.GetRecordingId();

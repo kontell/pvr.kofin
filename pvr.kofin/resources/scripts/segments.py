@@ -73,6 +73,10 @@ MODE_OFF = 0
 MODE_AUTO = 1
 MODE_ASK = 2
 
+# The Skipping section's switch (plugin.video.kofin's id): while it is off,
+# nothing is fetched or skipped, whatever the modes below say.
+ENABLED_SETTING = 'mediaSegmentsEnabled'
+
 # Jellyfin's MediaSegmentType names, each with the setting that holds its
 # mode (plugin.video.kofin's ids) and that setting's default.
 MODE_SETTINGS = {

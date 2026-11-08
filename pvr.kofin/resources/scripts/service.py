@@ -371,13 +371,14 @@ class PlaybackReporter(xbmc.Player):
 
     def _start_skipper(self, session_data):
         """Run the segment-skip engine for a recording, per the Skipping
-        settings: a mode for each segment type. Each segment has one owner:
+        settings: a switch for the section, then a mode for each segment
+        type. Each segment has one owner:
         in Auto a finished recording's commercial breaks went to Kodi as an
         EDL when playback opened, and Kodi skips them itself, so the engine
         leaves those alone; every other Auto segment, and every Ask one, is
         the engine's. Live TV has no segments to skip."""
         self._stop_skipper()
-        if not self.is_recording:
+        if not self.is_recording or get_setting(segments.ENABLED_SETTING) != 'true':
             return
         in_progress = bool(session_data.get('InProgress', False))
         modes = {}

@@ -877,3 +877,7 @@ msgstr "Riepilogo saltato"
 msgctxt "#30896"
 msgid "Skipped preview"
 msgstr "Anteprima saltata"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Salta i segmenti multimediali"
