@@ -108,7 +108,15 @@ def get_device_name():
 
 
 def build_auth_header(token, device_id):
-    device = get_device_name().replace('"', '')
+    # http.client sends header values as Latin-1, and the server refuses a
+    # value that is not UTF-8 with a 400: a name such as "Küche" reaches it as
+    # Latin-1 bytes, and one Latin-1 cannot carry, such as "Гостиная" or a
+    # typographic apostrophe, raises UnicodeEncodeError before the request
+    # leaves. Jellyfin URL-decodes every value of this header, so the name is
+    # percent-encoded as encodeURIComponent encodes it, the way Jellyfin's web
+    # client sends it, and the server records it as typed. That also covers
+    # the quote and comma the header's own syntax would split on.
+    device = urllib.parse.quote(get_device_name(), safe="!~*'()")
     header = (
         f'MediaBrowser Client="Kofin PVR", Device="{device}"'
         f', DeviceId="{device_id}"'
