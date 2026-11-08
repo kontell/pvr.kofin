@@ -745,3 +745,131 @@ msgstr "Ponnahdusilmoitukset taustatapahtumista, kuten valmistuneesta tallentees
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup vaatii, että inputstream.ffmpegdirect on asennettu ja käytössä"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Ohitukset"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Hae Jellyfinin mediasegmentit (intro, lopputekstit, kertaus, ennakko, mainos) toiston aikana ja toimi kunkin tyypin mukaan."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Mainokset"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Pois jättää mainossegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen. Mainoskatkot, jotka löytyvät tallennuksen ollessa vielä käynnissä, otetaan mukaan toiston aikana."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Pois"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automaattinen"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Kysy"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Piilota ohituspainike kohdassa"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Kuinka pitkälle mainoskatkoon edettäessä ohituspainike katoaa, jotta se ei enää peitä kuvaa, kun olet päättänyt olla painamatta sitä. 100% pitää sen näkyvissä koko katkon ajan."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Uusien mainoskatkojen tarkistusväli"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Sekuntien määrä tarkistusten välillä, kun käynnissä olevasta tallennuksesta haetaan toiston alkamisen jälkeen löytyneitä mainoskatkoja."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Ohita mainos"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Sulje"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Mainos ohitettu"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introt"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Pois jättää introsegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Lopputekstit"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Pois jättää lopputekstit huomiotta, Automaattinen kelaa niiden yli, Kysy tarjoaa Ohita lopputekstit -painikkeen."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Kertaukset"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Pois jättää kertaussegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Ennakot"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Pois jättää ennakkosegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Ohita intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Ohita lopputekstit"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Ohita kertaus"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Ohita ennakko"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro ohitettu"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Lopputekstit ohitettu"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Kertaus ohitettu"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Ennakko ohitettu"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Ohita mediasegmentit"

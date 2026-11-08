@@ -745,3 +745,131 @@ msgstr "Pop-ups para eventos em segundo plano, como uma gravação concluída ou
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "O catchup precisa do inputstream.ffmpegdirect instalado e ativado"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Saltar"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Obtém os segmentos de media do Jellyfin (introdução, créditos, resumo, antevisão, publicidade) durante a reprodução e age sobre cada tipo."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Publicidade"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Desativado ignora os segmentos de publicidade, Automático salta-os e Perguntar mostra um botão para saltar. Os intervalos encontrados enquanto uma gravação ainda está em curso são incorporados durante a reprodução."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Desativado"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automático"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Perguntar"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Ocultar o botão de saltar após"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Até que ponto do intervalo o botão de saltar desaparece, para deixar de tapar a imagem depois de decidir não o premir. 100% mantém-no durante todo o intervalo."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Procurar novos intervalos a cada"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Segundos entre as procuras de intervalos encontrados desde o início da reprodução, numa gravação em curso."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Saltar publicidade"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Fechar"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Publicidade saltada"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introduções"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desativado ignora os segmentos de introdução, Automático salta-os e Perguntar mostra um botão para saltar."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Créditos"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Desativado ignora os créditos, Automático avança para lá deles e Perguntar oferece Saltar créditos."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Resumos"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desativado ignora os segmentos de resumo, Automático salta-os e Perguntar mostra um botão para saltar."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Antevisões"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desativado ignora os segmentos de antevisão, Automático salta-os e Perguntar mostra um botão para saltar."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Saltar introdução"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Saltar créditos"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Saltar resumo"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Saltar antevisão"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Introdução saltada"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Créditos saltados"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Resumo saltado"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Antevisão saltada"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Saltar segmentos de media"

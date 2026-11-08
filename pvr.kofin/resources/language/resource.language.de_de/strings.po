@@ -745,3 +745,131 @@ msgstr "Pop-ups für Hintergrundereignisse, etwa eine beendete Aufnahme oder ein
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup erfordert, dass inputstream.ffmpegdirect installiert und aktiviert ist"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Überspringen"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Jellyfin-Mediensegmente (Intro, Abspann, Rückblick, Vorschau, Werbung) während der Wiedergabe abrufen und je nach Typ darauf reagieren."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Werbung"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Aus ignoriert Werbesegmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen. Pausen, die gefunden werden, während eine Aufnahme noch läuft, werden während der Wiedergabe übernommen."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Aus"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatisch"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Nachfragen"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Schaltfläche zum Überspringen ausblenden nach"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Wie weit in eine Pause hinein die Schaltfläche zum Überspringen verschwindet, damit sie das Bild nicht mehr verdeckt, wenn du dich entschieden hast, sie nicht zu drücken. 100% zeigt sie während der gesamten Pause."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Nach neuen Pausen suchen alle"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Sekunden zwischen den Suchen nach Pausen, die seit Beginn der Wiedergabe hinzugekommen sind, bei einer laufenden Aufnahme."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Werbung überspringen"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Schließen"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Werbung übersprungen"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Intro"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Aus ignoriert Intro-Segmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Abspann"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Aus ignoriert den Abspann, Automatisch springt darüber hinweg, Nachfragen bietet „Abspann überspringen“."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Rückblicke"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Aus ignoriert Rückblick-Segmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Vorschauen"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Aus ignoriert Vorschau-Segmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Intro überspringen"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Abspann überspringen"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Rückblick überspringen"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Vorschau überspringen"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro übersprungen"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Abspann übersprungen"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Rückblick übersprungen"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Vorschau übersprungen"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Mediensegmente überspringen"

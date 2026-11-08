@@ -745,3 +745,131 @@ msgstr "Vyskakovací oznámení o událostech na pozadí, například o dokonče
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup vyžaduje nainstalovaný a povolený inputstream.ffmpegdirect"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Přeskakování"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Během přehrávání načítá segmenty médií z Jellyfinu (úvod, závěrečné titulky, shrnutí, ukázka, reklama) a podle typu na ně reaguje."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklamy"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Vypnuto ignoruje reklamní segmenty, Automaticky je přeskočí, Zeptat se zobrazí tlačítko pro přeskočení. Přestávky nalezené, zatímco nahrávka ještě probíhá, se načítají během přehrávání."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Vypnuto"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automaticky"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Zeptat se"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Skrýt tlačítko pro přeskočení po"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Jak daleko v přestávce tlačítko pro přeskočení zmizí, aby po vašem rozhodnutí ho nestisknout přestalo zakrývat obraz. 100% jej ponechá po celou přestávku."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Hledat nové přestávky každých"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Počet sekund mezi hledáními přestávek nalezených od začátku přehrávání u probíhající nahrávky."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Přeskočit reklamu"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Zavřít"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Reklama přeskočena"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Úvody"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Vypnuto ignoruje segmenty úvodu, Automaticky je přeskočí, Zeptat se zobrazí tlačítko pro přeskočení."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Závěrečné titulky"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Vypnuto ignoruje závěrečné titulky, Automaticky je přetočí, Zeptat se nabídne Přeskočit závěr."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Shrnutí"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Vypnuto ignoruje segmenty shrnutí, Automaticky je přeskočí, Zeptat se zobrazí tlačítko pro přeskočení."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Ukázky"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Vypnuto ignoruje segmenty ukázek, Automaticky je přeskočí, Zeptat se zobrazí tlačítko pro přeskočení."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Přeskočit úvod"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Přeskočit závěr"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Přeskočit shrnutí"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Přeskočit ukázku"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Úvod přeskočen"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Závěr přeskočen"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Shrnutí přeskočeno"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Ukázka přeskočena"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Přeskakovat segmenty médií"
