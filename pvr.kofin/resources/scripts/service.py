@@ -21,6 +21,7 @@ import json
 import os
 import ssl
 import time
+import traceback
 import urllib.request
 import urllib.error
 import urllib.parse
@@ -102,7 +103,15 @@ def get_device_name():
 
 
 def build_auth_header(token, device_id):
-    device = get_device_name().replace('"', '')
+    # http.client sends header values as Latin-1, and the server refuses a
+    # value that is not UTF-8 with a 400: a name such as "Küche" reaches it as
+    # Latin-1 bytes, and one Latin-1 cannot carry, such as "Гостиная" or a
+    # typographic apostrophe, raises UnicodeEncodeError before the request
+    # leaves. Jellyfin URL-decodes every value of this header, so the name is
+    # percent-encoded as encodeURIComponent encodes it, the way Jellyfin's web
+    # client sends it, and the server records it as typed. That also covers
+    # the quote and comma the header's own syntax would split on.
+    device = urllib.parse.quote(get_device_name(), safe="!~*'()")
     header = (
         f'MediaBrowser Client="Kofin PVR", Device="{device}"'
         f', DeviceId="{device_id}"'
@@ -835,22 +844,52 @@ class SyncMonitor(xbmc.Monitor):
             execute_sync_start(str(payload.get('key') or ''))
 
 
+class StepGuard:
+    """Runs one step of the service, logging what it raises instead of letting
+    it end the service. Kodi does not start a service script again once it has
+    ended, and this one is the only thing that closes the live streams the
+    add-on opens, so an exception left to end it would leave every later
+    stream open on the server until Kodi restarts. A step that keeps failing is
+    logged in full the first time and in one line after that: its name and
+    message, not its repr, which for a UnicodeEncodeError of a header carries
+    the whole header, the token included."""
+
+    def __init__(self):
+        self.failing = set()
+
+    def run(self, step):
+        name = step.__name__
+        try:
+            step()
+        except Exception as error:
+            if name in self.failing:
+                xbmc.log(f'pvr.kofin reporter: {name} failed again: '
+                         f'{type(error).__name__}: {error}', xbmc.LOGDEBUG)
+            else:
+                self.failing.add(name)
+                xbmc.log(f'pvr.kofin reporter: {name} failed:\n'
+                         f'{traceback.format_exc()}', xbmc.LOGERROR)
+            return
+        self.failing.discard(name)
+
+
 if __name__ == '__main__':
     monitor = SyncMonitor()
     player = PlaybackReporter()
+    guard = StepGuard()
     xbmc.log('pvr.kofin reporter: started', xbmc.LOGDEBUG)
     register_sync_provider()
-    player.adopt_playing()
+    guard.run(player.adopt_playing)
 
     while not monitor.abortRequested():
         if monitor.waitForAbort(REPORT_INTERVAL):
             break
-        player.report_progress()
-        player.sweep_pending()
+        guard.run(player.report_progress)
+        guard.run(player.sweep_pending)
 
-    # Clean up on exit — report stopped if still playing
-    if player.session:
-        player._stop()
-    player.close_all_pending()
+    # Clean up on exit: report stopped if still playing (_stop does nothing
+    # otherwise), then close what never started.
+    guard.run(player._stop)
+    guard.run(player.close_all_pending)
 
     xbmc.log('pvr.kofin reporter: stopped', xbmc.LOGDEBUG)
