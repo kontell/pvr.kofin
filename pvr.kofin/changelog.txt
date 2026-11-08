@@ -1,3 +1,9 @@
+v21.19.1
+- Fix playback reports with a non-ASCII device name
+- Fix playback with an IPv6 loopback stream URL
+- Send Kodi's User-Agent with playback reports and discovery
+- Fix an old stream's close ending the new stream on the same channel
+
 v21.19.0
 - Codec and HDR pickers no longer log "Unknown setting type" errors
 - Drop the settings menu hook; the add-on settings open from the add-on browser as before
