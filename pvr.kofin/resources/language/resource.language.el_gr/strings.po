@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Παράλειψη"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Παράλειψη των διαφημιστικών διαλειμμάτων που γνωρίζει το Jellyfin στις εγγραφές."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Λαμβάνει τα τμήματα μέσων του Jellyfin (εισαγωγή, τίτλοι τέλους, ανακεφαλαίωση, προεπισκόπηση, διαφήμιση) κατά την αναπαραγωγή και ενεργεί ανάλογα με τον τύπο τους."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Κλείσιμο"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Η διαφήμιση παραλείφθηκε"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Εισαγωγές"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Το «Ανενεργό» αγνοεί τα τμήματα εισαγωγής, το «Αυτόματα» τα προσπερνά, το «Ερώτηση» εμφανίζει κουμπί παράλειψης."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Τίτλοι τέλους"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Το «Ανενεργό» αγνοεί τους τίτλους τέλους, το «Αυτόματα» τους προσπερνά, το «Ερώτηση» προσφέρει «Παράλειψη τίτλων»."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Ανακεφαλαιώσεις"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Το «Ανενεργό» αγνοεί τα τμήματα ανακεφαλαίωσης, το «Αυτόματα» τα προσπερνά, το «Ερώτηση» εμφανίζει κουμπί παράλειψης."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Προεπισκοπήσεις"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Το «Ανενεργό» αγνοεί τα τμήματα προεπισκόπησης, το «Αυτόματα» τα προσπερνά, το «Ερώτηση» εμφανίζει κουμπί παράλειψης."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Παράλειψη εισαγωγής"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Παράλειψη τίτλων"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Παράλειψη ανακεφαλαίωσης"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Παράλειψη προεπισκόπησης"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Η εισαγωγή παραλείφθηκε"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Οι τίτλοι τέλους παραλείφθηκαν"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Η ανακεφαλαίωση παραλείφθηκε"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Η προεπισκόπηση παραλείφθηκε"

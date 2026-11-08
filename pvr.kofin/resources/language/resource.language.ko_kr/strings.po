@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "건너뛰기"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Jellyfin이 알고 있는 녹화의 광고 구간을 건너뜁니다."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "재생 중 Jellyfin 미디어 구간(인트로, 크레딧, 지난 이야기, 예고, 광고)을 가져와 유형별로 처리합니다."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "닫기"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "광고 건너뜀"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "인트로"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "끔은 인트로 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "크레딧"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "끔은 크레딧을 무시하고, 자동은 지나쳐 이동하며, 묻기는 엔딩 건너뛰기를 제시합니다."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "지난 이야기"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "끔은 지난 이야기 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "예고"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "끔은 예고 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "인트로 건너뛰기"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "엔딩 건너뛰기"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "지난 이야기 건너뛰기"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "예고 건너뛰기"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "인트로 건너뜀"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "엔딩 건너뜀"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "지난 이야기 건너뜀"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "예고 건너뜀"

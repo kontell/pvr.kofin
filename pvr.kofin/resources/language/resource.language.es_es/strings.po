@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Saltos"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Salta las pausas publicitarias de las grabaciones que Jellyfin conoce."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Obtiene los segmentos multimedia de Jellyfin (intro, créditos, resumen, avance, publicidad) durante la reproducción y actúa según su tipo."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Cerrar"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Anuncio saltado"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introducciones"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivado ignora los segmentos de intro, Automático los salta y Preguntar muestra un botón para saltarlos."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Créditos"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Desactivado ignora los créditos, Automático avanza más allá de ellos y Preguntar ofrece Saltar créditos."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Resúmenes"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivado ignora los segmentos de resumen, Automático los salta y Preguntar muestra un botón para saltarlos."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Avances"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desactivado ignora los segmentos de avance, Automático los salta y Preguntar muestra un botón para saltarlos."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Saltar intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Saltar créditos"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Saltar resumen"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Saltar avance"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro saltada"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Créditos saltados"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Resumen saltado"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Avance saltado"

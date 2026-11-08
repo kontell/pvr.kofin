@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Salti"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Salta le pause pubblicitarie delle registrazioni note a Jellyfin."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Recupera i segmenti multimediali di Jellyfin (intro, titoli di coda, riepilogo, anteprima, pubblicità) durante la riproduzione e agisci in base al tipo."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Chiudi"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Pubblicità saltata"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Intro"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Off ignora i segmenti di intro, Auto li salta, Chiedi mostra un pulsante di salto."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Titoli di coda"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Off ignora i titoli di coda, Auto li supera, Chiedi propone «Salta i titoli»."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Riepiloghi"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Off ignora i segmenti di riepilogo, Auto li salta, Chiedi mostra un pulsante di salto."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Anteprime"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Off ignora i segmenti di anteprima, Auto li salta, Chiedi mostra un pulsante di salto."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Salta l'intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Salta i titoli"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Salta il riepilogo"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Salta l'anteprima"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro saltata"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Titoli di coda saltati"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Riepilogo saltato"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Anteprima saltata"

@@ -1,5 +1,5 @@
 v23.19.0
-- Skip commercial breaks in recordings, from the Jellyfin Commercial media segments the Comseg plugin writes: Auto hands them to Kodi as an EDL, Ask shows a skip button
+- Skip Jellyfin media segments in recordings, with Off, Auto or Ask for each type: intros, credits, recaps and previews (Off by default), and the commercial breaks the Comseg plugin writes (Ask by default; in Auto, Kodi skips a finished recording's breaks as an EDL)
 - Breaks found while a recording is still being written are picked up during playback
 
 v23.18.3

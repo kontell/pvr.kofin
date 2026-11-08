@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Omitere"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Omite pauzele publicitare din înregistrări pe care Jellyfin le cunoaște."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Preia segmentele media Jellyfin (intro, generic, rezumat, previzualizare, reclamă) în timpul redării și acționează în funcție de tip."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Închide"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Reclamă omisă"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Intro-uri"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Dezactivat ignoră segmentele de intro, Auto trece peste ele, Întreabă afișează un buton de omitere."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Generic"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Dezactivat ignoră genericul, Auto derulează peste el, Întreabă oferă Omite genericul."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Rezumate"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Dezactivat ignoră segmentele de rezumat, Auto trece peste ele, Întreabă afișează un buton de omitere."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Previzualizări"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Dezactivat ignoră segmentele de previzualizare, Auto trece peste ele, Întreabă afișează un buton de omitere."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Omite intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Omite genericul"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Omite rezumatul"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Omite previzualizarea"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro omis"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Generic omis"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Rezumat omis"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Previzualizare omisă"

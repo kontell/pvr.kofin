@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Overslaan"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Sla de reclameblokken in opnames over die Jellyfin kent."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Haal Jellyfin-mediasegmenten (intro, aftiteling, samenvatting, voorvertoning, reclame) op tijdens het afspelen en reageer er per type op."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Sluiten"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Reclame overgeslagen"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Intro's"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Uit negeert introsegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Aftiteling"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Uit negeert de aftiteling, Automatisch spoelt eroverheen, Vragen biedt 'Aftiteling overslaan'."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Samenvattingen"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Uit negeert samenvattingssegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Voorvertoningen"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Uit negeert voorvertoningssegmenten, Automatisch slaat ze over, Vragen toont een knop om over te slaan."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Intro overslaan"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Aftiteling overslaan"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Samenvatting overslaan"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Voorvertoning overslaan"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro overgeslagen"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Aftiteling overgeslagen"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Samenvatting overgeslagen"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Voorvertoning overgeslagen"

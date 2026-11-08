@@ -762,7 +762,7 @@ msgid "Skipping"
 msgstr ""
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
 msgstr ""
 
 msgctxt "#30869"
@@ -813,4 +813,70 @@ msgstr ""
 #: Toast after an automatic or accepted skip
 msgctxt "#30880"
 msgid "Skipped ad"
+msgstr ""
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr ""
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr ""
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr ""
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr ""
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr ""
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr ""
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr ""
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr ""
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr ""
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr ""
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr ""
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr ""
+
+msgctxt "#30896"
+msgid "Skipped preview"
 msgstr ""

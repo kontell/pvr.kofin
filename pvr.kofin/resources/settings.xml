@@ -472,14 +472,63 @@
     </category>
 
     <!-- Advanced -->
-    <!-- Commercial skipping in recordings, from the Commercial media segments
-         the Comseg server plugin writes. Off by default, as in Kofin: acting on
-         segments moves the picture without being asked. -->
+    <!-- Segment skipping in recordings, from Jellyfin's media segments: a mode
+         per type, as in Kofin. Commercial breaks come from the Comseg server
+         plugin and default to Ask; the other types default to Off, since
+         acting on them moves the picture without being asked. -->
     <category id="skipping" label="30867" help="30868">
       <group id="1">
-        <setting id="skipCommercialMode" type="integer" label="30869" help="30870">
+        <setting id="skipIntroductionMode" type="integer" label="30881" help="30882">
           <level>0</level>
           <default>0</default>
+          <constraints>
+            <options>
+              <option label="30871">0</option>
+              <option label="30872">1</option>
+              <option label="30873">2</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="skipCreditsMode" type="integer" label="30883" help="30884">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30871">0</option>
+              <option label="30872">1</option>
+              <option label="30873">2</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="skipRecapMode" type="integer" label="30885" help="30886">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30871">0</option>
+              <option label="30872">1</option>
+              <option label="30873">2</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="skipPreviewMode" type="integer" label="30887" help="30888">
+          <level>0</level>
+          <default>0</default>
+          <constraints>
+            <options>
+              <option label="30871">0</option>
+              <option label="30872">1</option>
+              <option label="30873">2</option>
+            </options>
+          </constraints>
+          <control type="spinner" format="string" />
+        </setting>
+        <setting id="skipCommercialMode" type="integer" label="30869" help="30870">
+          <level>0</level>
+          <default>2</default>
           <constraints>
             <options>
               <option label="30871">0</option>
@@ -499,7 +548,13 @@
           </constraints>
           <dependencies>
             <dependency type="visible">
-              <condition operator="is" setting="skipCommercialMode">2</condition>
+              <or>
+                <condition operator="is" setting="skipIntroductionMode">2</condition>
+                <condition operator="is" setting="skipCreditsMode">2</condition>
+                <condition operator="is" setting="skipRecapMode">2</condition>
+                <condition operator="is" setting="skipPreviewMode">2</condition>
+                <condition operator="is" setting="skipCommercialMode">2</condition>
+              </or>
             </dependency>
           </dependencies>
           <control type="slider" format="percentage" />
@@ -515,8 +570,11 @@
           <dependencies>
             <dependency type="visible">
               <or>
-                <condition operator="is" setting="skipCommercialMode">1</condition>
-                <condition operator="is" setting="skipCommercialMode">2</condition>
+                <condition operator="!is" setting="skipIntroductionMode">0</condition>
+                <condition operator="!is" setting="skipCreditsMode">0</condition>
+                <condition operator="!is" setting="skipRecapMode">0</condition>
+                <condition operator="!is" setting="skipPreviewMode">0</condition>
+                <condition operator="!is" setting="skipCommercialMode">0</condition>
               </or>
             </dependency>
           </dependencies>

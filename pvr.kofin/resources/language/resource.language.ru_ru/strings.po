@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Пропуск"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Пропускать рекламные паузы в записях, о которых знает Jellyfin."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Получать медиасегменты Jellyfin (заставка, титры, краткое содержание, анонс, реклама) во время воспроизведения и действовать по типу сегмента."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Закрыть"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Реклама пропущена"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Заставки"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "«Выкл.» — игнорировать заставки, «Авто» — пропускать их, «Спрашивать» — показывать кнопку пропуска."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Титры"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "«Выкл.» — игнорировать титры, «Авто» — перематывать их, «Спрашивать» — предлагать «Пропустить титры»."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Краткое содержание"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "«Выкл.» — игнорировать сегменты с кратким содержанием, «Авто» — пропускать их, «Спрашивать» — показывать кнопку пропуска."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Анонсы"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "«Выкл.» — игнорировать анонсы, «Авто» — пропускать их, «Спрашивать» — показывать кнопку пропуска."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Пропустить заставку"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Пропустить титры"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Пропустить содержание"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Пропустить анонс"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Заставка пропущена"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Титры пропущены"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Краткое содержание пропущено"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Анонс пропущен"

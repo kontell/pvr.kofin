@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Pular"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Pula os intervalos comerciais das gravações que o Jellyfin conhece."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Busca os segmentos de mídia do Jellyfin (introdução, créditos, resumo, prévia, comercial) durante a reprodução e age conforme o tipo."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Fechar"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Anúncio pulado"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introduções"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desativado ignora os segmentos de introdução, Automático pula por cima deles e Perguntar mostra um botão para pular."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Créditos"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Desativado ignora os créditos, Automático avança além deles e Perguntar oferece Pular encerramento."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Resumos"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desativado ignora os segmentos de resumo, Automático pula por cima deles e Perguntar mostra um botão para pular."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Prévias"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Desativado ignora os segmentos de prévia, Automático pula por cima deles e Perguntar mostra um botão para pular."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Pular introdução"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Pular encerramento"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Pular resumo"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Pular prévia"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Introdução pulada"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Encerramento pulado"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Resumo pulado"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Prévia pulada"

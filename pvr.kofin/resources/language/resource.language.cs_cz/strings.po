@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Přeskakování"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Přeskakovat reklamní přestávky v nahrávkách, o kterých Jellyfin ví."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Během přehrávání načítá segmenty médií z Jellyfinu (úvod, závěrečné titulky, shrnutí, ukázka, reklama) a podle typu na ně reaguje."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Zavřít"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Reklama přeskočena"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Úvody"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Vypnuto ignoruje segmenty úvodu, Automaticky je přeskočí, Zeptat se zobrazí tlačítko pro přeskočení."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Závěrečné titulky"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Vypnuto ignoruje závěrečné titulky, Automaticky je přetočí, Zeptat se nabídne Přeskočit závěr."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Shrnutí"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Vypnuto ignoruje segmenty shrnutí, Automaticky je přeskočí, Zeptat se zobrazí tlačítko pro přeskočení."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Ukázky"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Vypnuto ignoruje segmenty ukázek, Automaticky je přeskočí, Zeptat se zobrazí tlačítko pro přeskočení."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Přeskočit úvod"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Přeskočit závěr"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Přeskočit shrnutí"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Přeskočit ukázku"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Úvod přeskočen"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Závěr přeskočen"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Shrnutí přeskočeno"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Ukázka přeskočena"

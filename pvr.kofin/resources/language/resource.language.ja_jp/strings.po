@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "スキップ"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Jellyfin が把握している録画内の CM をスキップします。"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "再生中に Jellyfin のメディアセグメント（イントロ、エンドクレジット、あらすじ、予告、CM）を取得し、種類ごとに処理します。"
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "閉じる"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "CM をスキップしました"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "イントロ"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "「オフ」はイントロを無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。"
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "エンドクレジット"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "「オフ」はエンドクレジットを無視し、「自動」はスキップし、「確認」は「アウトロをスキップ」を表示します。"
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "あらすじ"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "「オフ」はあらすじを無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。"
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "予告"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "「オフ」は予告を無視し、「自動」はスキップし、「確認」はスキップボタンを表示します。"
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "イントロをスキップ"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "アウトロをスキップ"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "あらすじをスキップ"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "予告をスキップ"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "イントロをスキップしました"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "アウトロをスキップしました"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "あらすじをスキップしました"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "予告をスキップしました"

@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Überspringen"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Überspringt Werbepausen in Aufnahmen, die Jellyfin kennt."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Jellyfin-Mediensegmente (Intro, Abspann, Rückblick, Vorschau, Werbung) während der Wiedergabe abrufen und je nach Typ darauf reagieren."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Schließen"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Werbung übersprungen"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Intro"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Aus ignoriert Intro-Segmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Abspann"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Aus ignoriert den Abspann, Automatisch springt darüber hinweg, Nachfragen bietet „Abspann überspringen“."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Rückblicke"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Aus ignoriert Rückblick-Segmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Vorschauen"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Aus ignoriert Vorschau-Segmente, Automatisch überspringt sie, Nachfragen zeigt eine Schaltfläche zum Überspringen."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Intro überspringen"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Abspann überspringen"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Rückblick überspringen"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Vorschau überspringen"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro übersprungen"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Abspann übersprungen"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Rückblick übersprungen"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Vorschau übersprungen"

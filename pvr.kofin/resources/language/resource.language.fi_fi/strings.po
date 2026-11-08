@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Ohitukset"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "Ohittaa tallennusten mainoskatkot, joista Jellyfin tietää."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Hae Jellyfinin mediasegmentit (intro, lopputekstit, kertaus, ennakko, mainos) toiston aikana ja toimi kunkin tyypin mukaan."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Sulje"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Mainos ohitettu"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Introt"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Pois jättää introsegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Lopputekstit"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Pois jättää lopputekstit huomiotta, Automaattinen kelaa niiden yli, Kysy tarjoaa Ohita lopputekstit -painikkeen."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Kertaukset"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Pois jättää kertaussegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Ennakot"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Pois jättää ennakkosegmentit huomiotta, Automaattinen hyppää niiden yli, Kysy näyttää ohituspainikkeen."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Ohita intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Ohita lopputekstit"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Ohita kertaus"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Ohita ennakko"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro ohitettu"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Lopputekstit ohitettu"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Kertaus ohitettu"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Ennakko ohitettu"

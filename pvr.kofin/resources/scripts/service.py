@@ -31,7 +31,7 @@ import xbmcaddon
 import xbmcgui
 import xbmcvfs
 
-# The commercial-skip engine lives beside this script; Kodi does not put a
+# The segment-skip engine lives beside this script; Kodi does not put a
 # service script's own directory on sys.path.
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import segments  # noqa: E402
@@ -214,13 +214,15 @@ def get_json(base_url, endpoint, token, device_id):
         return json.load(resp)
 
 
-def fetch_commercials(session):
-    """The recording's Commercial media segments, as [(start, end)] seconds."""
-    return segments.parse_commercials(get_json(
+def fetch_segments(session, types):
+    """The recording's media segments of the given types, as
+    [(start, end, type)] seconds."""
+    return segments.parse_segments(get_json(
         session['BaseUrl'],
-        '/MediaSegments/%s?includeSegmentTypes=Commercial'
-        % urllib.parse.quote(session['ItemId'], safe=''),
-        session['Token'], session['DeviceId']))
+        '/MediaSegments/%s?%s' % (
+            urllib.parse.quote(session['ItemId'], safe=''),
+            '&'.join('includeSegmentTypes=%s' % t for t in sorted(types))),
+        session['Token'], session['DeviceId']), types)
 
 
 def get_setting_int(key, default):
@@ -283,7 +285,7 @@ class PlaybackReporter(xbmc.Player):
         self.last_position_ticks = 0
         # Pending records whose close failed: path -> (retry at, last delay).
         self.pending_retry = {}
-        # The commercial-skip engine for the playing recording, if any.
+        # The segment-skip engine for the playing recording, if any.
         self.skipper = None
 
     def onAVStarted(self):
@@ -368,29 +370,35 @@ class PlaybackReporter(xbmc.Player):
         self._start_skipper(session_data)
 
     def _start_skipper(self, session_data):
-        """Run the commercial-skip engine for a recording, per the Skipping
-        settings. Each break has one owner: in Auto a finished recording's
-        breaks went to Kodi as an EDL when playback opened, and Kodi skips
-        them itself, so the engine runs only for a recording still being
-        written; Ask is the engine's on every recording. Live TV has no
-        segments to skip."""
+        """Run the segment-skip engine for a recording, per the Skipping
+        settings: a mode for each segment type. Each segment has one owner:
+        in Auto a finished recording's commercial breaks went to Kodi as an
+        EDL when playback opened, and Kodi skips them itself, so the engine
+        leaves those alone; every other Auto segment, and every Ask one, is
+        the engine's. Live TV has no segments to skip."""
         self._stop_skipper()
         if not self.is_recording:
             return
-        mode = get_setting_int('skipCommercialMode', 0)
-        if mode not in (segments.MODE_AUTO, segments.MODE_ASK):
-            return
         in_progress = bool(session_data.get('InProgress', False))
-        if mode == segments.MODE_AUTO and not in_progress:
-            xbmc.log('pvr.kofin reporter: finished recording, Kodi skips its breaks', xbmc.LOGDEBUG)
+        modes = {}
+        for kind, (setting, default) in segments.MODE_SETTINGS.items():
+            mode = get_setting_int(setting, default)
+            if kind == 'Commercial' and mode == segments.MODE_AUTO and not in_progress:
+                xbmc.log('pvr.kofin reporter: finished recording, Kodi skips its breaks',
+                         xbmc.LOGDEBUG)
+                continue
+            if mode in (segments.MODE_AUTO, segments.MODE_ASK):
+                modes[kind] = mode
+        if not modes:
             return
         session = self.session
-        self.skipper = segments.CommercialSkipper(
-            self, mode,
+        types = frozenset(modes)
+        self.skipper = segments.SegmentSkipper(
+            self, modes,
             get_setting_int('skipPromptHidePercent', 50),
             get_setting_int('commercialPollSeconds', 10),
             in_progress,
-            fetch=lambda: fetch_commercials(session),
+            fetch=lambda: fetch_segments(session, types),
             localized=lambda string_id: (get_addon().getLocalizedString(string_id)
                                          if get_addon() else ''),
             notify=notify)

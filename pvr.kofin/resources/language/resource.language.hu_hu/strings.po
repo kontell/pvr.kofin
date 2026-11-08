@@ -759,8 +759,8 @@ msgid "Skipping"
 msgstr "Kihagyás"
 
 msgctxt "#30868"
-msgid "Skip the commercial breaks Jellyfin knows about in recordings."
-msgstr "A Jellyfin által ismert reklámszünetek kihagyása a felvételekben."
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "A Jellyfin médiaszakaszainak (főcím, stáblista, összefoglaló, előzetes, reklám) lekérése lejátszás közben, és típusonkénti kezelése."
 
 msgctxt "#30869"
 msgid "Commercials"
@@ -811,3 +811,69 @@ msgstr "Bezárás"
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Reklám átugorva"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Főcímek"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "A Ki figyelmen kívül hagyja a főcímszakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Stáblista"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "A Ki figyelmen kívül hagyja a stáblistát, az Automatikus átteker rajta, a Rákérdezés felkínálja a Stáblista átugrása lehetőséget."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Összefoglalók"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "A Ki figyelmen kívül hagyja az összefoglaló szakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Előzetesek"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "A Ki figyelmen kívül hagyja az előzetes szakaszokat, az Automatikus átugorja őket, a Rákérdezés kihagyás gombot jelenít meg."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Főcím átugrása"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Stáblista átugrása"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Összefoglaló átugrása"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Előzetes átugrása"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Főcím átugorva"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Stáblista átugorva"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Összefoglaló átugorva"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Előzetes átugorva"
