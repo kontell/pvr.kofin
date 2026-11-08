@@ -1,3 +1,15 @@
+v22.20.0
+- Skip media segments in recordings (intros, credits, recaps, previews, commercials)
+- Default to Kodi's own FFmpeg; FFmpeg Direct and Adaptive are optional
+- Setting to turn off notifications
+- Catchup reports a missing FFmpeg Direct
+- Remove the "Verify SSL certificate" setting
+- Fix playback reports with a non-ASCII device name
+- Fix playback with an IPv6 loopback stream URL
+- Send Kodi's User-Agent with playback reports and discovery
+- Fix an old stream's close ending the new stream on the same channel
+- Don't log the user name at sign-in
+
 v22.19.0
 - Remove the Tempo inputstream option and dependency
 - Settings and playlists that chose Tempo play through FFmpeg Direct
