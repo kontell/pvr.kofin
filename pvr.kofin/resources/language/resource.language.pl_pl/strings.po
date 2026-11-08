@@ -745,3 +745,131 @@ msgstr "Wyskakujące powiadomienia o zdarzeniach w tle, takich jak zakończone n
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup wymaga zainstalowanego i włączonego inputstream.ffmpegdirect"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Pomijanie"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Pobiera segmenty multimediów Jellyfin (czołówka, napisy końcowe, streszczenie, zapowiedź, reklama) podczas odtwarzania i reaguje na nie zależnie od typu."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reklamy"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Wyłączone ignoruje segmenty reklam, Automatycznie je pomija, Pytaj pokazuje przycisk pominięcia. Przerwy znalezione, gdy nagranie wciąż trwa, są uwzględniane podczas odtwarzania."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Wyłączone"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Automatycznie"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Pytaj"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Ukryj przycisk pominięcia po"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Po jakiej części przerwy znika przycisk pominięcia, aby po decyzji o jego nienaciśnięciu przestał zasłaniać obraz. 100% utrzymuje go przez całą przerwę."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Sprawdzaj nowe przerwy co"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Liczba sekund między sprawdzeniami przerw znalezionych od rozpoczęcia odtwarzania, w trwającym nagraniu."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Pomiń reklamę"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Zamknij"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Pominięto reklamę"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Czołówki"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Wyłączone ignoruje segmenty czołówki, Automatycznie je pomija, Pytaj pokazuje przycisk pominięcia."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Napisy końcowe"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Wyłączone ignoruje napisy końcowe, Automatycznie je przewija, Pytaj proponuje Pomiń napisy końcowe."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Streszczenia"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Wyłączone ignoruje segmenty streszczenia, Automatycznie je pomija, Pytaj pokazuje przycisk pominięcia."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Zapowiedzi"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Wyłączone ignoruje segmenty zapowiedzi, Automatycznie je pomija, Pytaj pokazuje przycisk pominięcia."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Pomiń czołówkę"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Pomiń napisy końcowe"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Pomiń streszczenie"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Pomiń zapowiedź"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Pominięto czołówkę"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Pominięto napisy końcowe"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Pominięto streszczenie"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Pominięto zapowiedź"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Pomijaj segmenty multimediów"

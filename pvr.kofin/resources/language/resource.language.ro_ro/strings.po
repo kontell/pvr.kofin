@@ -745,3 +745,131 @@ msgstr "Ferestre pop-up pentru evenimente din fundal, cum ar fi o înregistrare 
 msgctxt "#30866"
 msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
 msgstr "Catchup necesită inputstream.ffmpegdirect instalat și activat"
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr "Omitere"
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr "Preia segmentele media Jellyfin (intro, generic, rezumat, previzualizare, reclamă) în timpul redării și acționează în funcție de tip."
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr "Reclame"
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr "Dezactivat ignoră segmentele de reclamă, Auto trece peste ele, Întreabă afișează un buton de omitere. Pauzele găsite în timp ce o înregistrare este încă în curs sunt preluate în timpul redării."
+
+msgctxt "#30871"
+msgid "Off"
+msgstr "Dezactivat"
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr "Auto"
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr "Întreabă"
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr "Ascunde butonul de omitere după"
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr "Cât de departe în pauză dispare butonul de omitere, ca să nu mai acopere imaginea după ce ați decis să nu îl apăsați. 100% îl păstrează pe toată pauza."
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr "Caută pauze noi la fiecare"
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr "Secunde între căutările de pauze găsite de la începutul redării, într-o înregistrare în curs."
+
+#: The skip button; the time it saves is appended in brackets
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr "Omite reclama"
+
+msgctxt "#30879"
+msgid "Close"
+msgstr "Închide"
+
+#: Toast after an automatic or accepted skip
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr "Reclamă omisă"
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr "Intro-uri"
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr "Dezactivat ignoră segmentele de intro, Auto trece peste ele, Întreabă afișează un buton de omitere."
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr "Generic"
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr "Dezactivat ignoră genericul, Auto derulează peste el, Întreabă oferă Omite genericul."
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr "Rezumate"
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr "Dezactivat ignoră segmentele de rezumat, Auto trece peste ele, Întreabă afișează un buton de omitere."
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr "Previzualizări"
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr "Dezactivat ignoră segmentele de previzualizare, Auto trece peste ele, Întreabă afișează un buton de omitere."
+
+#: Skip buttons per segment type; the time each saves is appended in brackets
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr "Omite intro"
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr "Omite genericul"
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr "Omite rezumatul"
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr "Omite previzualizarea"
+
+#: Toasts after an automatic or accepted skip, per segment type
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr "Intro omis"
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr "Generic omis"
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr "Rezumat omis"
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr "Previzualizare omisă"
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr "Omite segmentele media"
