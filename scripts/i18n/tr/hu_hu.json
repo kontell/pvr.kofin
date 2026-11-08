@@ -110,8 +110,6 @@
   "#30839": "A Quick Connect túllépte az időkorlátot",
   "#30840": "A Jellyfin nem támogatja az időzítők szerkesztését",
   "#30841": "A felvétel befejeződött",
-  "#30842": "SSL-tanúsítvány ellenőrzése",
-  "#30843": "Csak saját aláírású tanúsítvánnyal rendelkező kiszolgálóknál kapcsolja ki. A kiegészítő saját kéréseire vonatkozik (bejelentkezés, műsorújság, időzítők, felvételek); a videolejátszást a Kodi és az inputstream kiegészítők végzik, és ezt nem érinti.",
   "#30844": "Kiszolgálók keresése a helyi hálózaton",
   "#30846": "Válasszon kiszolgálót",
   "#30847": "Jellyfin-kiszolgálók keresése…",

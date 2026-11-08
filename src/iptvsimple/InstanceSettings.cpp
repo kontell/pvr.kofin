@@ -146,7 +146,6 @@ void InstanceSettings::ReadSettings()
   // to curl and stalls the connection checker indefinitely.
   m_connectioncCheckTimeoutSecs = std::max(1, kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS));
   m_connectioncCheckIntervalSecs = std::max(5, kodi::addon::GetSettingInt("connectioncheckinterval", 60));
-  m_sslVerify = kodi::addon::GetSettingBoolean("sslVerify", true);
 }
 
 std::string InstanceSettings::GetJellyfinBaseUrl() const

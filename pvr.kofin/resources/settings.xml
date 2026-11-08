@@ -641,11 +641,6 @@
           <default>60</default>
           <control type="edit" format="integer" />
         </setting>
-        <setting id="sslVerify" type="boolean" label="30842" help="30843">
-          <level>0</level>
-          <default>true</default>
-          <control type="toggle" />
-        </setting>
         <setting id="showNotifications" type="boolean" label="30864" help="30865">
           <level>0</level>
           <default>true</default>
