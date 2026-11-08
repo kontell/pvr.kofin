@@ -323,21 +323,6 @@ std::string JellyfinClient::GetBaseUrl() const
   return m_settings->GetJellyfinBaseUrl();
 }
 
-void JellyfinClient::ApplyTlsOptions(kodi::vfs::CFile& file) const
-{
-  if (m_settings->GetSslVerify())
-    return;
-
-  // Kodi routes PROTOCOL options through CCurlFile::ParseAndCorrectUrl, which
-  // handles "verifypeer" but does not list it among the option names the
-  // addon API documents — so the call is checked rather than assumed. Only
-  // the literal "false" disables verification there.
-  if (!file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "verifypeer", "false"))
-    Logger::Log(LEVEL_WARNING,
-                "%s - Could not set verifypeer; certificate verification stays on",
-                __FUNCTION__);
-}
-
 std::string JellyfinClient::BuildUrl(const std::string& endpoint) const
 {
   return GetBaseUrl() + endpoint;
@@ -386,8 +371,6 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", "10");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "acceptencoding", "gzip, deflate");
 
-  ApplyTlsOptions(file);
-
   unsigned int flags = ADDON_READ_NO_CACHE;
   if (!file.CURLOpen(flags))
   {
@@ -423,8 +406,6 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   file.CURLAddOption(ADDON_CURL_OPTION_HEADER, "Connection", "close");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", "10");
   file.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "acceptencoding", "gzip, deflate");
-
-  ApplyTlsOptions(file);
 
   if (!postData.empty())
   {

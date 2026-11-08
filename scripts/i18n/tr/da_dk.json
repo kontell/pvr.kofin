@@ -110,8 +110,6 @@
   "#30839": "Quick Connect fik timeout",
   "#30840": "Jellyfin understøtter ikke redigering af timere",
   "#30841": "Optagelsen er afsluttet",
-  "#30842": "Verificér SSL-certifikat",
-  "#30843": "Slå kun fra for servere med selvsignerede certifikater. Gælder tilføjelsens egne forespørgsler (login, guide, timere, optagelser); videoafspilning håndteres af Kodi og inputstream-tilføjelserne og påvirkes ikke.",
   "#30844": "Find servere på lokalnetværket",
   "#30846": "Vælg en server",
   "#30847": "Søger efter Jellyfin-servere…",
