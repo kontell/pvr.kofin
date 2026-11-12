@@ -90,6 +90,16 @@ bool WebUtils::SplitAuthority(const std::string& url, UrlAuthority& authority)
   return true;
 }
 
+bool WebUtils::IsOnOrigin(const std::string& url, const std::string& origin)
+{
+  if (origin.empty() || url.compare(0, origin.size(), origin) != 0)
+    return false;
+  if (url.size() == origin.size())
+    return true;
+  const char next = url[origin.size()];
+  return next == '/' || next == '?' || next == '#';
+}
+
 bool WebUtils::IsLoopbackHost(const std::string& rawHost)
 {
   std::string host = rawHost;
