@@ -42,6 +42,14 @@ namespace iptvsimple
       // localhost in any case, a dotted-quad 127.0.0.0/8 address, [::1] in
       // either spelling or an IPv4-mapped loopback, with or without a zone.
       static bool IsLoopbackHost(const std::string& host);
+      // Whether a URL is on an origin given as "scheme://host:port": it starts
+      // with the origin, then ends or goes on with a path, query or fragment.
+      // Deliberately text, not SplitAuthority's hosts compared. Kodi's URL
+      // parser also ends an http authority at ';' and '|', so
+      // "http://elsewhere;@host:8096/" is host:8096 to SplitAuthority and
+      // elsewhere to Kodi. An exact origin and a delimiter every parser agrees
+      // on leave no such gap.
+      static bool IsOnOrigin(const std::string& url, const std::string& origin);
       static const std::string UrlEncode(const std::string& value);
       static bool IsHttpUrl(const std::string& url);
       static bool IsNfsUrl(const std::string& url);
