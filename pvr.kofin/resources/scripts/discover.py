@@ -96,18 +96,23 @@ def log(message, level=xbmc.LOGDEBUG):
 
 
 def usable_address(address):
-    """An http or https URL with a host and, if any, a valid port.
+    """An http or https URL with a host, a valid port if any, and no user
+    name, query or fragment.
 
     Checked once here: fallback_address and the path check in main both call
     urlsplit, and urlsplit and .port raise ValueError on a malformed URL or
-    port.
+    port. Jellyfin publishes none of the three parts refused, and a user name
+    would let an address read as one host and name another. They are checked
+    on the text, not on urlsplit's fields, which are empty, and so pass, for
+    "http://@host", "http://:pw@host" and a bare "?" or "#".
     """
     try:
         parts = urlsplit(address)
         parts.port  # raises ValueError for a malformed or out-of-range port
     except ValueError:
         return False
-    return parts.scheme in ('http', 'https') and bool(parts.hostname)
+    return (parts.scheme in ('http', 'https') and bool(parts.hostname)
+            and '@' not in parts.netloc and '?' not in address and '#' not in address)
 
 
 def parse(data, source_host):
@@ -191,11 +196,19 @@ def scan(progress):
 
 def public_info(address):
     """/System/Info/Public, or None if this box cannot reach that address."""
+    # Only the scheme, host and port come from the reply. Anything on the
+    # network can answer, before the user has picked anything, and with the
+    # path too it would choose the whole request this box sends. A server
+    # published under a path is refused at the pick in any case. A user name
+    # is refused by usable_address, and dropped here too, so the probe's host
+    # does not rest on that.
+    parts = urlsplit(address)
+    netloc = parts.netloc.rpartition('@')[2]
     # Kodi's User-Agent, not urllib's Python-urllib/3.x: a server can publish
     # an address behind a proxy that refuses the latter, such as Cloudflare's
     # Browser Integrity Check, and the probe would then mark a server that
     # works as one that did not answer.
-    request = Request(address + '/System/Info/Public',
+    request = Request('%s://%s/System/Info/Public' % (parts.scheme, netloc),
                       headers={'Accept': 'application/json',
                                'User-Agent': xbmc.getUserAgent()})
     try:
