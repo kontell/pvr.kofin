@@ -40,6 +40,17 @@ namespace
 // of channels × a full EPG window) while bounding the otherwise-permanent growth.
 constexpr size_t EPG_UID_MAP_MAX_ENTRIES = 250000;
 
+// Gives a stream URL on the Jellyfin server its access token, unless it carries
+// one already. A URL on any other host goes without: starting with baseUrl is
+// not enough, as "http://host:8096@elsewhere/" names the host "elsewhere".
+void AppendApiKey(std::string& streamUrl, const std::string& baseUrl, const std::string& token)
+{
+  if (!WebUtils::IsOnOrigin(streamUrl, baseUrl) || streamUrl.find("ApiKey=") != std::string::npos)
+    return;
+  streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
+  streamUrl += "ApiKey=" + token;
+}
+
 // HLS will copy only these. A remux TranscodingProfile that lists anything
 // else either gets it stripped (no fallback restored) or, if the source
 // matches, pinned as the encode target — which is how E-AC3 400'd.
@@ -1008,14 +1019,7 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
   }
 
   RewriteLocalhost(streamUrl);
-
-  const std::string baseUrl = client->GetBaseUrl();
-  if (streamUrl.find(baseUrl) == 0 &&
-      streamUrl.find("ApiKey=") == std::string::npos)
-  {
-    streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
-    streamUrl += "ApiKey=" + client->GetAccessToken();
-  }
+  AppendApiKey(streamUrl, client->GetBaseUrl(), client->GetAccessToken());
 
   Logger::Log(LEVEL_DEBUG, "%s - Recording stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
@@ -1416,14 +1420,7 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
 
   // Fix localhost/127.0.0.1 references from tuner providers
   RewriteLocalhost(streamUrl);
-
-  const std::string baseUrl = client->GetBaseUrl();
-  if (streamUrl.find(baseUrl) == 0 &&
-      streamUrl.find("ApiKey=") == std::string::npos)
-  {
-    streamUrl += (streamUrl.find('?') != std::string::npos ? "&" : "?");
-    streamUrl += "ApiKey=" + client->GetAccessToken();
-  }
+  AppendApiKey(streamUrl, client->GetBaseUrl(), client->GetAccessToken());
 
   Logger::Log(LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
               WebUtils::RedactUrl(streamUrl).c_str());
