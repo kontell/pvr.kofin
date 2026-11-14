@@ -51,7 +51,7 @@ import socket
 import time
 from urllib.error import URLError
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 import xbmc
 import xbmcaddon
@@ -96,18 +96,23 @@ def log(message, level=xbmc.LOGDEBUG):
 
 
 def usable_address(address):
-    """An http or https URL with a host and, if any, a valid port.
+    """An http or https URL with a host, a valid port if any, and no user
+    name, query or fragment.
 
     Checked once here: fallback_address and the path check in main both call
     urlsplit, and urlsplit and .port raise ValueError on a malformed URL or
-    port.
+    port. Jellyfin publishes none of the three parts refused, and a user name
+    would let an address read as one host and name another. They are checked
+    on the text, not on urlsplit's fields, which are empty, and so pass, for
+    "http://@host", "http://:pw@host" and a bare "?" or "#".
     """
     try:
         parts = urlsplit(address)
         parts.port  # raises ValueError for a malformed or out-of-range port
     except ValueError:
         return False
-    return parts.scheme in ('http', 'https') and bool(parts.hostname)
+    return (parts.scheme in ('http', 'https') and bool(parts.hostname)
+            and '@' not in parts.netloc and '?' not in address and '#' not in address)
 
 
 def parse(data, source_host):
@@ -189,17 +194,44 @@ def scan(progress):
     return found
 
 
+class NoRedirect(HTTPRedirectHandler):
+    """Refuse every redirect, so the probe's one request is its only one.
+
+    public_info holds the probe to a scheme, host and port, but a redirect is
+    a second address, chosen by whoever answered the first: a 302 from the
+    advertised host would send this box to any path and query on any host it
+    can reach. Returning None has urllib raise the 3xx as an HTTPError, which
+    public_info reports as no answer. A server whose published http address
+    redirects to https therefore reads as not answering; it can still be
+    picked.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+PROBE_OPENER = build_opener(NoRedirect)
+
+
 def public_info(address):
     """/System/Info/Public, or None if this box cannot reach that address."""
+    # Only the scheme, host and port come from the reply. Anything on the
+    # network can answer, before the user has picked anything, and with the
+    # path too it would choose the whole request this box sends. A server
+    # published under a path is refused at the pick in any case. A user name
+    # is refused by usable_address, and dropped here too, so the probe's host
+    # does not rest on that.
+    parts = urlsplit(address)
+    netloc = parts.netloc.rpartition('@')[2]
     # Kodi's User-Agent, not urllib's Python-urllib/3.x: a server can publish
     # an address behind a proxy that refuses the latter, such as Cloudflare's
     # Browser Integrity Check, and the probe would then mark a server that
     # works as one that did not answer.
-    request = Request(address + '/System/Info/Public',
+    request = Request('%s://%s/System/Info/Public' % (parts.scheme, netloc),
                       headers={'Accept': 'application/json',
                                'User-Agent': xbmc.getUserAgent()})
     try:
-        with urlopen(request, timeout=PROBE_TIMEOUT_SECONDS) as handle:
+        with PROBE_OPENER.open(request, timeout=PROBE_TIMEOUT_SECONDS) as handle:
             body = json.loads(handle.read(65536).decode('utf-8'))
         return body if isinstance(body, dict) else None
     except (URLError, OSError, ValueError) as error:

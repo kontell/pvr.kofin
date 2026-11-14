@@ -508,12 +508,21 @@ class PlaybackReporter(xbmc.Player):
                  xbmc.LOGDEBUG)
         # The server the stream was opened on, which the settings may no longer
         # name. Records from before it was stored fall back to the setting.
-        closed = self._close_live_stream({
-            'LiveStreamId': pending.get('LiveStreamId', ''),
-            'BaseUrl': pending.get('BaseUrl') or get_setting('jellyfinServerAddress'),
-            'Token': get_setting('jellyfinAccessToken'),
-            'DeviceId': get_setting('deviceId'),
-        })
+        current = get_setting('jellyfinServerAddress')
+        base_url = pending.get('BaseUrl') or current
+        if normalize_base_url(base_url) != normalize_base_url(current):
+            # The token in the settings was issued by the configured server, so
+            # it goes to no other. The close waits, retried like one the server
+            # refused, until its server is configured again or the record is
+            # given up below.
+            closed = False
+        else:
+            closed = self._close_live_stream({
+                'LiveStreamId': pending.get('LiveStreamId', ''),
+                'BaseUrl': base_url,
+                'Token': get_setting('jellyfinAccessToken'),
+                'DeviceId': get_setting('deviceId'),
+            })
         if closed:
             remove_file(path)
             self.pending_retry.pop(path, None)
