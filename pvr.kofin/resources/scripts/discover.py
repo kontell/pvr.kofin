@@ -52,7 +52,7 @@ import ssl
 import time
 from urllib.error import URLError
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, HTTPSHandler, Request, build_opener
 
 import xbmc
 import xbmcaddon
@@ -99,7 +99,7 @@ def log(message, level=xbmc.LOGDEBUG):
 def ssl_context():
     """An unverified SSL context when the user turned sslVerify off, else None.
 
-    Mirrors service.py: None means urlopen's default, a fully verifying one.
+    Mirrors service.py: None means urllib's default, a fully verifying one.
     """
     if ADDON.getSetting('sslVerify') != 'false':
         return None
@@ -208,6 +208,30 @@ def scan(progress):
     return found
 
 
+class NoRedirect(HTTPRedirectHandler):
+    """Refuse every redirect, so the probe's one request is its only one.
+
+    public_info holds the probe to a scheme, host and port, but a redirect is
+    a second address, chosen by whoever answered the first: a 302 from the
+    advertised host would send this box to any path and query on any host it
+    can reach. Returning None has urllib raise the 3xx as an HTTPError, which
+    public_info reports as no answer. A server whose published http address
+    redirects to https therefore reads as not answering; it can still be
+    picked.
+    """
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+def probe_opener():
+    """An opener that follows no redirect, and honours sslVerify for https."""
+    context = ssl_context()
+    if context is None:
+        return build_opener(NoRedirect)
+    return build_opener(NoRedirect, HTTPSHandler(context=context))
+
+
 def public_info(address):
     """/System/Info/Public, or None if this box cannot reach that address."""
     # Only the scheme, host and port come from the reply. Anything on the
@@ -226,13 +250,7 @@ def public_info(address):
                       headers={'Accept': 'application/json',
                                'User-Agent': xbmc.getUserAgent()})
     try:
-        context = ssl_context()
-        if context is None:
-            handle = urlopen(request, timeout=PROBE_TIMEOUT_SECONDS)
-        else:
-            handle = urlopen(request, timeout=PROBE_TIMEOUT_SECONDS,
-                             context=context)
-        with handle:
+        with probe_opener().open(request, timeout=PROBE_TIMEOUT_SECONDS) as handle:
             body = json.loads(handle.read(65536).decode('utf-8'))
         return body if isinstance(body, dict) else None
     except (URLError, OSError, ValueError) as error:
