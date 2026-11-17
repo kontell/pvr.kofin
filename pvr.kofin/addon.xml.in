@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.kofin"
-  version="22.20.0"
+  version="22.20.1"
   name="Kofin PVR for Jellyfin"
   provider-name="Team Kodi, kontell">
   <requires>@ADDON_DEPENDS@
