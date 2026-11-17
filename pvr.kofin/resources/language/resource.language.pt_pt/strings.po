@@ -10,10 +10,10 @@ msgstr ""
 "PO-Revision-Date: 2026-06-26 00:00+0000\n"
 "Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
 "Language-Team: Portuguese\n"
+"Language: pt_PT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: pt_PT\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "Addon Summary"
@@ -24,7 +24,6 @@ msgctxt "Addon Description"
 msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
 msgstr "Integração PVR do Kodi para a TV em direto Jellyfin. Fornece canais de TV em direto, EPG, gravações e temporizadores a partir de um servidor Jellyfin."
 
-#: Transcoding category
 msgctxt "#30620"
 msgid "Transcoding"
 msgstr "Transcodificação"
@@ -85,7 +84,6 @@ msgctxt "#30635"
 msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
 msgstr "Qualquer valor diferente de ilimitado desativa a reprodução direta. Se uma transmissão estiver abaixo do limite, será feito remux; se estiver acima, será transcodificada."
 
-#: Bitrate options
 msgctxt "#30636"
 msgid "1 Mbps"
 msgstr "1 Mbps"
@@ -150,7 +148,6 @@ msgctxt "#30651"
 msgid "Unlimited"
 msgstr "Ilimitado"
 
-#: InputStream category
 msgctxt "#30660"
 msgid "InputStream"
 msgstr "InputStream"
@@ -191,7 +188,6 @@ msgctxt "#30669"
 msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
 msgstr "InputStream para gravações em curso. O Adaptive precisa do respetivo add-on instalado."
 
-#: Advanced category
 msgctxt "#30670"
 msgid "Advanced"
 msgstr "Avançado"
@@ -220,7 +216,6 @@ msgctxt "#30677"
 msgid "How often to check if the Jellyfin server is reachable."
 msgstr "Com que frequência verificar se o servidor Jellyfin está acessível."
 
-#: Account category
 msgctxt "#30700"
 msgid "Account"
 msgstr "Conta"
@@ -309,7 +304,6 @@ msgctxt "#30727"
 msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
 msgstr "A ligação ao servidor usa HTTP não encriptado numa rede não privada. Recomenda-se HTTPS."
 
-#: Catchup category
 msgctxt "#30730"
 msgid "Catchup"
 msgstr "Catchup"
@@ -378,7 +372,6 @@ msgctxt "#30752"
 msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
 msgstr "Permitir a reprodução de catchup apenas em programas que já terminaram. O programa que está a ser transmitido não pode ser visto em catchup até terminar."
 
-#: Catchup enum values
 msgctxt "#30760"
 msgid "Disabled"
 msgstr "Desativado"
@@ -403,7 +396,6 @@ msgctxt "#30771"
 msgid "Remote path (URL)"
 msgstr "Caminho remoto (URL)"
 
-#: Reference playlist (advanced category)
 msgctxt "#30772"
 msgid "Reference playlist"
 msgstr "Lista de reprodução de referência"
@@ -440,7 +432,6 @@ msgctxt "#30780"
 msgid "URL of the reference M3U playlist."
 msgstr "URL da lista de reprodução M3U de referência."
 
-#: Force-transcode codec toggles
 msgctxt "#30781"
 msgid "Direct play video codecs"
 msgstr "Codecs de vídeo de reprodução direta"
@@ -521,7 +512,6 @@ msgctxt "#30795"
 msgid "Surround 7.1 (8)"
 msgstr "Surround 7.1 (8)"
 
-#: Allowed HDR types (allowedHdrTypes)
 msgctxt "#30810"
 msgid "Allowed HDR types"
 msgstr "Tipos de HDR permitidos"
@@ -570,7 +560,6 @@ msgctxt "#30821"
 msgid "Dolby Vision Profile 7 + HDR10+"
 msgstr "Dolby Vision Profile 7 + HDR10+"
 
-#: Maximum resolution (maxResolution)
 msgctxt "#30822"
 msgid "Maximum resolution"
 msgstr "Resolução máxima"
@@ -603,7 +592,6 @@ msgctxt "#30829"
 msgid "Unlimited"
 msgstr "Ilimitado"
 
-#: Notification when an in-progress recording stops before its scheduled end
 msgctxt "#30830"
 msgid "Recording stopped early"
 msgstr "Gravação interrompida antes do previsto"
@@ -616,52 +604,42 @@ msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "Segundos entre consultas ao servidor Jellyfin para detetar alterações em temporizadores e gravações (gravações agendadas ou concluídas noutro local, indicadores de gravação no EPG, widgets). Limitado entre 15 e 3600."
 
-#: Notification when the stored access token is no longer accepted
 msgctxt "#30833"
 msgid "Session expired. Please log in again."
 msgstr "Sessão expirada. Inicie sessão novamente."
 
-#: Notification when creating a timer on the server failed
 msgctxt "#30834"
 msgid "Could not add the timer"
 msgstr "Não foi possível adicionar o temporizador"
 
-#: Notification when deleting a timer on the server failed
 msgctxt "#30835"
 msgid "Could not delete the timer"
 msgstr "Não foi possível eliminar o temporizador"
 
-#: Notification when the server could not be reached or refused the login
 msgctxt "#30836"
 msgid "Connection failed"
 msgstr "Falha na ligação"
 
-#: Notification when the Test Connection button succeeded
 msgctxt "#30837"
 msgid "Connection successful"
 msgstr "Ligação bem-sucedida"
 
-#: Notification when the server would not issue a Quick Connect code
 msgctxt "#30838"
 msgid "Could not start Quick Connect"
 msgstr "Não foi possível iniciar o Quick Connect"
 
-#: Notification when a Quick Connect code was never authorised in time
 msgctxt "#30839"
 msgid "Quick Connect timed out"
 msgstr "O Quick Connect expirou"
 
-#: Notification when the user tries to edit an existing timer
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "O Jellyfin não permite editar temporizadores"
 
-#: Notification when a recording the user is watching reaches its scheduled end
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr "Gravação concluída"
 
-#: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
 msgstr "Procurar servidores na rede local"
@@ -682,32 +660,26 @@ msgctxt "#30848"
 msgid "Checking servers…"
 msgstr "A verificar servidores…"
 
-#: as a fragment after the address, not as a sentence.
 msgctxt "#30849"
 msgid "did not answer"
 msgstr "não respondeu"
 
-#: off, Docker bridge networking, another subnet) no retry reaches.
 msgctxt "#30850"
 msgid "No Jellyfin servers answered — enter the address manually"
 msgstr "Nenhum servidor Jellyfin respondeu — introduza o endereço manualmente"
 
-#: published under a path cannot be stored. %s is the discovered address.
 msgctxt "#30851"
 msgid "%s includes a path, which this add-on cannot use — enter the address manually"
 msgstr "%s inclui um caminho que este add-on não pode usar — introduza o endereço manualmente"
 
-#: Raised only if the user picks a server that answered nothing. %s is its name.
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s não respondeu — o endereço indicado pode não funcionar aqui"
 
-#: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
 msgid "Enter this code in an already logged in client:"
 msgstr "Introduza este código num cliente com sessão já iniciada:"
 
-#: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"
 msgid "Code: %s"
 msgstr "Código: %s"
@@ -716,7 +688,6 @@ msgctxt "#30859"
 msgid "Waiting for authorisation…"
 msgstr "A aguardar autorização…"
 
-#: Timer types, as listed in Kodi's timer dialog
 msgctxt "#30860"
 msgid "Manual recording"
 msgstr "Gravação manual"
@@ -725,7 +696,6 @@ msgctxt "#30861"
 msgid "Record once (EPG)"
 msgstr "Gravar uma vez (EPG)"
 
-#: A single recording that a series timer scheduled; read-only in Kodi
 msgctxt "#30862"
 msgid "Record once (created by series rule)"
 msgstr "Gravar uma vez (criada por regra de série)"
@@ -790,7 +760,6 @@ msgctxt "#30877"
 msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
 msgstr "Segundos entre as procuras de intervalos encontrados desde o início da reprodução, numa gravação em curso."
 
-#: The skip button; the time it saves is appended in brackets
 msgctxt "#30878"
 msgid "Skip Ad"
 msgstr "Saltar publicidade"
@@ -799,7 +768,6 @@ msgctxt "#30879"
 msgid "Close"
 msgstr "Fechar"
 
-#: Toast after an automatic or accepted skip
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "Publicidade saltada"
@@ -836,7 +804,6 @@ msgctxt "#30888"
 msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
 msgstr "Desativado ignora os segmentos de antevisão, Automático salta-os e Perguntar mostra um botão para saltar."
 
-#: Skip buttons per segment type; the time each saves is appended in brackets
 msgctxt "#30889"
 msgid "Skip Intro"
 msgstr "Saltar introdução"
@@ -853,7 +820,6 @@ msgctxt "#30892"
 msgid "Skip Preview"
 msgstr "Saltar antevisão"
 
-#: Toasts after an automatic or accepted skip, per segment type
 msgctxt "#30893"
 msgid "Skipped intro"
 msgstr "Introdução saltada"
