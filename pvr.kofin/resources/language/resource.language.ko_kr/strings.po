@@ -10,10 +10,10 @@ msgstr ""
 "PO-Revision-Date: 2026-06-26 00:00+0000\n"
 "Last-Translator: Claude (machine translation) <noreply@anthropic.com>\n"
 "Language-Team: Korean\n"
+"Language: ko_KR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: ko_KR\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
 msgctxt "Addon Summary"
@@ -24,7 +24,6 @@ msgctxt "Addon Description"
 msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
 msgstr "Jellyfin 라이브 TV를 위한 Kodi PVR 통합. Jellyfin 서버에서 라이브 TV 채널, EPG, 녹화 및 타이머를 제공합니다."
 
-#: Transcoding category
 msgctxt "#30620"
 msgid "Transcoding"
 msgstr "트랜스코딩"
@@ -85,7 +84,6 @@ msgctxt "#30635"
 msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
 msgstr "무제한 이외의 값은 직접 재생을 비활성화합니다. 스트림이 제한보다 낮으면 리먹스되고, 높으면 트랜스코딩됩니다."
 
-#: Bitrate options
 msgctxt "#30636"
 msgid "1 Mbps"
 msgstr "1 Mbps"
@@ -150,7 +148,6 @@ msgctxt "#30651"
 msgid "Unlimited"
 msgstr "무제한"
 
-#: InputStream category
 msgctxt "#30660"
 msgid "InputStream"
 msgstr "InputStream"
@@ -191,7 +188,6 @@ msgctxt "#30669"
 msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
 msgstr "진행 중인 녹화에 사용할 InputStream. Adaptive는 해당 애드온이 설치되어 있어야 합니다."
 
-#: Advanced category
 msgctxt "#30670"
 msgid "Advanced"
 msgstr "고급"
@@ -220,7 +216,6 @@ msgctxt "#30677"
 msgid "How often to check if the Jellyfin server is reachable."
 msgstr "Jellyfin 서버에 연결할 수 있는지 확인하는 빈도."
 
-#: Account category
 msgctxt "#30700"
 msgid "Account"
 msgstr "계정"
@@ -309,7 +304,6 @@ msgctxt "#30727"
 msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
 msgstr "서버 연결이 사설망이 아닌 네트워크에서 암호화되지 않은 HTTP를 사용하고 있습니다. HTTPS를 권장합니다."
 
-#: Catchup category
 msgctxt "#30730"
 msgid "Catchup"
 msgstr "다시보기"
@@ -378,7 +372,6 @@ msgctxt "#30752"
 msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
 msgstr "이미 종료된 프로그램에 대해서만 다시보기 재생을 허용합니다. 현재 방송 중인 프로그램은 종료될 때까지 다시보기로 시청할 수 없습니다."
 
-#: Catchup enum values
 msgctxt "#30760"
 msgid "Disabled"
 msgstr "비활성화됨"
@@ -403,7 +396,6 @@ msgctxt "#30771"
 msgid "Remote path (URL)"
 msgstr "원격 경로(URL)"
 
-#: Reference playlist (advanced category)
 msgctxt "#30772"
 msgid "Reference playlist"
 msgstr "참조 재생 목록"
@@ -440,7 +432,6 @@ msgctxt "#30780"
 msgid "URL of the reference M3U playlist."
 msgstr "참조 M3U 재생 목록의 URL."
 
-#: Force-transcode codec toggles
 msgctxt "#30781"
 msgid "Direct play video codecs"
 msgstr "직접 재생 비디오 코덱"
@@ -521,7 +512,6 @@ msgctxt "#30795"
 msgid "Surround 7.1 (8)"
 msgstr "서라운드 7.1(8)"
 
-#: Allowed HDR types (allowedHdrTypes)
 msgctxt "#30810"
 msgid "Allowed HDR types"
 msgstr "허용되는 HDR 유형"
@@ -570,7 +560,6 @@ msgctxt "#30821"
 msgid "Dolby Vision Profile 7 + HDR10+"
 msgstr "Dolby Vision Profile 7 + HDR10+"
 
-#: Maximum resolution (maxResolution)
 msgctxt "#30822"
 msgid "Maximum resolution"
 msgstr "최대 해상도"
@@ -603,7 +592,6 @@ msgctxt "#30829"
 msgid "Unlimited"
 msgstr "무제한"
 
-#: Notification when an in-progress recording stops before its scheduled end
 msgctxt "#30830"
 msgid "Recording stopped early"
 msgstr "녹화가 일찍 중지됨"
@@ -616,52 +604,42 @@ msgctxt "#30832"
 msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
 msgstr "타이머와 녹화 변경 사항(다른 곳에서 예약되거나 완료된 녹화, EPG 녹화 표시, 위젯)을 확인하기 위해 Jellyfin 서버를 폴링하는 간격(초)입니다. 15~3600 사이로 제한됩니다."
 
-#: Notification when the stored access token is no longer accepted
 msgctxt "#30833"
 msgid "Session expired. Please log in again."
 msgstr "세션이 만료되었습니다. 다시 로그인하세요."
 
-#: Notification when creating a timer on the server failed
 msgctxt "#30834"
 msgid "Could not add the timer"
 msgstr "타이머를 추가할 수 없습니다"
 
-#: Notification when deleting a timer on the server failed
 msgctxt "#30835"
 msgid "Could not delete the timer"
 msgstr "타이머를 삭제할 수 없습니다"
 
-#: Notification when the server could not be reached or refused the login
 msgctxt "#30836"
 msgid "Connection failed"
 msgstr "연결 실패"
 
-#: Notification when the Test Connection button succeeded
 msgctxt "#30837"
 msgid "Connection successful"
 msgstr "연결 성공"
 
-#: Notification when the server would not issue a Quick Connect code
 msgctxt "#30838"
 msgid "Could not start Quick Connect"
 msgstr "Quick Connect를 시작할 수 없습니다"
 
-#: Notification when a Quick Connect code was never authorised in time
 msgctxt "#30839"
 msgid "Quick Connect timed out"
 msgstr "Quick Connect 시간이 초과되었습니다"
 
-#: Notification when the user tries to edit an existing timer
 msgctxt "#30840"
 msgid "Jellyfin does not support editing timers"
 msgstr "Jellyfin은 타이머 편집을 지원하지 않습니다"
 
-#: Notification when a recording the user is watching reaches its scheduled end
 msgctxt "#30841"
 msgid "Recording finished"
 msgstr "녹화가 완료되었습니다"
 
-#: Account settings button that broadcasts for Jellyfin servers on the LAN
 msgctxt "#30844"
 msgid "Find servers on local network"
 msgstr "로컬 네트워크에서 서버 찾기"
@@ -682,32 +660,26 @@ msgctxt "#30848"
 msgid "Checking servers…"
 msgstr "서버 확인 중…"
 
-#: as a fragment after the address, not as a sentence.
 msgctxt "#30849"
 msgid "did not answer"
 msgstr "응답 없음"
 
-#: off, Docker bridge networking, another subnet) no retry reaches.
 msgctxt "#30850"
 msgid "No Jellyfin servers answered — enter the address manually"
 msgstr "응답한 Jellyfin 서버가 없습니다 — 주소를 직접 입력하세요"
 
-#: published under a path cannot be stored. %s is the discovered address.
 msgctxt "#30851"
 msgid "%s includes a path, which this add-on cannot use — enter the address manually"
 msgstr "%s에 이 애드온이 사용할 수 없는 경로가 포함되어 있습니다 — 주소를 직접 입력하세요"
 
-#: Raised only if the user picks a server that answered nothing. %s is its name.
 msgctxt "#30852"
 msgid "%s did not answer — the address it gave may not work here"
 msgstr "%s이(가) 응답하지 않았습니다 — 알려준 주소가 여기서는 동작하지 않을 수 있습니다"
 
-#: Quick Connect progress dialog. The code itself is on the line below.
 msgctxt "#30857"
 msgid "Enter this code in an already logged in client:"
 msgstr "이미 로그인된 클라이언트에서 이 코드를 입력하세요:"
 
-#: %s is the Quick Connect code to type into Jellyfin
 msgctxt "#30858"
 msgid "Code: %s"
 msgstr "코드: %s"
@@ -716,7 +688,6 @@ msgctxt "#30859"
 msgid "Waiting for authorisation…"
 msgstr "승인 대기 중…"
 
-#: Timer types, as listed in Kodi's timer dialog
 msgctxt "#30860"
 msgid "Manual recording"
 msgstr "수동 녹화"
@@ -725,7 +696,6 @@ msgctxt "#30861"
 msgid "Record once (EPG)"
 msgstr "한 번 녹화(EPG)"
 
-#: A single recording that a series timer scheduled; read-only in Kodi
 msgctxt "#30862"
 msgid "Record once (created by series rule)"
 msgstr "한 번 녹화(시리즈 규칙으로 생성됨)"
@@ -790,7 +760,6 @@ msgctxt "#30877"
 msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
 msgstr "진행 중인 녹화에서 재생 시작 후 발견된 광고 구간을 확인하는 간격(초)입니다."
 
-#: The skip button; the time it saves is appended in brackets
 msgctxt "#30878"
 msgid "Skip Ad"
 msgstr "광고 건너뛰기"
@@ -799,7 +768,6 @@ msgctxt "#30879"
 msgid "Close"
 msgstr "닫기"
 
-#: Toast after an automatic or accepted skip
 msgctxt "#30880"
 msgid "Skipped ad"
 msgstr "광고 건너뜀"
@@ -836,7 +804,6 @@ msgctxt "#30888"
 msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
 msgstr "끔은 예고 구간을 무시하고, 자동은 건너뛰며, 묻기는 건너뛰기 버튼을 표시합니다."
 
-#: Skip buttons per segment type; the time each saves is appended in brackets
 msgctxt "#30889"
 msgid "Skip Intro"
 msgstr "인트로 건너뛰기"
@@ -853,7 +820,6 @@ msgctxt "#30892"
 msgid "Skip Preview"
 msgstr "예고 건너뛰기"
 
-#: Toasts after an automatic or accepted skip, per segment type
 msgctxt "#30893"
 msgid "Skipped intro"
 msgstr "인트로 건너뜀"

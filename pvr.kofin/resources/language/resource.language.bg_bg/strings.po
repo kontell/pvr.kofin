@@ -9,8 +9,832 @@ msgstr ""
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: bg_bg\n"
+"Language: bg_bg\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: bg_bg\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "Addon Summary"
+msgid "Kodi PVR client for Jellyfin Live TV"
+msgstr ""
+
+msgctxt "Addon Description"
+msgid "Kodi PVR integration for Jellyfin Live TV. Provides live TV channels, EPG, recordings, and timers from a Jellyfin server."
+msgstr ""
+
+msgctxt "#30620"
+msgid "Transcoding"
+msgstr ""
+
+msgctxt "#30622"
+msgid "Force remuxing"
+msgstr ""
+
+msgctxt "#30623"
+msgid "Remux into HLS and copy the source codecs. Does not use Maximum audio channels or streaming bitrate. Direct play codecs, Allowed HDR types and Maximum resolution still apply. In Jellyfin tuner settings; For faster channel switching, disable: Read input at native frame rate. For reuse of tuners, enable: Allow stream sharing."
+msgstr ""
+
+msgctxt "#30624"
+msgid "Preferred video codec"
+msgstr ""
+
+msgctxt "#30625"
+msgid "The video codec to request when transcoding. AV1 will not be chosen by Jellyfin for encoding unless the source codec is also AV1 or the source codec is turned off for direct play."
+msgstr ""
+
+msgctxt "#30626"
+msgid "H264"
+msgstr ""
+
+msgctxt "#30627"
+msgid "H265/HEVC"
+msgstr ""
+
+msgctxt "#30628"
+msgid "AV1"
+msgstr ""
+
+msgctxt "#30629"
+msgid "Preferred audio codec"
+msgstr ""
+
+msgctxt "#30630"
+msgid "The audio codec to request when transcoding."
+msgstr ""
+
+msgctxt "#30631"
+msgid "AAC"
+msgstr ""
+
+msgctxt "#30632"
+msgid "AC3"
+msgstr ""
+
+msgctxt "#30633"
+msgid "MP3"
+msgstr ""
+
+msgctxt "#30634"
+msgid "Maximum streaming bitrate"
+msgstr ""
+
+msgctxt "#30635"
+msgid "Any value other than unlimited disables direct play. If a stream is below the limit it will remux and if above it will transcode."
+msgstr ""
+
+msgctxt "#30636"
+msgid "1 Mbps"
+msgstr ""
+
+msgctxt "#30637"
+msgid "2 Mbps"
+msgstr ""
+
+msgctxt "#30638"
+msgid "3 Mbps"
+msgstr ""
+
+msgctxt "#30639"
+msgid "5 Mbps"
+msgstr ""
+
+msgctxt "#30640"
+msgid "8 Mbps"
+msgstr ""
+
+msgctxt "#30641"
+msgid "10 Mbps"
+msgstr ""
+
+msgctxt "#30642"
+msgid "15 Mbps"
+msgstr ""
+
+msgctxt "#30643"
+msgid "20 Mbps"
+msgstr ""
+
+msgctxt "#30644"
+msgid "25 Mbps"
+msgstr ""
+
+msgctxt "#30645"
+msgid "30 Mbps"
+msgstr ""
+
+msgctxt "#30646"
+msgid "40 Mbps"
+msgstr ""
+
+msgctxt "#30647"
+msgid "60 Mbps"
+msgstr ""
+
+msgctxt "#30648"
+msgid "80 Mbps"
+msgstr ""
+
+msgctxt "#30649"
+msgid "100 Mbps"
+msgstr ""
+
+msgctxt "#30650"
+msgid "120 Mbps"
+msgstr ""
+
+msgctxt "#30651"
+msgid "Unlimited"
+msgstr ""
+
+msgctxt "#30660"
+msgid "InputStream"
+msgstr ""
+
+msgctxt "#30661"
+msgid "InputStream addon"
+msgstr ""
+
+msgctxt "#30662"
+msgid "InputStream for live TV. FFmpeg (Kodi internal) and Adaptive skip within the server's HLS buffer. FFmpeg Direct timeshifts with a local buffer. FFmpeg Direct and Adaptive need their add-on installed."
+msgstr ""
+
+msgctxt "#30663"
+msgid "FFmpeg Direct"
+msgstr ""
+
+msgctxt "#30664"
+msgid "Adaptive"
+msgstr ""
+
+msgctxt "#30665"
+msgid "FFmpeg (Kodi internal)"
+msgstr ""
+
+msgctxt "#30666"
+msgid "Enable timeshift"
+msgstr ""
+
+msgctxt "#30667"
+msgid "Buffer the live stream from the point playback began. Buffer is created on the client, control the maximum size through inputstream.ffmpegdirect settings."
+msgstr ""
+
+msgctxt "#30668"
+msgid "In-progress recording InputStream"
+msgstr ""
+
+msgctxt "#30669"
+msgid "InputStream for in-progress recordings. Adaptive needs its add-on installed."
+msgstr ""
+
+msgctxt "#30670"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "#30672"
+msgid "Channel reload interval (hours)"
+msgstr ""
+
+msgctxt "#30673"
+msgid "How often to reload channel data from Jellyfin."
+msgstr ""
+
+msgctxt "#30674"
+msgid "Connection check timeout (seconds)"
+msgstr ""
+
+msgctxt "#30675"
+msgid "How long to wait for a response when checking the Jellyfin server connection."
+msgstr ""
+
+msgctxt "#30676"
+msgid "Connection check interval (seconds)"
+msgstr ""
+
+msgctxt "#30677"
+msgid "How often to check if the Jellyfin server is reachable."
+msgstr ""
+
+msgctxt "#30700"
+msgid "Account"
+msgstr ""
+
+msgctxt "#30701"
+msgid "Server address"
+msgstr ""
+
+msgctxt "#30702"
+msgid "Address of your Jellyfin server, e.g. 192.168.1.10:8096 or https://jellyfin.example.com. Without a scheme, http and port 8096 are assumed. HTTPS is recommended when connecting over the internet. Reverse-proxy sub-paths (e.g. /jellyfin) are not supported — use host and optional port only."
+msgstr ""
+
+msgctxt "#30703"
+msgid "Login"
+msgstr ""
+
+msgctxt "#30704"
+msgid "Server name"
+msgstr ""
+
+msgctxt "#30705"
+msgid "Logout"
+msgstr ""
+
+msgctxt "#30706"
+msgid "Username/Password"
+msgstr ""
+
+msgctxt "#30707"
+msgid "Quick Connect"
+msgstr ""
+
+msgctxt "#30708"
+msgid "Choose login method"
+msgstr ""
+
+msgctxt "#30709"
+msgid "Enter username"
+msgstr ""
+
+msgctxt "#30710"
+msgid "Enter password"
+msgstr ""
+
+msgctxt "#30711"
+msgid "Login successful! Restart addon to connect."
+msgstr ""
+
+msgctxt "#30712"
+msgid "Logged out successfully."
+msgstr ""
+
+msgctxt "#30713"
+msgid "Login failed. Check credentials."
+msgstr ""
+
+msgctxt "#30714"
+msgid "Enter a server address first."
+msgstr ""
+
+msgctxt "#30715"
+msgid "Opus"
+msgstr ""
+
+msgctxt "#30716"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30717"
+msgid "Test Connection"
+msgstr ""
+
+msgctxt "#30724"
+msgid "Kofin PVR Settings"
+msgstr ""
+
+msgctxt "#30725"
+msgid "FFmpeg Direct settings..."
+msgstr ""
+
+msgctxt "#30726"
+msgid "Restart addon"
+msgstr ""
+
+msgctxt "#30727"
+msgid "Server connection uses unencrypted HTTP over a non-private network. HTTPS is recommended."
+msgstr ""
+
+msgctxt "#30730"
+msgid "Catchup"
+msgstr ""
+
+msgctxt "#30731"
+msgid "Enable catchup (IPTV)"
+msgstr ""
+
+msgctxt "#30732"
+msgid "Enable catchup/ archive if supported by your provider. Catchup always plays direct via inputstream.ffmpegdirect, which must be installed. Requires a reference M3U file (see Advanced section) that matches your Jellyfin channel names and contains catchup tags which are omitted by Jellyfin."
+msgstr ""
+
+msgctxt "#30739"
+msgid "Query format string"
+msgstr ""
+
+msgctxt "#30740"
+msgid "A provider-dependent format string for catchup URLs. Used as a default when channels don't specify their own catchup-source. E.g. &cutv={Y}-{m}-{d}T{H}:{M}:{S}"
+msgstr ""
+
+msgctxt "#30741"
+msgid "Catchup window (days)"
+msgstr ""
+
+msgctxt "#30742"
+msgid "The number of days into the past in which it is possible to catch up on a programme."
+msgstr ""
+
+msgctxt "#30743"
+msgid "Default catchup mode for all channels"
+msgstr ""
+
+msgctxt "#30744"
+msgid "If set, all channels are assumed to support catchup using this mode. Channels with explicit catchup tags in the M3U will use their own mode."
+msgstr ""
+
+msgctxt "#30745"
+msgid "Play from EPG in live TV mode (timeshift)"
+msgstr ""
+
+msgctxt "#30746"
+msgid "When enabled, selecting a past programme plays it as a timeshifted live stream (can skip forward/back through the catchup window). When disabled, it plays as a bounded video."
+msgstr ""
+
+msgctxt "#30747"
+msgid "Buffer before programme start (minutes)"
+msgstr ""
+
+msgctxt "#30748"
+msgid "Extra buffer time before the programme start when playing as a bounded video."
+msgstr ""
+
+msgctxt "#30749"
+msgid "Buffer after programme end (minutes)"
+msgstr ""
+
+msgctxt "#30750"
+msgid "Extra buffer time after the programme end when playing as a bounded video."
+msgstr ""
+
+msgctxt "#30751"
+msgid "Catchup only on finished programmes"
+msgstr ""
+
+msgctxt "#30752"
+msgid "Only allow catchup playback on programmes that have already ended. The currently airing programme cannot be watched as catchup until it finishes."
+msgstr ""
+
+msgctxt "#30760"
+msgid "Disabled"
+msgstr ""
+
+msgctxt "#30761"
+msgid "Default"
+msgstr ""
+
+msgctxt "#30762"
+msgid "Append"
+msgstr ""
+
+msgctxt "#30763"
+msgid "Shift (SIPTV)"
+msgstr ""
+
+msgctxt "#30770"
+msgid "Local path"
+msgstr ""
+
+msgctxt "#30771"
+msgid "Remote path (URL)"
+msgstr ""
+
+msgctxt "#30772"
+msgid "Reference playlist"
+msgstr ""
+
+msgctxt "#30773"
+msgid "Use reference playlist"
+msgstr ""
+
+msgctxt "#30774"
+msgid "Load a reference M3U playlist that decorates Jellyfin channels with channel groups, KodiProps (inputstream selection, headers), KofinProps (per-channel overrides) and catchup metadata. Channels are matched by name (case-insensitive)."
+msgstr ""
+
+msgctxt "#30775"
+msgid "Reference playlist location"
+msgstr ""
+
+msgctxt "#30776"
+msgid "Choose whether the reference playlist is stored locally or accessed via a URL."
+msgstr ""
+
+msgctxt "#30777"
+msgid "Reference playlist file"
+msgstr ""
+
+msgctxt "#30778"
+msgid "Path to the reference M3U file on the local filesystem."
+msgstr ""
+
+msgctxt "#30779"
+msgid "Reference playlist URL"
+msgstr ""
+
+msgctxt "#30780"
+msgid "URL of the reference M3U playlist."
+msgstr ""
+
+msgctxt "#30781"
+msgid "Direct play video codecs"
+msgstr ""
+
+msgctxt "#30782"
+msgid "Video codecs that can direct play or remux. Codecs not selected will be transcoded to the preferred video codec."
+msgstr ""
+
+msgctxt "#30783"
+msgid "Direct play audio codecs"
+msgstr ""
+
+msgctxt "#30784"
+msgid "Audio codecs that can be copied through. Codecs not selected will be transcoded to the preferred audio codec."
+msgstr ""
+
+msgctxt "#30796"
+msgid "MPEG-2"
+msgstr ""
+
+msgctxt "#30797"
+msgid "VP9"
+msgstr ""
+
+msgctxt "#30798"
+msgid "VC-1"
+msgstr ""
+
+msgctxt "#30799"
+msgid "MP2"
+msgstr ""
+
+msgctxt "#30800"
+msgid "EAC3"
+msgstr ""
+
+msgctxt "#30801"
+msgid "FLAC"
+msgstr ""
+
+msgctxt "#30805"
+msgid "DTS"
+msgstr ""
+
+msgctxt "#30806"
+msgid "Force transcoding"
+msgstr ""
+
+msgctxt "#30807"
+msgid "Force the server to transcode to the preferred video and audio codecs instead of remuxing. Video and audio copies are turned off. Honours the bitrate cap, the channel cap, allowed codecs, HDR types and resolution."
+msgstr ""
+
+msgctxt "#30802"
+msgid "H264 10-bit"
+msgstr ""
+
+msgctxt "#30803"
+msgid "HEVC Range Extensions"
+msgstr ""
+
+msgctxt "#30791"
+msgid "Maximum audio channels"
+msgstr ""
+
+msgctxt "#30792"
+msgid "Maximum number of audio channels allowed when transcoding. Streams with more channels will be downmixed. No effect on direct playback."
+msgstr ""
+
+msgctxt "#30793"
+msgid "Stereo (2)"
+msgstr ""
+
+msgctxt "#30794"
+msgid "Surround 5.1 (6)"
+msgstr ""
+
+msgctxt "#30795"
+msgid "Surround 7.1 (8)"
+msgstr ""
+
+msgctxt "#30810"
+msgid "Allowed HDR types"
+msgstr ""
+
+msgctxt "#30811"
+msgid "HDR formats allowed to pass through to your display. Formats not selected are tone-mapped to SDR by the server. SDR is always allowed."
+msgstr ""
+
+msgctxt "#30812"
+msgid "HDR10"
+msgstr ""
+
+msgctxt "#30813"
+msgid "HLG"
+msgstr ""
+
+msgctxt "#30814"
+msgid "HDR10+"
+msgstr ""
+
+msgctxt "#30815"
+msgid "Dolby Vision"
+msgstr ""
+
+msgctxt "#30816"
+msgid "Dolby Vision (HDR10 fallback)"
+msgstr ""
+
+msgctxt "#30817"
+msgid "Dolby Vision (HLG fallback)"
+msgstr ""
+
+msgctxt "#30818"
+msgid "Dolby Vision (SDR fallback)"
+msgstr ""
+
+msgctxt "#30819"
+msgid "Dolby Vision Profile 7 (EL)"
+msgstr ""
+
+msgctxt "#30820"
+msgid "Dolby Vision + HDR10+"
+msgstr ""
+
+msgctxt "#30821"
+msgid "Dolby Vision Profile 7 + HDR10+"
+msgstr ""
+
+msgctxt "#30822"
+msgid "Maximum resolution"
+msgstr ""
+
+msgctxt "#30823"
+msgid "Caps video by width; higher-resolution sources are downscaled by the server."
+msgstr ""
+
+msgctxt "#30824"
+msgid "480p"
+msgstr ""
+
+msgctxt "#30825"
+msgid "720p"
+msgstr ""
+
+msgctxt "#30826"
+msgid "1080p"
+msgstr ""
+
+msgctxt "#30827"
+msgid "1440p"
+msgstr ""
+
+msgctxt "#30828"
+msgid "2160p (4K)"
+msgstr ""
+
+msgctxt "#30829"
+msgid "Unlimited"
+msgstr ""
+
+msgctxt "#30830"
+msgid "Recording stopped early"
+msgstr ""
+
+msgctxt "#30831"
+msgid "Timer/recording poll interval"
+msgstr ""
+
+msgctxt "#30832"
+msgid "Seconds between polls of the Jellyfin server for timer and recording changes (recordings scheduled or finished elsewhere, EPG recording indicators, widgets). Clamped between 15 and 3600."
+msgstr ""
+
+msgctxt "#30833"
+msgid "Session expired. Please log in again."
+msgstr ""
+
+msgctxt "#30834"
+msgid "Could not add the timer"
+msgstr ""
+
+msgctxt "#30835"
+msgid "Could not delete the timer"
+msgstr ""
+
+msgctxt "#30836"
+msgid "Connection failed"
+msgstr ""
+
+msgctxt "#30837"
+msgid "Connection successful"
+msgstr ""
+
+msgctxt "#30838"
+msgid "Could not start Quick Connect"
+msgstr ""
+
+msgctxt "#30839"
+msgid "Quick Connect timed out"
+msgstr ""
+
+msgctxt "#30840"
+msgid "Jellyfin does not support editing timers"
+msgstr ""
+
+msgctxt "#30841"
+msgid "Recording finished"
+msgstr ""
+
+msgctxt "#30844"
+msgid "Find servers on local network"
+msgstr ""
+
+msgctxt "#30845"
+msgid "Looks for Jellyfin servers on this network and lists the ones that answer. The one you choose is filled into the server address above."
+msgstr ""
+
+msgctxt "#30846"
+msgid "Select a server"
+msgstr ""
+
+msgctxt "#30847"
+msgid "Searching for Jellyfin servers…"
+msgstr ""
+
+msgctxt "#30848"
+msgid "Checking servers…"
+msgstr ""
+
+msgctxt "#30849"
+msgid "did not answer"
+msgstr ""
+
+msgctxt "#30850"
+msgid "No Jellyfin servers answered — enter the address manually"
+msgstr ""
+
+msgctxt "#30851"
+msgid "%s includes a path, which this add-on cannot use — enter the address manually"
+msgstr ""
+
+msgctxt "#30852"
+msgid "%s did not answer — the address it gave may not work here"
+msgstr ""
+
+msgctxt "#30857"
+msgid "Enter this code in an already logged in client:"
+msgstr ""
+
+msgctxt "#30858"
+msgid "Code: %s"
+msgstr ""
+
+msgctxt "#30859"
+msgid "Waiting for authorisation…"
+msgstr ""
+
+msgctxt "#30860"
+msgid "Manual recording"
+msgstr ""
+
+msgctxt "#30861"
+msgid "Record once (EPG)"
+msgstr ""
+
+msgctxt "#30862"
+msgid "Record once (created by series rule)"
+msgstr ""
+
+msgctxt "#30863"
+msgid "Record series"
+msgstr ""
+
+msgctxt "#30864"
+msgid "Show notifications"
+msgstr ""
+
+msgctxt "#30865"
+msgid "Pop-ups for background events, such as a finished recording or an expired login. Replies to the buttons in these settings are always shown."
+msgstr ""
+
+msgctxt "#30866"
+msgid "Catchup needs inputstream.ffmpegdirect installed and enabled"
+msgstr ""
+
+msgctxt "#30867"
+msgid "Skipping"
+msgstr ""
+
+msgctxt "#30868"
+msgid "Fetch Jellyfin media segments (intro, credits, recap, preview, commercial) during playback and act on them per type."
+msgstr ""
+
+msgctxt "#30869"
+msgid "Commercials"
+msgstr ""
+
+msgctxt "#30870"
+msgid "Off ignores commercial segments. Auto skips past them. Ask shows a skip button. Breaks found while a recording is still being written are picked up during playback."
+msgstr ""
+
+msgctxt "#30871"
+msgid "Off"
+msgstr ""
+
+msgctxt "#30872"
+msgid "Auto"
+msgstr ""
+
+msgctxt "#30873"
+msgid "Ask"
+msgstr ""
+
+msgctxt "#30874"
+msgid "Hide the skip button after"
+msgstr ""
+
+msgctxt "#30875"
+msgid "How far into a break the skip button disappears, so it stops covering the picture once you have decided not to press it. 100% keeps it up for the whole break."
+msgstr ""
+
+msgctxt "#30876"
+msgid "Check for new breaks every"
+msgstr ""
+
+msgctxt "#30877"
+msgid "Seconds between checks for breaks found since playback started, on a recording still being written."
+msgstr ""
+
+msgctxt "#30878"
+msgid "Skip Ad"
+msgstr ""
+
+msgctxt "#30879"
+msgid "Close"
+msgstr ""
+
+msgctxt "#30880"
+msgid "Skipped ad"
+msgstr ""
+
+msgctxt "#30881"
+msgid "Intros"
+msgstr ""
+
+msgctxt "#30882"
+msgid "Off ignores intro segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+msgctxt "#30883"
+msgid "Credits"
+msgstr ""
+
+msgctxt "#30884"
+msgid "Off ignores credits, Auto seeks past them, Ask offers Skip Outro."
+msgstr ""
+
+msgctxt "#30885"
+msgid "Recaps"
+msgstr ""
+
+msgctxt "#30886"
+msgid "Off ignores recap segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+msgctxt "#30887"
+msgid "Previews"
+msgstr ""
+
+msgctxt "#30888"
+msgid "Off ignores preview segments, Auto skips past them, Ask shows a skip button."
+msgstr ""
+
+msgctxt "#30889"
+msgid "Skip Intro"
+msgstr ""
+
+msgctxt "#30890"
+msgid "Skip Outro"
+msgstr ""
+
+msgctxt "#30891"
+msgid "Skip Recap"
+msgstr ""
+
+msgctxt "#30892"
+msgid "Skip Preview"
+msgstr ""
+
+msgctxt "#30893"
+msgid "Skipped intro"
+msgstr ""
+
+msgctxt "#30894"
+msgid "Skipped outro"
+msgstr ""
+
+msgctxt "#30895"
+msgid "Skipped recap"
+msgstr ""
+
+msgctxt "#30896"
+msgid "Skipped preview"
+msgstr ""
+
+msgctxt "#30897"
+msgid "Skip media segments"
+msgstr ""
