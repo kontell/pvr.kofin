@@ -18,42 +18,43 @@
 
 namespace iptvsimple
 {
-  static const int FAST_RECONNECT_ATTEMPTS = 5;
-  static const int SLEEP_INTERVAL_STEP_MS = 500;
+static const int FAST_RECONNECT_ATTEMPTS = 5;
+static const int SLEEP_INTERVAL_STEP_MS = 500;
 
-  class IConnectionListener;
+class IConnectionListener;
 
-  class ATTR_DLL_LOCAL ConnectionManager
-  {
-  public:
-    ConnectionManager(IConnectionListener& connectionListener, std::shared_ptr<iptvsimple::InstanceSettings> settings);
-    ~ConnectionManager();
+class ATTR_DLL_LOCAL ConnectionManager
+{
+public:
+  ConnectionManager(IConnectionListener& connectionListener,
+                    std::shared_ptr<iptvsimple::InstanceSettings> settings);
+  ~ConnectionManager();
 
-    void Start();
-    void Stop();
-    void Disconnect();
+  void Start();
+  void Stop();
+  void Disconnect();
 
-    void OnSleep();
-    void OnWake();
+  void OnSleep();
+  void OnWake();
 
-  private:
-    void Process();
-    // True when the state changed and the listener and Kodi were told.
-    bool SetState(PVR_CONNECTION_STATE state);
-    void SteppedSleep(int intervalMs);
+private:
+  void Process();
+  // True when the state changed and the listener and Kodi were told.
+  bool SetState(PVR_CONNECTION_STATE state);
+  void SteppedSleep(int intervalMs);
 
-    IConnectionListener& m_connectionListener;
-    std::atomic<bool> m_running = {false};
-    std::thread m_thread;
-    mutable std::mutex m_mutex;
-    // atomic: written from OnSleep/OnWake (Kodi thread, under m_mutex) but
-    // read lock-free by the Process() suspend loop.
-    std::atomic<bool> m_suspended;
-    PVR_CONNECTION_STATE m_state;
-    unsigned int m_retryAttempt = 0;
-    // Process thread only: the last ConnectionEstablished did not complete.
-    bool m_establishPending = false;
+  IConnectionListener& m_connectionListener;
+  std::atomic<bool> m_running = {false};
+  std::thread m_thread;
+  mutable std::mutex m_mutex;
+  // atomic: written from OnSleep/OnWake (Kodi thread, under m_mutex) but
+  // read lock-free by the Process() suspend loop.
+  std::atomic<bool> m_suspended;
+  PVR_CONNECTION_STATE m_state;
+  unsigned int m_retryAttempt = 0;
+  // Process thread only: the last ConnectionEstablished did not complete.
+  bool m_establishPending = false;
 
-    std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
-  };
+  std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
+};
 } // namespace iptvsimple

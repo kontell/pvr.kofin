@@ -9,12 +9,13 @@
 
 #include "../InstanceSettings.h"
 
-#include <json/json.h>
-#include <kodi/Filesystem.h>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <utility>
+
+#include <json/json.h>
+#include <kodi/Filesystem.h>
 
 namespace iptvsimple
 {
@@ -66,7 +67,8 @@ private:
   bool GetStorageInfoInternal(uint64_t& totalBytes, uint64_t& usedBytes);
   // requestOk (optional) reports transport/HTTP success: Kodi's curl layer
   // fails CURLOpen on HTTP >= 400, so reaching a readable response means 2xx/3xx.
-  Json::Value DoRequest(const std::string& url, const std::string& postData = "",
+  Json::Value DoRequest(const std::string& url,
+                        const std::string& postData = "",
                         bool* requestOk = nullptr);
   std::string BuildUrl(const std::string& endpoint) const;
   static std::string Base64Encode(const std::string& input);

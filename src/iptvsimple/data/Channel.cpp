@@ -47,25 +47,25 @@ const std::string Channel::GetCatchupModeText(const CatchupMode& catchupMode)
 
 void Channel::UpdateTo(Channel& left) const
 {
-  left.m_uniqueId         = m_uniqueId;
-  left.m_radio            = m_radio;
-  left.m_channelNumber    = m_channelNumber;
+  left.m_uniqueId = m_uniqueId;
+  left.m_radio = m_radio;
+  left.m_channelNumber = m_channelNumber;
   left.m_subChannelNumber = m_subChannelNumber;
-  left.m_channelName      = m_channelName;
-  left.m_iconPath         = m_iconPath;
-  left.m_streamURL        = m_streamURL;
+  left.m_channelName = m_channelName;
+  left.m_iconPath = m_iconPath;
+  left.m_streamURL = m_streamURL;
   left.m_playlistStreamURL = m_playlistStreamURL;
-  left.m_hasCatchup       = m_hasCatchup;
-  left.m_catchupMode      = m_catchupMode;
-  left.m_catchupDays      = m_catchupDays;
-  left.m_catchupSource    = m_catchupSource;
+  left.m_hasCatchup = m_hasCatchup;
+  left.m_catchupMode = m_catchupMode;
+  left.m_catchupDays = m_catchupDays;
+  left.m_catchupSource = m_catchupSource;
   left.m_isCatchupTSStream = m_isCatchupTSStream;
   left.m_catchupSupportsTimeshifting = m_catchupSupportsTimeshifting;
   left.m_catchupSourceTerminates = m_catchupSourceTerminates;
   left.m_catchupGranularitySeconds = m_catchupGranularitySeconds;
   left.m_catchupCorrectionSecs = m_catchupCorrectionSecs;
-  left.m_tvgId            = m_tvgId;
-  left.m_properties       = m_properties;
+  left.m_tvgId = m_tvgId;
+  left.m_properties = m_properties;
   left.m_inputStreamName = m_inputStreamName;
 }
 
@@ -132,7 +132,8 @@ void Channel::RemoveProperty(const std::string& propName)
   m_properties.erase(propName);
 }
 
-void Channel::TryToAddPropertyAsHeader(const std::string& propertyName, const std::string& headerName)
+void Channel::TryToAddPropertyAsHeader(const std::string& propertyName,
+                                       const std::string& headerName)
 {
   const std::string value = GetProperty(propertyName);
 
@@ -159,14 +160,15 @@ bool Channel::IsCatchupSupported() const
 
 namespace
 {
-bool IsValidTimeshiftingCatchupSource(const std::string& formatString, const CatchupMode& catchupMode)
+bool IsValidTimeshiftingCatchupSource(const std::string& formatString,
+                                      const CatchupMode& catchupMode)
 {
   // match any specifier, i.e. anything inside curly braces
   std::regex const specifierRegex("\\{[^{]+\\}");
 
-  std::ptrdiff_t const numSpecifiers(std::distance(
-    std::sregex_iterator(formatString.begin(), formatString.end(), specifierRegex),
-    std::sregex_iterator()));
+  std::ptrdiff_t const numSpecifiers(
+      std::distance(std::sregex_iterator(formatString.begin(), formatString.end(), specifierRegex),
+                    std::sregex_iterator()));
 
   if (numSpecifiers > 0)
   {
@@ -286,15 +288,21 @@ void Channel::ConfigureCatchupMode()
     if (!protocolOptions.empty() && appendProtocolOptions)
       m_catchupSource += protocolOptions;
 
-    m_catchupSupportsTimeshifting = IsValidTimeshiftingCatchupSource(m_catchupSource, m_catchupMode);
+    m_catchupSupportsTimeshifting =
+        IsValidTimeshiftingCatchupSource(m_catchupSource, m_catchupMode);
     m_catchupSourceTerminates = IsTerminatingCatchupSource(m_catchupSource);
     m_catchupGranularitySeconds = FindCatchupSourceGranularitySeconds(m_catchupSource);
-    Logger::Log(LEVEL_DEBUG, "Channel Catchup Format string properties: %s, valid timeshifting source: %s, terminating source: %s, granularity secs: %d",
-                m_channelName.c_str(), m_catchupSupportsTimeshifting ? "true" : "false", m_catchupSourceTerminates ? "true" : "false", m_catchupGranularitySeconds);
+    Logger::Log(LEVEL_DEBUG,
+                "Channel Catchup Format string properties: %s, valid timeshifting source: %s, "
+                "terminating source: %s, granularity secs: %d",
+                m_channelName.c_str(), m_catchupSupportsTimeshifting ? "true" : "false",
+                m_catchupSourceTerminates ? "true" : "false", m_catchupGranularitySeconds);
   }
 
   if (m_catchupMode != CatchupMode::DISABLED)
-    Logger::Log(LEVEL_DEBUG, "%s - %s - %s: %s", __FUNCTION__, GetCatchupModeText(m_catchupMode).c_str(), m_channelName.c_str(), WebUtils::RedactUrl(m_catchupSource).c_str());
+    Logger::Log(LEVEL_DEBUG, "%s - %s - %s: %s", __FUNCTION__,
+                GetCatchupModeText(m_catchupMode).c_str(), m_channelName.c_str(),
+                WebUtils::RedactUrl(m_catchupSource).c_str());
 }
 
 bool Channel::GenerateAppendCatchupSource(const std::string& url)
@@ -354,9 +362,11 @@ bool Channel::GenerateFlussonicCatchupSource(const std::string& url)
       else
       {
         if (fsListType == "index")
-          m_catchupSource = fsHost + "/" + fsChannelId + "/timeshift_rel-{offset:1}.m3u8" + fsUrlAppend;
+          m_catchupSource =
+              fsHost + "/" + fsChannelId + "/timeshift_rel-{offset:1}.m3u8" + fsUrlAppend;
         else
-          m_catchupSource = fsHost + "/" + fsChannelId + "/" + fsListType + "-timeshift_rel-{offset:1}.m3u8" + fsUrlAppend;
+          m_catchupSource = fsHost + "/" + fsChannelId + "/" + fsListType +
+                            "-timeshift_rel-{offset:1}.m3u8" + fsUrlAppend;
       }
 
       return true;
@@ -381,7 +391,8 @@ bool Channel::GenerateFlussonicCatchupSource(const std::string& url)
         if (m_isCatchupTSStream) // the catchup type was "flussonic-ts" or "fs"
           m_catchupSource = fsHost + "/" + fsChannelId + "/timeshift_abs-${start}.ts" + fsUrlAppend;
         else // the catchup type was "flussonic" or "flussonic-hls"
-          m_catchupSource = fsHost + "/" + fsChannelId + "/timeshift_rel-{offset:1}.m3u8" + fsUrlAppend;
+          m_catchupSource =
+              fsHost + "/" + fsChannelId + "/timeshift_rel-{offset:1}.m3u8" + fsUrlAppend;
 
         return true;
       }
@@ -399,7 +410,8 @@ bool Channel::GenerateXtreamCodesCatchupSource(const std::string& url)
   // stream:  http://list.tv:8080/live/my@account.xc/my_password/1477.m3u8
   // catchup: http://list.tv:8080/timeshift/my@account.xc/my_password/{duration}/{Y}-{m}-{d}:{H}-{M}/1477.m3u8
 
-  static std::regex xcRegex("^(http[s]?://[^/]+)/(?:live/)?([^/]+)/([^/]+)/([^/\\.]+)(\\.m3u[8]?)?$");
+  static std::regex xcRegex(
+      "^(http[s]?://[^/]+)/(?:live/)?([^/]+)/([^/]+)/([^/\\.]+)(\\.m3u[8]?)?$");
   std::smatch matches;
 
   if (std::regex_match(url, matches, xcRegex))

@@ -8,9 +8,7 @@ Play catchup/ archive content from EPG in same manner as IPTV simple client.
 
 Forked from [pvr.iptvsimple](https://github.com/kodi-pvr/pvr.iptvsimple), replacing M3U/XMLTV data sources with Jellyfin REST API calls.
 
-**Requires:** Kodi 21 "Omega" or later, Jellyfin 10.9 or later with Live TV configured.
-
-For playback of movies, shows & music see the [Kofin](https://github.com/kontell/plugin.video.kofin) add-on.
+**Requires:** Kodi 22 "Piers", Jellyfin 10.9 or later with Live TV configured.
 
 ## Features
 
@@ -21,11 +19,11 @@ For playback of movies, shows & music see the [Kofin](https://github.com/kontell
 - Optional transcoding
 - Pause live tv (local or server buffer)
 - One-shot and series recording timers
-- Skip Jellyfin media segments in recordings, with Off, Auto or Ask for each type: intros, credits, recaps, previews, and the commercial breaks the [Comseg](https://github.com/kontell/jellyfin-plugin-comseg) plugin writes, including breaks found while a recording is still being written
+- Skip Jellyfin media segments in recordings, with Off, Auto or Ask for each type: intros, credits, recaps, previews and commercial breaks, including breaks found while a recording is still being written
 
 ## Installation
 
-Install via the [Kontell Repository](https://github.com/kontell/repository.kontell).
+Install from the official Kodi add-on repository.
 
 ## Configuration
 
@@ -52,18 +50,3 @@ In addition to standard KodiProps, the following Kofin-specific properties can b
 | `kofin-force-transcode` | `true` / `false` | Force transcoding for this channel (overrides global setting) |
 | `kofin-bitrate-limit` | kbps (e.g. `4000`) | Set a bitrate limit for this channel (0 or omitted = unlimited) |
 | `kofin-disable-pvr` | `true` / `false` | Disable recording for this channel — hides the record option in the EPG |
-
-## Supported platforms
-
-| Platform | Kodi 21 (Omega) | Kodi 22 (Piers) |
-|----------|----------------|-----------------|
-| Linux x86_64 | yes | yes |
-| Linux armv7 (Pi 2+) | yes | yes |
-| Linux aarch64 (Pi 3+) | yes | yes |
-| Android ARM32 | yes | yes |
-| Android ARM64 | yes | yes |
-| Windows x86_64 | yes | yes |
-| Windows x86 (32-bit) | yes | yes |
-| Windows ARM64 | no | yes |
-| macOS x86_64 (Intel) | yes | yes |
-| macOS arm64 (Apple silicon) | yes | yes |

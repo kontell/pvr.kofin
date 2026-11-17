@@ -30,23 +30,23 @@ namespace
 {
 
 // M3U markers
-const std::string EXTM3U                  = "#EXTM3U";
-const std::string EXTINF                  = "#EXTINF";
-const std::string EXTGRP                  = "#EXTGRP:";
-const std::string KODIPROP_MARKER         = "#KODIPROP:";
-const std::string EXTVLCOPT_MARKER        = "#EXTVLCOPT:";
-const std::string EXTVLCOPT_DASH_MARKER   = "#EXTVLCOPT--";
+const std::string EXTM3U = "#EXTM3U";
+const std::string EXTINF = "#EXTINF";
+const std::string EXTGRP = "#EXTGRP:";
+const std::string KODIPROP_MARKER = "#KODIPROP:";
+const std::string EXTVLCOPT_MARKER = "#EXTVLCOPT:";
+const std::string EXTVLCOPT_DASH_MARKER = "#EXTVLCOPT--";
 
 // Per-channel attribute markers
-const std::string TVG_NAME                = "tvg-name=";
-const std::string TVG_LOGO                = "tvg-logo=";
-const std::string GROUP_NAME              = "group-title=";
-const std::string CATCHUP                 = "catchup=";
-const std::string CATCHUP_TYPE            = "catchup-type=";
-const std::string CATCHUP_DAYS            = "catchup-days=";
-const std::string CATCHUP_SOURCE          = "catchup-source=";
-const std::string CATCHUP_SIPTV           = "timeshift=";
-const std::string CATCHUP_CORRECTION      = "catchup-correction=";
+const std::string TVG_NAME = "tvg-name=";
+const std::string TVG_LOGO = "tvg-logo=";
+const std::string GROUP_NAME = "group-title=";
+const std::string CATCHUP = "catchup=";
+const std::string CATCHUP_TYPE = "catchup-type=";
+const std::string CATCHUP_DAYS = "catchup-days=";
+const std::string CATCHUP_SOURCE = "catchup-source=";
+const std::string CATCHUP_SIPTV = "timeshift=";
+const std::string CATCHUP_CORRECTION = "catchup-correction=";
 
 std::string ToLower(const std::string& str)
 {
@@ -97,15 +97,20 @@ std::string ReadMarkerValue(const std::string& line, const std::string& marker)
 CatchupMode ParseCatchupMode(const std::string& modeStr)
 {
   std::string mode = ToLower(modeStr);
-  if (mode == "default")       return CatchupMode::DEFAULT;
-  if (mode == "append")        return CatchupMode::APPEND;
-  if (mode == "shift")         return CatchupMode::SHIFT;
-  if (mode == "flussonic" || mode == "flussonic-hls" ||
-      mode == "flussonic-ts" || mode == "fs")
-                               return CatchupMode::FLUSSONIC;
-  if (mode == "xc")            return CatchupMode::XTREAM_CODES;
-  if (mode == "timeshift")     return CatchupMode::TIMESHIFT;
-  if (mode == "vod")           return CatchupMode::VOD;
+  if (mode == "default")
+    return CatchupMode::DEFAULT;
+  if (mode == "append")
+    return CatchupMode::APPEND;
+  if (mode == "shift")
+    return CatchupMode::SHIFT;
+  if (mode == "flussonic" || mode == "flussonic-hls" || mode == "flussonic-ts" || mode == "fs")
+    return CatchupMode::FLUSSONIC;
+  if (mode == "xc")
+    return CatchupMode::XTREAM_CODES;
+  if (mode == "timeshift")
+    return CatchupMode::TIMESHIFT;
+  if (mode == "vod")
+    return CatchupMode::VOD;
   return CatchupMode::DISABLED;
 }
 
@@ -174,10 +179,8 @@ void ParseSinglePropertyIntoMap(const std::string& line,
 
   // For pvr.kofin we only want inputstream-related KodiProps; Jellyfin
   // already supplies the stream URL and most other knobs.
-  if (prop == "inputstream" ||
-      prop == PVR_STREAM_PROPERTY_INPUTSTREAM ||
-      prop == PVR_STREAM_PROPERTY_MIMETYPE ||
-      prop.rfind("inputstream.", 0) == 0)
+  if (prop == "inputstream" || prop == PVR_STREAM_PROPERTY_INPUTSTREAM ||
+      prop == PVR_STREAM_PROPERTY_MIMETYPE || prop.rfind("inputstream.", 0) == 0)
   {
     info.kodiProps[prop] = propValue;
   }
@@ -230,8 +233,9 @@ bool LoadFileContents(const std::string& path, std::string& out)
 
 } // anonymous namespace
 
-M3UParser::M3UParser(std::shared_ptr<InstanceSettings>& settings)
-  : m_settings(settings) {}
+M3UParser::M3UParser(std::shared_ptr<InstanceSettings>& settings) : m_settings(settings)
+{
+}
 
 bool M3UParser::Parse()
 {
@@ -245,8 +249,8 @@ bool M3UParser::Parse()
   std::string content;
   if (!LoadFileContents(path, content))
   {
-    Logger::Log(LEVEL_ERROR, "%s - Failed to open reference playlist: %s",
-                __FUNCTION__, path.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - Failed to open reference playlist: %s", __FUNCTION__,
+                path.c_str());
     return false;
   }
 
@@ -275,11 +279,9 @@ bool M3UParser::Parse()
       m_channels[ToLower(pendingChannelName)] = pending;
 
       Logger::Log(LEVEL_DEBUG,
-                  "%s - Parsed '%s': groups=%zu kodiProps=%zu kofinProps=%zu catchup=%s url=%s",
-                  fn, pendingChannelName.c_str(),
-                  pending.groupNames.size(), pending.kodiProps.size(),
-                  pending.kofinProps.size(),
-                  pending.hasCatchup ? "yes" : "no",
+                  "%s - Parsed '%s': groups=%zu kodiProps=%zu kofinProps=%zu catchup=%s url=%s", fn,
+                  pendingChannelName.c_str(), pending.groupNames.size(), pending.kodiProps.size(),
+                  pending.kofinProps.size(), pending.hasCatchup ? "yes" : "no",
                   pending.streamUrl.empty() ? "no" : "yes");
     }
 
@@ -375,7 +377,8 @@ bool M3UParser::Parse()
 
       pending.catchupSource = strCatchupSource;
       if (!strCatchupCorrection.empty())
-        pending.catchupCorrectionHours = static_cast<float>(std::atof(strCatchupCorrection.c_str()));
+        pending.catchupCorrectionHours =
+            static_cast<float>(std::atof(strCatchupCorrection.c_str()));
 
       continue;
     }
@@ -429,8 +432,7 @@ bool M3UParser::Parse()
   // Flush the final entry — the last record may have no trailing URL line.
   finalizePending();
 
-  Logger::Log(LEVEL_INFO,
-              "%s - Parsed %zu entries, %zu unique groups from reference playlist",
+  Logger::Log(LEVEL_INFO, "%s - Parsed %zu entries, %zu unique groups from reference playlist",
               __FUNCTION__, m_channels.size(), m_allGroupNames.size());
   return !m_channels.empty();
 }

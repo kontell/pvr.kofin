@@ -6,6 +6,7 @@
  */
 
 #include "addon.h"
+
 #include "IptvSimple.h"
 #include "iptvsimple/utilities/Logger.h"
 
@@ -14,31 +15,32 @@ using namespace iptvsimple::utilities;
 ADDON_STATUS CIptvSimpleAddon::Create()
 {
   /* Configure the logger */
-  Logger::GetInstance().SetImplementation([this](LogLevel level, const char* message)
-  {
-    /* Convert the log level */
-    ADDON_LOG addonLevel;
+  Logger::GetInstance().SetImplementation(
+      [this](LogLevel level, const char* message)
+      {
+        /* Convert the log level */
+        ADDON_LOG addonLevel;
 
-    switch (level)
-    {
-      case LogLevel::LEVEL_FATAL:
-        addonLevel = ADDON_LOG::ADDON_LOG_FATAL;
-        break;
-      case LogLevel::LEVEL_ERROR:
-        addonLevel = ADDON_LOG::ADDON_LOG_ERROR;
-        break;
-      case LogLevel::LEVEL_WARNING:
-        addonLevel = ADDON_LOG::ADDON_LOG_WARNING;
-        break;
-      case LogLevel::LEVEL_INFO:
-        addonLevel = ADDON_LOG::ADDON_LOG_INFO;
-        break;
-      default:
-        addonLevel = ADDON_LOG::ADDON_LOG_DEBUG;
-    }
+        switch (level)
+        {
+          case LogLevel::LEVEL_FATAL:
+            addonLevel = ADDON_LOG::ADDON_LOG_FATAL;
+            break;
+          case LogLevel::LEVEL_ERROR:
+            addonLevel = ADDON_LOG::ADDON_LOG_ERROR;
+            break;
+          case LogLevel::LEVEL_WARNING:
+            addonLevel = ADDON_LOG::ADDON_LOG_WARNING;
+            break;
+          case LogLevel::LEVEL_INFO:
+            addonLevel = ADDON_LOG::ADDON_LOG_INFO;
+            break;
+          default:
+            addonLevel = ADDON_LOG::ADDON_LOG_DEBUG;
+        }
 
-    kodi::Log(addonLevel, "%s", message);
-  });
+        kodi::Log(addonLevel, "%s", message);
+      });
 
   Logger::GetInstance().SetPrefix("pvr.kofin");
 
@@ -47,7 +49,8 @@ ADDON_STATUS CIptvSimpleAddon::Create()
   return ADDON_STATUS_OK;
 }
 
-ADDON_STATUS CIptvSimpleAddon::SetSetting(const std::string& settingName, const kodi::addon::CSettingValue& settingValue)
+ADDON_STATUS CIptvSimpleAddon::SetSetting(const std::string& settingName,
+                                          const kodi::addon::CSettingValue& settingValue)
 {
   // Forward setting changes to the PVR instance
   for (auto& pair : m_usedInstances)
@@ -63,7 +66,8 @@ ADDON_STATUS CIptvSimpleAddon::SetSetting(const std::string& settingName, const 
   return ADDON_STATUS_OK;
 }
 
-ADDON_STATUS CIptvSimpleAddon::CreateInstance(const kodi::addon::IInstanceInfo& instance, KODI_ADDON_INSTANCE_HDL& hdl)
+ADDON_STATUS CIptvSimpleAddon::CreateInstance(const kodi::addon::IInstanceInfo& instance,
+                                              KODI_ADDON_INSTANCE_HDL& hdl)
 {
   if (instance.IsType(ADDON_INSTANCE_PVR))
   {
@@ -83,7 +87,8 @@ ADDON_STATUS CIptvSimpleAddon::CreateInstance(const kodi::addon::IInstanceInfo& 
   return ADDON_STATUS_UNKNOWN;
 }
 
-void CIptvSimpleAddon::DestroyInstance(const kodi::addon::IInstanceInfo& instance, const KODI_ADDON_INSTANCE_HDL hdl)
+void CIptvSimpleAddon::DestroyInstance(const kodi::addon::IInstanceInfo& instance,
+                                       const KODI_ADDON_INSTANCE_HDL hdl)
 {
   if (instance.IsType(ADDON_INSTANCE_PVR))
   {

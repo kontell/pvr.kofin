@@ -13,248 +13,259 @@
 
 namespace iptvsimple
 {
-  static const int DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS = 10;
-  static const int DEFAULT_CONNECTION_CHECK_INTERVAL_SECS = 5;
+static const int DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS = 10;
+static const int DEFAULT_CONNECTION_CHECK_INTERVAL_SECS = 5;
 
-  // Bitrate table: index -> kbps (matches settings.xml options 0-15)
-  static const int BITRATE_TABLE[] = {
-    1000, 2000, 3000, 5000, 8000, 10000, 15000, 20000,
+// Bitrate table: index -> kbps (matches settings.xml options 0-15)
+static const int BITRATE_TABLE[] = {
+    1000,  2000,  3000,  5000,  8000,  10000,  15000,  20000,
     25000, 30000, 40000, 60000, 80000, 100000, 120000, 0 // 0 = unlimited
-  };
-  static const int BITRATE_TABLE_SIZE = 16;
+};
+static const int BITRATE_TABLE_SIZE = 16;
 
-  // Max-resolution table: index -> max width px (matches settings.xml options 0-5)
-  static const int MAX_WIDTH_TABLE[] = { 854, 1280, 1920, 2560, 3840, 0 }; // 0 = unlimited
-  static const int MAX_WIDTH_TABLE_SIZE = 6;
+// Max-resolution table: index -> max width px (matches settings.xml options 0-5)
+static const int MAX_WIDTH_TABLE[] = {854, 1280, 1920, 2560, 3840, 0}; // 0 = unlimited
+static const int MAX_WIDTH_TABLE_SIZE = 6;
 
-  class InstanceSettings
+class InstanceSettings
+{
+public:
+  InstanceSettings();
+
+  void ReadSettings();
+
+  const std::string GetUserPath() const { return kodi::addon::GetUserPath(); }
+
+  // Server
+  // By value, not reference: ReadSettings() and the auth flows reassign
+  // these strings on other threads while getters run concurrently — a
+  // returned reference can dangle across the reassignment. Applies to the
+  // address, device id and access token, which are read from the client,
+  // connection-manager and Process threads.
+  std::string GetJellyfinServerAddress() const { return m_jellyfinServerAddress; }
+  std::string GetJellyfinBaseUrl() const;
+  std::string GetJellyfinHost() const;
+  std::string GetConnectionCheckUrl() const { return GetJellyfinBaseUrl() + "/System/Ping"; }
+  // True when the resolved scheme is plain http and the host is not a
+  // loopback/RFC1918/link-local/mDNS/undotted-LAN name — i.e. credentials
+  // and the token would travel unencrypted over a non-private network.
+  bool IsInsecureRemoteConnection() const;
+
+  // Each setter writes only on a change. A write makes Kodi save the settings
+  // and pass every one of them back through SetSetting (CAddonDll::
+  // SaveSettings -> TransferSettings), which re-reads them and queues a
+  // channel reload, so rewriting the server name on each connect cost a
+  // second full channel load every time.
+  void SetJellyfinServerAddress(const std::string& address)
   {
-  public:
-    InstanceSettings();
+    if (address == m_jellyfinServerAddress)
+      return;
+    m_jellyfinServerAddress = address;
+    kodi::addon::SetSettingString("jellyfinServerAddress", address);
+  }
 
-    void ReadSettings();
+  // Account state
+  bool GetIsLoggedIn() const { return m_isLoggedIn; }
+  void SetIsLoggedIn(bool loggedIn)
+  {
+    if (loggedIn == m_isLoggedIn)
+      return;
+    m_isLoggedIn = loggedIn;
+    kodi::addon::SetSettingBoolean("isLoggedIn", loggedIn);
+  }
 
-    const std::string GetUserPath() const { return kodi::addon::GetUserPath(); }
+  const std::string& GetJellyfinServerName() const { return m_jellyfinServerName; }
+  void SetJellyfinServerName(const std::string& name)
+  {
+    if (name == m_jellyfinServerName)
+      return;
+    m_jellyfinServerName = name;
+    kodi::addon::SetSettingString("jellyfinServerName", name);
+  }
 
-    // Server
-    // By value, not reference: ReadSettings() and the auth flows reassign
-    // these strings on other threads while getters run concurrently — a
-    // returned reference can dangle across the reassignment. Applies to the
-    // address, device id and access token, which are read from the client,
-    // connection-manager and Process threads.
-    std::string GetJellyfinServerAddress() const { return m_jellyfinServerAddress; }
-    std::string GetJellyfinBaseUrl() const;
-    std::string GetJellyfinHost() const;
-    std::string GetConnectionCheckUrl() const { return GetJellyfinBaseUrl() + "/System/Ping"; }
-    // True when the resolved scheme is plain http and the host is not a
-    // loopback/RFC1918/link-local/mDNS/undotted-LAN name — i.e. credentials
-    // and the token would travel unencrypted over a non-private network.
-    bool IsInsecureRemoteConnection() const;
+  const std::string& GetJellyfinDisplayUsername() const { return m_jellyfinDisplayUsername; }
+  void SetJellyfinDisplayUsername(const std::string& username)
+  {
+    if (username == m_jellyfinDisplayUsername)
+      return;
+    m_jellyfinDisplayUsername = username;
+    kodi::addon::SetSettingString("jellyfinDisplayUsername", username);
+  }
 
-    // Each setter writes only on a change. A write makes Kodi save the settings
-    // and pass every one of them back through SetSetting (CAddonDll::
-    // SaveSettings -> TransferSettings), which re-reads them and queues a
-    // channel reload, so rewriting the server name on each connect cost a
-    // second full channel load every time.
-    void SetJellyfinServerAddress(const std::string& address)
+  // Device identity (unique per Kodi instance, generated on first run)
+  std::string GetDeviceId() const { return m_deviceId; } // by value — see GetJellyfinServerAddress
+
+  // Authentication
+  std::string GetJellyfinAccessToken() const
+  {
+    return m_jellyfinAccessToken;
+  } // by value — see GetJellyfinServerAddress
+  const std::string& GetJellyfinUserId() const { return m_jellyfinUserId; }
+
+  void SetJellyfinAccessToken(const std::string& token)
+  {
+    if (token == m_jellyfinAccessToken)
+      return;
+    m_jellyfinAccessToken = token;
+    kodi::addon::SetSettingString("jellyfinAccessToken", token);
+  }
+  void SetJellyfinUserId(const std::string& userId)
+  {
+    if (userId == m_jellyfinUserId)
+      return;
+    m_jellyfinUserId = userId;
+    kodi::addon::SetSettingString("jellyfinUserId", userId);
+  }
+
+  // Transcoding
+  bool GetForceTranscode() const { return m_forceTranscode; }
+  bool GetForceTranscoding() const { return m_forceTranscoding; }
+  const std::string& GetDirectPlayVideoCodecs() const { return m_directPlayVideoCodecs; }
+  const std::string& GetDirectPlayAudioCodecs() const { return m_directPlayAudioCodecs; }
+  const std::string& GetAllowedHdrTypes() const { return m_allowedHdrTypes; }
+  int GetPreferredVideoCodec() const { return m_preferredVideoCodec; }
+  int GetPreferredAudioCodec() const { return m_preferredAudioCodec; }
+  int GetMaxAudioChannels() const { return m_maxAudioChannels; }
+  int GetMaxStreamingBitrateKbps() const
+  {
+    if (m_maxStreamingBitrate >= 0 && m_maxStreamingBitrate < BITRATE_TABLE_SIZE)
+      return BITRATE_TABLE[m_maxStreamingBitrate];
+    return 0; // unlimited
+  }
+  int GetMaxBitrateBps() const
+  {
+    int kbps = GetMaxStreamingBitrateKbps();
+    return (kbps > 0) ? kbps * 1000 : 1000000000;
+  }
+  // Max video width in px (0 = unlimited). Resolution is capped by width only.
+  int GetMaxWidth() const
+  {
+    if (m_maxResolution >= 0 && m_maxResolution < MAX_WIDTH_TABLE_SIZE)
+      return MAX_WIDTH_TABLE[m_maxResolution];
+    return 0; // unlimited
+  }
+
+  // Input stream: 0 = ffmpegdirect, 1 = adaptive, 2 = kodi internal
+  int GetInputStream() const { return m_inputStream; }
+  // The addon that plays catchup/EPG streams.
+  std::string GetCatchupInputstream() const { return "inputstream.ffmpegdirect"; }
+  bool GetTimeshiftEnabled() const { return m_timeshiftEnabled; }
+
+  // In-progress recording input stream: 0 = adaptive, 1 = kodi internal
+  int GetInProgressInputStream() const { return m_inProgressInputStream; }
+
+  // Commercial skipping in recordings, from Jellyfin's Commercial media segments:
+  // 0 = off, 1 = auto (Kodi skips the EDL; the service script picks up breaks found
+  // after playback opened), 2 = ask (the service script prompts for every break).
+  // The other segment types are the service script's alone.
+  int GetSkipCommercialMode() const { return m_skipCommercialMode; }
+  // The Skipping section's switch: off, nothing is fetched or skipped, whatever the modes say.
+  bool GetMediaSegmentsEnabled() const { return m_mediaSegmentsEnabled; }
+
+  // Reference playlist (master toggle for the M3U layer; catchup also requires this on)
+  bool ReferencePlaylistEnabled() const { return m_referencePlaylistEnabled; }
+  const std::string& GetReferencePlaylistPath() const { return m_referencePlaylistPath; }
+
+  // Catchup
+  bool CatchupEnabled() const { return m_catchupEnabled && m_referencePlaylistEnabled; }
+  const std::string& GetCatchupQueryFormat() const { return m_catchupQueryFormat; }
+  int GetCatchupDays() const { return m_catchupDays; }
+  int GetAllChannelsCatchupMode() const { return m_allChannelsCatchupMode; }
+  bool CatchupPlayEpgAsLive() const { return m_catchupPlayEpgAsLive; }
+  int GetCatchupWatchEpgBeginBufferSecs() const { return m_catchupWatchEpgBeginBufferMins * 60; }
+  int GetCatchupWatchEpgEndBufferSecs() const { return m_catchupWatchEpgEndBufferMins * 60; }
+
+  bool CatchupOnlyOnFinishedProgrammes() const { return m_catchupOnlyOnFinishedProgrammes; }
+
+  // Advanced
+  int GetJellyfinUpdateIntervalHours() const { return m_jellyfinUpdateIntervalHours; }
+  int GetTimerRecordingPollSecs() const { return m_timerRecordingPollSecs; }
+  int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
+  int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
+
+  // Codec name helpers for device profile
+  std::string GetPreferredVideoCodecName() const
+  {
+    switch (m_preferredVideoCodec)
     {
-      if (address == m_jellyfinServerAddress)
-        return;
-      m_jellyfinServerAddress = address;
-      kodi::addon::SetSettingString("jellyfinServerAddress", address);
+      case 1:
+        return "hevc";
+      case 2:
+        return "av1";
+      default:
+        return "h264";
     }
+  }
 
-    // Account state
-    bool GetIsLoggedIn() const { return m_isLoggedIn; }
-    void SetIsLoggedIn(bool loggedIn)
+  std::string GetPreferredAudioCodecName() const
+  {
+    switch (m_preferredAudioCodec)
     {
-      if (loggedIn == m_isLoggedIn)
-        return;
-      m_isLoggedIn = loggedIn;
-      kodi::addon::SetSettingBoolean("isLoggedIn", loggedIn);
+      case 1:
+        return "ac3";
+      case 2:
+        return "mp3";
+      case 3:
+        return "opus";
+      default:
+        return "aac";
     }
+  }
 
-    const std::string& GetJellyfinServerName() const { return m_jellyfinServerName; }
-    void SetJellyfinServerName(const std::string& name)
-    {
-      if (name == m_jellyfinServerName)
-        return;
-      m_jellyfinServerName = name;
-      kodi::addon::SetSettingString("jellyfinServerName", name);
-    }
+private:
+  // Server
+  std::string m_jellyfinServerAddress;
 
-    const std::string& GetJellyfinDisplayUsername() const { return m_jellyfinDisplayUsername; }
-    void SetJellyfinDisplayUsername(const std::string& username)
-    {
-      if (username == m_jellyfinDisplayUsername)
-        return;
-      m_jellyfinDisplayUsername = username;
-      kodi::addon::SetSettingString("jellyfinDisplayUsername", username);
-    }
+  // Account state
+  bool m_isLoggedIn = false;
+  std::string m_jellyfinServerName;
+  std::string m_jellyfinDisplayUsername;
 
-    // Device identity (unique per Kodi instance, generated on first run)
-    std::string GetDeviceId() const { return m_deviceId; } // by value — see GetJellyfinServerAddress
+  // Device identity
+  std::string m_deviceId;
 
-    // Authentication
-    std::string GetJellyfinAccessToken() const { return m_jellyfinAccessToken; } // by value — see GetJellyfinServerAddress
-    const std::string& GetJellyfinUserId() const { return m_jellyfinUserId; }
+  // Authentication
+  std::string m_jellyfinAccessToken;
+  std::string m_jellyfinUserId;
 
-    void SetJellyfinAccessToken(const std::string& token)
-    {
-      if (token == m_jellyfinAccessToken)
-        return;
-      m_jellyfinAccessToken = token;
-      kodi::addon::SetSettingString("jellyfinAccessToken", token);
-    }
-    void SetJellyfinUserId(const std::string& userId)
-    {
-      if (userId == m_jellyfinUserId)
-        return;
-      m_jellyfinUserId = userId;
-      kodi::addon::SetSettingString("jellyfinUserId", userId);
-    }
+  // Transcoding
+  bool m_forceTranscode = false;
+  bool m_forceTranscoding = false;
+  std::string m_directPlayVideoCodecs = "h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1";
+  std::string m_directPlayAudioCodecs = "aac,mp2,mp3,ac3,eac3,opus,flac,dts";
+  std::string m_allowedHdrTypes = "HDR10,HLG,HDR10Plus,DOVI,DOVIWithHDR10,DOVIWithHLG,DOVIWithSDR,"
+                                  "DOVIWithEL,DOVIWithHDR10Plus,DOVIWithELHDR10Plus";
+  int m_preferredVideoCodec = 0; // 0=H264, 1=H265, 2=AV1
+  int m_preferredAudioCodec = 0; // 0=AAC, 1=AC3, 2=MP3, 3=Opus
+  int m_maxAudioChannels = 8;
+  int m_maxStreamingBitrate = 15; // index into BITRATE_TABLE (15=unlimited)
+  int m_maxResolution = 5; // index into MAX_WIDTH_TABLE (5=unlimited)
 
-    // Transcoding
-    bool GetForceTranscode() const { return m_forceTranscode; }
-    bool GetForceTranscoding() const { return m_forceTranscoding; }
-    const std::string& GetDirectPlayVideoCodecs() const { return m_directPlayVideoCodecs; }
-    const std::string& GetDirectPlayAudioCodecs() const { return m_directPlayAudioCodecs; }
-    const std::string& GetAllowedHdrTypes() const { return m_allowedHdrTypes; }
-    int GetPreferredVideoCodec() const { return m_preferredVideoCodec; }
-    int GetPreferredAudioCodec() const { return m_preferredAudioCodec; }
-    int GetMaxAudioChannels() const { return m_maxAudioChannels; }
-    int GetMaxStreamingBitrateKbps() const
-    {
-      if (m_maxStreamingBitrate >= 0 && m_maxStreamingBitrate < BITRATE_TABLE_SIZE)
-        return BITRATE_TABLE[m_maxStreamingBitrate];
-      return 0; // unlimited
-    }
-    int GetMaxBitrateBps() const
-    {
-      int kbps = GetMaxStreamingBitrateKbps();
-      return (kbps > 0) ? kbps * 1000 : 1000000000;
-    }
-    // Max video width in px (0 = unlimited). Resolution is capped by width only.
-    int GetMaxWidth() const
-    {
-      if (m_maxResolution >= 0 && m_maxResolution < MAX_WIDTH_TABLE_SIZE)
-        return MAX_WIDTH_TABLE[m_maxResolution];
-      return 0; // unlimited
-    }
+  // Input stream
+  int m_inputStream = 2; // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
+  bool m_timeshiftEnabled = true;
+  int m_inProgressInputStream = 1; // 0=adaptive, 1=kodi internal
+  bool m_mediaSegmentsEnabled = false;
+  int m_skipCommercialMode = 2; // 0=off, 1=auto, 2=ask
 
-    // Input stream: 0 = ffmpegdirect, 1 = adaptive, 2 = kodi internal
-    int GetInputStream() const { return m_inputStream; }
-    // The addon that plays catchup/EPG streams.
-    std::string GetCatchupInputstream() const { return "inputstream.ffmpegdirect"; }
-    bool GetTimeshiftEnabled() const { return m_timeshiftEnabled; }
+  // Reference playlist
+  bool m_referencePlaylistEnabled = false;
+  std::string m_referencePlaylistPath;
 
-    // In-progress recording input stream: 0 = adaptive, 1 = kodi internal
-    int GetInProgressInputStream() const { return m_inProgressInputStream; }
+  // Catchup
+  bool m_catchupEnabled = false;
+  std::string m_catchupQueryFormat;
+  int m_catchupDays = 5;
+  int m_allChannelsCatchupMode = 0; // 0=disabled, 3=shift
+  bool m_catchupPlayEpgAsLive = false;
+  int m_catchupWatchEpgBeginBufferMins = 5;
+  int m_catchupWatchEpgEndBufferMins = 15;
+  bool m_catchupOnlyOnFinishedProgrammes = false;
 
-    // Commercial skipping in recordings, from Jellyfin's Commercial media segments:
-    // 0 = off, 1 = auto (Kodi skips the EDL; the service script picks up breaks found
-    // after playback opened), 2 = ask (the service script prompts for every break).
-    // The other segment types are the service script's alone.
-    int GetSkipCommercialMode() const { return m_skipCommercialMode; }
-    // The Skipping section's switch: off, nothing is fetched or skipped, whatever the modes say.
-    bool GetMediaSegmentsEnabled() const { return m_mediaSegmentsEnabled; }
-
-    // Reference playlist (master toggle for the M3U layer; catchup also requires this on)
-    bool ReferencePlaylistEnabled() const { return m_referencePlaylistEnabled; }
-    const std::string& GetReferencePlaylistPath() const { return m_referencePlaylistPath; }
-
-    // Catchup
-    bool CatchupEnabled() const { return m_catchupEnabled && m_referencePlaylistEnabled; }
-    const std::string& GetCatchupQueryFormat() const { return m_catchupQueryFormat; }
-    int GetCatchupDays() const { return m_catchupDays; }
-    int GetAllChannelsCatchupMode() const { return m_allChannelsCatchupMode; }
-    bool CatchupPlayEpgAsLive() const { return m_catchupPlayEpgAsLive; }
-    int GetCatchupWatchEpgBeginBufferSecs() const { return m_catchupWatchEpgBeginBufferMins * 60; }
-    int GetCatchupWatchEpgEndBufferSecs() const { return m_catchupWatchEpgEndBufferMins * 60; }
-
-    bool CatchupOnlyOnFinishedProgrammes() const { return m_catchupOnlyOnFinishedProgrammes; }
-
-    // Advanced
-    int GetJellyfinUpdateIntervalHours() const { return m_jellyfinUpdateIntervalHours; }
-    int GetTimerRecordingPollSecs() const { return m_timerRecordingPollSecs; }
-    int GetConnectioncCheckTimeoutSecs() const { return m_connectioncCheckTimeoutSecs; }
-    int GetConnectioncCheckIntervalSecs() const { return m_connectioncCheckIntervalSecs; }
-
-    // Codec name helpers for device profile
-    std::string GetPreferredVideoCodecName() const
-    {
-      switch (m_preferredVideoCodec)
-      {
-        case 1: return "hevc";
-        case 2: return "av1";
-        default: return "h264";
-      }
-    }
-
-    std::string GetPreferredAudioCodecName() const
-    {
-      switch (m_preferredAudioCodec)
-      {
-        case 1: return "ac3";
-        case 2: return "mp3";
-        case 3: return "opus";
-        default: return "aac";
-      }
-    }
-
-  private:
-    // Server
-    std::string m_jellyfinServerAddress;
-
-    // Account state
-    bool m_isLoggedIn = false;
-    std::string m_jellyfinServerName;
-    std::string m_jellyfinDisplayUsername;
-
-    // Device identity
-    std::string m_deviceId;
-
-    // Authentication
-    std::string m_jellyfinAccessToken;
-    std::string m_jellyfinUserId;
-
-    // Transcoding
-    bool m_forceTranscode = false;
-    bool m_forceTranscoding = false;
-    std::string m_directPlayVideoCodecs = "h264,h264_10bit,hevc,hevc_rext,av1,mpeg2video,vp9,vc1";
-    std::string m_directPlayAudioCodecs = "aac,mp2,mp3,ac3,eac3,opus,flac,dts";
-    std::string m_allowedHdrTypes = "HDR10,HLG,HDR10Plus,DOVI,DOVIWithHDR10,DOVIWithHLG,DOVIWithSDR,DOVIWithEL,DOVIWithHDR10Plus,DOVIWithELHDR10Plus";
-    int m_preferredVideoCodec = 0;  // 0=H264, 1=H265, 2=AV1
-    int m_preferredAudioCodec = 0;  // 0=AAC, 1=AC3, 2=MP3, 3=Opus
-    int m_maxAudioChannels = 8;
-    int m_maxStreamingBitrate = 15; // index into BITRATE_TABLE (15=unlimited)
-    int m_maxResolution = 5;        // index into MAX_WIDTH_TABLE (5=unlimited)
-
-    // Input stream
-    int m_inputStream = 2;  // 0=ffmpegdirect, 1=adaptive, 2=kodi internal
-    bool m_timeshiftEnabled = true;
-    int m_inProgressInputStream = 1;  // 0=adaptive, 1=kodi internal
-    bool m_mediaSegmentsEnabled = false;
-    int m_skipCommercialMode = 2;     // 0=off, 1=auto, 2=ask
-
-    // Reference playlist
-    bool m_referencePlaylistEnabled = false;
-    std::string m_referencePlaylistPath;
-
-    // Catchup
-    bool m_catchupEnabled = false;
-    std::string m_catchupQueryFormat;
-    int m_catchupDays = 5;
-    int m_allChannelsCatchupMode = 0;  // 0=disabled, 3=shift
-    bool m_catchupPlayEpgAsLive = false;
-    int m_catchupWatchEpgBeginBufferMins = 5;
-    int m_catchupWatchEpgEndBufferMins = 15;
-    bool m_catchupOnlyOnFinishedProgrammes = false;
-
-    // Advanced
-    int m_jellyfinUpdateIntervalHours = 24;
-    int m_timerRecordingPollSecs = 60;
-    int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
-    int m_connectioncCheckIntervalSecs = 60;
-  };
+  // Advanced
+  int m_jellyfinUpdateIntervalHours = 24;
+  int m_timerRecordingPollSecs = 60;
+  int m_connectioncCheckTimeoutSecs = DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS;
+  int m_connectioncCheckIntervalSecs = 60;
+};
 } //namespace iptvsimple

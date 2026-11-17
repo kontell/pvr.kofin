@@ -13,50 +13,49 @@
 
 namespace iptvsimple
 {
-  namespace utilities
+namespace utilities
+{
+static const std::string HTTP_PREFIX = "http://";
+static const std::string HTTPS_PREFIX = "https://";
+static const std::string NFS_PREFIX = "nfs://";
+static const std::string SPECIAL_PREFIX = "special://";
+
+class WebUtils
+{
+public:
+  // Offsets into a URL: the host runs from hostStart to hostEnd, and the
+  // authority (userinfo, host and port) ends at end, where the path,
+  // query or fragment begins.
+  struct UrlAuthority
   {
-    static const std::string HTTP_PREFIX = "http://";
-    static const std::string HTTPS_PREFIX = "https://";
-    static const std::string NFS_PREFIX = "nfs://";
-    static const std::string SPECIAL_PREFIX = "special://";
+    size_t hostStart = 0;
+    size_t hostEnd = 0;
+    size_t end = 0;
+  };
 
-    class WebUtils
-    {
-    public:
-      // Offsets into a URL: the host runs from hostStart to hostEnd, and the
-      // authority (userinfo, host and port) ends at end, where the path,
-      // query or fragment begins.
-      struct UrlAuthority
-      {
-        size_t hostStart = 0;
-        size_t hostEnd = 0;
-        size_t end = 0;
-      };
-
-      // Locates the host of a "scheme://" URL: after any userinfo, before any
-      // port. An IPv6 literal holds colons of its own, so it keeps its
-      // brackets and runs to the closing one. False when there is no "://" or
-      // the bracket is never closed.
-      static bool SplitAuthority(const std::string& url, UrlAuthority& authority);
-      // Whether a host, as SplitAuthority finds it, names this machine:
-      // localhost in any case, a dotted-quad 127.0.0.0/8 address, [::1] in
-      // either spelling or an IPv4-mapped loopback, with or without a zone.
-      static bool IsLoopbackHost(const std::string& host);
-      // Whether a URL is on an origin given as "scheme://host:port": it starts
-      // with the origin, then ends or goes on with a path, query or fragment.
-      // Deliberately text, not SplitAuthority's hosts compared. Kodi's URL
-      // parser also ends an http authority at ';' and '|', so
-      // "http://elsewhere;@host:8096/" is host:8096 to SplitAuthority and
-      // elsewhere to Kodi. An exact origin and a delimiter every parser agrees
-      // on leave no such gap.
-      static bool IsOnOrigin(const std::string& url, const std::string& origin);
-      static const std::string UrlEncode(const std::string& value);
-      static bool IsHttpUrl(const std::string& url);
-      static bool IsNfsUrl(const std::string& url);
-      static bool IsSpecialUrl(const std::string& url);
-      static std::string RedactUrl(const std::string& url);
-      static bool Check(const std::string& url, int connectionTimeoutSecs,
-                        bool isLocalPath = false);
-    };
-  } // namespace utilities
+  // Locates the host of a "scheme://" URL: after any userinfo, before any
+  // port. An IPv6 literal holds colons of its own, so it keeps its
+  // brackets and runs to the closing one. False when there is no "://" or
+  // the bracket is never closed.
+  static bool SplitAuthority(const std::string& url, UrlAuthority& authority);
+  // Whether a host, as SplitAuthority finds it, names this machine:
+  // localhost in any case, a dotted-quad 127.0.0.0/8 address, [::1] in
+  // either spelling or an IPv4-mapped loopback, with or without a zone.
+  static bool IsLoopbackHost(const std::string& host);
+  // Whether a URL is on an origin given as "scheme://host:port": it starts
+  // with the origin, then ends or goes on with a path, query or fragment.
+  // Deliberately text, not SplitAuthority's hosts compared. Kodi's URL
+  // parser also ends an http authority at ';' and '|', so
+  // "http://elsewhere;@host:8096/" is host:8096 to SplitAuthority and
+  // elsewhere to Kodi. An exact origin and a delimiter every parser agrees
+  // on leave no such gap.
+  static bool IsOnOrigin(const std::string& url, const std::string& origin);
+  static const std::string UrlEncode(const std::string& value);
+  static bool IsHttpUrl(const std::string& url);
+  static bool IsNfsUrl(const std::string& url);
+  static bool IsSpecialUrl(const std::string& url);
+  static std::string RedactUrl(const std::string& url);
+  static bool Check(const std::string& url, int connectionTimeoutSecs, bool isLocalPath = false);
+};
+} // namespace utilities
 } // namespace iptvsimple

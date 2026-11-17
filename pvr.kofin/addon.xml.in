@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="pvr.kofin"
-  version="22.20.0"
+  version="22.20.1"
   name="Kofin PVR for Jellyfin"
-  provider-name="Kontell">
+  provider-name="Team Kodi, kontell">
   <requires>@ADDON_DEPENDS@
     <import addon="xbmc.python" version="3.0.1"/>
     <import addon="inputstream.ffmpegdirect" version="22.0.0" optional="true"/>
@@ -17,7 +17,8 @@
   <extension point="xbmc.addon.metadata">
     <platform>@PLATFORM@</platform>
     <license>GPL-2.0-or-later</license>
-    <source>https://github.com/kontell/pvr.kofin</source>
+    <source>https://github.com/kodi-pvr/pvr.kofin</source>
+    <forum>https://forum.kodi.tv/forumdisplay.php?fid=167</forum>
     <assets>
       <icon>icon.png</icon>
     </assets>

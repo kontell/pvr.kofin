@@ -14,8 +14,8 @@
 
 #include <chrono>
 
-#include <kodi/tools/StringUtils.h>
 #include <kodi/Network.h>
+#include <kodi/tools/StringUtils.h>
 
 using namespace iptvsimple;
 using namespace iptvsimple::utilities;
@@ -25,8 +25,12 @@ using namespace kodi::tools;
  * Iptvsimple Connection handler
  */
 
-ConnectionManager::ConnectionManager(IConnectionListener& connectionListener, std::shared_ptr<iptvsimple::InstanceSettings> settings)
-  : m_connectionListener(connectionListener), m_settings(settings), m_suspended(false), m_state(PVR_CONNECTION_STATE_UNKNOWN)
+ConnectionManager::ConnectionManager(IConnectionListener& connectionListener,
+                                     std::shared_ptr<iptvsimple::InstanceSettings> settings)
+  : m_connectionListener(connectionListener),
+    m_settings(settings),
+    m_suspended(false),
+    m_state(PVR_CONNECTION_STATE_UNKNOWN)
 {
 }
 
@@ -101,7 +105,7 @@ bool ConnectionManager::SetState(PVR_CONNECTION_STATE state)
     }
 
     /* Notify connection state change (callback!) */
-      m_connectionListener.ConnectionStateChange(m_settings->GetJellyfinBaseUrl(), newState, "");
+    m_connectionListener.ConnectionStateChange(m_settings->GetJellyfinBaseUrl(), newState, "");
   }
 
   return prevState != newState;

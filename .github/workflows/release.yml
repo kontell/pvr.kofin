@@ -1,446 +1,66 @@
-# Tag release: build every platform for both Kodi versions, then draft a GitHub
-# release with the zips attached.
-#
-# `pull_request` is deliberately absent: PR coverage is ci.yml's job, and a
-# release build is the full cross-compile matrix.
-name: Release
+name: Make Release
+# Create a release on the given branch
+# Release and tag name format will be <version>-<branch>
+# The body of the release will be created from the changelog.txt or news element in the addon.xml.in
 
-on:
-  push:
-    tags: ["v*"]
-  workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "Skip release creation — run the build matrix only"
-        type: boolean
-        default: false
-
-# Least privilege by default: the build matrix only reads and uploads. Only the
-# release job needs write.
-permissions:
-  contents: read
-
-env:
-  app_id: pvr.kofin
-  # See ci.yml for why these are pinned rather than tracking Omega/master.
-  kodi_omega_ref: "21.3-Omega"
-  kodi_piers_ref: "22.0b1-Piers"
-  # The oldest target that has to be able to load the result (CoreELEC 21.x).
-  max_glibc: "2.38"
+on: workflow_dispatch
 
 jobs:
-  # ---------------------------------------------------------------- Linux/Android
-  build-linux:
-    name: package (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
-    runs-on: ubuntu-24.04
-    container:
-      # The ABI floor is pinned here rather than by the runner label: labels get
-      # retired (ubuntu-22.04 deprecates from 2026-09-17, unsupported 2027-04-17)
-      # and the floor is a property of the build host's headers, not of this code.
-      # ci.yml's package job carries the full reasoning and the measurements.
-      image: ubuntu:22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - { os: linux, arch: x86_64, channel: Piers, kodi: 22 }
-          - { os: linux, arch: armv7, channel: Piers, kodi: 22, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
-          - { os: linux, arch: aarch64, channel: Piers, kodi: 22, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
-          - { os: android, arch: armv7, channel: Piers, kodi: 22 }
-          - { os: android, arch: aarch64, channel: Piers, kodi: 22 }
+  default:
+    runs-on: ubuntu-latest
+    name: Make Release
+
     steps:
-      - name: Install toolchain
-        # Ahead of checkout so actions/checkout finds git and clones, rather than
-        # silently falling back to the REST tarball.
-        run: |
-          set -eux
-          apt-get update -qq
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-            build-essential cmake git zip unzip wget ca-certificates \
-            autopoint autoconf automake libtool m4 pkg-config python3 \
-            binutils file ${{ matrix.cross_pkgs }}
-          gcc --version | head -1
-          ldd --version | head -1
 
-      - name: Checkout addon
-        uses: actions/checkout@v5
+      # Checkout the current repository into a directory (repositories name)
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          path: ${{ env.app_id }}
+          fetch-depth: 0
+          path: ${{ github.event.repository.name }}
 
-      - name: Checkout Kodi
-        uses: actions/checkout@v5
-        with:
-          repository: xbmc/xbmc
-          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
-          path: xbmc
-          sparse-checkout: |
-            version.txt
-            xbmc/interfaces/json-rpc/schema/version.txt
-            cmake/
-            xbmc/addons/AddonBindings.cmake
-            xbmc/addons/kodi-dev-kit/include/kodi/
-          sparse-checkout-cone-mode: false
-          fetch-depth: 1
-
-      - name: Setup Android NDK
-        if: matrix.os == 'android'
-        id: setup-ndk
+      # Install all dependencies required by the following steps
+      # - libxml2-utils, xmlstarlet: reading news and version from addon.xml.in
+      - name: Install dependencies
         run: |
-          set -eux
-          NDK_VERSION=r25c
-          NDK_DIR="$HOME/android-ndk-${NDK_VERSION}"
-          if [ ! -d "$NDK_DIR" ]; then
-            wget -q "https://dl.google.com/android/repository/android-ndk-${NDK_VERSION}-linux.zip" -O /tmp/ndk.zip
-            unzip -q /tmp/ndk.zip -d "$HOME"
-            rm /tmp/ndk.zip
+          sudo apt-get update
+          sudo apt-get install libxml2-utils xmlstarlet
+
+      # Create the variables required by the following steps
+      # - steps.required-variables.outputs.changes: latest entry in the changelog.txt (if exists), or addon.xml.in news element
+      # - steps.required-variables.outputs.version: version element from addon.xml.in
+      # - steps.required-variables.outputs.branch: branch of the triggering ref
+      # Note: we use a random EOF for 'changes' as is best practice for for multiline variables
+      - name: Get required variables
+        id: required-variables
+        run: |
+          changes=$(cat "$(find . -name changelog.txt)" | awk -v RS= 'NR==1')
+          if [ -z "$changes" ] ;
+          then
+            changes=$(xmlstarlet fo -R "$(find . -name addon.xml.in)" | xmlstarlet sel -t -v 'string(/addon/extension/news)' | awk -v RS= 'NR==1')
           fi
-          echo "ndk-path=$NDK_DIR" >> $GITHUB_OUTPUT
+          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
+          echo "changes<<$EOF" >> $GITHUB_OUTPUT
+          echo "$changes" >> $GITHUB_OUTPUT
+          echo "$EOF" >> $GITHUB_OUTPUT
+          version=$(xmlstarlet fo -R "$(find . -name addon.xml.in)" | xmlstarlet sel -t -v 'string(/addon/@version)')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          branch=$(echo ${GITHUB_REF#refs/heads/})
+          echo "branch=$branch" >> $GITHUB_OUTPUT
+        working-directory: ${{ github.event.repository.name }}
 
-      - name: Build
+      # Create a release at {steps.required-variables.outputs.branch}
+      # - tag and release name format: {steps.required-variables.outputs.version}-{steps.required-variables.outputs.branch} ie. 21.0.0-Omega
+      # - release body: {steps.required-variables.outputs.changes}
+      - name: Create Release
+        id: create-release
+        uses: actions/create-release@v1
         env:
-          # Static C++ runtime on Linux so the .so depends only on glibc, not on
-          # a GLIBCXX_3.4.x the target lacks. The superbuild forwards
-          # CMAKE_C/CXX_FLAGS but not linker flags, hence LDFLAGS. Empty on
-          # Android: the NDK supplies its own STL and these are GCC/Linux flags.
-          LDFLAGS: ${{ matrix.os == 'linux' && '-static-libstdc++ -static-libgcc' || '' }}
-        # Relative to the job's working directory, NOT ${{ github.workspace }}.
-        # In a container job that expression yields the *host* path
-        # (/home/runner/work/...), while the workspace is bind-mounted at
-        # /__w/... — so the absolute form resolves to nothing and the step dies
-        # with exit 127. The container's workdir *is* the workspace, so relative
-        # paths are correct and unambiguous.
-        run: |
-          ./${app_id}/scripts/build.sh \
-            --os ${{ matrix.os }} \
-            --arch ${{ matrix.arch }} \
-            --kodi ${{ matrix.kodi }} \
-            --kodi-src ./xbmc \
-            ${{ matrix.os == 'android' && format('--ndk {0}', steps.setup-ndk.outputs.ndk-path) || '' }} \
-            --output ./artifacts \
-            --jobs $(getconf _NPROCESSORS_ONLN)
-
-      - name: Assert the ABI floor
-        # Skips Android itself (bionic has no versioned glibc symbols).
-        run: |
-          ./${app_id}/scripts/check-abi.sh ./artifacts "${{ env.max_glibc }}"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}
-          path: artifacts/*.zip
-          # Not the default (warn): a job that produces no zip would otherwise
-          # report success and the asset would be silently missing from the
-          # release.
-          if-no-files-found: error
-
-  # ---------------------------------------------------------------------- Windows
-  build-windows:
-    name: package (windows ${{ matrix.arch }}, ${{ matrix.channel }})
-    runs-on: windows-2022
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # arch is the name the zip and the repository use; msvc_arch is what
-          # the Visual Studio generator calls the same thing; machine is that
-          # architecture's PE header value. All are built on the x64 runner,
-          # the ones after the first as cross-builds.
-          - { channel: Piers, kodi: 22, arch: x86_64, msvc_arch: x64, machine: "8664" }
-          - { channel: Piers, kodi: 22, arch: i686, msvc_arch: Win32, machine: "014c" }
-          - { channel: Piers, kodi: 22, arch: arm64, msvc_arch: ARM64, machine: "aa64" }
-    steps:
-      - name: Checkout addon
-        uses: actions/checkout@v5
-        with:
-          path: ${{ env.app_id }}
-
-      - name: Checkout Kodi
-        uses: actions/checkout@v5
-        with:
-          repository: xbmc/xbmc
-          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
-          path: xbmc
-          sparse-checkout: |
-            version.txt
-            xbmc/interfaces/json-rpc/schema/version.txt
-            cmake/
-            xbmc/addons/AddonBindings.cmake
-            xbmc/addons/kodi-dev-kit/include/kodi/
-          sparse-checkout-cone-mode: false
-          fetch-depth: 1
-
-      - name: Build and package
-        shell: bash
-        run: |
-          set -euo pipefail
-          WS="$(pwd -W)"
-          mkdir -p xbmc/cmake/addons/addons/${app_id}
-          echo "${app_id} ${WS}/${app_id}" > xbmc/cmake/addons/addons/${app_id}/${app_id}.txt
-
-          cmake \
-            -B "${app_id}/build" \
-            -G "Visual Studio 17 2022" -A ${{ matrix.msvc_arch }} -T host=x64 \
-            -DADDONS_TO_BUILD="${app_id}" \
-            -DADDON_SRC_PREFIX="${WS}" \
-            -DADDONS_DEFINITION_DIR="${WS}/xbmc/cmake/addons/addons" \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_INSTALL_PREFIX="${WS}/install" \
-            -DPACKAGE_ZIP=1 \
-            "${WS}/xbmc/cmake/addons"
-          cmake --build "${app_id}/build" --config Release --target "${app_id}"
-
-          VERSION=$(grep '^ *version=' "${app_id}/${app_id}/addon.xml.in" | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')
-          ZIP_NAME="${app_id}-${VERSION}-windows-${{ matrix.arch }}.zip"
-          mkdir -p artifacts
-          # Fail loudly if the install step produced nothing, rather than letting
-          # 7z make an empty archive that upload-artifact then can't find.
-          if [[ ! -d "install/${app_id}" ]]; then
-            echo "::error::install/${app_id} does not exist — the install step" \
-                 "produced no addon tree, so there is nothing to package." >&2
-            ls -la install 2>/dev/null || true
-            exit 1
-          fi
-          # Git Bash on windows-2022 has no `zip`; 7z is preinstalled.
-          (cd install && 7z a -tzip "${WS}/artifacts/${ZIP_NAME}" "${app_id}/")
-          ls -la artifacts/
-
-      - name: Assert the DLL is for ${{ matrix.arch }}
-        # A cross-build that quietly fell back to the host architecture would
-        # still configure, compile, package and upload. The machine field of the
-        # PE header is what says which one it is.
-        shell: bash
-        run: |
-          set -euo pipefail
-          dll="$(find "install/${app_id}" -maxdepth 1 -name '*.dll' | head -1)"
-          [[ -n "$dll" ]] || { echo "::error::no DLL under install/${app_id}"; exit 1; }
-          machine="$(python -c "import struct,sys; d=open(sys.argv[1],'rb').read(); o=struct.unpack_from('<I',d,0x3c)[0]; print('%04x' % struct.unpack_from('<H',d,o+4)[0])" "$dll")"
-          echo "$dll: machine 0x$machine, expected 0x${{ matrix.machine }}"
-          if [[ "$machine" != "${{ matrix.machine }}" ]]; then
-            echo "::error::$dll is machine 0x$machine, not 0x${{ matrix.machine }} (${{ matrix.arch }})." >&2
-            exit 1
-          fi
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.app_id }}-windows-${{ matrix.arch }}
-          path: artifacts/*.zip
-          if-no-files-found: error
-
-  # ------------------------------------------------------------------------ macOS
-  build-apple:
-    # One arm64 runner builds both. Apple's toolchain cross-compiles between its
-    # own architectures without help, so x86_64 does not need an Intel runner;
-    # build.sh writes the toolchain file. iOS and tvOS are built by ci.yml and
-    # are not released: Kodi's own builder deploys neither.
-    name: package (${{ matrix.os }} ${{ matrix.arch }}, ${{ matrix.channel }})
-    runs-on: macos-15
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # cpu and platform are what the built library must report.
-          - { os: osx, arch: x86_64, channel: Piers, kodi: 22, cpu: x86_64, platform: MACOS }
-          - { os: osx, arch: arm64, channel: Piers, kodi: 22, cpu: arm64, platform: MACOS }
-    steps:
-      - name: Checkout addon
-        uses: actions/checkout@v5
-        with:
-          path: ${{ env.app_id }}
-
-      - name: Checkout Kodi
-        uses: actions/checkout@v5
-        with:
-          repository: xbmc/xbmc
-          ref: ${{ matrix.channel == 'Omega' && env.kodi_omega_ref || env.kodi_piers_ref }}
-          path: xbmc
-          sparse-checkout: |
-            version.txt
-            xbmc/interfaces/json-rpc/schema/version.txt
-            cmake/
-            xbmc/addons/AddonBindings.cmake
-            xbmc/addons/kodi-dev-kit/include/kodi/
-          sparse-checkout-cone-mode: false
-          fetch-depth: 1
-
-      - name: Build
-        run: |
-          xcodebuild -version
-          ./${app_id}/scripts/build.sh \
-            --os ${{ matrix.os }} \
-            --arch ${{ matrix.arch }} \
-            --kodi ${{ matrix.kodi }} \
-            --kodi-src ./xbmc \
-            --output ./artifacts \
-            --jobs $(sysctl -n hw.ncpu)
-
-      - name: Assert the library is ${{ matrix.platform }} ${{ matrix.cpu }}
-        # Both are cross-builds of a kind, and a library built for the runner
-        # instead of the target would pass everything else here.
-        run: |
-          set -euo pipefail
-          lib="$(find ${app_id}/build-ci-${{ matrix.os }}-${{ matrix.arch }}-kodi${{ matrix.kodi }}/install/${app_id} -maxdepth 1 -type f -name '*.dylib' | head -1)"
-          [[ -n "$lib" ]] || { echo "::error::no .dylib in the install tree"; exit 1; }
-          archs="$(lipo -archs "$lib")"
-          build="$(xcrun vtool -show-build "$lib")"
-          echo "$lib"
-          echo "architectures: $archs"
-          echo "$build"
-          if [[ "$archs" != "${{ matrix.cpu }}" ]]; then
-            echo "::error::$lib is built for '$archs', not ${{ matrix.cpu }}." >&2
-            exit 1
-          fi
-          if ! grep -qE "platform +${{ matrix.platform }}\$" <<<"$build"; then
-            echo "::error::$lib is not a ${{ matrix.platform }} binary." >&2
-            exit 1
-          fi
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.app_id }}-${{ matrix.os }}-${{ matrix.arch }}
-          path: artifacts/*.zip
-          if-no-files-found: error
-
-  # ---------------------------------------------------------------------- Release
-  release:
-    name: release
-    needs: [build-linux, build-windows, build-apple]
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write # creates the draft GitHub release
-    if: |
-      startsWith(github.ref, 'refs/tags/v') ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true')
-    steps:
-      - name: Checkout addon
-        uses: actions/checkout@v5
-
-      - name: Assert tag matches addon.xml.in version
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: |
-          set -euo pipefail
-          # Every name in the release (title, zip names, body) is derived from
-          # the tagged tree, so a tag on a pre-bump commit would otherwise yield
-          # a complete, consistently mislabelled release.
-          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
-          tag="${GITHUB_REF_NAME#v}"
-          echo "addon.xml.in version=$version  tag=$tag"
-          if [[ "$tag" != "$version" ]]; then
-            echo "::error::tag v$tag does not match addon.xml.in version $version." \
-                 "Retag on a commit whose tree carries the bump." >&2
-            exit 1
-          fi
-
-      - name: Assert the tag belongs to this channel
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: |
-          set -euo pipefail
-          # This branch builds Piers only, so a v22.* tag is the only kind that
-          # can legitimately be cut here. Without this, a tag pushed on the wrong
-          # branch produces a complete, plausible release of the wrong Kodi version
-          # — and because the channel is derived from the version major, it would be
-          # filed into the wrong directory in the repository too.
-          tag="${GITHUB_REF_NAME#v}"
-          major="${tag%%.*}"
-          echo "tag=$GITHUB_REF_NAME major=$major expected=22 (Piers)"
-          if [[ "$major" != "22" ]]; then
-            echo "::error::$GITHUB_REF_NAME is not a Piers tag (expected v22.y.z)." \
-                 "Cut Piers releases on this branch and the other channel's on its own." >&2
-            exit 1
-          fi
-
-      - name: Assert the changelog and news name this version
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: |
-          set -euo pipefail
-          # The release body and the repository's <news> are both derived from the
-          # tree, so a changelog that was not bumped with the version would ship a
-          # stale body under the new tag.
-          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
-          top="$(awk -v RS= 'NR==1' ${app_id}/changelog.txt | head -1 | tr -d '\r')"
-          if [[ "$top" != "v$version" ]]; then
-            echo "::error::changelog.txt's top entry is '$top' but this release is v$version." \
-                 "The top paragraph becomes the release body, so it would describe the" \
-                 "wrong version. Add a v$version entry at the top." >&2
-            exit 1
-          fi
-          # <news> in addon.xml.in, where present, is what Kodi shows when browsing
-          # the repository, and generate_repo.py will not fall back to changelog.txt
-          # while it exists — so a stale one is what users actually read.
-          news="$(sed -n 's/.*<news>\(.*\)/\1/p' ${app_id}/addon.xml.in | head -1 || true)"
-          if [[ -n "$news" && "$news" != *"$version"* ]]; then
-            echo "::error::addon.xml.in <news> does not mention $version. It takes priority" \
-                 "over changelog.txt when browsing the repository, so it is what users see." >&2
-            exit 1
-          fi
-          echo "changelog top = v$version${news:+, and <news> names it}"
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-          merge-multiple: true
-
-      - name: Flatten and inventory artifacts
-        shell: bash
-        run: |
-          set -euo pipefail
-          find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
-          find artifacts -mindepth 1 -type d -empty -delete
-          ls -la artifacts/
-          # 10 platforms, one Kodi version. A short count means a build produced no
-          # zip; with if-no-files-found: error upstream that should already have
-          # failed, so this is the backstop that keeps a partial release from being
-          # drafted at all.
-          count="$(find artifacts -name '*.zip' | wc -l)"
-          echo "zips: $count"
-          if [[ "$count" -ne 10 ]]; then
-            echo "::error::expected 10 zips (10 platforms, one Kodi version), found $count." \
-                 "Publishing a partial set strands platforms on an older build." >&2
-            exit 1
-          fi
-
-      - name: Get version and changelog
-        id: version
-        shell: bash
-        run: |
-          set -euo pipefail
-          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
-          echo "version=$version" >> "$GITHUB_OUTPUT"
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=v$version" >> "$GITHUB_OUTPUT"
-          fi
-          changes="$(awk -v RS= 'NR==1' ${app_id}/changelog.txt)"
-          EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
-          {
-            echo "changes<<$EOF"
-            echo "$changes"
-            echo "$EOF"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Create draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.tag }}
-          # Pin the commit the release is anchored to. Left unset, the action
-          # defaults it to the repository's default branch — so the Omega draft
-          # recorded target_commitish: Piers. That is inert while the git tag
-          # already exists, but if the tag is ever deleted with the draft left
-          # behind, publishing it makes GitHub *create* the tag at that target:
-          # v21.13.0 would come to rest on the Kodi 22 branch. The tag-major
-          # guard cannot catch it, because that runs on tag push, not on publish.
-          target_commitish: ${{ github.sha }}
-          name: ${{ env.app_id }} ${{ steps.version.outputs.version }}
-          body: ${{ steps.version.outputs.changes }}
-          draft: true
-          files: artifacts/*.zip
-          # Explicit, though the action defaults to github.token anyway, so the
-          # token in use is never in question when an upload fails.
-          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.required-variables.outputs.version }}-${{ steps.required-variables.outputs.branch }}
+          release_name: ${{ steps.required-variables.outputs.version }}-${{ steps.required-variables.outputs.branch }}
+          body: ${{ steps.required-variables.outputs.changes }}
+          draft: false
+          prerelease: false
+          commitish: ${{ steps.required-variables.outputs.branch }}

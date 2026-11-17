@@ -35,7 +35,8 @@ bool IsLoopbackDottedQuad(const std::string& host)
   while (true)
   {
     const size_t dot = host.find('.', pos);
-    const std::string part = host.substr(pos, dot == std::string::npos ? std::string::npos : dot - pos);
+    const std::string part =
+        host.substr(pos, dot == std::string::npos ? std::string::npos : dot - pos);
     if (part.empty() || part.size() > 3 ||
         !std::all_of(part.begin(), part.end(), [](unsigned char c) { return std::isdigit(c); }))
       return false;
@@ -179,9 +180,8 @@ std::string WebUtils::RedactUrl(const std::string& url)
   // rides on stream URLs as "ApiKey=" and Quick Connect polls with "secret=".
   // Kodi writes INFO-level logs by default, so any URL that reaches the log
   // must have these values masked.
-  static const std::regex credentialParams(
-      R"(([?&](?:api_?key|token|secret|x-emby-token)=)[^&#]*)",
-      std::regex::icase);
+  static const std::regex credentialParams(R"(([?&](?:api_?key|token|secret|x-emby-token)=)[^&#]*)",
+                                           std::regex::icase);
   redactedUrl = std::regex_replace(redactedUrl, credentialParams, "$1REDACTED");
 
   return redactedUrl;
@@ -197,16 +197,19 @@ bool WebUtils::Check(const std::string& strURL, int connectionTimeoutSecs, bool 
   kodi::vfs::CFile fileHandle;
   if (!fileHandle.CURLCreate(strURL))
   {
-    Logger::Log(LEVEL_ERROR, "%s Unable to create curl handle for %s", __func__, WebUtils::RedactUrl(strURL).c_str());
+    Logger::Log(LEVEL_ERROR, "%s Unable to create curl handle for %s", __func__,
+                WebUtils::RedactUrl(strURL).c_str());
     return false;
   }
 
   if (!IsNfsUrl(strURL))
-    fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout", std::to_string(connectionTimeoutSecs));
+    fileHandle.CURLAddOption(ADDON_CURL_OPTION_PROTOCOL, "connection-timeout",
+                             std::to_string(connectionTimeoutSecs));
 
   if (!fileHandle.CURLOpen(ADDON_READ_NO_CACHE))
   {
-    Logger::Log(LEVEL_DEBUG, "%s Unable to open url: %s", __func__, WebUtils::RedactUrl(strURL).c_str());
+    Logger::Log(LEVEL_DEBUG, "%s Unable to open url: %s", __func__,
+                WebUtils::RedactUrl(strURL).c_str());
     return false;
   }
 

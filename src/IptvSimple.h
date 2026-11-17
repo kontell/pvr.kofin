@@ -8,15 +8,15 @@
 #pragma once
 
 #include "iptvsimple/CatchupController.h"
-#include "iptvsimple/Channels.h"
 #include "iptvsimple/ChannelGroups.h"
+#include "iptvsimple/Channels.h"
 #include "iptvsimple/ConnectionManager.h"
 #include "iptvsimple/IConnectionListener.h"
 #include "iptvsimple/data/Channel.h"
-#include "iptvsimple/jellyfin/JellyfinClient.h"
-#include "iptvsimple/jellyfin/JellyfinChannelLoader.h"
-#include "iptvsimple/jellyfin/JellyfinRecordingManager.h"
 #include "iptvsimple/jellyfin/JellyfinAuth.h"
+#include "iptvsimple/jellyfin/JellyfinChannelLoader.h"
+#include "iptvsimple/jellyfin/JellyfinClient.h"
+#include "iptvsimple/jellyfin/JellyfinRecordingManager.h"
 
 #include <atomic>
 #include <functional>
@@ -54,25 +54,29 @@ public:
 
   PVR_ERROR GetChannelsAmount(int& amount) override;
   PVR_ERROR GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results) override;
-  // Kodi v22 (PVR API 9.x) added PVR_SOURCE parameter
-#ifdef KODI_PVR_API_V9
-  PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, PVR_SOURCE source, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
-#else
-  PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
-#endif
+  PVR_ERROR GetChannelStreamProperties(
+      const kodi::addon::PVRChannel& channel,
+      PVR_SOURCE source,
+      std::vector<kodi::addon::PVRStreamProperty>& properties) override;
   bool OpenLiveStream(const kodi::addon::PVRChannel& channel) override;
   void CloseLiveStream() override;
 
   PVR_ERROR GetChannelGroupsAmount(int& amount) override;
   PVR_ERROR GetChannelGroups(bool radio, kodi::addon::PVRChannelGroupsResultSet& results) override;
-  PVR_ERROR GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group, kodi::addon::PVRChannelGroupMembersResultSet& results) override;
+  PVR_ERROR GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
+                                   kodi::addon::PVRChannelGroupMembersResultSet& results) override;
 
-  PVR_ERROR GetEPGForChannel(int channelUid, time_t start, time_t end, kodi::addon::PVREPGTagsResultSet& results) override;
+  PVR_ERROR GetEPGForChannel(int channelUid,
+                             time_t start,
+                             time_t end,
+                             kodi::addon::PVREPGTagsResultSet& results) override;
   PVR_ERROR SetEPGMaxPastDays(int epgMaxPastDays) override;
   PVR_ERROR SetEPGMaxFutureDays(int epgMaxFutureDays) override;
   PVR_ERROR IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& isPlayable) override;
   PVR_ERROR IsEPGTagRecordable(const kodi::addon::PVREPGTag& tag, bool& isRecordable) override;
-  PVR_ERROR GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& tag, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
+  PVR_ERROR GetEPGTagStreamProperties(
+      const kodi::addon::PVREPGTag& tag,
+      std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
   PVR_ERROR GetSignalStatus(int channelUid, kodi::addon::PVRSignalStatus& signalStatus) override;
 
@@ -87,24 +91,21 @@ public:
   PVR_ERROR GetRecordings(bool deleted, kodi::addon::PVRRecordingsResultSet& results) override;
   PVR_ERROR DeleteRecording(const kodi::addon::PVRRecording& recording) override;
   PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count) override;
-  PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition) override;
-  PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position) override;
-  PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl) override;
-  PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
+  PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                           int lastplayedposition) override;
+  PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                           int& position) override;
+  PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording,
+                            std::vector<kodi::addon::PVREDLEntry>& edl) override;
+  PVR_ERROR GetRecordingStreamProperties(
+      const kodi::addon::PVRRecording& recording,
+      std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
-#ifdef KODI_PVR_API_V9
   bool OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId) override;
   void CloseRecordedStream(int64_t streamId) override;
   int ReadRecordedStream(int64_t streamId, unsigned char* buffer, unsigned int size) override;
   int64_t SeekRecordedStream(int64_t streamId, int64_t position, int whence) override;
   int64_t LengthRecordedStream(int64_t streamId) override;
-#else
-  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording) override;
-  void CloseRecordedStream() override;
-  int ReadRecordedStream(unsigned char* buffer, unsigned int size) override;
-  int64_t SeekRecordedStream(int64_t position, int whence) override;
-  int64_t LengthRecordedStream() override;
-#endif
 
   //@}
 
@@ -112,7 +113,8 @@ public:
   //@{
   bool GetChannel(const kodi::addon::PVRChannel& channel, iptvsimple::data::Channel& myChannel);
   bool GetChannel(unsigned int uniqueChannelId, iptvsimple::data::Channel& myChannel);
-  void OnSettingChanged(const std::string& settingName, const kodi::addon::CSettingValue& settingValue);
+  void OnSettingChanged(const std::string& settingName,
+                        const kodi::addon::CSettingValue& settingValue);
   bool NeedsRestart() const { return m_needsRestart; }
   //@}
 

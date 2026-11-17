@@ -8,8 +8,8 @@
 #pragma once
 
 #include "../Channels.h"
-#include "JellyfinClient.h"
 #include "JellyfinChannelLoader.h"
+#include "JellyfinClient.h"
 
 #include <cstdint>
 #include <memory>
@@ -19,9 +19,9 @@
 #include <vector>
 
 #include <kodi/Filesystem.h>
-#include <kodi/addon-instance/pvr/Timers.h>
 #include <kodi/addon-instance/pvr/EDL.h>
 #include <kodi/addon-instance/pvr/Recordings.h>
+#include <kodi/addon-instance/pvr/Timers.h>
 
 namespace iptvsimple
 {
@@ -31,10 +31,10 @@ namespace jellyfin
 // Timer type IDs (adapted from pvr.hts pattern - simplified for Jellyfin)
 enum TimerTypeId
 {
-  TIMER_ONCE_EPG = 1,                // One-shot recording from EPG programme
-  TIMER_ONCE_CREATED_BY_SERIES = 2,  // Child of series timer (read-only)
-  TIMER_SERIES = 3,                  // Series recording rule
-  TIMER_ONCE_MANUAL = 4              // Manual recording (channel + time, no EPG)
+  TIMER_ONCE_EPG = 1, // One-shot recording from EPG programme
+  TIMER_ONCE_CREATED_BY_SERIES = 2, // Child of series timer (read-only)
+  TIMER_SERIES = 3, // Series recording rule
+  TIMER_ONCE_MANUAL = 4 // Manual recording (channel + time, no EPG)
 };
 
 // What a Reload() actually changed, as a bit mask. The poll loop only refreshes
@@ -52,8 +52,8 @@ class ATTR_DLL_LOCAL JellyfinRecordingManager
 {
 public:
   JellyfinRecordingManager(std::shared_ptr<JellyfinClient> client,
-                            std::shared_ptr<JellyfinChannelLoader> channelLoader,
-                            std::shared_ptr<iptvsimple::InstanceSettings> settings);
+                           std::shared_ptr<JellyfinChannelLoader> channelLoader,
+                           std::shared_ptr<iptvsimple::InstanceSettings> settings);
 
   // Timer types
   PVR_ERROR GetTimerTypes(std::vector<kodi::addon::PVRTimerType>& types);
@@ -72,11 +72,14 @@ public:
   PVR_ERROR GetRecordings(kodi::addon::PVRRecordingsResultSet& results);
   PVR_ERROR DeleteRecording(const kodi::addon::PVRRecording& recording);
   PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording,
-                                          std::vector<kodi::addon::PVRStreamProperty>& properties);
+                                         std::vector<kodi::addon::PVRStreamProperty>& properties);
   PVR_ERROR SetRecordingPlayCount(const kodi::addon::PVRRecording& recording, int count);
-  PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition);
-  PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position);
-  PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl);
+  PVR_ERROR SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                           int lastplayedposition);
+  PVR_ERROR GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                           int& position);
+  PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording,
+                            std::vector<kodi::addon::PVREDLEntry>& edl);
 
   // Recorded-stream byte path (raw static stream, for the recordings Kodi
   // does not open through stream properties). One playback at a time, driven
@@ -111,7 +114,8 @@ private:
   PVR_ERROR LoadTimersInternal();
   PVR_ERROR LoadSeriesTimersInternal();
   PVR_ERROR LoadRecordingsInternal();
-  PVR_ERROR GetRecordingEdlInternal(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl);
+  PVR_ERROR GetRecordingEdlInternal(const kodi::addon::PVRRecording& recording,
+                                    std::vector<kodi::addon::PVREDLEntry>& edl);
 
   // Same as HasRecordingForEpg but assumes m_mutex is already held.
   bool HasRecordingForEpgLocked(unsigned int broadcastUid, int channelUid) const;

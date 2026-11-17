@@ -11,8 +11,8 @@
 #include "iptvsimple/InstanceSettings.h"
 #include "iptvsimple/utilities/Logger.h"
 #include "iptvsimple/utilities/StreamUtils.h"
-#include "iptvsimple/utilities/Toast.h"
 #include "iptvsimple/utilities/TimeUtils.h"
+#include "iptvsimple/utilities/Toast.h"
 #include "iptvsimple/utilities/WebUtils.h"
 
 #include <algorithm>
@@ -40,7 +40,8 @@ namespace
 // tries to parse raw MPEG-TS as an HLS playlist and fails. GetMimeType()/
 // GetManifestType() return "" for TS/unknown types, matching pvr.iptvsimple.
 void AppendCatchupInputstreamProperties(std::vector<kodi::addon::PVRStreamProperty>& properties,
-                                        const std::string& streamURL, bool isCatchupTSStream,
+                                        const std::string& streamURL,
+                                        bool isCatchupTSStream,
                                         const std::string& inputstreamAddon)
 {
   const StreamType streamType = StreamUtils::GetStreamType(streamURL, "", isCatchupTSStream);
@@ -64,7 +65,9 @@ bool IsAddonEnabled(const std::string& id)
 
 } // unnamed namespace
 
-IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance) : iptvsimple::IConnectionListener(instance), m_settings(new InstanceSettings())
+IptvSimple::IptvSimple(const kodi::addon::IInstanceInfo& instance)
+  : iptvsimple::IConnectionListener(instance),
+    m_settings(new InstanceSettings())
 {
   m_channels.Clear();
   m_channelGroups.Clear();
@@ -140,7 +143,9 @@ bool IptvSimple::ConnectionEstablished()
   // Nothing to retry: logging in asks for an add-on restart.
   if (!m_settings->GetIsLoggedIn())
   {
-    Logger::Log(LEVEL_INFO, "%s - Not logged in, skipping authentication. Use addon settings to log in.", __FUNCTION__);
+    Logger::Log(LEVEL_INFO,
+                "%s - Not logged in, skipping authentication. Use addon settings to log in.",
+                __FUNCTION__);
     return true;
   }
 
@@ -162,7 +167,9 @@ bool IptvSimple::ConnectionEstablished()
 
   if (!client->Authenticate())
   {
-    Logger::Log(LEVEL_ERROR, "%s - Authentication failed. Token may have expired — please log in again.", __FUNCTION__);
+    Logger::Log(LEVEL_ERROR,
+                "%s - Authentication failed. Token may have expired — please log in again.",
+                __FUNCTION__);
     // The connection manager retries every check interval; say so once.
     if (!m_authFailureShown)
       Toast::Error(30833);
@@ -177,7 +184,8 @@ bool IptvSimple::ConnectionEstablished()
 
   // Reuse existing loader/manager to preserve EPG program ID mappings across reconnects
   if (!m_channelLoader)
-    m_channelLoader = std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(client, m_settings);
+    m_channelLoader =
+        std::make_shared<iptvsimple::jellyfin::JellyfinChannelLoader>(client, m_settings);
   else
     m_channelLoader->SetClient(client);
   // Kodi's callbacks read the models under m_mutex and LoadChannels is
@@ -327,7 +335,8 @@ void IptvSimple::Process()
     std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_LOOP_WAIT_SECS * 1000));
 
     time_t currentRefreshTimeSeconds = std::time(nullptr);
-    unsigned int elapsed = static_cast<unsigned int>(currentRefreshTimeSeconds - lastRefreshTimeSeconds);
+    unsigned int elapsed =
+        static_cast<unsigned int>(currentRefreshTimeSeconds - lastRefreshTimeSeconds);
     lastRefreshTimeSeconds = currentRefreshTimeSeconds;
     refreshTimer += elapsed;
     timerRecordingPollTimer += elapsed;
@@ -349,7 +358,8 @@ void IptvSimple::Process()
     // every pass so a change applies without an addon restart. Only what
     // the poll changed is refreshed; see ReloadChange.
     if (m_running && loggedIn && m_recordingManager &&
-        timerRecordingPollTimer >= static_cast<unsigned int>(m_settings->GetTimerRecordingPollSecs()))
+        timerRecordingPollTimer >=
+            static_cast<unsigned int>(m_settings->GetTimerRecordingPollSecs()))
     {
       timerRecordingPollTimer = 0;
       Logger::Log(LEVEL_DEBUG, "%s - Polling timers/recordings", __FUNCTION__);
@@ -424,11 +434,10 @@ PVR_ERROR IptvSimple::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet&
   return m_channels.GetChannels(results, radio);
 }
 
-#ifdef KODI_PVR_API_V9
-PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, PVR_SOURCE /*source*/, std::vector<kodi::addon::PVRStreamProperty>& properties)
-#else
-PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, std::vector<kodi::addon::PVRStreamProperty>& properties)
-#endif
+PVR_ERROR IptvSimple::GetChannelStreamProperties(
+    const kodi::addon::PVRChannel& channel,
+    PVR_SOURCE /*source*/,
+    std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   if (GetChannel(channel, m_currentChannel))
   {
@@ -440,8 +449,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     // settings — otherwise a Jellyfin remux would be live-only and couldn't
     // seek back to the programme.
     const bool pendingTimeshiftedCatchup = m_catchupController &&
-        m_catchupController->IsPendingTimeshiftedEpgPlayback() &&
-        m_currentChannel.IsCatchupSupported();
+                                           m_catchupController->IsPendingTimeshiftedEpgPlayback() &&
+                                           m_currentChannel.IsCatchupSupported();
 
     // If the channel didn't pin an inputstream via M3U, fall back to the global
     // setting so BuildDeviceProfile / PostProcessTranscodingUrl pick the right
@@ -458,16 +467,23 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     {
       switch (m_settings->GetInputStream())
       {
-        case 0: overrides.inputstream = "inputstream.ffmpegdirect"; break;
-        case 1: overrides.inputstream = "inputstream.adaptive"; break;
-        case 2: overrides.inputstream = "inputstream.ffmpeg"; break;
+        case 0:
+          overrides.inputstream = "inputstream.ffmpegdirect";
+          break;
+        case 1:
+          overrides.inputstream = "inputstream.adaptive";
+          break;
+        case 2:
+          overrides.inputstream = "inputstream.ffmpeg";
+          break;
       }
     }
     std::string streamURL;
     if (m_channelLoader)
     {
-      streamURL = m_channelLoader->ResolveLivePlayback(
-          m_currentChannel, overrides, pendingTimeshiftedCatchup).url;
+      streamURL = m_channelLoader
+                      ->ResolveLivePlayback(m_currentChannel, overrides, pendingTimeshiftedCatchup)
+                      .url;
     }
 
     if (streamURL.empty())
@@ -488,14 +504,14 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     if (isDirectPlay && !pendingTimeshiftedCatchup)
     {
       m_currentChannel.SetStreamURL(streamURL);
-      streamURL = CatchupController::FormatLiveUrl(m_currentChannel.GetStreamURL(), m_currentChannel);
+      streamURL =
+          CatchupController::FormatLiveUrl(m_currentChannel.GetStreamURL(), m_currentChannel);
     }
 
     // Detect stream type: transcoded URLs are always Jellyfin HLS; direct play
     // URLs come straight from the tuner and could be HLS, DASH, TS, etc.
-    const StreamType streamType = isDirectPlay
-        ? StreamUtils::GetStreamType(streamURL, "", false)
-        : StreamType::HLS;
+    const StreamType streamType =
+        isDirectPlay ? StreamUtils::GetStreamType(streamURL, "", false) : StreamType::HLS;
     const std::string mimeType = StreamUtils::GetMimeType(streamType);
     const std::string manifestType = StreamUtils::GetManifestType(streamType);
 
@@ -512,11 +528,10 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
     const int inputStream = m_settings->GetInputStream();
 
     bool useFfmpegDirect = !channelInputstream.empty()
-      ? channelInputstream == "inputstream.ffmpegdirect"
-      : inputStream == 0;
-    bool useAdaptive = !channelInputstream.empty()
-      ? channelInputstream == "inputstream.adaptive"
-      : inputStream == 1;
+                               ? channelInputstream == "inputstream.ffmpegdirect"
+                               : inputStream == 0;
+    bool useAdaptive = !channelInputstream.empty() ? channelInputstream == "inputstream.adaptive"
+                                                   : inputStream == 1;
     if (pendingTimeshiftedCatchup)
     {
       // Catchup replays only through the catchup-capable inputstream — override
@@ -550,16 +565,16 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
 
       // Replace the live stream properties with the catchup ones.
       properties.clear();
-      AppendCatchupInputstreamProperties(properties, streamURL, m_currentChannel.IsCatchupTSStream(),
+      AppendCatchupInputstreamProperties(properties, streamURL,
+                                         m_currentChannel.IsCatchupTSStream(),
                                          m_settings->GetCatchupInputstream());
 
       for (const auto& prop : catchupProperties)
         properties.emplace_back(prop.first, prop.second);
 
-      Logger::Log(LogLevel::LEVEL_INFO, "%s - %s: %s (days=%d)",
-                  __FUNCTION__, catchupUrl.empty() ? "Live stream" : "Catchup stream",
-                  WebUtils::RedactUrl(streamURL).c_str(),
-                  m_currentChannel.GetCatchupDays());
+      Logger::Log(LogLevel::LEVEL_INFO, "%s - %s: %s (days=%d)", __FUNCTION__,
+                  catchupUrl.empty() ? "Live stream" : "Catchup stream",
+                  WebUtils::RedactUrl(streamURL).c_str(), m_currentChannel.GetCatchupDays());
     }
     else if (useFfmpegDirect)
     {
@@ -599,7 +614,8 @@ PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& 
 
     // DEBUG, not INFO: Kodi writes INFO to kodi.log by default and this line
     // fires on every channel play — keep resolved stream URLs out of routine logs.
-    Logger::Log(LogLevel::LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__, WebUtils::RedactUrl(streamURL).c_str());
+    Logger::Log(LogLevel::LEVEL_DEBUG, "%s - Stream URL: %s", __FUNCTION__,
+                WebUtils::RedactUrl(streamURL).c_str());
 
     TagStreamSession(properties);
     return PVR_ERROR_NO_ERROR;
@@ -625,7 +641,8 @@ void IptvSimple::TagStreamSession(std::vector<kodi::addon::PVRStreamProperty>& p
 
 bool IptvSimple::OpenLiveStream(const kodi::addon::PVRChannel& channel)
 {
-  Logger::Log(LEVEL_DEBUG, "%s - Opening live stream for channel UID %d", __FUNCTION__, channel.GetUniqueId());
+  Logger::Log(LEVEL_DEBUG, "%s - Opening live stream for channel UID %d", __FUNCTION__,
+              channel.GetUniqueId());
   return true;
 }
 
@@ -671,7 +688,8 @@ PVR_ERROR IptvSimple::GetChannelGroups(bool radio, kodi::addon::PVRChannelGroups
   return m_channelGroups.GetChannelGroups(results, radio);
 }
 
-PVR_ERROR IptvSimple::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group, kodi::addon::PVRChannelGroupMembersResultSet& results)
+PVR_ERROR IptvSimple::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
+                                             kodi::addon::PVRChannelGroupMembersResultSet& results)
 {
   std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -682,7 +700,10 @@ PVR_ERROR IptvSimple::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup&
  * EPG
  **************************************************************************/
 
-PVR_ERROR IptvSimple::GetEPGForChannel(int channelUid, time_t start, time_t end, kodi::addon::PVREPGTagsResultSet& results)
+PVR_ERROR IptvSimple::GetEPGForChannel(int channelUid,
+                                       time_t start,
+                                       time_t end,
+                                       kodi::addon::PVREPGTagsResultSet& results)
 {
   if (m_channelLoader)
     return m_channelLoader->LoadEpg(channelUid, start, end, results);
@@ -710,8 +731,8 @@ PVR_ERROR IptvSimple::IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& 
     time_t catchupWindowStart = now - channel.GetCatchupDaysInSeconds();
     // Playable if the programme has started, is within the catchup window,
     // and (if setting enabled) has finished
-    isPlayable = tag.GetStartTime() >= catchupWindowStart && tag.GetStartTime() <= now
-      && (!m_settings->CatchupOnlyOnFinishedProgrammes() || tag.GetEndTime() < now);
+    isPlayable = tag.GetStartTime() >= catchupWindowStart && tag.GetStartTime() <= now &&
+                 (!m_settings->CatchupOnlyOnFinishedProgrammes() || tag.GetEndTime() < now);
   }
   else
   {
@@ -721,8 +742,8 @@ PVR_ERROR IptvSimple::IsEPGTagPlayable(const kodi::addon::PVREPGTag& tag, bool& 
   // Also playable if a completed recording exists for this programme
   if (!isPlayable && m_recordingManager)
   {
-    isPlayable = m_recordingManager->HasRecordingForEpg(
-        tag.GetUniqueBroadcastId(), static_cast<int>(tag.GetUniqueChannelId()));
+    isPlayable = m_recordingManager->HasRecordingForEpg(tag.GetUniqueBroadcastId(),
+                                                        static_cast<int>(tag.GetUniqueChannelId()));
   }
 
   return PVR_ERROR_NO_ERROR;
@@ -745,7 +766,8 @@ PVR_ERROR IptvSimple::IsEPGTagRecordable(const kodi::addon::PVREPGTag& tag, bool
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& tag, std::vector<kodi::addon::PVRStreamProperty>& properties)
+PVR_ERROR IptvSimple::GetEPGTagStreamProperties(
+    const kodi::addon::PVREPGTag& tag, std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   // If a recording exists for this EPG entry, play the recording directly
   if (m_recordingManager)
@@ -754,8 +776,8 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
         tag.GetUniqueBroadcastId(), static_cast<int>(tag.GetUniqueChannelId()));
     if (!recordingId.empty())
     {
-      Logger::Log(LogLevel::LEVEL_INFO, "%s - Playing recording %s for EPG '%s'",
-                  __FUNCTION__, recordingId.c_str(), tag.GetTitle().c_str());
+      Logger::Log(LogLevel::LEVEL_INFO, "%s - Playing recording %s for EPG '%s'", __FUNCTION__,
+                  recordingId.c_str(), tag.GetTitle().c_str());
       kodi::addon::PVRRecording rec;
       rec.SetRecordingId(recordingId);
       const PVR_ERROR error = m_recordingManager->GetRecordingStreamProperties(rec, properties);
@@ -775,8 +797,8 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   const std::string catchupInputstream = m_settings->GetCatchupInputstream();
   if (!IsAddonEnabled(catchupInputstream))
   {
-    Logger::Log(LogLevel::LEVEL_ERROR, "%s - Catchup needs %s installed and enabled",
-                __FUNCTION__, catchupInputstream.c_str());
+    Logger::Log(LogLevel::LEVEL_ERROR, "%s - Catchup needs %s installed and enabled", __FUNCTION__,
+                catchupInputstream.c_str());
     Toast::Error(30866);
     return PVR_ERROR_FAILED;
   }
@@ -807,7 +829,8 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
   // Process the EPG tag — stores programme times in the persistent controller.
   // For timeshifted playback, GetChannelStreamProperties picks up state next.
   // For video playback, we return the catchup URL directly.
-  if (m_settings->CatchupPlayEpgAsLive() && (channel.CatchupSupportsTimeshifting() || channel.GetCatchupMode() == CatchupMode::VOD))
+  if (m_settings->CatchupPlayEpgAsLive() &&
+      (channel.CatchupSupportsTimeshifting() || channel.GetCatchupMode() == CatchupMode::VOD))
   {
     m_catchupController->ProcessEPGTagForTimeshiftedPlayback(tag, channel, catchupProperties);
   }
@@ -825,13 +848,14 @@ PVR_ERROR IptvSimple::GetEPGTagStreamProperties(const kodi::addon::PVREPGTag& ta
     for (const auto& prop : catchupProperties)
       properties.emplace_back(prop.first, prop.second);
 
-    Logger::Log(LogLevel::LEVEL_INFO, "%s - EPG catchup for '%s' on '%s': %s",
-                __FUNCTION__, tag.GetTitle().c_str(), channel.GetChannelName().c_str(),
+    Logger::Log(LogLevel::LEVEL_INFO, "%s - EPG catchup for '%s' on '%s': %s", __FUNCTION__,
+                tag.GetTitle().c_str(), channel.GetChannelName().c_str(),
                 WebUtils::RedactUrl(catchupUrl).c_str());
   }
   else
   {
-    Logger::Log(LogLevel::LEVEL_WARNING, "%s - No catchup URL for '%s'", __FUNCTION__, tag.GetTitle().c_str());
+    Logger::Log(LogLevel::LEVEL_WARNING, "%s - No catchup URL for '%s'", __FUNCTION__,
+                tag.GetTitle().c_str());
     return PVR_ERROR_FAILED;
   }
 
@@ -874,21 +898,23 @@ void IptvSimple::RunTimerOpAsync(std::function<void()> op)
 
   // Reap workers that have finished so the list stays small over a long
   // session (timer ops are rare, user-driven actions).
-  m_timerOps.erase(
-      std::remove_if(m_timerOps.begin(), m_timerOps.end(),
-                     [](TimerOp& timerOp) {
-                       if (!timerOp.done->load())
-                         return false;
-                       timerOp.thread.join();
-                       return true;
-                     }),
-      m_timerOps.end());
+  m_timerOps.erase(std::remove_if(m_timerOps.begin(), m_timerOps.end(),
+                                  [](TimerOp& timerOp)
+                                  {
+                                    if (!timerOp.done->load())
+                                      return false;
+                                    timerOp.thread.join();
+                                    return true;
+                                  }),
+                   m_timerOps.end());
 
   auto done = std::make_shared<std::atomic<bool>>(false);
-  std::thread worker([op = std::move(op), done]() {
-    op();
-    done->store(true);
-  });
+  std::thread worker(
+      [op = std::move(op), done]()
+      {
+        op();
+        done->store(true);
+      });
   m_timerOps.push_back({std::move(worker), done});
 }
 
@@ -906,28 +932,29 @@ PVR_ERROR IptvSimple::RunTimerOp(std::function<PVR_ERROR()> request,
   };
   auto answer = std::make_shared<Answer>();
 
-  RunTimerOpAsync([request = std::move(request), afterSuccess = std::move(afterSuccess),
-                   failureToast, answer]() {
-    const PVR_ERROR error = request();
-    bool abandoned;
-    {
-      std::lock_guard<std::mutex> lock(answer->mutex);
-      answer->answered = true;
-      answer->error = error;
-      abandoned = answer->abandoned;
-    }
-    answer->ready.notify_one();
+  RunTimerOpAsync(
+      [request = std::move(request), afterSuccess = std::move(afterSuccess), failureToast, answer]()
+      {
+        const PVR_ERROR error = request();
+        bool abandoned;
+        {
+          std::lock_guard<std::mutex> lock(answer->mutex);
+          answer->answered = true;
+          answer->error = error;
+          abandoned = answer->abandoned;
+        }
+        answer->ready.notify_one();
 
-    if (error != PVR_ERROR_NO_ERROR)
-    {
-      // Kodi shows its own error for a failure it was told about. One that
-      // came too late was reported to Kodi as done, so say so here.
-      if (abandoned)
-        Toast::Error(failureToast);
-      return;
-    }
-    afterSuccess();
-  });
+        if (error != PVR_ERROR_NO_ERROR)
+        {
+          // Kodi shows its own error for a failure it was told about. One that
+          // came too late was reported to Kodi as done, so say so here.
+          if (abandoned)
+            Toast::Error(failureToast);
+          return;
+        }
+        afterSuccess();
+      });
 
   std::unique_lock<std::mutex> lock(answer->mutex);
   if (answer->ready.wait_for(lock, std::chrono::seconds(TIMER_ANSWER_WAIT_SECS),
@@ -946,40 +973,42 @@ PVR_ERROR IptvSimple::AddTimer(const kodi::addon::PVRTimer& timer)
   // deep copy. The triggers fire only after Reload() completes, so Kodi
   // re-reads fresh data (the in-progress recording, EPG "play recording"
   // entry, widgets).
-  return RunTimerOp(
-      [this, timer]() { return m_recordingManager->AddTimer(timer); },
-      [this, timer]() {
-        m_recordingManager->Reload();
-        TriggerTimerUpdate();
-        TriggerRecordingUpdate();
-        TriggerEpgUpdate(timer.GetClientChannelUid());
+  return RunTimerOp([this, timer]() { return m_recordingManager->AddTimer(timer); },
+                    [this, timer]()
+                    {
+                      m_recordingManager->Reload();
+                      TriggerTimerUpdate();
+                      TriggerRecordingUpdate();
+                      TriggerEpgUpdate(timer.GetClientChannelUid());
 
-        // Jellyfin creates the timer synchronously but materializes the in-progress
-        // recording a few seconds later, so the reload above (run right after the
-        // POST) doesn't see it yet. If this timer is recording now, reload a few
-        // more times until the recording appears, so the recordings widgets and the
-        // EPG "play recording" entry update promptly instead of waiting for the next
-        // 60s poll. Future timers skip this (nothing to materialize yet).
-        const time_t now = std::time(nullptr);
-        const bool recordingNow = timer.GetStartTime() <= now && now < timer.GetEndTime();
-        if (recordingNow)
-        {
-          for (int attempt = 0; attempt < 5 && m_running &&
-               !m_recordingManager->HasRecordingForEpg(timer.GetEPGUid(), timer.GetClientChannelUid());
-               ++attempt)
-          {
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-            m_recordingManager->Reload();
-            // TriggerTimerUpdate too: once the recording materialises, the timer's
-            // state flips Scheduled -> Recording (see JellyfinRecordingManager::
-            // Reload), which is what turns the guide's clock icon into the red dot.
-            TriggerTimerUpdate();
-            TriggerRecordingUpdate();
-            TriggerEpgUpdate(timer.GetClientChannelUid());
-          }
-        }
-      },
-      30834);
+                      // Jellyfin creates the timer synchronously but materializes the in-progress
+                      // recording a few seconds later, so the reload above (run right after the
+                      // POST) doesn't see it yet. If this timer is recording now, reload a few
+                      // more times until the recording appears, so the recordings widgets and the
+                      // EPG "play recording" entry update promptly instead of waiting for the next
+                      // 60s poll. Future timers skip this (nothing to materialize yet).
+                      const time_t now = std::time(nullptr);
+                      const bool recordingNow =
+                          timer.GetStartTime() <= now && now < timer.GetEndTime();
+                      if (recordingNow)
+                      {
+                        for (int attempt = 0; attempt < 5 && m_running &&
+                                              !m_recordingManager->HasRecordingForEpg(
+                                                  timer.GetEPGUid(), timer.GetClientChannelUid());
+                             ++attempt)
+                        {
+                          std::this_thread::sleep_for(std::chrono::seconds(2));
+                          m_recordingManager->Reload();
+                          // TriggerTimerUpdate too: once the recording materialises, the timer's
+                          // state flips Scheduled -> Recording (see JellyfinRecordingManager::
+                          // Reload), which is what turns the guide's clock icon into the red dot.
+                          TriggerTimerUpdate();
+                          TriggerRecordingUpdate();
+                          TriggerEpgUpdate(timer.GetClientChannelUid());
+                        }
+                      }
+                    },
+                    30834);
 }
 
 PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool forceDelete)
@@ -989,15 +1018,16 @@ PVR_ERROR IptvSimple::DeleteTimer(const kodi::addon::PVRTimer& timer, bool force
 
   // The triggers fire after the reload, so Kodi does not re-read the deleted
   // timer.
-  return RunTimerOp(
-      [this, timer, forceDelete]() { return m_recordingManager->DeleteTimer(timer, forceDelete); },
-      [this, timer]() {
-        m_recordingManager->Reload();
-        TriggerTimerUpdate();
-        TriggerRecordingUpdate();
-        TriggerEpgUpdate(timer.GetClientChannelUid());
-      },
-      30835);
+  return RunTimerOp([this, timer, forceDelete]()
+                    { return m_recordingManager->DeleteTimer(timer, forceDelete); },
+                    [this, timer]()
+                    {
+                      m_recordingManager->Reload();
+                      TriggerTimerUpdate();
+                      TriggerRecordingUpdate();
+                      TriggerEpgUpdate(timer.GetClientChannelUid());
+                    },
+                    30835);
 }
 
 PVR_ERROR IptvSimple::UpdateTimer(const kodi::addon::PVRTimer& timer)
@@ -1053,7 +1083,9 @@ PVR_ERROR IptvSimple::DeleteRecording(const kodi::addon::PVRRecording& recording
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
-PVR_ERROR IptvSimple::GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVRStreamProperty>& properties)
+PVR_ERROR IptvSimple::GetRecordingStreamProperties(
+    const kodi::addon::PVRRecording& recording,
+    std::vector<kodi::addon::PVRStreamProperty>& properties)
 {
   if (!m_recordingManager)
     return PVR_ERROR_NOT_IMPLEMENTED;
@@ -1070,21 +1102,24 @@ PVR_ERROR IptvSimple::SetRecordingPlayCount(const kodi::addon::PVRRecording& rec
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
-PVR_ERROR IptvSimple::SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int lastplayedposition)
+PVR_ERROR IptvSimple::SetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                                     int lastplayedposition)
 {
   if (m_recordingManager)
     return m_recordingManager->SetRecordingLastPlayedPosition(recording, lastplayedposition);
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
-PVR_ERROR IptvSimple::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording, int& position)
+PVR_ERROR IptvSimple::GetRecordingLastPlayedPosition(const kodi::addon::PVRRecording& recording,
+                                                     int& position)
 {
   if (m_recordingManager)
     return m_recordingManager->GetRecordingLastPlayedPosition(recording, position);
   return PVR_ERROR_NOT_IMPLEMENTED;
 }
 
-PVR_ERROR IptvSimple::GetRecordingEdl(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl)
+PVR_ERROR IptvSimple::GetRecordingEdl(const kodi::addon::PVRRecording& recording,
+                                      std::vector<kodi::addon::PVREDLEntry>& edl)
 {
   if (m_recordingManager)
     return m_recordingManager->GetRecordingEdl(recording, edl);
@@ -1100,24 +1135,29 @@ PVR_ERROR IptvSimple::GetRecordingEdl(const kodi::addon::PVRRecording& recording
  **************************************************************************/
 
 // The byte-stream itself lives in JellyfinRecordingManager; these overrides
-// just adapt the Kodi v21/v22 signatures (v22 adds a streamId) and delegate.
-#ifdef KODI_PVR_API_V9
+// only delegate. There is a single stream, so streamId is ignored.
 bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId)
 {
   streamId = 1;
   return m_recordingManager && m_recordingManager->OpenRecordedStream(recording);
 }
-void IptvSimple::CloseRecordedStream(int64_t) { if (m_recordingManager) m_recordingManager->CloseRecordedStream(); }
-int IptvSimple::ReadRecordedStream(int64_t, unsigned char* buffer, unsigned int size) { return m_recordingManager ? m_recordingManager->ReadRecordedStream(buffer, size) : -1; }
-int64_t IptvSimple::SeekRecordedStream(int64_t, int64_t position, int whence) { return m_recordingManager ? m_recordingManager->SeekRecordedStream(position, whence) : -1; }
-int64_t IptvSimple::LengthRecordedStream(int64_t) { return m_recordingManager ? m_recordingManager->LengthRecordedStream() : -1; }
-#else
-bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording) { return m_recordingManager && m_recordingManager->OpenRecordedStream(recording); }
-void IptvSimple::CloseRecordedStream() { if (m_recordingManager) m_recordingManager->CloseRecordedStream(); }
-int IptvSimple::ReadRecordedStream(unsigned char* buffer, unsigned int size) { return m_recordingManager ? m_recordingManager->ReadRecordedStream(buffer, size) : -1; }
-int64_t IptvSimple::SeekRecordedStream(int64_t position, int whence) { return m_recordingManager ? m_recordingManager->SeekRecordedStream(position, whence) : -1; }
-int64_t IptvSimple::LengthRecordedStream() { return m_recordingManager ? m_recordingManager->LengthRecordedStream() : -1; }
-#endif
+void IptvSimple::CloseRecordedStream(int64_t)
+{
+  if (m_recordingManager)
+    m_recordingManager->CloseRecordedStream();
+}
+int IptvSimple::ReadRecordedStream(int64_t, unsigned char* buffer, unsigned int size)
+{
+  return m_recordingManager ? m_recordingManager->ReadRecordedStream(buffer, size) : -1;
+}
+int64_t IptvSimple::SeekRecordedStream(int64_t, int64_t position, int whence)
+{
+  return m_recordingManager ? m_recordingManager->SeekRecordedStream(position, whence) : -1;
+}
+int64_t IptvSimple::LengthRecordedStream(int64_t)
+{
+  return m_recordingManager ? m_recordingManager->LengthRecordedStream() : -1;
+}
 
 /***************************************************************************
  * Signal Status
@@ -1135,7 +1175,8 @@ PVR_ERROR IptvSimple::GetSignalStatus(int channelUid, kodi::addon::PVRSignalStat
  * InstanceSettings
  **************************************************************************/
 
-void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::addon::CSettingValue& settingValue)
+void IptvSimple::OnSettingChanged(const std::string& settingName,
+                                  const kodi::addon::CSettingValue& settingValue)
 {
   // Handle action buttons — only fire when the Python trigger script sets value to "trigger".
   // Kodi calls SetSetting for ALL settings on dialog close, so we must check the value
@@ -1179,10 +1220,9 @@ void IptvSimple::OnSettingChanged(const std::string& settingName, const kodi::ad
   // Ignore programmatic updates to prevent callback loops
   if (settingName == "isLoggedIn" || settingName == "jellyfinServerName" ||
       settingName == "jellyfinDisplayUsername" || settingName == "jellyfinAccessToken" ||
-      settingName == "jellyfinUserId" ||
-      settingName == "sessionItemId" || settingName == "sessionMediaSourceId" ||
-      settingName == "sessionPlaySessionId" || settingName == "sessionLiveStreamId" ||
-      settingName == "sessionPlayMethod")
+      settingName == "jellyfinUserId" || settingName == "sessionItemId" ||
+      settingName == "sessionMediaSourceId" || settingName == "sessionPlaySessionId" ||
+      settingName == "sessionLiveStreamId" || settingName == "sessionPlayMethod")
   {
     return;
   }

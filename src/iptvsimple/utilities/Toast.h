@@ -11,9 +11,9 @@
 
 namespace iptvsimple
 {
-  namespace utilities
-  {
-    /**
+namespace utilities
+{
+/**
      * Every user-visible notification the addon raises.
      *
      * The level a caller asks for is what picks the icon:
@@ -42,25 +42,25 @@ namespace iptvsimple
      * is off. Reply is exempt: it answers a button the user just pressed in
      * these settings, and without it the button would appear to do nothing.
      */
-    class Toast
-    {
-    public:
-      static void Info(const std::string& message);
-      static void Warning(const std::string& message);
-      static void Error(const std::string& message);
+class Toast
+{
+public:
+  static void Info(const std::string& message);
+  static void Warning(const std::string& message);
+  static void Error(const std::string& message);
 
-      /** Overloads for the localized-string case, which is every call site. */
-      static void Info(int localizedStringId);
-      static void Warning(int localizedStringId);
-      static void Error(int localizedStringId);
+  /** Overloads for the localized-string case, which is every call site. */
+  static void Info(int localizedStringId);
+  static void Warning(int localizedStringId);
+  static void Error(int localizedStringId);
 
-      class Reply
-      {
-      public:
-        static void Info(int localizedStringId);
-        static void Warning(int localizedStringId);
-        static void Error(int localizedStringId);
-      };
-    };
-  } // namespace utilities
+  class Reply
+  {
+  public:
+    static void Info(int localizedStringId);
+    static void Warning(int localizedStringId);
+    static void Error(int localizedStringId);
+  };
+};
+} // namespace utilities
 } // namespace iptvsimple

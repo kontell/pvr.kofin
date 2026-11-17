@@ -1,3 +1,7 @@
+v22.20.1
+- The add-on is now maintained by Team Kodi and available from the official Kodi add-on repository
+- Translations are now done on Kodi's Weblate
+
 v22.20.0
 - Skip media segments in recordings (intros, credits, recaps, previews, commercials)
 - Default to Kodi's own FFmpeg; FFmpeg Direct and Adaptive are optional

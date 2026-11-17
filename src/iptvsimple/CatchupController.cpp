@@ -29,7 +29,9 @@ using namespace iptvsimple::data;
 using namespace iptvsimple::utilities;
 
 CatchupController::CatchupController(std::shared_ptr<InstanceSettings>& settings)
-  : m_settings(settings) {}
+  : m_settings(settings)
+{
+}
 
 int CatchupController::GetTimezoneShift(const Channel& channel) const
 {
@@ -64,7 +66,8 @@ void FormatUnits(const std::string& name, time_t tTime, std::string& urlFormatSt
       time_t units = tTime / divider;
       if (units < 0)
         units = 0;
-      urlFormatString.replace(urlFormatString.find(timeSecondsExp), timeSecondsExp.length(), std::to_string(units));
+      urlFormatString.replace(urlFormatString.find(timeSecondsExp), timeSecondsExp.length(),
+                              std::to_string(units));
     }
   }
 }
@@ -84,7 +87,10 @@ void FormatTime(const char ch, const struct tm* pTime, std::string& urlFormatStr
   }
 }
 
-void FormatTime(const std::string name, const struct tm* pTime, std::string& urlFormatString, bool hasVarPrefix)
+void FormatTime(const std::string name,
+                const struct tm* pTime,
+                std::string& urlFormatString,
+                bool hasVarPrefix)
 {
   std::string qualifier = hasVarPrefix ? "$" : "";
   qualifier += "{" + name + ":";
@@ -161,7 +167,10 @@ std::string FormatDateTime(time_t timeStart, time_t duration, const std::string&
   return formattedUrl;
 }
 
-std::string FormatDateTimeNowOnly(const std::string& urlFormatString, int timezoneShiftSecs, int timeStart = 0, int duration = 0)
+std::string FormatDateTimeNowOnly(const std::string& urlFormatString,
+                                  int timezoneShiftSecs,
+                                  int timeStart = 0,
+                                  int duration = 0)
 {
   std::string formattedUrl = urlFormatString;
 
@@ -208,8 +217,11 @@ std::string FormatDateTimeNowOnly(const std::string& urlFormatString, int timezo
   return formattedUrl;
 }
 
-std::string BuildEpgTagUrl(time_t startTime, time_t duration, const Channel& channel,
-                           long long timeOffset, const std::string& programmeCatchupId,
+std::string BuildEpgTagUrl(time_t startTime,
+                           time_t duration,
+                           const Channel& channel,
+                           long long timeOffset,
+                           const std::string& programmeCatchupId,
                            int timezoneShiftSecs)
 {
   std::string startTimeUrl;
@@ -220,7 +232,8 @@ std::string BuildEpgTagUrl(time_t startTime, time_t duration, const Channel& cha
       (channel.IgnoreCatchupDays() && !programmeCatchupId.empty()))
     startTimeUrl = FormatDateTime(offset - timezoneShiftSecs, duration, channel.GetCatchupSource());
   else
-    startTimeUrl = FormatDateTimeNowOnly(channel.GetStreamURL(), timezoneShiftSecs, startTime, duration);
+    startTimeUrl =
+        FormatDateTimeNowOnly(channel.GetStreamURL(), timezoneShiftSecs, startTime, duration);
 
   static const std::regex CATCHUP_ID_REGEX("\\{catchup-id\\}");
   if (!programmeCatchupId.empty())
@@ -234,7 +247,8 @@ std::string BuildEpgTagUrl(time_t startTime, time_t duration, const Channel& cha
 
 // ─── Public methods ─────────────────────────────────────────────────────────
 
-void CatchupController::ProcessChannelForPlayback(const Channel& channel, std::map<std::string, std::string>& catchupProperties)
+void CatchupController::ProcessChannelForPlayback(
+    const Channel& channel, std::map<std::string, std::string>& catchupProperties)
 {
   // The consumer of a timeshifted EPG-tag call. GetEPGTagStreamProperties
   // stored the programme and a buffer reaching back to it, and answered
@@ -253,7 +267,10 @@ void CatchupController::ProcessChannelForPlayback(const Channel& channel, std::m
   }
 }
 
-void CatchupController::ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::PVREPGTag& epgTag, const Channel& channel, std::map<std::string, std::string>& catchupProperties)
+void CatchupController::ProcessEPGTagForTimeshiftedPlayback(
+    const kodi::addon::PVREPGTag& epgTag,
+    const Channel& channel,
+    std::map<std::string, std::string>& catchupProperties)
 {
   m_programmeCatchupId.clear();
   m_controlsLiveStream = channel.CatchupSupportsTimeshifting();
@@ -266,7 +283,8 @@ void CatchupController::ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::P
 
     time_t timeNow = time(0);
     time_t programmeOffset = timeNow - m_catchupStartTime;
-    time_t timeshiftBufferDuration = std::max(programmeOffset, static_cast<time_t>(channel.GetCatchupDaysInSeconds()));
+    time_t timeshiftBufferDuration =
+        std::max(programmeOffset, static_cast<time_t>(channel.GetCatchupDaysInSeconds()));
     m_timeshiftBufferStartTime = timeNow - timeshiftBufferDuration;
     m_catchupStartTime = m_timeshiftBufferStartTime;
     m_catchupEndTime = timeNow;
@@ -289,7 +307,10 @@ void CatchupController::ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::P
   m_fromTimeshiftedEpgTagCall = true;
 }
 
-void CatchupController::ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGTag& epgTag, const Channel& channel, std::map<std::string, std::string>& catchupProperties)
+void CatchupController::ProcessEPGTagForVideoPlayback(
+    const kodi::addon::PVREPGTag& epgTag,
+    const Channel& channel,
+    std::map<std::string, std::string>& catchupProperties)
 {
   m_programmeCatchupId.clear();
   m_controlsLiveStream = channel.CatchupSupportsTimeshifting();
@@ -326,32 +347,45 @@ void CatchupController::ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGT
   m_fromTimeshiftedEpgTagCall = false;
 }
 
-void CatchupController::SetCatchupInputStreamProperties(bool playbackAsLive, const Channel& channel, std::map<std::string, std::string>& catchupProperties)
+void CatchupController::SetCatchupInputStreamProperties(
+    bool playbackAsLive,
+    const Channel& channel,
+    std::map<std::string, std::string>& catchupProperties)
 {
   const std::string catchupAddonPrefix = m_settings->GetCatchupInputstream() + ".";
 
   const int tzShift = GetTimezoneShift(channel);
 
-  catchupProperties.insert({PVR_STREAM_PROPERTY_EPGPLAYBACKASLIVE, playbackAsLive ? "true" : "false"});
+  catchupProperties.insert(
+      {PVR_STREAM_PROPERTY_EPGPLAYBACKASLIVE, playbackAsLive ? "true" : "false"});
   catchupProperties.insert({catchupAddonPrefix + "is_realtime_stream", "true"});
   catchupProperties.insert({catchupAddonPrefix + "stream_mode", "catchup"});
   catchupProperties.insert({catchupAddonPrefix + "default_url", channel.GetStreamURL()});
-  catchupProperties.insert({catchupAddonPrefix + "playback_as_live", playbackAsLive ? "true" : "false"});
-  catchupProperties.insert({catchupAddonPrefix + "catchup_url_format_string", GetCatchupUrlFormatString(channel)});
-  catchupProperties.insert({catchupAddonPrefix + "catchup_buffer_start_time", std::to_string(m_catchupStartTime)});
-  catchupProperties.insert({catchupAddonPrefix + "catchup_buffer_end_time", std::to_string(m_catchupEndTime)});
-  catchupProperties.insert({catchupAddonPrefix + "catchup_buffer_offset", std::to_string(m_timeshiftBufferOffset)});
+  catchupProperties.insert(
+      {catchupAddonPrefix + "playback_as_live", playbackAsLive ? "true" : "false"});
+  catchupProperties.insert(
+      {catchupAddonPrefix + "catchup_url_format_string", GetCatchupUrlFormatString(channel)});
+  catchupProperties.insert(
+      {catchupAddonPrefix + "catchup_buffer_start_time", std::to_string(m_catchupStartTime)});
+  catchupProperties.insert(
+      {catchupAddonPrefix + "catchup_buffer_end_time", std::to_string(m_catchupEndTime)});
+  catchupProperties.insert(
+      {catchupAddonPrefix + "catchup_buffer_offset", std::to_string(m_timeshiftBufferOffset)});
   catchupProperties.insert({catchupAddonPrefix + "timezone_shift", std::to_string(tzShift)});
   if (!m_programmeCatchupId.empty())
     catchupProperties.insert({catchupAddonPrefix + "programme_catchup_id", m_programmeCatchupId});
-  catchupProperties.insert({catchupAddonPrefix + "catchup_terminates", channel.CatchupSourceTerminates() ? "true" : "false"});
-  catchupProperties.insert({catchupAddonPrefix + "catchup_granularity", std::to_string(channel.GetCatchupGranularitySeconds())});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_terminates",
+                            channel.CatchupSourceTerminates() ? "true" : "false"});
+  catchupProperties.insert({catchupAddonPrefix + "catchup_granularity",
+                            std::to_string(channel.GetCatchupGranularitySeconds())});
 
-  Logger::Log(LEVEL_DEBUG, "%s - default_url: %s", __FUNCTION__, WebUtils::RedactUrl(channel.GetStreamURL()).c_str());
-  Logger::Log(LEVEL_DEBUG, "%s - catchup_url_format_string: %s", __FUNCTION__, WebUtils::RedactUrl(GetCatchupUrlFormatString(channel)).c_str());
-  Logger::Log(LEVEL_DEBUG, "%s - buffer: start=%lld end=%lld offset=%lld",
-              __FUNCTION__, static_cast<long long>(m_catchupStartTime),
-              static_cast<long long>(m_catchupEndTime), m_timeshiftBufferOffset);
+  Logger::Log(LEVEL_DEBUG, "%s - default_url: %s", __FUNCTION__,
+              WebUtils::RedactUrl(channel.GetStreamURL()).c_str());
+  Logger::Log(LEVEL_DEBUG, "%s - catchup_url_format_string: %s", __FUNCTION__,
+              WebUtils::RedactUrl(GetCatchupUrlFormatString(channel)).c_str());
+  Logger::Log(LEVEL_DEBUG, "%s - buffer: start=%lld end=%lld offset=%lld", __FUNCTION__,
+              static_cast<long long>(m_catchupStartTime), static_cast<long long>(m_catchupEndTime),
+              m_timeshiftBufferOffset);
 }
 
 std::string CatchupController::GetCatchupUrlFormatString(const Channel& channel) const
@@ -370,7 +404,8 @@ std::string CatchupController::GetCatchupUrl(const Channel& channel) const
     {
       duration = static_cast<time_t>(m_programmeEndTime - m_programmeStartTime);
       if (!m_settings->CatchupPlayEpgAsLive() && m_playbackIsVideo)
-        duration += m_settings->GetCatchupWatchEpgBeginBufferSecs() + m_settings->GetCatchupWatchEpgEndBufferSecs();
+        duration += m_settings->GetCatchupWatchEpgBeginBufferSecs() +
+                    m_settings->GetCatchupWatchEpgEndBufferSecs();
       time_t timeNow = time(0);
       if (m_programmeStartTime + duration > timeNow)
         duration = timeNow - m_programmeStartTime;
@@ -383,8 +418,9 @@ std::string CatchupController::GetCatchupUrl(const Channel& channel) const
 
 std::string CatchupController::ProcessStreamUrl(const Channel& channel) const
 {
-  std::string processedUrl = FormatDateTimeNowOnly(channel.GetStreamURL(), GetTimezoneShift(channel),
-                                                    m_programmeStartTime, m_programmeEndTime - m_programmeStartTime);
+  std::string processedUrl =
+      FormatDateTimeNowOnly(channel.GetStreamURL(), GetTimezoneShift(channel), m_programmeStartTime,
+                            m_programmeEndTime - m_programmeStartTime);
   static const std::regex CATCHUP_ID_REGEX("\\{catchup-id\\}");
   if (!m_programmeCatchupId.empty())
     processedUrl = std::regex_replace(processedUrl, CATCHUP_ID_REGEX, m_programmeCatchupId);

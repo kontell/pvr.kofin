@@ -7,9 +7,9 @@
 
 #include "JellyfinAuth.h"
 
-#include "JellyfinClient.h"
 #include "../utilities/Logger.h"
 #include "../utilities/Toast.h"
+#include "JellyfinClient.h"
 
 #include <chrono>
 #include <memory>
@@ -116,8 +116,8 @@ void JellyfinAuth::RunLoginInternal()
     entries.push_back(kodi::addon::GetLocalizedString(30707)); // "Quick Connect"
     entries.push_back(kodi::addon::GetLocalizedString(30706)); // "Username/Password"
 
-    const int selected = kodi::gui::dialogs::Select::Show(
-      kodi::addon::GetLocalizedString(30708), entries); // "Choose login method"
+    const int selected = kodi::gui::dialogs::Select::Show(kodi::addon::GetLocalizedString(30708),
+                                                          entries); // "Choose login method"
 
     if (selected < 0)
       return; // cancelled
@@ -145,16 +145,16 @@ void JellyfinAuth::RunLoginInternal()
 bool JellyfinAuth::LoginWithPassword()
 {
   std::string username;
-  if (!kodi::gui::dialogs::Keyboard::ShowAndGetInput(username,
-      kodi::addon::GetLocalizedString(30709), false, false))
+  if (!kodi::gui::dialogs::Keyboard::ShowAndGetInput(
+          username, kodi::addon::GetLocalizedString(30709), false, false))
     return false;
 
   if (username.empty())
     return false;
 
   std::string password;
-  if (!kodi::gui::dialogs::Keyboard::ShowAndGetInput(password,
-      kodi::addon::GetLocalizedString(30710), false, true))
+  if (!kodi::gui::dialogs::Keyboard::ShowAndGetInput(
+          password, kodi::addon::GetLocalizedString(30710), false, true))
     return false;
 
   auto client = std::make_shared<iptvsimple::jellyfin::JellyfinClient>(m_settings);
@@ -248,7 +248,8 @@ void JellyfinAuth::RunLogout()
     }
     catch (const std::exception& e)
     {
-      Logger::Log(LEVEL_ERROR, "%s - Exception during server-side logout: %s", __FUNCTION__, e.what());
+      Logger::Log(LEVEL_ERROR, "%s - Exception during server-side logout: %s", __FUNCTION__,
+                  e.what());
     }
   }
 

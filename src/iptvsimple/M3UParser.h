@@ -65,8 +65,8 @@ public:
   const std::vector<std::string>& GetAllGroupNames() const { return m_allGroupNames; }
 
 private:
-  std::map<std::string, M3UChannelInfo> m_channels;     // lowercase name → info
-  std::vector<std::string> m_allGroupNames;             // unique, first-seen order
+  std::map<std::string, M3UChannelInfo> m_channels; // lowercase name → info
+  std::vector<std::string> m_allGroupNames; // unique, first-seen order
   std::shared_ptr<InstanceSettings> m_settings;
 };
 
