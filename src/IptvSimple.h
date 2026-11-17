@@ -54,12 +54,7 @@ public:
 
   PVR_ERROR GetChannelsAmount(int& amount) override;
   PVR_ERROR GetChannels(bool radio, kodi::addon::PVRChannelsResultSet& results) override;
-  // Kodi v22 (PVR API 9.x) added PVR_SOURCE parameter
-#ifdef KODI_PVR_API_V9
   PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, PVR_SOURCE source, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
-#else
-  PVR_ERROR GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
-#endif
   bool OpenLiveStream(const kodi::addon::PVRChannel& channel) override;
   void CloseLiveStream() override;
 
@@ -92,19 +87,11 @@ public:
   PVR_ERROR GetRecordingEdl(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVREDLEntry>& edl) override;
   PVR_ERROR GetRecordingStreamProperties(const kodi::addon::PVRRecording& recording, std::vector<kodi::addon::PVRStreamProperty>& properties) override;
 
-#ifdef KODI_PVR_API_V9
   bool OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId) override;
   void CloseRecordedStream(int64_t streamId) override;
   int ReadRecordedStream(int64_t streamId, unsigned char* buffer, unsigned int size) override;
   int64_t SeekRecordedStream(int64_t streamId, int64_t position, int whence) override;
   int64_t LengthRecordedStream(int64_t streamId) override;
-#else
-  bool OpenRecordedStream(const kodi::addon::PVRRecording& recording) override;
-  void CloseRecordedStream() override;
-  int ReadRecordedStream(unsigned char* buffer, unsigned int size) override;
-  int64_t SeekRecordedStream(int64_t position, int whence) override;
-  int64_t LengthRecordedStream() override;
-#endif
 
   //@}
 

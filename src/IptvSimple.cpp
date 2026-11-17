@@ -424,11 +424,7 @@ PVR_ERROR IptvSimple::GetChannels(bool radio, kodi::addon::PVRChannelsResultSet&
   return m_channels.GetChannels(results, radio);
 }
 
-#ifdef KODI_PVR_API_V9
 PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, PVR_SOURCE /*source*/, std::vector<kodi::addon::PVRStreamProperty>& properties)
-#else
-PVR_ERROR IptvSimple::GetChannelStreamProperties(const kodi::addon::PVRChannel& channel, std::vector<kodi::addon::PVRStreamProperty>& properties)
-#endif
 {
   if (GetChannel(channel, m_currentChannel))
   {
@@ -1100,8 +1096,7 @@ PVR_ERROR IptvSimple::GetRecordingEdl(const kodi::addon::PVRRecording& recording
  **************************************************************************/
 
 // The byte-stream itself lives in JellyfinRecordingManager; these overrides
-// just adapt the Kodi v21/v22 signatures (v22 adds a streamId) and delegate.
-#ifdef KODI_PVR_API_V9
+// only delegate. There is a single stream, so streamId is ignored.
 bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording, int64_t& streamId)
 {
   streamId = 1;
@@ -1111,13 +1106,6 @@ void IptvSimple::CloseRecordedStream(int64_t) { if (m_recordingManager) m_record
 int IptvSimple::ReadRecordedStream(int64_t, unsigned char* buffer, unsigned int size) { return m_recordingManager ? m_recordingManager->ReadRecordedStream(buffer, size) : -1; }
 int64_t IptvSimple::SeekRecordedStream(int64_t, int64_t position, int whence) { return m_recordingManager ? m_recordingManager->SeekRecordedStream(position, whence) : -1; }
 int64_t IptvSimple::LengthRecordedStream(int64_t) { return m_recordingManager ? m_recordingManager->LengthRecordedStream() : -1; }
-#else
-bool IptvSimple::OpenRecordedStream(const kodi::addon::PVRRecording& recording) { return m_recordingManager && m_recordingManager->OpenRecordedStream(recording); }
-void IptvSimple::CloseRecordedStream() { if (m_recordingManager) m_recordingManager->CloseRecordedStream(); }
-int IptvSimple::ReadRecordedStream(unsigned char* buffer, unsigned int size) { return m_recordingManager ? m_recordingManager->ReadRecordedStream(buffer, size) : -1; }
-int64_t IptvSimple::SeekRecordedStream(int64_t position, int whence) { return m_recordingManager ? m_recordingManager->SeekRecordedStream(position, whence) : -1; }
-int64_t IptvSimple::LengthRecordedStream() { return m_recordingManager ? m_recordingManager->LengthRecordedStream() : -1; }
-#endif
 
 /***************************************************************************
  * Signal Status

@@ -69,27 +69,6 @@ set(KOFIN_HEADERS src/addon.h
 addon_version(pvr.kofin KOFIN)
 add_definitions(-DKOFIN_VERSION=${KOFIN_VERSION})
 
-# Detect PVR API version for v21/v22 compatibility
-if(KODI_INCLUDE_DIR)
-  if(EXISTS "${KODI_INCLUDE_DIR}/kodi/versions.h")
-    set(_versions_h "${KODI_INCLUDE_DIR}/kodi/versions.h")
-  elseif(EXISTS "${KODI_INCLUDE_DIR}/versions.h")
-    set(_versions_h "${KODI_INCLUDE_DIR}/versions.h")
-  endif()
-  if(_versions_h)
-    file(STRINGS "${_versions_h}" _pvr_ver_line
-         REGEX "ADDON_INSTANCE_VERSION_PVR[^_]")
-    if(_pvr_ver_line MATCHES "\"([0-9]+)\\.")
-      set(KODI_PVR_API_MAJOR ${CMAKE_MATCH_1})
-      message(STATUS "Detected PVR API major version: ${KODI_PVR_API_MAJOR}")
-      if(KODI_PVR_API_MAJOR GREATER_EQUAL 9)
-        add_definitions(-DKODI_PVR_API_V9)
-        message(STATUS "PVR API v9+ detected — enabling v22 compatibility")
-      endif()
-    endif()
-  endif()
-endif()
-
 build_addon(pvr.kofin KOFIN DEPLIBS)
 
 include(CPack)
