@@ -11,12 +11,12 @@
 
 namespace iptvsimple
 {
-  namespace utilities
-  {
-    class FileUtils
-    {
-    public:
-      static bool FileExists(const std::string& file);
-    };
-  } // namespace utilities
+namespace utilities
+{
+class FileUtils
+{
+public:
+  static bool FileExists(const std::string& file);
+};
+} // namespace utilities
 } // namespace iptvsimple

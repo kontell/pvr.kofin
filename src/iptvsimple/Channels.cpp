@@ -49,8 +49,9 @@ PVR_ERROR Channels::GetChannels(kodi::addon::PVRChannelsResultSet& results, bool
   {
     if (channel.IsRadio() == radio)
     {
-      Logger::Log(LEVEL_DEBUG, "%s - Transfer channel '%s', ChannelId '%d', ChannelNumber: '%d'", __FUNCTION__, channel.GetChannelName().c_str(),
-                  channel.GetUniqueId(), channel.GetChannelNumber());
+      Logger::Log(LEVEL_DEBUG, "%s - Transfer channel '%s', ChannelId '%d', ChannelNumber: '%d'",
+                  __FUNCTION__, channel.GetChannelName().c_str(), channel.GetUniqueId(),
+                  channel.GetChannelNumber());
       kodi::addon::PVRChannel kodiChannel;
 
       channel.UpdateTo(kodiChannel);
@@ -60,7 +61,8 @@ PVR_ERROR Channels::GetChannels(kodi::addon::PVRChannelsResultSet& results, bool
     }
   }
 
-  Logger::Log(LEVEL_DEBUG, "%s - channels available '%d', radio = %d", __FUNCTION__, m_channels.size(), radio);
+  Logger::Log(LEVEL_DEBUG, "%s - channels available '%d', radio = %d", __FUNCTION__,
+              m_channels.size(), radio);
 
   return PVR_ERROR_NO_ERROR;
 }
@@ -85,9 +87,13 @@ bool Channels::GetChannel(int uniqueId, Channel& myChannel) const
   return false;
 }
 
-bool Channels::AddChannel(Channel& channel, std::vector<int>& groupIdList, ChannelGroups& channelGroups, bool channelHadGroups)
+bool Channels::AddChannel(Channel& channel,
+                          std::vector<int>& groupIdList,
+                          ChannelGroups& channelGroups,
+                          bool channelHadGroups)
 {
-  channel.SetUniqueId(GenerateChannelId(channel.GetChannelName().c_str(), channel.GetStreamURL().c_str()));
+  channel.SetUniqueId(
+      GenerateChannelId(channel.GetChannelName().c_str(), channel.GetStreamURL().c_str()));
 
   bool belongsToGroup = false;
   for (int myGroupId : groupIdList)

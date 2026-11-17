@@ -19,42 +19,44 @@
 
 namespace iptvsimple
 {
-  class ChannelGroups
+class ChannelGroups
+{
+public:
+  ChannelGroups(const iptvsimple::Channels& channels,
+                std::shared_ptr<iptvsimple::InstanceSettings>& settings);
+
+  int GetChannelGroupsAmount() const;
+  PVR_ERROR GetChannelGroups(kodi::addon::PVRChannelGroupsResultSet& results, bool radio) const;
+  PVR_ERROR GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group,
+                                   kodi::addon::PVRChannelGroupMembersResultSet& results);
+
+  int AddChannelGroup(iptvsimple::data::ChannelGroup& channelGroup);
+  iptvsimple::data::ChannelGroup* GetChannelGroup(int uniqueId);
+  iptvsimple::data::ChannelGroup* FindChannelGroup(const std::string& name);
+  const std::vector<data::ChannelGroup>& GetChannelGroupsList() const { return m_channelGroups; }
+  bool Init();
+  void Clear();
+
+  // Adopt the data of a freshly loaded instance — see Channels::MoveFrom.
+  // (Assignment is deleted by the m_channels reference member.)
+  void MoveFrom(ChannelGroups&& other)
   {
-  public:
-    ChannelGroups(const iptvsimple::Channels& channels, std::shared_ptr<iptvsimple::InstanceSettings>& settings);
+    m_channelGroups = std::move(other.m_channelGroups);
+    m_channelGroupsLoadFailed = other.m_channelGroupsLoadFailed;
+    m_groupBackendOrderPosition = other.m_groupBackendOrderPosition;
+  }
 
-    int GetChannelGroupsAmount() const;
-    PVR_ERROR GetChannelGroups(kodi::addon::PVRChannelGroupsResultSet& results, bool radio) const;
-    PVR_ERROR GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group, kodi::addon::PVRChannelGroupMembersResultSet& results);
+  void ChannelGroupsLoadFailed() { m_channelGroupsLoadFailed = true; };
+  void RemoveEmptyGroups();
 
-    int AddChannelGroup(iptvsimple::data::ChannelGroup& channelGroup);
-    iptvsimple::data::ChannelGroup* GetChannelGroup(int uniqueId);
-    iptvsimple::data::ChannelGroup* FindChannelGroup(const std::string& name);
-    const std::vector<data::ChannelGroup>& GetChannelGroupsList() const { return m_channelGroups; }
-    bool Init();
-    void Clear();
+private:
+  const iptvsimple::Channels& m_channels;
+  std::vector<iptvsimple::data::ChannelGroup> m_channelGroups;
 
-    // Adopt the data of a freshly loaded instance — see Channels::MoveFrom.
-    // (Assignment is deleted by the m_channels reference member.)
-    void MoveFrom(ChannelGroups&& other)
-    {
-      m_channelGroups = std::move(other.m_channelGroups);
-      m_channelGroupsLoadFailed = other.m_channelGroupsLoadFailed;
-      m_groupBackendOrderPosition = other.m_groupBackendOrderPosition;
-    }
+  bool m_channelGroupsLoadFailed = false;
 
-    void ChannelGroupsLoadFailed() { m_channelGroupsLoadFailed = true; };
-    void RemoveEmptyGroups();
+  int m_groupBackendOrderPosition;
 
-  private:
-    const iptvsimple::Channels& m_channels;
-    std::vector<iptvsimple::data::ChannelGroup> m_channelGroups;
-
-    bool m_channelGroupsLoadFailed = false;
-
-    int m_groupBackendOrderPosition;
-
-    std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
-  };
+  std::shared_ptr<iptvsimple::InstanceSettings> m_settings;
+};
 } //namespace iptvsimple

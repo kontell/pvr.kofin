@@ -14,21 +14,21 @@
 #include "../utilities/UidUtils.h"
 #include "../utilities/WebUtils.h"
 
-#include <kodi/Filesystem.h>
-#include <kodi/General.h>
-
 #include <algorithm>
 #include <cctype>
 #include <chrono>
 #include <cmath>
 #include <cstdlib>
-#include <set>
 #include <cstring>
 #include <ctime>
 #include <iomanip>
+#include <set>
 #include <sstream>
 #include <utility>
 #include <vector>
+
+#include <kodi/Filesystem.h>
+#include <kodi/General.h>
 
 using namespace iptvsimple;
 using namespace iptvsimple::data;
@@ -70,8 +70,8 @@ void AppendApiKey(std::string& streamUrl, const std::string& baseUrl, const std:
 // else either gets it stripped (no fallback restored) or, if the source
 // matches, pinned as the encode target.
 const std::set<std::string> kHlsTsAudio = {"aac", "ac3", "eac3", "mp3"};
-const std::set<std::string> kHlsMp4Audio = {
-    "aac", "ac3", "eac3", "mp3", "alac", "flac", "opus", "dts", "truehd"};
+const std::set<std::string> kHlsMp4Audio = {"aac",  "ac3",  "eac3", "mp3",   "alac",
+                                            "flac", "opus", "dts",  "truehd"};
 const std::set<std::string> kHlsTsVideo = {"h264", "hevc", "vp9"};
 
 std::vector<std::string> SplitCsv(const std::string& csv)
@@ -137,8 +137,7 @@ std::string HlsCopyList(const std::string& allowedCsv,
 bool ParseBoolProp(const std::string& value)
 {
   std::string v = value;
-  std::transform(v.begin(), v.end(), v.begin(),
-                 [](unsigned char c) { return std::tolower(c); });
+  std::transform(v.begin(), v.end(), v.begin(), [](unsigned char c) { return std::tolower(c); });
   return v == "true" || v == "1" || v == "yes" || v == "on";
 }
 
@@ -186,7 +185,8 @@ ChannelOverrides ChannelOverrides::FromChannel(const Channel& channel)
   ChannelOverrides o;
   const auto& props = channel.GetProperties();
 
-  auto get = [&](const std::string& key) -> const std::string* {
+  auto get = [&](const std::string& key) -> const std::string*
+  {
     auto it = props.find(key);
     return (it != props.end()) ? &it->second : nullptr;
   };
@@ -215,13 +215,12 @@ ChannelOverrides ChannelOverrides::FromChannel(const Channel& channel)
   return o;
 }
 
-JellyfinChannelLoader::JellyfinChannelLoader(
-    std::shared_ptr<JellyfinClient> client,
-    std::shared_ptr<iptvsimple::InstanceSettings> settings)
-  : m_client(client), m_settings(settings)
+JellyfinChannelLoader::JellyfinChannelLoader(std::shared_ptr<JellyfinClient> client,
+                                             std::shared_ptr<iptvsimple::InstanceSettings> settings)
+  : m_client(client),
+    m_settings(settings)
 {
 }
-
 
 bool JellyfinChannelLoader::LoadChannels(Channels& channels, ChannelGroups& channelGroups)
 {
@@ -253,8 +252,8 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
     return false;
   }
 
-  const std::string endpoint = "/LiveTv/Channels?UserId=" + client->GetUserId()
-    + "&EnableImages=true&SortBy=SortName&Limit=10000";
+  const std::string endpoint = "/LiveTv/Channels?UserId=" + client->GetUserId() +
+                               "&EnableImages=true&SortBy=SortName&Limit=10000";
 
   Json::Value response = client->SendGet(endpoint);
 
@@ -270,8 +269,10 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
 
   const int totalRecordCount = response.get("TotalRecordCount", 0).asInt();
   if (totalRecordCount > static_cast<int>(items.size()))
-    Logger::Log(LEVEL_WARNING, "%s - Channel list truncated by the request limit: server has %d channels, fetched %d",
-                __FUNCTION__, totalRecordCount, static_cast<int>(items.size()));
+    Logger::Log(
+        LEVEL_WARNING,
+        "%s - Channel list truncated by the request limit: server has %d channels, fetched %d",
+        __FUNCTION__, totalRecordCount, static_cast<int>(items.size()));
 
   if (items.empty())
   {
@@ -345,7 +346,8 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
     channel.SetTvgId(jellyfinId);
 
     if (item.isMember("ImageTags") && item["ImageTags"].isMember("Primary"))
-      channel.SetIconPath(client->BuildImageUrl(jellyfinId, item["ImageTags"]["Primary"].asString()));
+      channel.SetIconPath(
+          client->BuildImageUrl(jellyfinId, item["ImageTags"]["Primary"].asString()));
 
     // Stream URL placeholder - actual URL resolved via PlaybackInfo in
     // GetChannelStreamProperties. NOTE: this string feeds the channel UID
@@ -370,11 +372,13 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
         {
           channel.SetHasCatchup(true);
           channel.SetCatchupMode(info->catchupMode);
-          channel.SetCatchupDays(info->catchupDays > 0 ? info->catchupDays : m_settings->GetCatchupDays());
+          channel.SetCatchupDays(info->catchupDays > 0 ? info->catchupDays
+                                                       : m_settings->GetCatchupDays());
           if (!info->catchupSource.empty())
             channel.SetCatchupSource(info->catchupSource);
           if (info->catchupCorrectionHours != 0.0f)
-            channel.SetCatchupCorrectionSecs(static_cast<int>(info->catchupCorrectionHours * 3600.0f));
+            channel.SetCatchupCorrectionSecs(
+                static_cast<int>(info->catchupCorrectionHours * 3600.0f));
           channel.ConfigureCatchupMode();
         }
 
@@ -429,8 +433,10 @@ bool JellyfinChannelLoader::LoadChannelsInternal(Channels& channels, ChannelGrou
   return true;
 }
 
-PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t end,
-                                          kodi::addon::PVREPGTagsResultSet& results)
+PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid,
+                                         time_t start,
+                                         time_t end,
+                                         kodi::addon::PVREPGTagsResultSet& results)
 {
   // Exception firewall — see LoadChannels.
   try
@@ -444,7 +450,9 @@ PVR_ERROR JellyfinChannelLoader::LoadEpg(int channelUid, time_t start, time_t en
   }
 }
 
-PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, time_t end,
+PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid,
+                                                 time_t start,
+                                                 time_t end,
                                                  kodi::addon::PVREPGTagsResultSet& results)
 {
   std::string jellyfinId;
@@ -464,14 +472,11 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
     return PVR_ERROR_SERVER_ERROR;
 
   // Use MaxStartDate (not MaxEndDate) - Jellyfin API returns programmes that start before this time
-  const std::string endpoint = "/LiveTv/Programs?ChannelIds=" + jellyfinId
-    + "&UserId=" + client->GetUserId()
-    + "&MinStartDate=" + WebUtils::UrlEncode(FormatIso8601(start))
-    + "&MaxStartDate=" + WebUtils::UrlEncode(FormatIso8601(end))
-    + "&Fields=Overview,ChannelInfo"
-    + "&EnableImages=true"
-    + "&SortBy=StartDate"
-    + "&Limit=500";
+  const std::string endpoint =
+      "/LiveTv/Programs?ChannelIds=" + jellyfinId + "&UserId=" + client->GetUserId() +
+      "&MinStartDate=" + WebUtils::UrlEncode(FormatIso8601(start)) +
+      "&MaxStartDate=" + WebUtils::UrlEncode(FormatIso8601(end)) + "&Fields=Overview,ChannelInfo" +
+      "&EnableImages=true" + "&SortBy=StartDate" + "&Limit=500";
 
   Json::Value response = client->SendGet(endpoint);
 
@@ -485,7 +490,9 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
 
   const int totalProgramCount = response.get("TotalRecordCount", 0).asInt();
   if (totalProgramCount > static_cast<int>(items.size()))
-    Logger::Log(LEVEL_WARNING, "%s - EPG window truncated by the request limit for channel %d: server has %d programmes, fetched %d",
+    Logger::Log(LEVEL_WARNING,
+                "%s - EPG window truncated by the request limit for channel %d: server has %d "
+                "programmes, fetched %d",
                 __FUNCTION__, channelUid, totalProgramCount, static_cast<int>(items.size()));
 
   for (const auto& item : items)
@@ -501,8 +508,8 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
       // an EPG UID is missing from the map.
       if (m_epgUidToJellyfinProgramId.size() >= EPG_UID_MAP_MAX_ENTRIES)
       {
-        Logger::Log(LEVEL_INFO, "%s - EPG UID map reached %zu entries, clearing",
-                    __FUNCTION__, m_epgUidToJellyfinProgramId.size());
+        Logger::Log(LEVEL_INFO, "%s - EPG UID map reached %zu entries, clearing", __FUNCTION__,
+                    m_epgUidToJellyfinProgramId.size());
         m_epgUidToJellyfinProgramId.clear();
       }
       m_epgUidToJellyfinProgramId[broadcastUid] = jellyfinProgramId;
@@ -530,8 +537,8 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
 
     // Image
     if (item.isMember("ImageTags") && item["ImageTags"].isMember("Primary"))
-      tag.SetIconPath(client->BuildImageUrl(item["Id"].asString(),
-                                            item["ImageTags"]["Primary"].asString()));
+      tag.SetIconPath(
+          client->BuildImageUrl(item["Id"].asString(), item["ImageTags"]["Primary"].asString()));
 
     // Season/Episode
     if (item.isMember("IndexNumber"))
@@ -559,8 +566,8 @@ PVR_ERROR JellyfinChannelLoader::LoadEpgInternal(int channelUid, time_t start, t
     results.Add(tag);
   }
 
-  Logger::Log(LEVEL_DEBUG, "%s - Loaded %d EPG entries for channel %d",
-              __FUNCTION__, static_cast<int>(items.size()), channelUid);
+  Logger::Log(LEVEL_DEBUG, "%s - Loaded %d EPG entries for channel %d", __FUNCTION__,
+              static_cast<int>(items.size()), channelUid);
   return PVR_ERROR_NO_ERROR;
 }
 
@@ -574,10 +581,12 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // the transcode column, and remux is HLS + codec-copy.
   const bool forceDirectPlay = overrides.forceDirectPlay.value_or(false);
   const bool forceRemux = overrides.forceRemux.value_or(m_settings->GetForceTranscode());
-  const bool forceTranscodeActive = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
+  const bool forceTranscodeActive =
+      overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
   const bool remuxCopy = forceRemux && !forceTranscodeActive;
-  const int maxBitrateBps = (forceDirectPlay || remuxCopy) ? 1000000000
-      : overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
+  const int maxBitrateBps = (forceDirectPlay || remuxCopy)
+                                ? 1000000000
+                                : overrides.bitrateBps.value_or(m_settings->GetMaxBitrateBps());
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
   Json::Value profile;
@@ -652,7 +661,8 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // Build the actual codec CSV for the device profile, mapping virtual
   // entries back to real codec names.
   std::string allowedVideoCodecsCsv;
-  auto addCodec = [&](const std::string& codec) {
+  auto addCodec = [&](const std::string& codec)
+  {
     if (!allowedVideoCodecsCsv.empty())
       allowedVideoCodecsCsv += ",";
     allowedVideoCodecsCsv += codec;
@@ -682,11 +692,13 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   std::string tsVideoCodecs;
   {
     const bool hevcInList = hevcAllowed || hevcRextAllowed;
-    const std::string tsLead =
-        (preferredVideo == "av1" && hevcInList) ? "hevc" : preferredVideo;
-    auto addCodecToList = [&](const std::string& codec) {
-      if (codec == "av1") return;
-      if (!tsVideoCodecs.empty()) tsVideoCodecs += ",";
+    const std::string tsLead = (preferredVideo == "av1" && hevcInList) ? "hevc" : preferredVideo;
+    auto addCodecToList = [&](const std::string& codec)
+    {
+      if (codec == "av1")
+        return;
+      if (!tsVideoCodecs.empty())
+        tsVideoCodecs += ",";
       tsVideoCodecs += codec;
     };
     addCodecToList(tsLead);
@@ -705,8 +717,7 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   if (remuxCopy)
   {
     const std::string tsPreferred =
-        (preferredVideo == "av1" && (hevcAllowed || hevcRextAllowed)) ? "hevc"
-                                                                       : preferredVideo;
+        (preferredVideo == "av1" && (hevcAllowed || hevcRextAllowed)) ? "hevc" : preferredVideo;
     const std::string remuxTsVideo = HlsCopyList(tsVideoCodecs, tsPreferred, kHlsTsVideo);
     if (!remuxTsVideo.empty())
       tsVideoCodecs = remuxTsVideo;
@@ -779,7 +790,8 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     a["Type"] = "Audio";
     directPlayProfiles.append(a);
   }
-  else if (!forceRemux && !forceTranscodeActive && bitrateUnlimited && !directPlayVideoCodecs.empty())
+  else if (!forceRemux && !forceTranscodeActive && bitrateUnlimited &&
+           !directPlayVideoCodecs.empty())
   {
     Json::Value v;
     v["Type"] = "Video";
@@ -829,9 +841,16 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   // nothing is emitted.
   if (!forceDirectPlay)
   {
-    static const std::set<std::string> kAllHdr = {
-      "HDR10", "HLG", "HDR10Plus", "DOVI", "DOVIWithHDR10", "DOVIWithHLG",
-      "DOVIWithSDR", "DOVIWithEL", "DOVIWithHDR10Plus", "DOVIWithELHDR10Plus"};
+    static const std::set<std::string> kAllHdr = {"HDR10",
+                                                  "HLG",
+                                                  "HDR10Plus",
+                                                  "DOVI",
+                                                  "DOVIWithHDR10",
+                                                  "DOVIWithHLG",
+                                                  "DOVIWithSDR",
+                                                  "DOVIWithEL",
+                                                  "DOVIWithHDR10Plus",
+                                                  "DOVIWithELHDR10Plus"};
     static const std::set<std::string> kVp9Hdr = {"HDR10", "HLG", "HDR10Plus"};
 
     // Parse the selection CSV, keeping only known tokens.
@@ -854,14 +873,19 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
     // hevc and av1 share the full capability set: av1 has no Profile-7
     // enhancement layer, but the EL tokens are harmless (no av1 source ever
     // classifies as EL). vp9 carries no Dolby Vision.
-    auto emitHdr = [&](const char* codec, const std::set<std::string>& cap,
-                       bool canDovi, bool present) {
+    auto emitHdr =
+        [&](const char* codec, const std::set<std::string>& cap, bool canDovi, bool present)
+    {
       if (!present)
         return;
       // Only restrict when the user deselected something this codec can carry.
       bool restricts = false;
       for (const auto& t : cap)
-        if (!hdrSel.count(t)) { restricts = true; break; }
+        if (!hdrSel.count(t))
+        {
+          restricts = true;
+          break;
+        }
       if (!restricts)
         return;
       std::string value = "SDR"; // always allowed; must lead the list
@@ -926,9 +950,9 @@ Json::Value JellyfinChannelLoader::BuildDeviceProfile(const ChannelOverrides& ov
   return profile;
 }
 
-std::string JellyfinChannelLoader::GetRecordingStreamUrl(
-    const std::string& recordingId, bool inProgress,
-    const ChannelOverrides& overrides)
+std::string JellyfinChannelLoader::GetRecordingStreamUrl(const std::string& recordingId,
+                                                         bool inProgress,
+                                                         const ChannelOverrides& overrides)
 {
   // Exception firewall — see LoadChannels.
   try
@@ -942,11 +966,12 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrl(
   }
 }
 
-std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
-    const std::string& recordingId, bool inProgress,
-    const ChannelOverrides& overrides)
+std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(const std::string& recordingId,
+                                                                 bool inProgress,
+                                                                 const ChannelOverrides& overrides)
 {
-  Logger::Log(LEVEL_DEBUG, "%s - Getting recording stream URL for %s", __FUNCTION__, recordingId.c_str());
+  Logger::Log(LEVEL_DEBUG, "%s - Getting recording stream URL for %s", __FUNCTION__,
+              recordingId.c_str());
 
   CloseLiveStream();
 
@@ -1002,8 +1027,8 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
   m_activeItemId = recordingId;
   m_activeInProgress = inProgress;
 
-  const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
-    && !source["TranscodingUrl"].asString().empty();
+  const bool hasTranscodingUrl =
+      source.isMember("TranscodingUrl") && !source["TranscodingUrl"].asString().empty();
   m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
 
   Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlayMethod: %s, TranscodingUrl: %s",
@@ -1011,18 +1036,20 @@ std::string JellyfinChannelLoader::GetRecordingStreamUrlInternal(
               hasTranscodingUrl ? "present" : "absent");
 
   std::string streamUrl;
-  const bool forceTranscodeActive = effectiveOverrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
+  const bool forceTranscodeActive =
+      effectiveOverrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
 
   if (hasTranscodingUrl)
   {
-    const bool forceRemuxActive = effectiveOverrides.forceRemux.value_or(m_settings->GetForceTranscode());
+    const bool forceRemuxActive =
+        effectiveOverrides.forceRemux.value_or(m_settings->GetForceTranscode());
     streamUrl = PostProcessTranscodingUrl(client->GetBaseUrl(), source["TranscodingUrl"].asString(),
                                           true, forceTranscodeActive, forceRemuxActive);
   }
   else
   {
-    streamUrl = client->GetBaseUrl() + "/Videos/" + recordingId
-      + "/stream?static=true&ApiKey=" + client->GetAccessToken();
+    streamUrl = client->GetBaseUrl() + "/Videos/" + recordingId +
+                "/stream?static=true&ApiKey=" + client->GetAccessToken();
   }
 
   RewriteLocalhost(streamUrl);
@@ -1049,10 +1076,10 @@ void JellyfinChannelLoader::WriteSessionFile()
   session["InProgress"] = m_activeInProgress;
   // Orders the pending records below against the session service.py adopts.
   // Whole seconds cannot: a zap writes two sessions within the same second.
-  session["WrittenAtMs"] = static_cast<Json::Int64>(
-      std::chrono::duration_cast<std::chrono::milliseconds>(
-          std::chrono::system_clock::now().time_since_epoch())
-          .count());
+  session["WrittenAtMs"] =
+      static_cast<Json::Int64>(std::chrono::duration_cast<std::chrono::milliseconds>(
+                                   std::chrono::system_clock::now().time_since_epoch())
+                                   .count());
   // The server the stream was opened on: service.py may close it after the
   // settings have moved to another.
   session["BaseUrl"] = m_settings->GetJellyfinBaseUrl();
@@ -1112,9 +1139,11 @@ std::string JellyfinChannelLoader::GetPlayingItemId() const
   return session.get("ItemId", "").asString();
 }
 
-std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
-    const std::string& baseUrl, const std::string& transcodingUrl, bool keepMaster,
-    bool forceTranscode, bool forceRemux)
+std::string JellyfinChannelLoader::PostProcessTranscodingUrl(const std::string& baseUrl,
+                                                             const std::string& transcodingUrl,
+                                                             bool keepMaster,
+                                                             bool forceTranscode,
+                                                             bool forceRemux)
 {
   // Post-process TranscodingUrl to match jellyfin-kodi behaviour:
   // - For ffmpegdirect/internal: replace "stream"/"master" with "live" so we
@@ -1148,28 +1177,32 @@ std::string JellyfinChannelLoader::PostProcessTranscodingUrl(
     start = end + 1;
   }
 
-  const int maxBitrateBps = m_activeMaxBitrateBps > 0
-    ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
+  const int maxBitrateBps =
+      m_activeMaxBitrateBps > 0 ? m_activeMaxBitrateBps : m_settings->GetMaxBitrateBps();
   const bool bitrateUnlimited = (maxBitrateBps >= 1000000000);
 
   // Strip the params we are about to restate. The bitrates are only restated
   // when there is a budget to split; with no limit there is nothing to divide
   // and the server's own figures stand.
   const bool remuxCopy = forceRemux && !forceTranscode;
-  params.erase(std::remove_if(params.begin(), params.end(), [&](const std::string& p) {
-    if (p.find("allowVideoStreamCopy=") == 0)
-      return true;
-    if (forceTranscode && p.find("allowAudioStreamCopy=") == 0)
-      return true;
-    if (remuxCopy)
-      return false;
-    return !bitrateUnlimited &&
-           (p.find("AudioBitrate=") == 0 || p.find("VideoBitrate=") == 0);
-  }), params.end());
+  params.erase(std::remove_if(params.begin(), params.end(),
+                              [&](const std::string& p)
+                              {
+                                if (p.find("allowVideoStreamCopy=") == 0)
+                                  return true;
+                                if (forceTranscode && p.find("allowAudioStreamCopy=") == 0)
+                                  return true;
+                                if (remuxCopy)
+                                  return false;
+                                return !bitrateUnlimited && (p.find("AudioBitrate=") == 0 ||
+                                                             p.find("VideoBitrate=") == 0);
+                              }),
+               params.end());
 
   // Rebuild query string
   std::string newParams;
-  auto appendParam = [&newParams](const std::string& param) {
+  auto appendParam = [&newParams](const std::string& param)
+  {
     if (!newParams.empty())
       newParams += "&";
     newParams += param;
@@ -1284,8 +1317,7 @@ JellyfinChannelLoader::LivePlayback JellyfinChannelLoader::ResolveLivePlayback(
   const bool forceXcode = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
 
   const bool usePlaylist =
-      (catchupPipeline && havePlaylist) ||
-      (forceDirect && havePlaylist) ||
+      (catchupPipeline && havePlaylist) || (forceDirect && havePlaylist) ||
       (!catchupPipeline && !forceDirect && !forceRemux && !forceXcode && havePlaylist);
 
   if (usePlaylist)
@@ -1295,8 +1327,8 @@ JellyfinChannelLoader::LivePlayback JellyfinChannelLoader::ResolveLivePlayback(
     WritePlaylistSessionFile(channel.GetTvgId());
     result.url = url;
     result.fromPlaylist = true;
-    Logger::Log(LEVEL_DEBUG, "%s - Playlist direct play: %s",
-                __FUNCTION__, WebUtils::RedactUrl(url).c_str());
+    Logger::Log(LEVEL_DEBUG, "%s - Playlist direct play: %s", __FUNCTION__,
+                WebUtils::RedactUrl(url).c_str());
     return result;
   }
 
@@ -1380,11 +1412,12 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   m_activeItemId = itemId;
   m_activeInProgress = false;
 
-  const bool hasTranscodingUrl = source.isMember("TranscodingUrl")
-    && !source["TranscodingUrl"].asString().empty();
+  const bool hasTranscodingUrl =
+      source.isMember("TranscodingUrl") && !source["TranscodingUrl"].asString().empty();
   m_activePlayMethod = hasTranscodingUrl ? "Transcode" : "DirectPlay";
 
-  Logger::Log(LEVEL_DEBUG, "%s - LiveStreamId: %s, PlaySessionId: %s, PlayMethod: %s, "
+  Logger::Log(LEVEL_DEBUG,
+              "%s - LiveStreamId: %s, PlaySessionId: %s, PlayMethod: %s, "
               "SupportsDirectPlay: %s, Bitrate: %d",
               __FUNCTION__, m_activeLiveStreamId.c_str(), m_activePlaySessionId.c_str(),
               m_activePlayMethod.c_str(),
@@ -1393,7 +1426,8 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
 
   std::string streamUrl;
 
-  const bool forceTranscodeActive = overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
+  const bool forceTranscodeActive =
+      overrides.forceTranscode.value_or(m_settings->GetForceTranscoding());
 
   if (hasTranscodingUrl)
   {
@@ -1412,10 +1446,10 @@ std::string JellyfinChannelLoader::GetItemStreamUrlInternal(const std::string& i
   if (streamUrl.empty())
   {
     const std::string mediaSourceId = source.get("Id", "").asString();
-    streamUrl = client->GetBaseUrl() + "/Videos/" + itemId + "/live.m3u8"
-      + "?LiveStreamId=" + WebUtils::UrlEncode(m_activeLiveStreamId)
-      + "&MediaSourceId=" + WebUtils::UrlEncode(mediaSourceId)
-      + "&ApiKey=" + client->GetAccessToken();
+    streamUrl = client->GetBaseUrl() + "/Videos/" + itemId + "/live.m3u8" +
+                "?LiveStreamId=" + WebUtils::UrlEncode(m_activeLiveStreamId) +
+                "&MediaSourceId=" + WebUtils::UrlEncode(mediaSourceId) +
+                "&ApiKey=" + client->GetAccessToken();
   }
 
   RewriteLocalhost(streamUrl);
@@ -1434,8 +1468,8 @@ void JellyfinChannelLoader::CloseLiveStream()
   if (m_activeLiveStreamId.empty() && m_activePlaySessionId.empty())
     return;
 
-  Logger::Log(LEVEL_INFO, "%s - Clearing session %s, stream %s",
-              __FUNCTION__, m_activePlaySessionId.c_str(), m_activeLiveStreamId.c_str());
+  Logger::Log(LEVEL_INFO, "%s - Clearing session %s, stream %s", __FUNCTION__,
+              m_activePlaySessionId.c_str(), m_activeLiveStreamId.c_str());
 
   m_activeLiveStreamId.clear();
   m_activePlaySessionId.clear();
@@ -1443,7 +1477,6 @@ void JellyfinChannelLoader::CloseLiveStream()
   m_activeItemId.clear();
   m_activePlayMethod.clear();
 }
-
 
 std::string JellyfinChannelLoader::GetJellyfinId(int channelUid) const
 {
@@ -1492,8 +1525,7 @@ time_t JellyfinChannelLoader::ParseIso8601(const std::string& dateStr)
 
   std::tm tm = {};
   // Parse "2024-01-15T20:00:00.0000000Z" or "2024-01-15T20:00:00Z"
-  if (sscanf(dateStr.c_str(), "%d-%d-%dT%d:%d:%d",
-             &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
+  if (sscanf(dateStr.c_str(), "%d-%d-%dT%d:%d:%d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday,
              &tm.tm_hour, &tm.tm_min, &tm.tm_sec) >= 6)
   {
     tm.tm_year -= 1900;

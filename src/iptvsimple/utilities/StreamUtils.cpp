@@ -15,13 +15,14 @@ using namespace kodi::tools;
 using namespace iptvsimple;
 using namespace iptvsimple::utilities;
 
-const StreamType StreamUtils::GetStreamType(const std::string& url, const std::string& mimeType, bool isCatchupTSStream)
+const StreamType StreamUtils::GetStreamType(const std::string& url,
+                                            const std::string& mimeType,
+                                            bool isCatchupTSStream)
 {
   if (StringUtils::StartsWith(url, "plugin://"))
     return StreamType::PLUGIN;
 
-  if (url.find(".m3u8") != std::string::npos ||
-      mimeType == "application/x-mpegURL" ||
+  if (url.find(".m3u8") != std::string::npos || mimeType == "application/x-mpegURL" ||
       mimeType == "application/vnd.apple.mpegurl")
     return StreamType::HLS;
 
@@ -74,12 +75,17 @@ const std::string StreamUtils::GetMimeType(const StreamType& streamType)
   }
 }
 
-std::string StreamUtils::AddHeaderToStreamUrl(const std::string& streamUrl, const std::string& headerName, const std::string& headerValue)
+std::string StreamUtils::AddHeaderToStreamUrl(const std::string& streamUrl,
+                                              const std::string& headerName,
+                                              const std::string& headerValue)
 {
   return StreamUtils::AddHeader(streamUrl, headerName, headerValue, false);
 }
 
-std::string StreamUtils::AddHeader(const std::string& headerTarget, const std::string& headerName, const std::string& headerValue, bool encodeHeaderValue)
+std::string StreamUtils::AddHeader(const std::string& headerTarget,
+                                   const std::string& headerName,
+                                   const std::string& headerValue,
+                                   bool encodeHeaderValue)
 {
   std::string newHeaderTarget = headerTarget;
 
@@ -100,7 +106,8 @@ std::string StreamUtils::AddHeader(const std::string& headerTarget, const std::s
     else
       newHeaderTarget += "&";
 
-    newHeaderTarget += headerName + "=" + (encodeHeaderValue ? WebUtils::UrlEncode(headerValue) : headerValue);
+    newHeaderTarget +=
+        headerName + "=" + (encodeHeaderValue ? WebUtils::UrlEncode(headerValue) : headerValue);
   }
 
   return newHeaderTarget;

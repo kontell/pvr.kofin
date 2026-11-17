@@ -91,8 +91,8 @@ bool JellyfinClient::AuthenticateInternal()
   {
     if (ValidateToken())
     {
-      Logger::Log(LEVEL_INFO, "%s - Existing token is valid for user %s",
-                  __FUNCTION__, m_userId.c_str());
+      Logger::Log(LEVEL_INFO, "%s - Existing token is valid for user %s", __FUNCTION__,
+                  m_userId.c_str());
       return true;
     }
     if (attempt + 1 < VALIDATE_ATTEMPTS)
@@ -113,7 +113,8 @@ bool JellyfinClient::AuthenticateInternal()
   return false;
 }
 
-bool JellyfinClient::AuthenticateByPassword(const std::string& username, const std::string& password)
+bool JellyfinClient::AuthenticateByPassword(const std::string& username,
+                                            const std::string& password)
 {
   // Build the body with jsoncpp so quotes and backslashes in credentials are
   // escaped. Field order does not matter to the server.
@@ -129,7 +130,8 @@ bool JellyfinClient::AuthenticateByPassword(const std::string& username, const s
 
   if (response.isNull() || !response.isMember("AccessToken"))
   {
-    Logger::Log(LEVEL_ERROR, "%s - Authentication failed for user '%s'", __FUNCTION__, username.c_str());
+    Logger::Log(LEVEL_ERROR, "%s - Authentication failed for user '%s'", __FUNCTION__,
+                username.c_str());
     return false;
   }
 
@@ -148,8 +150,7 @@ bool JellyfinClient::IsQuickConnectEnabled()
 
   if (response.isNull() || !response.isBool())
   {
-    Logger::Log(LEVEL_INFO,
-                "%s - Quick Connect availability unknown; offering it anyway",
+    Logger::Log(LEVEL_INFO, "%s - Quick Connect availability unknown; offering it anyway",
                 __FUNCTION__);
     return true;
   }
@@ -194,7 +195,8 @@ bool JellyfinClient::CheckQuickConnect(std::string& userId, std::string& accessT
   if (!response.get("Authenticated", false).asBool())
     return false;
 
-  Logger::Log(LEVEL_INFO, "%s - Quick Connect authorized, exchanging for access token", __FUNCTION__);
+  Logger::Log(LEVEL_INFO, "%s - Quick Connect authorized, exchanging for access token",
+              __FUNCTION__);
 
   // Step 2: Exchange the secret for an access token via AuthenticateWithQuickConnect
   Json::Value authBody;
@@ -214,8 +216,8 @@ bool JellyfinClient::CheckQuickConnect(std::string& userId, std::string& accessT
       accessToken = m_accessToken;
       m_quickConnectSecret.clear();
 
-      Logger::Log(LEVEL_INFO, "%s - Quick Connect authenticated, userId: %s",
-                  __FUNCTION__, m_userId.c_str());
+      Logger::Log(LEVEL_INFO, "%s - Quick Connect authenticated, userId: %s", __FUNCTION__,
+                  m_userId.c_str());
       return true;
     }
   }
@@ -360,7 +362,8 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   kodi::vfs::CFile file;
   if (!file.CURLCreate(url))
   {
-    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
+    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__,
+                WebUtils::RedactUrl(url).c_str());
     return false;
   }
 
@@ -374,7 +377,8 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   unsigned int flags = ADDON_READ_NO_CACHE;
   if (!file.CURLOpen(flags))
   {
-    Logger::Log(LEVEL_ERROR, "%s - DELETE failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
+    Logger::Log(LEVEL_ERROR, "%s - DELETE failed for: %s", __FUNCTION__,
+                WebUtils::RedactUrl(url).c_str());
     file.Close();
     return false;
   }
@@ -383,7 +387,8 @@ bool JellyfinClient::SendDelete(const std::string& endpoint)
   return true;
 }
 
-Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string& postData,
+Json::Value JellyfinClient::DoRequest(const std::string& url,
+                                      const std::string& postData,
                                       bool* requestOk)
 {
   Json::Value result;
@@ -393,7 +398,8 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   kodi::vfs::CFile file;
   if (!file.CURLCreate(url))
   {
-    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
+    Logger::Log(LEVEL_ERROR, "%s - CURLCreate failed for: %s", __FUNCTION__,
+                WebUtils::RedactUrl(url).c_str());
     return result;
   }
 
@@ -416,7 +422,8 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   unsigned int flags = ADDON_READ_NO_CACHE;
   if (!file.CURLOpen(flags))
   {
-    Logger::Log(LEVEL_ERROR, "%s - CURLOpen failed for: %s", __FUNCTION__, WebUtils::RedactUrl(url).c_str());
+    Logger::Log(LEVEL_ERROR, "%s - CURLOpen failed for: %s", __FUNCTION__,
+                WebUtils::RedactUrl(url).c_str());
     file.Close();
     return result;
   }
@@ -457,7 +464,8 @@ Json::Value JellyfinClient::DoRequest(const std::string& url, const std::string&
   std::istringstream stream(response);
   if (!Json::parseFromStream(builder, stream, &result, &errors))
   {
-    Logger::Log(LEVEL_ERROR, "%s - JSON parse error: %s (url: %s)", __FUNCTION__, errors.c_str(), WebUtils::RedactUrl(url).c_str());
+    Logger::Log(LEVEL_ERROR, "%s - JSON parse error: %s (url: %s)", __FUNCTION__, errors.c_str(),
+                WebUtils::RedactUrl(url).c_str());
     return Json::Value();
   }
 

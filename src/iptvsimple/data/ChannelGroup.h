@@ -14,36 +14,39 @@
 
 namespace iptvsimple
 {
-  namespace data
+namespace data
+{
+class ChannelGroup
+{
+public:
+  bool IsRadio() const { return m_radio; }
+  void SetRadio(bool value) { m_radio = value; }
+
+  int GetUniqueId() const { return m_uniqueId; }
+  void SetUniqueId(int value) { m_uniqueId = value; }
+
+  int GetPosition() const { return m_position; }
+  void SetPosition(int value) { m_position = value; }
+
+  const std::string& GetGroupName() const { return m_groupName; }
+  void SetGroupName(const std::string& value) { m_groupName = value; }
+
+  const std::vector<int>& GetMemberChannelIndexes() const { return m_memberChannelIndexes; }
+  void AddMemberChannelIndex(int channelIndex)
   {
-    class ChannelGroup
-    {
-    public:
-      bool IsRadio() const { return m_radio; }
-      void SetRadio(bool value) { m_radio = value; }
+    m_memberChannelIndexes.emplace_back(channelIndex);
+  }
 
-      int GetUniqueId() const { return m_uniqueId; }
-      void SetUniqueId(int value) { m_uniqueId = value; }
+  bool IsEmpty() const { return m_memberChannelIndexes.empty(); }
 
-      int GetPosition() const { return m_position; }
-      void SetPosition(int value) { m_position = value; }
+  void UpdateTo(kodi::addon::PVRChannelGroup& left) const;
 
-      const std::string& GetGroupName() const { return m_groupName; }
-      void SetGroupName(const std::string& value) { m_groupName = value; }
-
-      const std::vector<int>& GetMemberChannelIndexes() const { return m_memberChannelIndexes; }
-      void AddMemberChannelIndex(int channelIndex) { m_memberChannelIndexes.emplace_back(channelIndex); }
-
-      bool IsEmpty() const { return m_memberChannelIndexes.empty(); }
-
-      void UpdateTo(kodi::addon::PVRChannelGroup& left) const;
-
-    private:
-      bool m_radio;
-      int m_uniqueId;
-      int m_position;
-      std::string m_groupName;
-      std::vector<int> m_memberChannelIndexes;
-    };
-  } //namespace data
+private:
+  bool m_radio;
+  int m_uniqueId;
+  int m_position;
+  std::string m_groupName;
+  std::vector<int> m_memberChannelIndexes;
+};
+} //namespace data
 } //namespace iptvsimple

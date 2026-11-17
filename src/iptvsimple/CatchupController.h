@@ -26,9 +26,14 @@ class CatchupController
 public:
   CatchupController(std::shared_ptr<iptvsimple::InstanceSettings>& settings);
 
-  void ProcessChannelForPlayback(const data::Channel& channel, std::map<std::string, std::string>& catchupProperties);
-  void ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::PVREPGTag& epgTag, const data::Channel& channel, std::map<std::string, std::string>& catchupProperties);
-  void ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGTag& epgTag, const data::Channel& channel, std::map<std::string, std::string>& catchupProperties);
+  void ProcessChannelForPlayback(const data::Channel& channel,
+                                 std::map<std::string, std::string>& catchupProperties);
+  void ProcessEPGTagForTimeshiftedPlayback(const kodi::addon::PVREPGTag& epgTag,
+                                           const data::Channel& channel,
+                                           std::map<std::string, std::string>& catchupProperties);
+  void ProcessEPGTagForVideoPlayback(const kodi::addon::PVREPGTag& epgTag,
+                                     const data::Channel& channel,
+                                     std::map<std::string, std::string>& catchupProperties);
 
   std::string GetCatchupUrlFormatString(const data::Channel& channel) const;
   std::string GetCatchupUrl(const data::Channel& channel) const;
@@ -50,7 +55,9 @@ public:
   bool IsPendingTimeshiftedEpgPlayback() const { return m_fromTimeshiftedEpgTagCall; }
 
 private:
-  void SetCatchupInputStreamProperties(bool playbackAsLive, const data::Channel& channel, std::map<std::string, std::string>& catchupProperties);
+  void SetCatchupInputStreamProperties(bool playbackAsLive,
+                                       const data::Channel& channel,
+                                       std::map<std::string, std::string>& catchupProperties);
 
   void UpdateProgrammeFrom(const kodi::addon::PVREPGTag& epgTag);
 

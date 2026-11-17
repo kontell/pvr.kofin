@@ -19,24 +19,23 @@ using namespace iptvsimple;
 
 namespace
 {
-  std::string GenerateUUID()
-  {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
+std::string GenerateUUID()
+{
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<uint32_t> dist(0, 0xFFFFFFFF);
 
-    uint32_t a = dist(gen);
-    uint16_t b = static_cast<uint16_t>(dist(gen));
-    uint16_t c = static_cast<uint16_t>((dist(gen) & 0x0FFF) | 0x4000); // version 4
-    uint16_t d = static_cast<uint16_t>((dist(gen) & 0x3FFF) | 0x8000); // variant 1
-    uint32_t e1 = dist(gen);
-    uint16_t e2 = static_cast<uint16_t>(dist(gen));
+  uint32_t a = dist(gen);
+  uint16_t b = static_cast<uint16_t>(dist(gen));
+  uint16_t c = static_cast<uint16_t>((dist(gen) & 0x0FFF) | 0x4000); // version 4
+  uint16_t d = static_cast<uint16_t>((dist(gen) & 0x3FFF) | 0x8000); // variant 1
+  uint32_t e1 = dist(gen);
+  uint16_t e2 = static_cast<uint16_t>(dist(gen));
 
-    char buf[37];
-    std::snprintf(buf, sizeof(buf), "%08x-%04x-%04x-%04x-%08x%04x",
-                  a, b, c, d, e1, e2);
-    return std::string(buf);
-  }
+  char buf[37];
+  std::snprintf(buf, sizeof(buf), "%08x-%04x-%04x-%04x-%08x%04x", a, b, c, d, e1, e2);
+  return std::string(buf);
+}
 } // anonymous namespace
 
 InstanceSettings::InstanceSettings()
@@ -69,8 +68,10 @@ void InstanceSettings::ReadSettings()
   // Transcoding
   m_forceTranscode = kodi::addon::GetSettingBoolean("forceTranscode", false);
   m_forceTranscoding = kodi::addon::GetSettingBoolean("forceTranscoding", false);
-  m_directPlayVideoCodecs = kodi::addon::GetSettingString("directPlayVideoCodecs", m_directPlayVideoCodecs);
-  m_directPlayAudioCodecs = kodi::addon::GetSettingString("directPlayAudioCodecs", m_directPlayAudioCodecs);
+  m_directPlayVideoCodecs =
+      kodi::addon::GetSettingString("directPlayVideoCodecs", m_directPlayVideoCodecs);
+  m_directPlayAudioCodecs =
+      kodi::addon::GetSettingString("directPlayAudioCodecs", m_directPlayAudioCodecs);
   m_allowedHdrTypes = kodi::addon::GetSettingString("allowedHdrTypes", m_allowedHdrTypes);
   m_preferredVideoCodec = kodi::addon::GetSettingInt("preferredVideoCodec", 0);
   m_preferredAudioCodec = kodi::addon::GetSettingInt("preferredAudioCodec", 0);
@@ -131,21 +132,28 @@ void InstanceSettings::ReadSettings()
   m_catchupPlayEpgAsLive = kodi::addon::GetSettingBoolean("catchupPlayEpgAsLive", false);
   // Clamp: free-form integer edits with no constraints in settings.xml —
   // negative buffers shift the catchup window in odd ways.
-  m_catchupWatchEpgBeginBufferMins = std::max(0, kodi::addon::GetSettingInt("catchupWatchEpgBeginBufferMins", 5));
-  m_catchupWatchEpgEndBufferMins = std::max(0, kodi::addon::GetSettingInt("catchupWatchEpgEndBufferMins", 15));
-  m_catchupOnlyOnFinishedProgrammes = kodi::addon::GetSettingBoolean("catchupOnlyOnFinishedProgrammes", false);
+  m_catchupWatchEpgBeginBufferMins =
+      std::max(0, kodi::addon::GetSettingInt("catchupWatchEpgBeginBufferMins", 5));
+  m_catchupWatchEpgEndBufferMins =
+      std::max(0, kodi::addon::GetSettingInt("catchupWatchEpgEndBufferMins", 15));
+  m_catchupOnlyOnFinishedProgrammes =
+      kodi::addon::GetSettingBoolean("catchupOnlyOnFinishedProgrammes", false);
 
   // Advanced
   m_jellyfinUpdateIntervalHours = kodi::addon::GetSettingInt("jellyfinUpdateIntervalHours", 24);
   // Clamp: free-form integer edit. Below 15 s the poll's three requests
   // (timers, series timers, recordings) hammer the server for no UI benefit;
   // above an hour Kodi's recording state is uselessly stale.
-  m_timerRecordingPollSecs = std::clamp(kodi::addon::GetSettingInt("timerRecordingPollInterval", 60), 15, 3600);
+  m_timerRecordingPollSecs =
+      std::clamp(kodi::addon::GetSettingInt("timerRecordingPollInterval", 60), 15, 3600);
   // Clamp: both are free-form integer edits in the settings UI. Interval 0
   // would ping /System/Ping every sleep step; timeout 0 means "no timeout"
   // to curl and stalls the connection checker indefinitely.
-  m_connectioncCheckTimeoutSecs = std::max(1, kodi::addon::GetSettingInt("connectionchecktimeout", DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS));
-  m_connectioncCheckIntervalSecs = std::max(5, kodi::addon::GetSettingInt("connectioncheckinterval", 60));
+  m_connectioncCheckTimeoutSecs =
+      std::max(1, kodi::addon::GetSettingInt("connectionchecktimeout",
+                                             DEFAULT_CONNECTION_CHECK_TIMEOUT_SECS));
+  m_connectioncCheckIntervalSecs =
+      std::max(5, kodi::addon::GetSettingInt("connectioncheckinterval", 60));
 }
 
 std::string InstanceSettings::GetJellyfinBaseUrl() const
@@ -232,8 +240,7 @@ bool InstanceSettings::IsInsecureRemoteConnection() const
     return false;
 
   // RFC1918 and link-local IPv4 ranges.
-  if (host.rfind("10.", 0) == 0 || host.rfind("192.168.", 0) == 0 ||
-      host.rfind("169.254.", 0) == 0)
+  if (host.rfind("10.", 0) == 0 || host.rfind("192.168.", 0) == 0 || host.rfind("169.254.", 0) == 0)
     return false;
   if (host.rfind("172.", 0) == 0)
   {

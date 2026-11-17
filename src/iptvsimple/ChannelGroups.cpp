@@ -15,7 +15,12 @@ using namespace iptvsimple;
 using namespace iptvsimple::data;
 using namespace iptvsimple::utilities;
 
-ChannelGroups::ChannelGroups(const Channels& channels, std::shared_ptr<iptvsimple::InstanceSettings>& settings) : m_channels(channels), m_settings(settings) {}
+ChannelGroups::ChannelGroups(const Channels& channels,
+                             std::shared_ptr<iptvsimple::InstanceSettings>& settings)
+  : m_channels(channels),
+    m_settings(settings)
+{
+}
 
 bool ChannelGroups::Init()
 {
@@ -35,7 +40,8 @@ int ChannelGroups::GetChannelGroupsAmount() const
   return m_channelGroups.size();
 }
 
-PVR_ERROR ChannelGroups::GetChannelGroups(kodi::addon::PVRChannelGroupsResultSet& results, bool radio) const
+PVR_ERROR ChannelGroups::GetChannelGroups(kodi::addon::PVRChannelGroupsResultSet& results,
+                                          bool radio) const
 {
   if (m_channelGroupsLoadFailed)
     return PVR_ERROR_SERVER_ERROR;
@@ -46,7 +52,8 @@ PVR_ERROR ChannelGroups::GetChannelGroups(kodi::addon::PVRChannelGroupsResultSet
   {
     if (channelGroup.IsRadio() == radio)
     {
-      Logger::Log(LEVEL_DEBUG, "%s - Transfer channelGroup '%s', ChannelGroupId '%d'", __FUNCTION__, channelGroup.GetGroupName().c_str(), channelGroup.GetUniqueId());
+      Logger::Log(LEVEL_DEBUG, "%s - Transfer channelGroup '%s', ChannelGroupId '%d'", __FUNCTION__,
+                  channelGroup.GetGroupName().c_str(), channelGroup.GetUniqueId());
 
       kodi::addon::PVRChannelGroup kodiChannelGroup;
 
@@ -56,12 +63,15 @@ PVR_ERROR ChannelGroups::GetChannelGroups(kodi::addon::PVRChannelGroupsResultSet
     }
   }
 
-  Logger::Log(LEVEL_DEBUG, "%s - channel groups available '%d'", __FUNCTION__, m_channelGroups.size());
+  Logger::Log(LEVEL_DEBUG, "%s - channel groups available '%d'", __FUNCTION__,
+              m_channelGroups.size());
 
   return PVR_ERROR_NO_ERROR;
 }
 
-PVR_ERROR ChannelGroups::GetChannelGroupMembers(const kodi::addon::PVRChannelGroup& group, kodi::addon::PVRChannelGroupMembersResultSet& results)
+PVR_ERROR ChannelGroups::GetChannelGroupMembers(
+    const kodi::addon::PVRChannelGroup& group,
+    kodi::addon::PVRChannelGroupMembersResultSet& results)
 {
   // Kodi asks for the members of every group it has stored, including after
   // GetChannelGroups failed, and deletes the stored members of a group whose
@@ -92,8 +102,11 @@ PVR_ERROR ChannelGroups::GetChannelGroupMembers(const kodi::addon::PVRChannelGro
       kodiGroupMember.SetChannelUniqueId(channel.GetUniqueId());
       kodiGroupMember.SetOrder(channelOrder++); // Keep the channels in list order as per the M3U
 
-      Logger::Log(LEVEL_DEBUG, "%s - Transfer channel group '%s' member '%s', ChannelId '%d', ChannelOrder: '%d'", __FUNCTION__,
-                  myGroup->GetGroupName().c_str(), channel.GetChannelName().c_str(), channel.GetUniqueId(), channelOrder);
+      Logger::Log(
+          LEVEL_DEBUG,
+          "%s - Transfer channel group '%s' member '%s', ChannelId '%d', ChannelOrder: '%d'",
+          __FUNCTION__, myGroup->GetGroupName().c_str(), channel.GetChannelName().c_str(),
+          channel.GetUniqueId(), channelOrder);
 
       results.Add(kodiGroupMember);
     }
@@ -113,12 +126,15 @@ int ChannelGroups::AddChannelGroup(iptvsimple::data::ChannelGroup& channelGroup)
 
     m_channelGroups.emplace_back(channelGroup);
 
-    Logger::Log(LEVEL_DEBUG, "%s - Added group: %s, with uniqueId: %d", __FUNCTION__, channelGroup.GetGroupName().c_str(), channelGroup.GetUniqueId());
+    Logger::Log(LEVEL_DEBUG, "%s - Added group: %s, with uniqueId: %d", __FUNCTION__,
+                channelGroup.GetGroupName().c_str(), channelGroup.GetUniqueId());
 
     return channelGroup.GetUniqueId();
   }
 
-  Logger::Log(LEVEL_DEBUG, "%s - Did not add group: %s, as it already exists with uniqueId: %d", __FUNCTION__, existingChannelGroup->GetGroupName().c_str(), existingChannelGroup->GetUniqueId());
+  Logger::Log(LEVEL_DEBUG, "%s - Did not add group: %s, as it already exists with uniqueId: %d",
+              __FUNCTION__, existingChannelGroup->GetGroupName().c_str(),
+              existingChannelGroup->GetUniqueId());
 
   return existingChannelGroup->GetUniqueId();
 }
@@ -147,8 +163,8 @@ ChannelGroup* ChannelGroups::FindChannelGroup(const std::string& name)
 
 void ChannelGroups::RemoveEmptyGroups()
 {
-  m_channelGroups.erase(
-    std::remove_if(m_channelGroups.begin(), m_channelGroups.end(),
-        [](const ChannelGroup& channelGroup) { return channelGroup.IsEmpty(); }),
-    m_channelGroups.end());
+  m_channelGroups.erase(std::remove_if(m_channelGroups.begin(), m_channelGroups.end(),
+                                       [](const ChannelGroup& channelGroup)
+                                       { return channelGroup.IsEmpty(); }),
+                        m_channelGroups.end());
 }

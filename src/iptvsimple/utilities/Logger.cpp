@@ -7,7 +7,6 @@
 
 #include "Logger.h"
 
-
 #include <cstdarg>
 
 #include <kodi/tools/StringUtils.h>
@@ -18,9 +17,7 @@ using namespace iptvsimple::utilities;
 Logger::Logger()
 {
   // Use an empty implementation by default
-  SetImplementation([](LogLevel level, const char* message)
-  {
-  });
+  SetImplementation([](LogLevel level, const char* message) {});
 }
 
 Logger& Logger::GetInstance()
