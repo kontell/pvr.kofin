@@ -1,6 +1,6 @@
 Format: http://dep.debian.net/deps/dep5
 Upstream-Name: pvr.kofin
-Source: https://github.com/kontell/pvr.kofin
+Source: https://github.com/kodi-pvr/pvr.kofin
 
 Files: *
 Copyright: 2025-2026 Kofin
