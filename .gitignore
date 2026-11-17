@@ -53,7 +53,7 @@ obj-x86_64-linux-gnu/
 # Local-only utility scripts
 scripts/release-downloads.sh
 
-# Byte-compiled Python. service.py and the i18n scripts are run in place, so a
+# Byte-compiled Python. service.py is run in place, so a
 # stray __pycache__ under resources/ would otherwise be packaged into the zip.
 __pycache__/
 *.py[cod]
