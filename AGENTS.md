@@ -192,18 +192,58 @@ request against the fork's `Omega`.
 ### Piers
 
 The version, changelog and code are upstream's; the fork adds Linux zips of
-what kodi-pvr has released.
+what kodi-pvr has released. Upstream tags each release `22.Y.Z-Piers`, and its
+Piers branch may already have moved past that tag, so a fork release is built
+from **upstream's tag**, not from the tip of the fork's `Piers`: one commit on
+top of the tag that adds the `kontell-*` workflows, reachable through its
+`v22.Y.Z` tag only. The source is then byte-for-byte what upstream released.
 
-1. Sync the fork's `Piers` from kodi-pvr (`gh repo sync kontell/pvr.kofin -b Piers`).
-   It must stay upstream plus the `kontell-*` files: a sync that cannot
-   fast-forward or merge cleanly means something else was committed here.
-2. Tag the commit carrying upstream's release version:
-   `git tag v22.Y.Z <commit> && git push <fork remote> v22.Y.Z`.
-3. `kontell-release.yml` asserts the tag matches `addon.xml.in`, that its major
+Below, `<upstream>` is the remote for kodi-pvr/pvr.kofin and `<fork>` the one
+for kontell/pvr.kofin.
+
+```bash
+git fetch <upstream> --tags
+git fetch <fork>
+
+# Start from exactly what upstream released
+git checkout --detach 22.Y.Z-Piers
+
+# Add only the fork's workflows on top
+git checkout <fork>/Piers -- .github/workflows/kontell-ci.yml \
+                             .github/workflows/kontell-release.yml \
+                             .github/workflows/kontell-drift.yml
+git commit -m "kontell Linux release of 22.Y.Z-Piers"
+
+# Must list only those three files
+git diff --stat 22.Y.Z-Piers HEAD
+
+# Tag and push to the fork only
+git tag v22.Y.Z
+git push <fork> v22.Y.Z
+git checkout -
+```
+
+When `git diff --stat 22.Y.Z-Piers <fork>/Piers` already lists only the three
+`kontell-*` files, the fork's `Piers` is that release plus the workflows, and
+tagging `<fork>/Piers` directly is equivalent.
+
+1. Build the release commit and push its tag, as above.
+2. `kontell-release.yml` asserts the tag matches `addon.xml.in`, that its major
    is 22, and that `changelog.txt` leads with that version, then builds the three
    Linux zips and drafts.
-4. Publish the draft, then run repository.kontell's `tools/update.py pvr.kofin`,
-   which places the zips in `piers/` and copies them into `kodi23/`.
+3. Publish the draft, then run repository.kontell's `tools/update.py pvr.kofin`,
+   which places the zips in `piers/` and copies them into `kodi23/`. It reads
+   published releases only, so it does not matter that the tag is on no branch.
+
+The fork's `Piers` branch itself is kept as upstream plus the `kontell-*` files,
+synced with `gh repo sync kontell/pvr.kofin -b Piers`; it is where the workflows
+are changed and where pull requests run CI. A sync that cannot fast-forward or
+merge cleanly means something else was committed there.
+
+The zips are not byte-identical to Team Kodi's builds, only their source is:
+upstream's builder compiles against the head of xbmc's Piers branch, the fork
+against the `22.0b1-Piers` pin in `ubuntu:22.04`. The official repository ships
+no Linux build to compare with.
 
 Every `kontell-*` job is gated on `github.repository == 'kontell/pvr.kofin'`, so a
 pull request from the fork to kodi-pvr does not run them there. Upstream's own
