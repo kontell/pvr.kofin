@@ -1,0 +1,250 @@
+# kontell fork only: build the three Linux zips for a Piers version and draft a
+# GitHub release with them attached, for repository.kontell to serve in piers/
+# and kodi23/.
+#
+# The version is upstream's. Nothing here bumps it: sync this branch from
+# kodi-pvr/pvr.kofin, then tag the synced commit vX.Y.Z with the version its
+# addon.xml.in carries. The official repository ships the same version for every
+# other platform; Linux is the one it does not ship.
+#
+# `pull_request` is deliberately absent: PR coverage is kontell-ci.yml's job.
+name: kontell Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Skip release creation — run the build matrix only"
+        type: boolean
+        default: false
+
+# Least privilege by default: the build matrix only reads and uploads. Only the
+# release job needs write.
+permissions:
+  contents: read
+
+env:
+  app_id: pvr.kofin
+  # See kontell-ci.yml for why this is pinned rather than tracking Piers.
+  kodi_piers_ref: "22.0b1-Piers"
+  # The oldest target that has to be able to load the result (CoreELEC 21.x).
+  max_glibc: "2.38"
+
+jobs:
+  build-linux:
+    if: github.repository == 'kontell/pvr.kofin'
+    name: package (linux ${{ matrix.arch }})
+    runs-on: ubuntu-24.04
+    container:
+      # The ABI floor is pinned here rather than by the runner label: labels get
+      # retired and the floor is a property of the build host's headers, not of
+      # this code.
+      image: ubuntu:22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: x86_64 }
+          - { arch: armv7, cross_pkgs: "gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf" }
+          - { arch: aarch64, cross_pkgs: "gcc-aarch64-linux-gnu g++-aarch64-linux-gnu" }
+    steps:
+      - name: Install toolchain
+        # Ahead of checkout so actions/checkout finds git and clones, rather than
+        # silently falling back to the REST tarball.
+        run: |
+          set -eux
+          apt-get update -qq
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+            build-essential cmake git zip unzip wget ca-certificates \
+            autopoint autoconf automake libtool m4 pkg-config python3 \
+            binutils file ${{ matrix.cross_pkgs }}
+          gcc --version | head -1
+          ldd --version | head -1
+
+      - name: Checkout addon
+        uses: actions/checkout@v5
+        with:
+          path: ${{ env.app_id }}
+
+      - name: Checkout Kodi
+        uses: actions/checkout@v5
+        with:
+          repository: xbmc/xbmc
+          ref: ${{ env.kodi_piers_ref }}
+          path: xbmc
+          sparse-checkout: |
+            version.txt
+            xbmc/interfaces/json-rpc/schema/version.txt
+            cmake/
+            xbmc/addons/AddonBindings.cmake
+            xbmc/addons/kodi-dev-kit/include/kodi/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+
+      - name: Build
+        env:
+          # Static C++ runtime so the .so depends only on glibc, not on a
+          # GLIBCXX_3.4.x the target lacks. The superbuild forwards
+          # CMAKE_C/CXX_FLAGS but not linker flags, hence LDFLAGS.
+          LDFLAGS: -static-libstdc++ -static-libgcc
+        # Relative to the job's working directory, NOT ${{ github.workspace }}.
+        # In a container job that expression yields the *host* path, while the
+        # workspace is bind-mounted at /__w/... — so the absolute form resolves
+        # to nothing and the step dies with exit 127.
+        run: |
+          ./${app_id}/scripts/build.sh \
+            --os linux \
+            --arch ${{ matrix.arch }} \
+            --kodi 22 \
+            --kodi-src ./xbmc \
+            --output ./artifacts \
+            --jobs $(getconf _NPROCESSORS_ONLN)
+
+      - name: Assert the ABI floor
+        run: |
+          ./${app_id}/scripts/check-abi.sh ./artifacts "${{ env.max_glibc }}"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.app_id }}-linux-${{ matrix.arch }}
+          path: artifacts/*.zip
+          # Not the default (warn): a job that produces no zip would otherwise
+          # report success and the asset would be silently missing from the
+          # release.
+          if-no-files-found: error
+
+  release:
+    name: release
+    needs: [build-linux]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # creates the draft GitHub release
+    if: |
+      github.repository == 'kontell/pvr.kofin' && (
+        startsWith(github.ref, 'refs/tags/v') ||
+        (github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run != 'true'))
+    steps:
+      - name: Checkout addon
+        uses: actions/checkout@v5
+
+      - name: Assert tag matches addon.xml.in version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Every name in the release (title, zip names, body) is derived from
+          # the tagged tree, so a tag on a commit from before upstream's bump
+          # would otherwise yield a complete, consistently mislabelled release.
+          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
+          tag="${GITHUB_REF_NAME#v}"
+          echo "addon.xml.in version=$version  tag=$tag"
+          if [[ "$tag" != "$version" ]]; then
+            echo "::error::tag v$tag does not match addon.xml.in version $version." \
+                 "Retag on a commit whose tree carries that version." >&2
+            exit 1
+          fi
+
+      - name: Assert the tag belongs to this channel
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          # This branch builds Piers only, so a v22.* tag is the only kind that
+          # can legitimately be cut here. Without this, a tag pushed on the wrong
+          # branch produces a complete, plausible release of the wrong Kodi
+          # version — and because the channel is derived from the version major,
+          # it would be filed into the wrong directory in the repository too.
+          tag="${GITHUB_REF_NAME#v}"
+          major="${tag%%.*}"
+          echo "tag=$GITHUB_REF_NAME major=$major expected=22 (Piers)"
+          if [[ "$major" != "22" ]]; then
+            echo "::error::$GITHUB_REF_NAME is not a Piers tag (expected v22.y.z)." \
+                 "Cut Piers releases on this branch and Omega's on its own." >&2
+            exit 1
+          fi
+
+      - name: Assert the changelog names this version
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The release body is the changelog's top paragraph, so a changelog that
+          # does not lead with this version would ship a stale body under the new
+          # tag. Upstream's release script may append a date ("v22.21.0 (2026-11-20)"),
+          # hence a prefix match.
+          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
+          top="$(awk -v RS= 'NR==1' ${app_id}/changelog.txt | head -1 | tr -d '\r')"
+          if [[ "$top" != "v$version" && "$top" != "v$version "* ]]; then
+            echo "::error::changelog.txt's top entry is '$top' but this release is v$version." >&2
+            exit 1
+          fi
+          # <news> in addon.xml.in, where present, is what Kodi shows when browsing
+          # the repository, and generate_repo.py will not fall back to changelog.txt
+          # while it exists — so a stale one is what users actually read.
+          news="$(sed -n 's/.*<news>\(.*\)/\1/p' ${app_id}/addon.xml.in | head -1 || true)"
+          if [[ -n "$news" && "$news" != *"$version"* ]]; then
+            echo "::error::addon.xml.in <news> does not mention $version." >&2
+            exit 1
+          fi
+          echo "changelog top = $top"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Flatten and inventory artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          find artifacts -mindepth 2 -name '*.zip' -exec mv {} artifacts/ \;
+          find artifacts -mindepth 1 -type d -empty -delete
+          ls -la artifacts/
+          # Three Linux zips. A short count means a build produced no zip; with
+          # if-no-files-found: error upstream that should already have failed, so
+          # this is the backstop that keeps a partial release from being drafted.
+          count="$(find artifacts -name '*.zip' | wc -l)"
+          echo "zips: $count"
+          if [[ "$count" -ne 3 ]]; then
+            echo "::error::expected 3 zips (linux x86_64, armv7, aarch64), found $count." >&2
+            exit 1
+          fi
+
+      - name: Get version and changelog
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(grep '^ *version=' ${app_id}/addon.xml.in | head -1 | sed 's/.*version="\([^"]*\)".*/\1/')"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "tag=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          fi
+          changes="$(awk -v RS= 'NR==1' ${app_id}/changelog.txt)"
+          EOF="$(dd if=/dev/urandom bs=15 count=1 status=none | base64)"
+          {
+            echo "changes<<$EOF"
+            echo "$changes"
+            echo "$EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          # Pin the commit the release is anchored to. Left unset, the action
+          # defaults it to the repository's default branch; if the tag is ever
+          # deleted with the draft left behind, publishing it would create the
+          # tag there. Explicit is cheaper than remembering that.
+          target_commitish: ${{ github.sha }}
+          name: ${{ env.app_id }} ${{ steps.version.outputs.version }} (Linux)
+          body: ${{ steps.version.outputs.changes }}
+          draft: true
+          files: artifacts/*.zip
+          token: ${{ secrets.GITHUB_TOKEN }}
