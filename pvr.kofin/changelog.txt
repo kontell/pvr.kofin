@@ -1,3 +1,8 @@
+v21.19.2
+- Send the access token only to stream URLs on the configured server
+- Don't send the access token to a previous server when retrying a stream close
+- Server discovery checks only a server's own address, and no longer follows redirects
+
 v21.19.1
 - Fix playback reports with a non-ASCII device name
 - Fix playback with an IPv6 loopback stream URL
