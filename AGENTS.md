@@ -195,8 +195,8 @@ The version, changelog and code are upstream's; the fork adds Linux zips of
 what kodi-pvr has released. Upstream tags each release `22.Y.Z-Piers`, and its
 Piers branch may already have moved past that tag, so a fork release is built
 from **upstream's tag**, not from the tip of the fork's `Piers`: one commit on
-top of the tag that adds the `kontell-*` workflows, reachable through its
-`v22.Y.Z` tag only. The source is then byte-for-byte what upstream released.
+top of the tag that adds the `kontell-*` workflows, kept on a `release/22.Y.Z`
+branch and tagged `v22.Y.Z`. The source is then byte-for-byte what upstream released.
 
 Below, `<upstream>` is the remote for kodi-pvr/pvr.kofin and `<fork>` the one
 for kontell/pvr.kofin.
@@ -217,17 +217,27 @@ git commit -m "kontell Linux release of 22.Y.Z-Piers"
 # Must list only those three files
 git diff --stat 22.Y.Z-Piers HEAD
 
-# Tag and push to the fork only
+# Put the commit on a fork branch first, then tag it and push the tag
+git push <fork> HEAD:refs/heads/release/22.Y.Z
 git tag v22.Y.Z
 git push <fork> v22.Y.Z
 git checkout -
 ```
 
+The `release/22.Y.Z` branch is not optional. With the release commit on no
+branch, `kontell-release.yml` built all three zips and then failed to draft:
+creating the release returned `403 Resource not accessible by integration`,
+though the job's token had `contents: write`. Pushing the same commit to a
+branch and re-running only the failed job drafted it (v22.20.1). If a tag was
+pushed without the branch, push the branch and run
+`gh run rerun <run id> -R kontell/pvr.kofin --failed`; nothing needs retagging.
+
 When `git diff --stat 22.Y.Z-Piers <fork>/Piers` already lists only the three
 `kontell-*` files, the fork's `Piers` is that release plus the workflows, and
 tagging `<fork>/Piers` directly is equivalent.
 
-1. Build the release commit and push its tag, as above.
+1. Build the release commit, push it to `release/22.Y.Z`, then push its tag,
+   as above.
 2. `kontell-release.yml` asserts the tag matches `addon.xml.in`, that its major
    is 22, and that `changelog.txt` leads with that version, then builds the three
    Linux zips and drafts.
