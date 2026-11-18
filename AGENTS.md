@@ -24,10 +24,31 @@ decisions specific to *this* add-on.
 Kodi PVR add-on for Jellyfin Live TV. C++17 shared library implementing the Kodi
 PVR client interface for channels, EPG, recordings and timers. Forked from
 `pvr.iptvsimple` with M3U/XMLTV/catchup/VOD stripped and replaced by Jellyfin API
-calls. Targets Kodi 21 Omega, Kodi 22 Piers and Kodi 23 (pre-release, no
-codename yet), Jellyfin 10.9.x+.
+calls. Jellyfin 10.9.x+.
 
 **Add-on ID:** `pvr.kofin`
+
+### Where this lives
+
+The add-on is developed and released by Team Kodi in
+[`kodi-pvr/pvr.kofin`](https://github.com/kodi-pvr/pvr.kofin), branch `Piers`
+for Kodi 22, and shipped by the official Kodi repository for every platform
+except Linux. This repository, `kontell/pvr.kofin`, is a fork of it that
+publishes what the official repository does not:
+
+| Branch | Kodi | What the fork does with it |
+|---|---|---|
+| `Omega` | 21 | fork-only (kodi-pvr has no Omega). Bugfix-only; released here for every platform |
+| `Piers` | 22 (and 23) | upstream's `Piers` plus the `kontell-*` workflows; released here for Linux only |
+| `master` | 23 | paused. Not released; Kodi 23 is served the Piers Linux build |
+
+**This file lives on the fork's `Omega` branch only.** kodi-pvr removed it from
+Piers, and the fork keeps Piers identical to upstream apart from its workflows.
+
+Remotes in a local checkout: `origin` may still be `kodi-pvr/pvr.kofin`. Add the
+fork as its own remote and push fork branches and **every release tag** there,
+never to kodi-pvr. `gh pr create` from a fork defaults to the parent repository,
+so pass `-R kontell/pvr.kofin` for a fork PR.
 
 ## Build
 
@@ -38,13 +59,13 @@ code they served.)
 
 ```bash
 ./scripts/build.sh --os <linux|android> --arch <x86_64|armv7|aarch64> \
-                   --kodi <21|22|23> --kodi-src <path> [--ndk <path>]
+                   --kodi <21|22> --kodi-src <path> [--ndk <path>]
 
 # On a Mac: osx x86_64|arm64, ios aarch64, tvos aarch64
-./scripts/build.sh --os osx --arch arm64 --kodi <21|22|23> --kodi-src <path>
+./scripts/build.sh --os osx --arch arm64 --kodi <21|22> --kodi-src <path>
 ```
 
-`--kodi 23` is accepted on `master` only.
+Use `--kodi 21` on Omega and `--kodi 22` on Piers.
 
 Kodi's `cmake/addons` resolves the add-on source as
 `<parent of this checkout>/pvr.kofin`, so a worktree or copy built with
@@ -139,59 +160,79 @@ test server go in kodi-drive's `targets.env`, never in this file.
 | `src/iptvsimple/InstanceSettings.h` | settings getters, bitrate table, codec helpers |
 | `pvr.kofin/changelog.txt` | top paragraph becomes the release body |
 | `scripts/check-abi.sh` | asserts the ABI floor of the built `.so` |
-| `.github/workflows/` | `ci`, `release`, `drift`, `notify-repo` |
+| `.github/workflows/` | Omega: `ci`, `release`, `drift`. Piers: `kontell-ci`, `kontell-release`, `kontell-drift` beside upstream's own |
 
 ## Release
 
-**This file is kept the same on all three channel branches.**
+| | `Omega` | `Piers` |
+|---|---|---|
+| Kodi | 21 | 22, and 23 via `kodi23/` |
+| Version | `21.y.z`, bumped here | `22.y.z`, **upstream's**, never bumped here |
+| Tag | `v21.y.z` | `v22.y.z`, on the fork only (upstream tags `22.y.z-Piers`) |
+| Kodi source pin | `21.3-Omega` | `22.0b1-Piers` |
+| Workflows | `ci.yml`, `release.yml`, `drift.yml` | `kontell-ci.yml`, `kontell-release.yml`, `kontell-drift.yml` |
+| Zips | 9: Linux ×3, Android ×2, macOS ×2, Windows i686 and x86_64 | 3: Linux x86_64, armv7, aarch64 |
+| repository.kontell | `omega/` | `piers/` and `kodi23/` |
 
-| | `Omega` | `Piers` | `master` |
-|---|---|---|---|
-| Kodi | 21 | 22 | 23 |
-| Version / tags | `21.y.z` / `v21.y.z` | `22.y.z` / `v22.y.z` | `23.y.z` / `v23.y.z` |
-| Kodi source pin | `21.3-Omega` | `22.0b1-Piers` | xbmc master `fe8292d` |
-| Repository dir | `omega/` | `piers/` | `kodi23/` |
-| Policy | bugfix-only, ported on demand | ported from master | where development happens; pre-releases only |
+### Omega
 
-Development targets `master`: branch new work from it and open pull requests
-against it, then backport to Piers and, where wanted, Omega. A backport keeps
-to what the older branch has; Piers lacks the SyncPlay provider, for one.
+Bugfix-only. Fixes are ported on demand from kodi-pvr's Piers, through a pull
+request against the fork's `Omega`.
 
-`master` is pinned to a commit because Kodi 23 has no tag yet; move the pin to
-the first `23.0` tag when one appears. Its releases are published as GitHub
-pre-releases, which repository.kontell places in `dev/kodi23/`.
-
-1. Bump `version=` in `addon.xml.in`, keeping the branch's major.
+1. Bump `version=` in `addon.xml.in`, keeping the major at 21.
 2. Prepend a `changelog.txt` entry; its top paragraph becomes the release body.
-3. Commit and push to the channel branch.
-4. `git tag vNN.Y.Z && git push origin vNN.Y.Z`.
+3. Commit and push to `Omega` on the fork.
+4. `git tag v21.Y.Z && git push <fork remote> v21.Y.Z`.
 5. `release.yml` asserts the tag matches `addon.xml.in` **and** that its major
-   matches the branch, then builds 10 zips on Piers and master or 9 on Omega and
-   refuses to draft unless all are present.
+   is 21, then builds 9 zips and refuses to draft unless all are present.
 6. Review the draft, then **publish it yourself** — see `kodi-addon-release` for
    why a workflow cannot.
-7. `repository.kontell` places the zips and verifies the Worker serves the new
-   checksum.
+7. Run repository.kontell's `tools/update.py pvr.kofin`.
 
-The major carries the Kodi version, which is how `repository.kontell` decides
+### Piers
+
+The version, changelog and code are upstream's; the fork adds Linux zips of
+what kodi-pvr has released.
+
+1. Sync the fork's `Piers` from kodi-pvr (`gh repo sync kontell/pvr.kofin -b Piers`).
+   It must stay upstream plus the `kontell-*` files: a sync that cannot
+   fast-forward or merge cleanly means something else was committed here.
+2. Tag the commit carrying upstream's release version:
+   `git tag v22.Y.Z <commit> && git push <fork remote> v22.Y.Z`.
+3. `kontell-release.yml` asserts the tag matches `addon.xml.in`, that its major
+   is 22, and that `changelog.txt` leads with that version, then builds the three
+   Linux zips and drafts.
+4. Publish the draft, then run repository.kontell's `tools/update.py pvr.kofin`,
+   which places the zips in `piers/` and copies them into `kodi23/`.
+
+Every `kontell-*` job is gated on `github.repository == 'kontell/pvr.kofin'`, so a
+pull request from the fork to kodi-pvr does not run them there. Upstream's own
+workflows on Piers stay enabled: two run only on manual dispatch and the
+translation sync is gated to kodi-pvr. Do not disable upstream's `release.yml`
+("Make Release") on the fork — GitHub identifies a workflow by its file path, so
+that would disable Omega's `release.yml` too.
+
+### master
+
+Paused. Do not tag it: a `v23` tag would still run master's `release.yml`. Piers
+builds install on Kodi 23 for now, so repository.kontell copies them into
+`kodi23/`. `kontell-drift.yml` checks the Piers pin against xbmc `master` weekly;
+when that check fails, Kodi 23 no longer accepts the Piers build, and `kodi23/`
+needs either a Kodi 23 release again or pvr.kofin dropped from it.
+
+### Pins and drift
+
+The major carries the Kodi version, which is how repository.kontell decides
 between `omega/` and `piers/`. The tag-major guard is the one that earns its keep:
 a tag pushed on the wrong branch would otherwise produce a complete, plausible
 release filed into the wrong directory.
 
-A release carries Linux ×3, Android ×2, macOS ×2, Windows i686 and x86_64, and on
-Piers Windows arm64, which Kodi 21 does not build. repository.kontell requires the
-nine common to both channels and places the tenth without requiring it. `ci.yml`
-builds more than a release ships: iOS, tvOS and a Windows Store compile as well,
-which together cover every target Team Kodi's builder compiles. Upstream's tip is
-the xbmc branch named for the channel (`Omega`, `Piers`), and xbmc `master` for
-Kodi 23; `drift.yml` and CI's non-blocking tip job both read it. `drift.yml`'s
-schedule fires on the default branch only, which is Piers, so on master and
-Omega it runs when dispatched with `--ref`.
-
 Pinned deliberately: the **Kodi source ref** (not a branch) and the **build
-container** `ubuntu:22.04` (not a runner label). `drift.yml` watches upstream
-weekly so the pin staying still is a decision rather than neglect. The reasoning
-for both is in `kodi-versions-abi` and `kodi-binary-build`.
+container** `ubuntu:22.04` (not a runner label). The drift workflows watch
+upstream weekly so the pin staying still is a decision rather than neglect. The
+reasoning for both is in `kodi-versions-abi` and `kodi-binary-build`. A drift
+workflow's schedule fires on the default branch only, which is Piers, so
+Omega's `drift.yml` runs when dispatched with `--ref Omega`.
 
 Local builds are for test installs only — production zips come from the release
-workflow.
+workflows.
